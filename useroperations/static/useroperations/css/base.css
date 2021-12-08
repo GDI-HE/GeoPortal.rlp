@@ -84,6 +84,14 @@ footer{
     max-height: 75px;
 }
 
+#id_identity{
+    visibility:hidden;
+}
+
+label[for=id_identity]{
+    visibility:hidden;
+}
+
 .cookie-container{
     z-index: 100;
     position: fixed;
@@ -116,6 +124,10 @@ footer{
 .image-text-container{
     display: flex;
     align-items: center;
+}
+
+.visible{
+visibility:visible !important;
 }
 
 .show{
@@ -351,6 +363,19 @@ visibility:visible !important;
   position: relative;
 }
 
+.spatial-search-text{
+    padding-top:5px;
+    visibility:hidden;
+}
+
+.hidden{
+    display:none;
+}
+
+.hand{
+    cursor: pointer;
+}
+
 
 .simple-search-field{
     font: inherit;
@@ -497,6 +522,9 @@ visibility:visible !important;
 
 .simple-search-autocomplete.active {
   display: block; }
+
+.simple-search-autocomplete:not( :hover ) {
+  display: none; }
 
 .empty-search-button:hover{
     cursor: pointer;
