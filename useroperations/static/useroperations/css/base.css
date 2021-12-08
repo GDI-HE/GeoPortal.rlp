@@ -127,15 +127,11 @@ label[for=id_identity]{
 }
 
 .visible{
-visibility:visible !important;
+    visibility:visible !important;
 }
 
 .show{
     display: block;
-}
-
-.visible{
-visibility:visible !important;
 }
 
 .header{
@@ -363,19 +359,9 @@ visibility:visible !important;
   position: relative;
 }
 
-.spatial-search-text{
-    padding-top:5px;
-    visibility:hidden;
-}
-
-.hidden{
-    display:none;
-}
-
 .hand{
     cursor: pointer;
 }
-
 
 .simple-search-field{
     font: inherit;
