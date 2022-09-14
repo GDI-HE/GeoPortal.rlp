@@ -893,6 +893,10 @@ msgstr ""
 msgid "Not signed in"
 msgstr ""
 
+#: useroperations/templates/open_linked_data.html:4
+msgid "Linked Open Data"
+msgstr ""
+
 #: templates/base.html:119 useroperations/views.py:229
 #: useroperations/views.py:235
 #: useroperations/templates/crispy_form_auth.html:4
