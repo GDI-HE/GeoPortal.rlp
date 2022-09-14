@@ -902,6 +902,7 @@ msgid "A newspaper"
 msgstr "Eine Zeitung"
 
 #: templates/base.html:131
+#: useroperations/templates/wiki.html:4
 msgid "News"
 msgstr "Meldungen"
 
