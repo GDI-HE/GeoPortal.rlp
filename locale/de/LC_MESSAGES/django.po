@@ -885,8 +885,13 @@ msgstr "Abmelden"
 msgid "Not signed in"
 msgstr "Nicht angemeldet"
 
+#: useroperations/templates/open_linked_data.html:4
+msgid "Linked Open Data"
+msgstr "Linked Open Data"
+
 #: templates/base.html:119 useroperations/views.py:253
 #: useroperations/views.py:259
+#: useroperations/templates/crispy_form_auth.html:4
 msgid "Login"
 msgstr "Anmelden"
 
@@ -901,6 +906,7 @@ msgid "A newspaper"
 msgstr "Eine Zeitung"
 
 #: templates/base.html:131
+#: useroperations/templates/wiki.html:4
 msgid "News"
 msgstr "Meldungen"
 
