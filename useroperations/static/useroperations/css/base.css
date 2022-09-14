@@ -13,7 +13,7 @@
 CHANGE PLACEHOLDER COLORS
 */
 ::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: var(--hesse-green);
+  color: var(--secondary-placeholder);
   text-align: center;
   opacity: 1; /* Firefox */
 }
