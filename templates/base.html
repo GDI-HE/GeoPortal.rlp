@@ -22,6 +22,7 @@
 	<script src="{% static 'useroperations/js/html5shiv.js' %}"></script>
 	<script src="{% static 'useroperations/js/html5shiv-printshiv.js' %}"></script>
     <![endif]-->
+    <script>window.onload = function(){document.getElementById("CookieAccept").focus();}</script>
     {% if USE_RECAPTCHA == 1 %}
     	<script src='https://www.google.com/recaptcha/api.js'></script>
     {% endif %}
