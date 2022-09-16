@@ -1746,6 +1746,10 @@ msgstr "Teilen"
 msgid "Start search"
 msgstr "Suche starten"
 
+#: GeoPortal.rlp/templates/base.html:77
+msgid "Delete Serch term"
+msgstr "Suchbegriffe löschen"
+
 #: GeoPortal.rlp/searchCatalogue/templates/search_result.hmtl: 9
 msgid "Open and close filter settings"
 msgstr "Filtereinstellung auf- oder zuklappen"
