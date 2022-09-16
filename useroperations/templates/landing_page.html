@@ -110,8 +110,8 @@
                 <div class="tile-content-abstract">
                     <div class="sub-tile-container">
                         <div title="{% trans 'Total views this week' %}" class="view-count">
-                            <i class="fas fa-eye"></i>
-                            <span>{{ result.loadCount|intcomma }}</span>
+				<span><i class="fas fa-eye" aria-hidden="true" aria-label="{% trans 'Total views this week' %}"></i>
+                            {{ result.loadCount|intcomma }}</span>
                         </div>
                         <div title="{% trans 'Metadata' %}">
                             <a class="metadata-link-landing" href="{{ result.mdLink }}" target="_blank">
