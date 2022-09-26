@@ -1766,6 +1766,9 @@ msgstr "Suchbegriffe löschen"
 msgid "Open and close filter settings"
 msgstr "Filtereinstellung auf- oder zuklappen"
 
+#: GeoPortal.rlp/searchCatalogue/templates/index.html:30
+msgid "Search results loading"
+msgstr "Suchergebnisse werden geladen"
 
 
 #~ msgid "The letter W, as used for wikipedia"
