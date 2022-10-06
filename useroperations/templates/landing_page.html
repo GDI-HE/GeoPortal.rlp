@@ -98,12 +98,12 @@
 <div class="tile-wrapper favourite-wmcs">
     {% for result in results.wmc %}
         <div class="tile">
-            <a href="#" class="tile-header" data-id="WMC={{result.id}}">
+            <a href="#" class="tile-header" data-id="WMC={{result.id}}" title="{% trans 'Link to the map combination' %} {{ result.title|safe }}">
                 <div class="tile-title">
                    <p><strong>{{ result.title|safe }}</strong></p>
                 </div>
                 <div class="tile-header-img">
-                    <img alt="{% trans 'Preview of the map combination' %}" title="{% trans 'Preview of the map combination' %}" class="tile-img" src="{{ result.previewURL }}">
+			<img alt="{% trans 'Preview of the map combination' %} {{ result.title|safe }}" class="tile-img" src="{{ result.previewURL }}">
                 </div>
             </a>
             <div class="tile-content">
@@ -144,7 +144,7 @@
             </div>
         </div>
     {% endfor %}
-        <div id="show-all-tile" class="tile">
+         <div id="show-all-tile" class="tile" title="{% trans 'Link to search catalogue' %}">
             <a href="#" id="show-all-tile-content" class="tile-header">
                 <div class="tile-title"><p><strong>{% trans 'Show all' %}</strong></p></div>
                 <div class="tile-header-img">

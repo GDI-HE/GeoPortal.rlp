@@ -817,6 +817,10 @@ msgstr "Vielen Dank für Ihr Verständnis!"
 msgid "The logo of Geoportal Rhineland-Palatinate"
 msgstr "Das Logo des Geoportals Rheinland-Pfalz"
 
+#: useroperations/templates/landing_page.html:174
+msgid "Link to search catalogue"
+msgstr "Link zum Suchkatalog"
+
 #: templates/base.html:42 useroperations/templates/landing_page.html:95
 msgid "Logo of the spatial data infrastructure organization"
 msgstr "Logo der Geodateninfrastruktur"
@@ -1327,6 +1331,10 @@ msgstr "Kategorien und Themen"
 #: useroperations/templates/landing_page.html:57
 msgid "Most frequently used map combinations"
 msgstr "Meistgenutzte Karten"
+
+#: useroperations/templates/landing_page.html:101
+msgid "Link to the map combination"
+msgstr "Link zur Kartenzusammenstellung"
 
 #: useroperations/templates/landing_page.html:67
 msgid "Preview of the map combination"
