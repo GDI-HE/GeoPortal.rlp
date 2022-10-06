@@ -1,15 +1,18 @@
 
 {% load i18n %}
 
-<div class="cookie-container cookie-container-visible">
-    <article class="cookie-text">
+<div class="cookie-container cookie-container-visible" role="banner">
+    <article class="cookie-texti" role="dialog" aria-haspopup="true">
 	<p>
         {% trans 'This webpage uses cookies to provide you the best user experience. On further questions regarding personal data security, please read our ' %}
         {% trans 'data policy' %}.
 	</p><p style="">Beachten Sie bitte unsere Nutzungsbedingungen im Impressum sowie die Nutzungsbedingungen der jeweiligen Daten- und Kartenanbieter in den Metadaten.</p>
     </article>
-    <div class="cookie-button form-submit-button" onclick="sc()">{% trans 'I understand!' %}</div>
+	<button class="cookie-button form-submit-button" id="CookieAccept" title="{% trans 'I understand!' %}" onclick="sc()">{% trans 'I understand!' %}</button>
 </div>
+<script>
+	window.onload = function() { document.getElementById("CookieAccept").focus(); }
+</script>
 <script>
     function sc(){
         var cookieBanner = $(".cookie-container");
