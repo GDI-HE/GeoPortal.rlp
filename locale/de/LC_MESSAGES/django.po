@@ -1209,6 +1209,18 @@ msgstr "Sortieren nach"
 msgid "Powered by GeoPortal.RLP"
 msgstr ""
 
+#: searchCatalogue/templates/primary/dataset/dataset_search_result.html:13
+msgid "Thumbnail of service "
+msgstr "Vorschaubild zum Dienst "
+
+#: searchCatalogue/templates/primary/dataset/dataset_search_result.html:17
+msgid "Thumbnail maps expansion "
+msgstr "Vorschaubild Karten Ausdehnung "
+
+#: searchCatalogue/templates/primary/applications/application_search_result.html:17
+msgid "Thumbnail for application "
+msgstr "Vorschaubild zur Anwendung "
+
 #: useroperations/templates/applications.html:61
 msgid "No preview available"
 msgstr "Keine Vorschau verfügbar"
