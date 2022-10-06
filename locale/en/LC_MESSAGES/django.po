@@ -895,7 +895,6 @@ msgstr ""
 
 #: templates/base.html:119 useroperations/views.py:229
 #: useroperations/views.py:235
-#: useroperations/templates/crispy_form_auth.html:4
 msgid "Login"
 msgstr ""
 
