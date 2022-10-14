@@ -1303,6 +1303,17 @@ $(document).ready(function() {
         prepareAndSearch();
      });
 
+     $(document).on("click", "#CheckboxOpenData", function(){
+        var elem = $(this);
+        if($(this).is(':checked')){
+            search.setParam("onlyOpenData", true);
+        }else{
+            search.setParam("onlyOpenData", false);
+            }
+            elem.toggleClass(":checked");
+            prepareAndSearch();
+      });
+
     /**
      * Resets selectioned themes in extended search
      * @extendedSearch
