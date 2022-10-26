@@ -14,8 +14,8 @@
                 title="{% if result.previewURL is not None %}{% trans 'Thumbnail for application '%}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}">
                 <img class="img-preview" style="max-width:100px;"
                 src="{% if result.extent_url is not None or result.extent_url|length == 0 %}{{ result.extent_url }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}"
-                alt="{% if result.extent_url is not None or result.extent_url|length == 0 %}{% trans 'Preview maps expansion ' %}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}"
-                title="{% if result.extent_url is not None or result.extent_url|length == 0 %}{% trans 'Preview maps expansion ' %}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}">
+                alt="{% if result.extent_url is not None or result.extent_url|length == 0 %}{% trans 'Thumbnail for application ' %}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}"
+                title="{% if result.extent_url is not None or result.extent_url|length == 0 %}{% trans 'Thumbnail for application ' %}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}">
             </div>
 	    <article class="search-result-detail"><p>{{ result.abstract }}</p></article>
         </div>

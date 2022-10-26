@@ -12,8 +12,8 @@
             <div class="flex-row">
 		    <img class="img-preview" style="max-width:100px;"
                 src="{% if result.previewURL is not None %}{{ result.previewURL }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}"
-                alt="{% if result.previewURL is not None %}{% trans 'Thumbnail of service '%}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}"
-                title="{% if result.previewURL is not None %}{% trans 'Thumbnail of service '%}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}">
+                alt="{% if result.previewURL is not None %}{% trans ' Thumbnail maps combination '%}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}"
+                title="{% if result.previewURL is not None %}{% trans 'Thumbnail maps combination '%}{{ result.title }}{% else %}{% trans 'No preview available' %}{% endif %}">
             </div>
 	    <article class="search-result-detail"><p>{{ result.abstract }}</p></article>
         </div>

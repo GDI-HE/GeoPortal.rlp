@@ -1209,11 +1209,15 @@ msgstr "Vorschaubild zum Dienst "
 
 #: searchCatalogue/templates/primary/dataset/dataset_search_result.html:17
 msgid "Thumbnail maps expansion "
-msgstr "Vorschaubild Karten Ausdehnung "
+msgstr "Vorschaubild zur Kartenausdehnung "
 
 #: searchCatalogue/templates/primary/applications/application_search_result.html:17
 msgid "Thumbnail for application "
 msgstr "Vorschaubild zur Anwendung "
+
+#: searchCatalogue/templates/primary/:wmc/wmc_search_result.html:15
+msgid "Thumbnail maps combination "
+msgstr "Vorschaubild zur Kartenzusammenstellung "
 
 #: useroperations/templates/applications.html:61
 msgid "No preview available"
