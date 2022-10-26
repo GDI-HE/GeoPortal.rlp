@@ -91,7 +91,7 @@
 </header>
 
 <body id="main-body-class">
-    <nav role="navigation" aria-label="Navigation">
+    <nav aria-label="Navigation">
     <div class="map-viewer-overlay closed">
         {% include 'geoportal.html' %}
     </div>
@@ -197,7 +197,7 @@
     </div>
     <div class="search-overlay-content">
     </div>
-	<main role="main" aria-label="{% trans 'Main content'%}">
+	<main aria-label="{% trans 'Main content'%}">
     <div id="body-content" class="body-content {% if not sidebar_closed %} sidebar-open {% endif %}">
 
     {% block body %}
