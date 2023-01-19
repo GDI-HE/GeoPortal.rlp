@@ -518,7 +518,7 @@ $(document).on('click', "#change-form-button", function(){
 
   if(PasswordInput.value != PasswordInputConfirm.value) {
     if(userLang == "de") {
-      alert("Passw�rter stimmen nicht �berein");
+      alert("Passwörter stimmen nicht überein");
     } else {
       alert("Passwords do not match");
     }
@@ -534,7 +534,7 @@ $(document).on('click', "#change-form-button", function(){
 $(function() {
     // Add refresh button after field (this can be done in the template as well)
     $('img.captcha').after(
-            $('<a href="#void" class="captcha-refresh">�</a>')
+            $('<a href="#void" class="captcha-refresh">↻</a>')
             );
 
     // Click-handler for the refresh-link
@@ -734,6 +734,5 @@ function changePageTitleBack() {
     } else{
         newPageTitle = 'Geoportal Hessen ' + ' - ' + urkl;
     } 
-    
     document.querySelector('title').textContent = newPageTitle;
 }
