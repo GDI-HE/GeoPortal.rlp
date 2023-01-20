@@ -1,4 +1,3 @@
-
 /**
  * Returns the cookie if found
  */
@@ -730,6 +729,10 @@ function changePageTitleBack() {
     var u1 = window.location.hostname;
     var urll= url.split('/');
     var urkl = urll[urll.length - 2] === u1 ? " Startseite" : "" + urll[urll.length - 2];
-    newPageTitle = 'Geoportal Hessen ' + ' - ' + urkl;
+    if (urkl=== 'search'){
+        newPageTitle = 'Geoportal Hessen ' + ' - ' + 'Suchergebnisse';
+    } else{
+        newPageTitle = 'Geoportal Hessen ' + ' - ' + urkl;
+    } 
     document.querySelector('title').textContent = newPageTitle;
 }
