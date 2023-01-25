@@ -935,7 +935,7 @@ ul {
 .logged_username {
     font-weight: bold;
     padding: 10px 0 10px 10px;
-    background-color: var(--hesse-lighterblue);
+    background-color: var(--hesse-lightblue);
     color: var(--hesse-red);
     font-size: 0.8em;
     text-align: left;

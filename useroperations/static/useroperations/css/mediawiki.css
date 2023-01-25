@@ -15,6 +15,10 @@
     word-break: break-word;
 }
 
+*:focus-visible {
+    outline: solid .125em #f1b709;
+}
+
 .mediawiki-article{
     padding: 1px 50px 0 0;
     max-width:900px;
@@ -116,6 +120,10 @@ h3 .mw-headline{
 
 #toc h2 {
     margin-top: 0;
+}
+
+#toc a {
+    text-decoration: none;
 }
 
 #toc a:hover {
