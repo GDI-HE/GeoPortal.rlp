@@ -742,6 +742,15 @@ dl dd {
   color: white;
 }
 
+.btn-filter-open-data {
+  display: flex;
+  align-items: center;
+}
+
+.btn-filter-open-data input {
+  margin-right: 0.5rem;
+}
+
 .filter-onlyOpenData-img{
     -ms-filter: grayscale(1);
     -webkit-filter: grayscale(1);
