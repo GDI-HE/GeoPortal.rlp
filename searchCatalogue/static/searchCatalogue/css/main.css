@@ -742,14 +742,23 @@ dl dd {
   color: white;
 }
 
+.btn-filter-open-data {
+  display: flex;
+  align-items: center;
+}
+
+.btn-filter-open-data input {
+  margin-right: 0.5rem;
+}
+
 .filter-onlyOpenData-img{
     -ms-filter: grayscale(1);
     -webkit-filter: grayscale(1);
     filter: grayscale(1);
+    height: 30px;
 }
 
 .filter-onlyOpenData-img:hover{
-    opacity: 0.5;
     -ms-filter: grayscale(0);
     -webkit-filter: grayscale(0);
     filter: grayscale(0);
@@ -1136,7 +1145,7 @@ button.search--list--item.-js-term:hover {
 
 .img-symbollink, .img-open{
     border: 1px solid rgba(0, 0, 0, 0.0);
-    max-height: 3em;
+    max-height: 1.1rem;
 }
 
 .img-open:hover{
@@ -1409,7 +1418,6 @@ button.search--list--item.-js-term:hover {
     }
 
     .filter-onlyOpenData-img{
-        height: 1.5em;
     }
 
     .area-elements{

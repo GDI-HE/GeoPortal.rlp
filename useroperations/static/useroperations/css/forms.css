@@ -21,7 +21,7 @@
 
 form input[type=text], form input[type=password], form input[type=email], form textarea{
     padding: 10px;
-    border: 2px solid var(--secondary);
+    border: 2px solid var(--secondary-placeholder);
     border-radius: 5px;
     color: var(--primary);
     background-color: white;
@@ -31,7 +31,7 @@ form input[type=text], form input[type=password], form input[type=email], form t
 .submit-button-wrapper{
     margin: 10px 0;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
 }
 .submit-button-wrapper a{
     text-decoration: none;
@@ -73,7 +73,7 @@ form input[type=text], form input[type=password], form input[type=email], form t
     background-color: var(--hesse-green);
 }
 
-.form-submit-button:focus-visible {
+.form-submit-button:focus-visible, .captcha-refresh:focus-visible, .form-change-submit-button:focus-visible, .form-delete-submit-button:focus-visible, .forgot-pw-button:focus-visible {
     outline: solid .125rem #f1b709;
 }
 
@@ -83,7 +83,7 @@ form input[type=text], form input[type=password], form input[type=email], form t
 }
 
 .small-label label{
-    color: gray;
+    color: var(--secondary-placeholder);
     font-size: 12px;
 }
 
@@ -98,9 +98,9 @@ form input[type=text], form input[type=password], form input[type=email], form t
     width: 100%;
 }
 
-.field-value input:focus{
-    border-color: var(--primary);
-    box-shadow: 0 0 10px var(--primary);
+.field-value input:focus, .field-value textarea:focus{
+    border-color: var(--hesse-lightblue);
+    outline: solid .125rem #f1b709;
 }
 
 #password_message {
@@ -143,7 +143,7 @@ form input[type=text], form input[type=password], form input[type=email], form t
 }
 
 .foot-note{
-    color: gray;
+    color: var(--secondary-placeholder);
     font-size: 0.8em;
 }
 
@@ -165,7 +165,7 @@ form input[type=text], form input[type=password], form input[type=email], form t
 }
 
 @media screen and (max-width: 500px){
-    .field-wrapper{flex-wrap:wrap;}
+    .field-wrapper{flex-wrap:wrap;justify-content: space-around;}
     .field-wrapper td{display:block;width:100%;max-width:300px;}
 }
 

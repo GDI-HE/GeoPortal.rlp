@@ -1292,14 +1292,17 @@ $(document).ready(function() {
 
      });
 
-     $(document).on("click", ".filter-onlyOpenData-img", function(){
+     $(document).on("click", "#filter-only-open-data", function(){
         var elem = $(this);
-        if(elem.hasClass("active-img")){
-            search.setParam("onlyOpenData", false);
-        }else{
+	var elem2 = $(".filter-onlyOpenData-img");
+        if(elem.is(':checked')){
             search.setParam("onlyOpenData", true);
+	    elem.removeAttr('checked');
+        }else{
+            search.setParam("onlyOpenData", false);
+	    elem.attr('checked','checked');
         }
-        elem.toggleClass("active-img");
+        elem2.toggleClass("active-img");
         prepareAndSearch();
      });
 

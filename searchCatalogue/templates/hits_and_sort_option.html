@@ -46,9 +46,9 @@
             </td>
             <td>
                 {% if search_filters.restrictToOpenData.item.0.title == 'true' %}
-                    <img alt="{% trans 'An open data icon' %}" title="{% trans 'Filter only open data active' %}" class="filter-onlyOpenData-img active-img" src="{% static 'searchCatalogue/images/open-data.jpg' %}">
+                    <label class="btn-filter-open-data" for="filter-only-open-data" title="{% trans 'Filter only open data active' %}" aria-label="{% trans 'Filter only open data active' %}"><input type="checkbox" id="filter-only-open-data" name="filter-only-open-data" checked="checked" /><img alt="{% trans 'An open data icon' %}"  class="filter-onlyOpenData-img active-img" src="{% static 'searchCatalogue/images/open-data.png' %}"></label>
                 {% else %}
-                    <img alt="{% trans 'An open data icon' %}" title="{% trans 'Filter only open data deactivate' %}" class="filter-onlyOpenData-img" src="{% static 'searchCatalogue/images/open-data.jpg' %}">
+		<label class="btn-filter-open-data" for="filter-only-open-data" title="{% trans 'Filter only open data deactivate' %}" aria-label="{% trans 'Filter only open data deactivate' %}"><input type="checkbox" id="filter-only-open-data" name="filter-only-open-data"  /><img alt="{% trans 'An open data icon' %}" class="filter-onlyOpenData-img" src="{% static 'searchCatalogue/images/open-data.png' %}"></label>
                 {% endif %}
             </td>
         </tr>
