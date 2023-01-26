@@ -67,12 +67,20 @@ msgid "Hello "
 msgstr "Hallo "
 
 #: searchCatalogue/templates/autocompleter/suggestions.html:4
-msgid "Search for:"
-msgstr "Suche nach:"
+msgid "Search for data:"
+msgstr "Suche nach Daten:"
 
 #: searchCatalogue/templates/autocompleter/suggestions.html:16
-msgid "Locations:"
-msgstr "Orte:"
+msgid "Search for locations:"
+msgstr "Suche nach Orten:"
+
+#: searchCatalogue/templates/autocompleter/suggestions.html:13
+msgid "No hits found for this search."
+msgstr "Keine Treffer für diese Suche gefunden."
+
+#: searchCatalogue/templates/autocompleter/suggestions.html:13
+msgid "Help me"
+msgstr "Zur Hilfe"
 
 #: searchCatalogue/templates/facets.html:7
 msgid "Search in "
