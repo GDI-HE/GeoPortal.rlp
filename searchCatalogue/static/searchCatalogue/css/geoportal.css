@@ -112,20 +112,20 @@ caption{text-align:left;padding:2em 1em 0.4em 0.5em;font-weight:bold;}
 
 
 .filter-remover{
-    border: 1px solid var(--primary);
-    padding: 10px;
-    color: var(--primary);
-    border-radius: 100%;
-    width: 1em;
-    height: 1em;
+    border: 1px solid var(--hesse-grey);
+    border-radius: 4px;
+    padding: 7px 10px;
+    color: white;
+    font-size: 0.8em;
+    background-color: var(--hesse-grey);
     display: flex;
     justify-content: center;
     align-items: center;
-    margin: 0 0 0 1em;
+    margin: 6px;
 }
 .filter-remover:hover{
-    background-color: var(--primary);
-    color: white;
+    background-color: var(--hesse-lightblue);
+    color: var(--hesse-grey);
     cursor: pointer;
 }
 .filters-not-supported{

@@ -7,20 +7,18 @@
             </p>
         {% endif %}
         {% if selected_facets.keys|length > 0 %}
-        <div>
-            <h4>{% trans 'Chosen Categories:' %}</h4>
             <div id="chosen-facets">
+		    <button title="{% trans 'Remove all filters' %}" class="filter-remover">Alle Filter entfernen<span style="margin-left:10px;" class="icon-cross fs-10px" aria-hidden="true"></span></button>
                 {% for facet_key, facet_val in selected_facets.items %}
                 <div class="single-chosen-facet">
-                    <h5>{{ facet_key }}:</h5>
                     <div class="search--list -js-facet-list chosen-facet-items">
                         {% for sel_facet_key, sel_facet_val in selected_facets.items %}
                             {% for selected_facet in sel_facet_val %}
                                 {% if selected_facet.parent_category == facet_key %}
-                                    <span class="chosen-facet-item search--list--item -js-facet-item" data-id="{{ selected_facet.id }}" data-parent="{{ facet_key }}">
+                                    <button class="chosen-facet-item search--list--item -js-facet-item" data-id="{{ selected_facet.id }}" data-parent="{{ facet_key }}">
                                         {{ selected_facet.title }}
-                                        <span class="icon-cross fs-10px"></span>
-                                    </span>
+                                        <span style="margin-left: 5px;" class="icon-cross fs-10px" aria-hidden="true"></span>
+                                    </button>
                                 {% endif %}
                             {% endfor %}
                         {% endfor %}
@@ -28,16 +26,13 @@
                 </div>
                 {% endfor %}
             </div>
-            <span class="filter-remover icon-cross fs-10px" title="{% trans 'Remove all filters' %}"></span>
-        </div>
         {% endif %}
         <!-- Search tags -->
         <div>
-            <h2 style="font-size: 100%;margin-left:5px;">{{ search_filters.searchText.title }}</h2>
             <div class="search--list -js-keywords" data-id='geoportal-'>
                 {% for item in search_filters.searchText.item %}
-                <button title="Suchbegriff {{ item.title }} löschen" class="search--list--item -js-term">{{ item.title }}
-                    <span class="icon-cross fs-10px"></span>
+                <button title="Suchbegriff {{ item.title }} löschen" class="search--list--item -js-term">Suchbegriff: {{ item.title }}
+                    <span style="margin-left:5px;" class="icon-cross fs-10px"></span>
                 </button>
                 {% endfor %}
             </div>
