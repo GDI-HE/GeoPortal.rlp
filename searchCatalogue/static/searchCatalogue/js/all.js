@@ -487,6 +487,8 @@ function toggleFilterArea(){
 function openSpatialArea(){
     // blend in extra slow!
     $(".spatial-results-list").slideToggle("slow");
+	$('.spatial-search-result-wrapper:not(:has(*))').prev().remove();
+	$('.spatial-search-result-wrapper:not(:has(*))').remove();
 }
 
 function openSpatialWrappers(){
@@ -833,6 +835,7 @@ $(document).ready(function() {
         search.find();
         jQuery('.-js-simple-search-autocomplete').removeClass('active');
         search.show();
+
     };
 
 
@@ -1129,7 +1132,7 @@ $(document).ready(function() {
      $(document).on("click", ".spatial-result-title", function(){
         var elem = $(this);
         elem.toggleClass("active");
-        elem.next(".spatial-search-result-wrapper").slideToggle("slow");
+        elem.parent().next(".spatial-search-result-wrapper").slideToggle("slow");
      });
 
     /*
@@ -1747,6 +1750,5 @@ $(document).ready(function() {
             }
         }
     }());
-
 
 });

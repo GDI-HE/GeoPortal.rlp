@@ -3,38 +3,38 @@
 {% with in as spatial_search_results %}
     <div class="spatial-result-wrapper">
         {% if looking_for == '' %}
-            <div class="spatial-result-header">
+            <h1 class="spatial-result-header">
                 {% trans 'No descriptor given (e.g. environment protection, minig, ...)' %}
-            </div>
+            </h1>
         {% elif spatial_search_results|length > 0 %}
-        <div class="spatial-result-header">
+        <h1 class="spatial-result-header">
             {% trans 'Spatial search - select a usable combination' %}
-        </div>
+        </h1>
             <div class="spatial-results-list">
                 <ul>
                     {% for location in spatial_search_results %}
                         {% for subject in looking_for %}
-                            <div class="spatial-result-title">
-                                <i class="far fa-compass tab-icn"></i>
+			    <li><button type="button" class="spatial-result-title">
+                                <i area-hidden="true" class="far fa-compass tab-icn"></i>
                                 "{{ subject }}" in {{ location.keyword }}...
-                            </div>
+			    </button></li>
                             {% if location.geonames|length > 0 %}
-                                <div class="spatial-search-result-wrapper">
+			        <ul class="spatial-search-result-wrapper">
                                 {% for geoname in location.geonames %}
                                     {% if geoname.title|contains:location.keyword %}
                                     <li class="spatial-search-list-element">
-                                        <div class="spatial-search-result" data-target="{{ location.keyword }}" data-source="{{ subject }}" data-params="{{ geoname.minx }},{{ geoname.miny }},{{ geoname.maxx }},{{ geoname.maxy }}">
-                                            <i class="far fa-compass tab-icn"></i>
+                                        <button type="button" class="spatial-search-result" data-target="{{ location.keyword }}" data-source="{{ subject }}" data-params="{{ geoname.minx }},{{ geoname.miny }},{{ geoname.maxx }},{{ geoname.maxy }}">
+                                            <i area-hidden="true" class="far fa-compass tab-icn"></i>
                                             {{subject}} in {{ geoname.title }}
-                                        </div>
+                                        </button>
                                     </li>
                                     {% endif %}
                                 {% endfor %}
-                                </div>
+			        </ul>
                             {% else %}
-                                <div class="spatial-search-result-wrapper">
+                                <p class="spatial-search-result-wrapper">
                                     {% trans 'No results found.' %}
-                                </div>
+                                </p>
                             {% endif %}
                         {% endfor %}
                     {% endfor %}

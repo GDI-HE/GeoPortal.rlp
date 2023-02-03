@@ -2,9 +2,14 @@
 /*! normalize.css v4.0.0 | MIT License | github.com/necolas/normalize.css */
 
 /* keyboard usability outline focus-visible */
-#filter-area:focus-visible, .source--title:focus-visible, .search--list--item:focus-visible, .radio-button-catalogue:focus-visible, .configurations_form > label select:focus-visible, .facet-search-input:focus-visible, .subfacet:focus-visible, .filter-remover:focus-visible, button.keywords--headline:focus-visible {
+#filter-area:focus-visible, .source--title:focus-visible, .search--list--item:focus-visible, .radio-button-catalogue:focus-visible, .configurations_form > label select:focus-visible, .facet-search-input:focus-visible, .subfacet:focus-visible, .filter-remover:focus-visible, button.keywords--headline:focus-visible, button.spatial-result-title:focus-visible, .spatial-search-result:focus-visible {
   outline: solid .125rem #f1b709;
   border: 1px solid var(--secondary) !important;
+}
+
+.spatial-search-text.visible a:focus-visible {
+  outline: solid .125rem #f1b709;
+  text-decoration: none;
 }
 
 audio, canvas, progress, video {
@@ -824,6 +829,14 @@ dl dd {
     color: var(--primary);
 }
 
+.spatial-result-header {
+    border: none;
+}
+
+.spatial-result-title{
+    width: 95%;
+}
+
 .spatial-result-title:hover{
     background-color: var(--primary);
     color: white;
@@ -866,6 +879,8 @@ dl dd {
     padding: 0.5em;
     margin: 0.5em 0 0 2em;
     border: 1px solid var(--primary);
+    background-color: transparent;
+    width: 85%;
 }
 
 .spatial-search-result:hover{
@@ -981,6 +996,9 @@ dl dd {
   border: 1px solid var(--hesse-grey);
   margin: 6px;
   cursor: pointer;
+  padding: 7px 10px;
+  font-size: 0.8em;
+  border-radius: 4px;
   }
 
 button.search--list--item.-js-term {
