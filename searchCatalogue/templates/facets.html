@@ -2,58 +2,56 @@
 <div class='-js-facets facet-list'>
 
     <!-- New catalogue selector location -->
-    <div class="-js-facet facet-item" data-name="{{ resource_key }}">
-        <div class="facet-header">
-            <span>{% trans 'Search in ' %}</span>
-        </div>
-        <form class="catalogue-form">
+    <div class="-js-facet facet-item catalogue-container" data-name="{{ resource_key }}">
+	<h2 class="facet-header">{% trans 'Search in ' %}</h2>
+        <div class="catalogue-form" aria-description="">
         {% for source_key, source_val in sources.items %}
-            <input class="radio-button-catalogue" type="radio" name="catalogue" id="radio-{{ source_key }}" value="{{ source_key }}" {% if source == source_key %}checked="checked"{% endif %}/>
-            <label for="radio-{{ source_key }}" title="{% trans 'Search in ' %}: {{ source_val.key }}">{{ source_val.key }}</label>
-			<br>
+	<button type="button" name="catalogue" id="radio-{{ source_key }}" value="{{ source_key }}" {% if source == source_key %}class="radio-button-catalogue radio-search-active" aria-selected="true"{% else %}class="radio-button-catalogue" aria-selected="false"{% endif %} title="{% trans 'Search in ' %}: {{ source_val.key }}" aria-label="{% trans 'Search in ' %}: {{ source_val.key }}">{{ source_val.key }}</button>
+	    <!--<label for="radio-{{ source_key }}" title="{% trans 'Search in ' %}: {{ source_val.key }}">{{ source_val.key }}</label>-->
         {% endfor %}
-        </form>
+        </div>
     </div>
 
     <!-- New resource type location -->
     {% if not is_info_search %}
     <div class="-js-facet facet-item" data-name="{{ resource_key }}">
-        <div class="facet-header">
-            <span>{% trans 'Resource types' %}</span>
-        </div>
-        <ul>
+        <h2 class="facet-header">
+            {% trans 'Resource types' %}
+        </h2>
+        <div class="resource-type-form">
         {% for resource_key, resource_val in all_resources.items %}
-            <li class="subfacet -js-resource {% if resource_key in resources %} chosen-subfacet {% endif %}" data-resource="{{ resource_key }}" title="{% trans 'Resource types' %}: {{ resource_val }}">
-                <span>{{ resource_val }}</span>
-                {% if resource_key in resources %}
-                        <span class="icon-cross fs-10px"></span>
+            <button class="subfacet -js-resource 
+		{% if resource_key in resources %} chosen-subfacet {% endif %}"
+		data-resource="{{ resource_key }}" 
+		title="{% trans 'Resource types' %}: {{ resource_val }}">
+                
+		{{ resource_val }}
+                
+		{% if resource_key in resources %}
+                        <span aria-hidden="true" class="icon-cross fs-10px"></span>
                 {% endif %}
-            </li>
+            </button>
         {% endfor %}
-        </ul>
+        </div>
     </div>
     {% endif %}
 
     {% for facet_key, facet_val in facets.items %}
     <div class='-js-facet facet-item' data-name='{{ facet_key }}' >
-        <div class="facet-header">
-            <span class="facet-search-title">{{ facet_key }}</span>
-            <input type="text" class="facet-search-input hide" placeholder="{% trans 'Filter by' %}">
-            <i class="fas fa-filter facet-search-filter hide" title="{% trans 'Is filtered' %}" ></i>
-            <i class="fas fa-search facet-search-icon" title="{% trans 'Open filter' %}"></i>
-        </div>
-         <ul>
+        <h2 class="facet-header">{{ facet_key }}</h2>
+         <div class="keyword-forms" tabindex="-1">
+                 <input aria-label="{% trans 'Filter by' %} {{ facet_key }}" type="text" class="facet-search-input" placeholder="Liste durchsuchen...">
              {% for subcat in facet_val %}
-                <li class='-js-subfacet subfacet {% if subcat.is_selected %}chosen-subfacet{% endif %}' data-name='{{ subcat.title }}' data-id='{{ subcat.id }}' data-parent="{{ facet_key }}" title="{{ subcat.title }} ({{ subcat.count }})">
-                    <span>{{ subcat.title }} ({{ subcat.count }})</span>
+                <button type="button" class='-js-subfacet subfacet {% if subcat.is_selected %}chosen-subfacet{% endif %}' data-name='{{ subcat.title }}' data-id='{{ subcat.id }}' data-parent="{{ facet_key }}" title="{{ subcat.title }} ({{ subcat.count }})">
+		    <span>{{ subcat.title }} ({{ subcat.count }})</span>
                     {% if subcat.is_selected %}
-                        <span class="icon-cross fs-10px"></span>
+                        <span aria-hidden="true" class="icon-cross fs-10px"></span>
                     {% endif %}
-                </li>
+                </button>
              {% empty %}
-                {% trans 'No Categories found for this search configuration' %}
+	     <p style="font-size:0.8em;margin:2px;padding:5px;text-align:center">{% trans 'No Categories found for this search configuration' %}</p>
              {% endfor %}
-         </ul>
+         </div>
     </div>
     {% endfor %}
 </div>

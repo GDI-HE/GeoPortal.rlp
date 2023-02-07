@@ -487,6 +487,8 @@ function toggleFilterArea(){
 function openSpatialArea(){
     // blend in extra slow!
     $(".spatial-results-list").slideToggle("slow");
+	$('.spatial-search-result-wrapper:not(:has(*))').prev().remove();
+	$('.spatial-search-result-wrapper:not(:has(*))').remove();
 }
 
 function openSpatialWrappers(){
@@ -833,6 +835,7 @@ $(document).ready(function() {
         search.find();
         jQuery('.-js-simple-search-autocomplete').removeClass('active');
         search.show();
+
     };
 
 
@@ -1129,7 +1132,7 @@ $(document).ready(function() {
      $(document).on("click", ".spatial-result-title", function(){
         var elem = $(this);
         elem.toggleClass("active");
-        elem.next(".spatial-search-result-wrapper").slideToggle("slow");
+        elem.parent().next(".spatial-search-result-wrapper").slideToggle("slow");
      });
 
     /*
@@ -1443,7 +1446,7 @@ $(document).ready(function() {
     /*
     * Toggles the facet search/filter input
     */
-    function toggleFacetInput(elem){
+    /*function toggleFacetInput(elem){
         var button = elem.children(".facet-search-icon");
         var title = elem.children(".facet-search-title");
         var input = elem.children(".facet-search-input");
@@ -1462,21 +1465,21 @@ $(document).ready(function() {
                 filterIcon.removeClass("hide");
             }
         }
-    }
+    }*/
     /*
     * Show or hide the filter input field for facets when search icon is clicked
     */
-    $(document).on("click", ".facet-search-title", function(){
+    /*$(document).on("click", ".facet-search-title", function(){
         var elem = $(this);
         toggleFacetInput(elem.parent());
-    });
+    });*/
     /*
     * Show or hide the filter input field for facets when search icon is clicked
     */
-    $(document).on("focusout", ".facet-search-input", function(){
+    /*$(document).on("focusout", ".facet-search-input", function(){
         var elem = $(this);
         toggleFacetInput(elem.parent());
-    });
+    });*/
 
     /*
     * Filter facets
@@ -1484,7 +1487,7 @@ $(document).ready(function() {
     $(document).on("input", ".facet-search-input", function(){
         var elem = $(this);
         var val = elem.val().toUpperCase();
-        var facets = elem.closest(".facet-header").siblings("ul").find(".subfacet");
+        var facets = elem.siblings(".subfacet");
         facets.each(function(i, elem){
             var facetObj = $(elem);
             var facet = facetObj.find("span").text().trim().toUpperCase();
@@ -1494,6 +1497,11 @@ $(document).ready(function() {
                 facetObj.removeClass("hide");
             }
         });
+        if($(this) && $(this).val()) {
+            elem.addClass("active");
+	}else{
+	    elem.removeClass("active");
+        }
     });
 
     $(document).on("click", ".subfacet.-js-resource", function() {
@@ -1741,6 +1749,5 @@ $(document).ready(function() {
             }
         }
     }());
-
 
 });

@@ -1,22 +1,23 @@
 {% load static i18n humanize %}
 
-<a title='zu {{ layer.title }}' href='{{ layer.mdLink }}' target="_blank" style="text-decoration: none">
-    <div class="search-result-title" >
-        <!--{% if parent_result is not None %}{{ parent_result.title }}    ▶   {% endif %}-->{{ layer.title }}
-    </div>
+<h3 class="search-result-title">
+<a title="{% trans 'Open metadata for' %} {{ layer.title }}" href='{{ layer.mdLink }}' target="_blank">
+    <span>{{ layer.title }}</span>
+    <i aria-hidden="true" class="fas fa-external-link-alt"></i>
 </a>
+</h3>
 <div class="search-result-area">
         <div class="img-area result-overview">
             <div class="flex-row">
                 <img alt="{% trans 'Smaller version of map preview' %}" title="{% trans 'Click for large image' %}" class="img-preview" style="max-width:100px;" src="{% if layer.previewURL is not None %}{{ layer.previewURL }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
                 <img alt="{% trans 'Bounding box around area of interest on a map' %}" title="{% trans 'Click for large image' %}" class="img-preview" style="max-width:100px;" src="{% if layer.extent_url is not None or layer.extent_url|length != 0 %}{{ layer.extent_url }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
             </div>
-            <article class="search-result-detail">{{ layer.abstract }}</article>
+	    <article class="search-result-detail"><p>{{ layer.abstract }}</p></article>
         </div>
-        <div title="{% trans 'Total view count' %}" class="view-count">
+        <p title="{% trans 'Total view count' %}" class="view-count">
             <i class="fas fa-eye" aria-hidden="true"></i>
             <span>{{ layer.loadCount|intcomma }}</span>
-        </div>
+        </p>
         <hr>
         <div class="img-area">
         </div>
@@ -59,12 +60,10 @@
 {% if layer.layer is not None %}
     <!-- There are more children for this result. Make it collapsible! -->
     <div class="sublayer">
-        <div class="sublayer-more">
-            <div>
-                {% trans 'Sublayers' %}
+        <button class="sublayer-more">
+		<span>{% trans 'Sublayers' %}</span>
                 <span class="accordion icon closed" title="Ausklappen"></span>
-            </div>
-        </div>
+        </button>
         {% with layer as parent_result %}
             {% with layer.layer as layers %}
                 {% for layer in layers %}

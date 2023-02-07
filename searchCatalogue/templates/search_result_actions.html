@@ -5,10 +5,10 @@
         {% if type == 'wmc' or type == 'wfs' or type == 'service_DE' %}
             {% if type == 'service_DE' %}
                 {% if layer.showMapUrl %}
-                    <a class='button view-button' id="view_{{ layer.id }}">
+                    <button type="button" class='button view-button' id="view_{{ layer.id }}">
                         <i class="fas fa-eye icn-show" aria-hidden="true"></i>
                         {% trans 'Show' %}
-                    </a>
+                    </button>
                 {% endif %}
                 {% if layer.downloadFeedClientUrl %}
                     <a class='button download-button' target="_blank" href="{{ layer.downloadFeedClientUrl }}">
@@ -17,10 +17,10 @@
                     </a>
                 {% endif %}
             {% else %}
-                <a class='button view-button' id="view_{{ layer.id }}">
+                <button type="button" class='button view-button' id="view_{{ layer.id }}">
                     <i class="fas fa-eye icn-show" aria-hidden="true"></i>
                     {% trans 'Show' %}
-                </a>
+                </button>
             {% endif %}
         {% elif type == 'application' %}
             <a class='button view-button' target="_blank" href="{{ result.accessURL }}">
@@ -31,28 +31,28 @@
         {% else %}
         <!-- WMS and DATASET -->
             {% if feeds is not None and feeds|length > 0 %}
-                <a class="button download-button" id="download_{{ result.id }}">
+                <button type="button" class="button download-button" id="download_{{ result.id }}">
                     <i class="fas fa-download icn-download" aria-hidden="true"></i>
                     {% trans 'Download' %} ({{ feeds|length }})
-                </a>
+                </button>
             {% endif %}
             {% if layers is not None and layers|length > 0 %}
                 {% if type == 'wms' %}
                     {% if layer.download_url is not None and layer.download_url|length > 0%}
-                        <a class="button download-button" id="download_{{ layer.id }}">
+                        <button type="button" class="button download-button" id="download_{{ layer.id }}">
                             <i class="fas fa-download icn-download" aria-hidden="true"></i>
                             {% trans 'Download' %}
-                        </a>
+                        </button>
                     {% endif %}
-                    <a class='button view-button' id="view_{{ layer.id }}">
+                    <button type="button" class='button view-button' id="view_{{ layer.id }}">
                         <i class="fas fa-eye icn-show" aria-hidden="true"></i>
                         {% trans 'Show' %}
-                    </a>
+                    </button>
                 {% elif type == 'dataset' %}
-                    <a class='button view-button' id="view_{{ result.id }}">
+                    <button type="button" class='button view-button' id="view_{{ result.id }}">
                         <i class="fas fa-eye icn-show" aria-hidden="true"></i>
                         {% trans 'Show' %} ({{ layers|length }})
-                    </a>
+                    </button>
                 {% endif %}
             {% endif %}
         {% endif %}
@@ -80,20 +80,20 @@
                     {% for feed in feeds %}
                         <li class="resource-element">
                             <a href="{{ feed.htmlLink }}" target="_blank">
-                                <div class="resource-view-title" title="{% trans 'Metadata' %}">
-                                    {{ feed.serviceTitle }}
-                                    <br>
-                                    ({{ feed.serviceUuid }})
-                                </div></a>
+                                <span class="resource-view-title" title="{% trans 'Metadata' %}">
+                                    {{ feed.serviceTitle }} - ({{ feed.serviceUuid }})
+                                </span><i aria-hidden="true" class="fas fa-external-link-alt"></i></a>
                             <div id="download_button_{{ feed.serviceUuid }}" class="feed-download resource-element-data">
                                 <div class="resource-element-info"></div>
                                 <div class="feed-download-wrapper">
                                     <a class="feed-download-button" href="{{ feed.accessUrl }}" target="_blank" title="{% trans 'Original atom feed' %}">
-                                        <i class="fas fa-file-alt icn-file icn-single" aria-hidden="true"></i>
-                                    </a>
+                                        <i class="fas fa-file-alt icn-file" aria-hidden="true"></i>
+                                        <span>{% trans 'Original atom feed' %}</span>
+				    </a>
                                     <a class="atom-feed-button" href="{{ feed.accessClient }}" target="_blank" title="{% trans 'Open in atom feed viewer' %}">
-                                        <i class="fas fa-download icn-download icn-single" aria-hidden="true"></i>
-                                    </a>
+                                        <i class="fas fa-download icn-download" aria-hidden="true"></i>
+                                        <span>{% trans 'Open in atom feed viewer' %}</span>
+				    </a>
                                 </div>
                             </div>
                         </li>
