@@ -30,7 +30,7 @@
         <!-- Search tags -->
             <div class="search--list -js-keywords" data-id='geoportal-'>
                 {% for item in search_filters.searchText.item %}
-                <button type="button" title="Suchbegriff {{ item.title }} löschen" class="search--list--item -js-term">Suchbegriff: {{ item.title }}
+                <button type="button" title="Suchbegriff {{ item.title }} löschen" class="search--list--item -js-term">{{ item.title }}
                     <span style="margin-left:5px;" class="icon-cross fs-10px"></span>
                 </button>
                 {% endfor %}

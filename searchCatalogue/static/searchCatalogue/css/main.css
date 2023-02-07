@@ -931,7 +931,8 @@ dl dd {
 
 .keywords--item {
   margin: 10px;
-  cursor: pointer; }
+  cursor: pointer; 
+  font-family: monospace; }
 
 .keywords--item:hover {
   color: var(--primary);

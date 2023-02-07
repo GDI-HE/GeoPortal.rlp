@@ -157,8 +157,6 @@ label[for=id_identity]{
     height: 143px;
     display: flex;
     justify-content: space-between;
-    /**border-bottom: 1px solid #e2e2e2;
-    background-color: var(--secondary);**/
 }
 
 .popup-search {
@@ -168,33 +166,19 @@ label[for=id_identity]{
 }
 
 .popup-search .popuptext-search {
- visibility: hidden;
- width: 180px;
- font-size: 15px;
- font-family: arial,helvetica;
- font-weight: bold;
- background-color: var(--secondary);
- color: var(--secondary-font);
- border-color: var(--primary);
- border-style: solid;
- text-align: center;
- border-radius: 0.5px;
- position: absolute;
- bottom: 10%;
- right: 50px;
- margin-left: -150px;
-}
-
-/* Popup arrow */
-.popup-search .popuptext-search::after {
- content: "";
- position: absolute;
- right: -15px;
- top: 10px;
- margin-left: -5px;
- border-width: 8px;
- border-style: solid;
- border-color: transparent var(--primary) transparent transparent;
+    visibility: hidden;
+    max-width: 90%;
+    font-family: monospace;
+    color: white;
+    text-align: center;
+    border-radius: 4px;
+    position: fixed;
+    top: 1em;
+    left: 1em;
+    background-color: var(--hesse-green);
+    padding: 0.5em 1em;
+    border: 2px solid var(--hesse-grey);
+    box-shadow: 0 0.25em 1em var(--hesse-grey);
 }
 
 .popup-search .show-popup {
@@ -302,7 +286,6 @@ label[for=id_identity]{
     height: 3.75rem;
 }
 
-
 .navbar-brand-and-site-name > svg > path {
     fill: #137673 !important;
 }
@@ -323,7 +306,6 @@ label[for=id_identity]{
     max-width: 56px;
     height: auto;
 }
-
 
 .searchbar-container{
     display: flex;
@@ -387,7 +369,6 @@ label[for=id_identity]{
     justify-content: flex-end;
     margin: 10px 20px 0 0;
 }
-
 
 .sub-header-wrapper{
     padding: 5px 0 10px 0;
@@ -1619,4 +1600,3 @@ transition: all 0.2s ease-in-out;}
     }
 
 }
-

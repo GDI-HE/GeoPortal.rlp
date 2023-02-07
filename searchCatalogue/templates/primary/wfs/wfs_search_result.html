@@ -1,14 +1,16 @@
 {% load static i18n %}
     {% if ftype.mdLink is not None %}
+<h3 class="search-result-title">
     <a title='zu {{ ftype.title }}' href='{{ ftype.mdLink }}' target="_blank" style="text-decoration: none;">
-        <div class="search-result-title">
-            <!-- {% if parent_result is not None %}{{ parent_result.title }}    ▶   {% endif %}-->{{ ftype.title }}
-        </div> </a>
+        <span>{{ ftype.title }}</span>
+        <i aria-hidden="true" class="fas fa-external-link-alt"></i>
+    </a>
+</h3>
     {% endif %}
 <div class="search-result-area">
 
         <div class="img-area result-overview">
-            <article class="search-result-detail">{{ ftype.abstract }}</article>
+		<article class="search-result-detail"><p>{{ ftype.abstract }}</p></article>
         </div>
         <hr>
         <div class="img-area">

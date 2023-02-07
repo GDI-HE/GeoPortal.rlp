@@ -1,9 +1,9 @@
 {% load static i18n %}
 <li class="resource-element">
-    <a href="{{ layer_data.mdLink }}" target="_blank">
-        <div class="resource-view-title" title="{% trans 'Metadata' %}">
-            {{ layer_data.title }}
-        </div></a>
+    <a title="{% trans 'Open metadata for' %} {{ layer_data.title }}" href="{{ layer_data.mdLink }}" target="_blank">
+        <span class="resource-view-title">{{ layer_data.title }}</span>
+	<i aria-hidden="true" class="fas fa-external-link-alt"></i>
+    </a>
     <div class="resource-element-data">
         {% if type != 'wfs' and type != 'service_DE' %}
         <div class="resource-element-map-thumbnails">
@@ -52,12 +52,10 @@
         <div id="{{layer.srv.id}}" class="resource-element-actions" data-id="{% if type == 'wfs' or type == 'wms' %}{{ result.id }}{% else %}{{ layer.srv.id }}{% endif %}" data-resource="{{ type }}">
             {% if type == 'wms' %}
 
-                <div class="resource-element-action share-button popup-search" data-id="WMS={{ layer_data.id }}" target="_blank" title="{% trans 'Share' %}">
-                    <div id="share-button-div" >
-                      <span class="popuptext-search {{ layer_data.id }}" id="sharepopup{{ layer_data.id }}">{% trans 'Map URL copied to clipboard' %}</span>
+                <button type="button" class="resource-element-action share-button popup-search" data-id="WMS={{ layer_data.id }}" target="_blank" title="{% trans 'Share' %}">
+                      <span class="popuptext-search {{ layer_data.id }}" name="sharepopup{{ layer_data.id }}">{% trans 'Map URL copied to clipboard' %}</span>
                         <i class="fa fa-share-alt"></i>
-                    </div>
-                </div>
+                </button>
 
                 <a class="resource-element-action" href="{{ wms_action_url }}layer_id={{ layer_data.id }}&INSPIRE=1&REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" target="_blank" title="{% trans 'Capabilities' %}">
                     <div id="capabilities-button-div" >
@@ -75,12 +73,10 @@
                     </div>
                 </a>
             {% elif type == 'dataset' %}
-                <div class="resource-element-action share-button popup-search" data-id="WMS={{ layer_data.id }}" target="_blank" title="{% trans 'Share' %}">
-                    <div id="share-button-div" >
-                      <span class="popuptext-search {{ layer_data.id }}" id="sharepopup{{ layer_data.id }}">{% trans 'Map URL copied to clipboard' %}</span>
+                <button type="button" class="resource-element-action share-button popup-search" data-id="WMS={{ layer_data.id }}" target="_blank" title="{% trans 'Share' %}">
+                      <span class="popuptext-search {{ layer_data.id }}" name="sharepopup{{ layer_data.id }}">{% trans 'Map URL copied to clipboard' %}</span>
                         <i class="fa fa-share-alt"></i>
-                    </div>
-                </div>
+                </button>
                 <a class="resource-element-action" href="{{ wms_action_url }}layer_id={{ layer_data.id }}&INSPIRE=1&REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" target="_blank" title="{% trans 'Capabilities' %}">
                     <div id="capabilities-button-div" >
                         <i class="fas fa-file-alt icn-file icn-single"></i>
@@ -97,12 +93,10 @@
                     </div>
                 </a>
             {% elif type == 'wmc' %}
-                <div class="resource-element-action share-button popup-search" data-id="WMC={{ result.id }}" target="_blank" title="{% trans 'Share' %}">
-                    <div id="share-button-div" >
-                      <span class="popuptext-search" id="sharepopup{{ result.id }}">{% trans 'Map URL copied to clipboard' %}</span>
+                <button type="button" class="resource-element-action share-button popup-search" data-id="WMC={{ result.id }}" target="_blank" title="{% trans 'Share' %}">
+                      <span class="popuptext-search" name="sharepopup{{ result.id }}">{% trans 'Map URL copied to clipboard' %}</span>
                         <i class="fa fa-share-alt"></i>
-                    </div>
-                </div>
+                </button>
                 <a class="resource-element-action icn-add-map" href="WMC={{ layer_data.id }}" id="add-map-button" target="_blank" title="{% trans 'Add to mapviewer' %}">
                     <div id="add-map-button-div" >
                         <i class="fas fa-plus"></i>

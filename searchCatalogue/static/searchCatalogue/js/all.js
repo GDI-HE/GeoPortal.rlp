@@ -1498,7 +1498,6 @@ $(document).ready(function() {
             }
         });
         if($(this) && $(this).val()) {
-            console.log("elem has value");
             elem.addClass("active");
 	}else{
 	    elem.removeClass("active");
