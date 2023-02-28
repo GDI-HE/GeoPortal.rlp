@@ -6,10 +6,10 @@
             <div class="map-sidebar-actions">
                 <div class="map-viewer-selector" title="{% trans 'Switch between mapviewers' %}">
 			<i class="fas fa-exchange-alt"></i>
-			<a href="#">Kartenviewer auswählen</a>
+			<button>Kartenviewer auswählen</button>
                 	<div class="map-viewer-list">
 				{% for mapviewer_name, mapviewer_val in mapviewers.items %}
-                		<div class="map-viewer-list-entry" data-resource="{{ mapviewer_val }}">{{ mapviewer_name }}</div>
+                		<button class="map-viewer-list-entry" data-resource="{{ mapviewer_val }}">{{ mapviewer_name }}</button>
 				{% endfor %}
                 	</div>
 		</div>
@@ -17,10 +17,10 @@
 		<div class="map-application-selector" title="{% trans 'Select other map application' %}">
 			<div class="map-applications-toggler">
 				<i class="far fa-folder-open"></i>
-		        	<a href="#">Eigene Anwendung auswählen</a>
+		        	<button>Eigene Anwendung auswählen</button>
                 	<div class="map-applications-list">
                 		{% for gui in guis %}
-                    		<div class="map-applications-list-entry" data-id="{{ gui }}">{{ gui }}</div>
+                    		<button class="map-applications-list-entry" data-id="{{ gui }}">{{ gui }}</button>
                     		{% endfor %}
                 	</div></div>
 		</div>

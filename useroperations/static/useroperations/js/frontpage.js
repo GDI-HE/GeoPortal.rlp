@@ -304,11 +304,6 @@ $(document).on("click", ".map-viewer-list-entry", function(){
     var iFrame = $("#mapviewer");
 
     // move viewport for user
-    window.scrollTo({
-        top:0,
-        left:0,
-        behavior:'smooth'
-    });
 
     gui_id = elem.attr("data-resource");
     if(gui_id.includes("http")){
