@@ -1773,6 +1773,9 @@ msgstr "Filtereinstellung auf- oder zuklappen"
 msgid "Open and close searchresults for "
 msgstr "Auf- und zuklappen der Suchergebnisse für "
 
+#: GeoPortal.rlp/searchCatalogue/templates/index.html:30
+msgid "Search results loading"
+msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "The letter W, as used for wikipedia"
 #~ msgstr "Der Buchstabe W, bekannt im Zusammenhang mit Wikipedia"
