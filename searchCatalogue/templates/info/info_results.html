@@ -4,37 +4,40 @@
 <link rel="stylesheet" type="text/css" href="{% static '/useroperations/css/mediawiki.css' %}" media="all" />
 {% endblock %}
 
+<h1 style="margin:-2px 0 30px 0;font-size:2em;">{% trans 'Results' %}</h1>
+<div id="mobile-categories" class="horizontal-facet-selection">{% include 'facets.html' %}</div>
+
 {% for search_result_key, search_result_val in search_results.items %}
 
-<div class="search-cat active">
-    <div class="search-header">
-        <div class="source--title -js-title -js-accordion">
-            <span class="accordion icon closed"></span>
-            <i class="fab fa-wikipedia-w tab-icn"></i>
+<div class="search-cat info-search-area active">
+    <h2 class="search-header" title="{% trans 'All articles' %}">
+        <button class="source--title -js-title -js-accordion" aria-label="{% trans 'Open and close searchresul    ts for ' %}{% trans 'All articles' %}">
+            <span class="accordion icon closed" aria-hidden="true"></span>
+            <i class="fab fa-wikipedia-w tab-icn" title="{% trans 'All articles' %}" aria-hidden="true"></i>
             {% if list_all %}
-            {% trans 'All articles' %} ({{ search_result_val|length }})
+	    <span>{% trans 'All articles' %} ({{ search_result_val|length }})</span>
             {% else %}
-            "{{ search_result_key }}"
+	    <span>"{{ search_result_key }}"</span>
+	    </span>
             {% endif %}
-        </div>
-    </div><!-- end .search-header -->
+        </button>
+    </h2><!-- end .search-header -->
     <div class="dataset search--body hide">
-        <div class="search-results">
+        <div class="search-results info-search-results">
             {% for result in search_result_val %}
                 {% if not result.is_intern %}
-                <a href="/mediawiki/index.php/{{ result.title }}" target="_blank">
-                {% endif %}
-                <div class="">
-                    <div class="result--item info-result-header {% if result.is_intern %}info-search-result{% endif %}" data-target="{{ result.title|drop_translation:lang }}" title="{% trans 'Open page' %}">
-                        {% if not result.is_intern %}
-                            <i class="fas fa-external-link-alt external-link-img" title="{% trans 'Link opens in a new tab' %}"></i>
-                        {% endif %}
+                <a class="info-search-entry-extern" href="/mediawiki/index.php/{{ result.title }}" target="_blank">
+                    <div class="result--item info-result-header {% if result.is_intern %}info-search-result{% endif %}" data-target="{{ result.title|drop_translation:lang }}" title="Artikel {{ result.title|drop_translation:lang }} öffnen">
+                        <i class="fas fa-external-link-alt external-link-img" title="{% trans 'Link opens in a new tab' %}" aria-hidden="true"></i>
                         <span class="info-result-title">{{ result.title|drop_translation:lang }}</span>
                     </div>
-                </div>
-                {% if not result.is_intern %}
-                </a>
+		</a>
                 {% endif %}
+                {% if result.is_intern %}
+                <button class="result--item info-result-header {% if result.is_intern %}info-search-result{% endif %}" data-target="{{ result.title|drop_translation:lang }}" title="{% trans 'Open page' %}">
+                    <span class="info-result-title">{{ result.title|drop_translation:lang }}</span>
+                </button>
+		{% endif %}
             {% if result.snippet|length > 0 %}
                 <div class="search-result-area">
                     {% autoescape off %}
