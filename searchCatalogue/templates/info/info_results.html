@@ -10,20 +10,19 @@
 {% for search_result_key, search_result_val in search_results.items %}
 
 <div class="search-cat info-search-area active">
-    <h2 class="search-header" title="{% trans 'All articles' %}">
-        <button class="source--title -js-title -js-accordion" aria-label="{% trans 'Open and close searchresul    ts for ' %}{% trans 'All articles' %}">
+    <h2 class="search-header" {% if list_all %}title="{% trans 'All articles' %}" {% else %}title="Alle Artikel mit dem Suchwort: {{ search_result_key }}"{% endif %}>
+        <button aria-expanded="false" aria-controls="{% if list_all %}region_all_articles{% else %}region_{{ search_result_key }}{% endif %}" {% if list_all %}id="button_all_articles" {% else %}id="button_{{ search_result_key }}" {% endif %}class="source--title -js-title -js-accordion" {% if list_all %}aria-label="{% trans 'Open and close searchresults for ' %}{% trans 'All articles' %}"{% else %}aria-label="{% trans 'Open and close searchresults for ' %}: {{ search_result_key }}"{% endif %}>
             <span class="accordion icon closed" aria-hidden="true"></span>
-            <i class="fab fa-wikipedia-w tab-icn" title="{% trans 'All articles' %}" aria-hidden="true"></i>
+            <i class="fab fa-wikipedia-w tab-icn" aria-hidden="true"></i>
             {% if list_all %}
 	    <span>{% trans 'All articles' %} ({{ search_result_val|length }})</span>
             {% else %}
 	    <span>"{{ search_result_key }}"</span>
-	    </span>
             {% endif %}
         </button>
     </h2><!-- end .search-header -->
     <div class="dataset search--body hide">
-        <div class="search-results info-search-results">
+        <div class="search-results info-search-results" role="region" {% if list_all %} aria-labelledby="button_all_articles" id="region_all_articles"{% else %}aria-labelledby="button_{{ search_result_key }}" id="region_{{ search_result_key }}"{% endif %} >
             {% for result in search_result_val %}
                 {% if not result.is_intern %}
                 <a class="info-search-entry-extern" href="/mediawiki/index.php/{{ result.title }}" target="_blank">
@@ -39,11 +38,11 @@
                 </button>
 		{% endif %}
             {% if result.snippet|length > 0 %}
-                <div class="search-result-area">
+                <p class="search-result-area" aria-label="unformatierte Textpassage zum vorhergehenden Link">
                     {% autoescape off %}
-                    "{{ result.snippet|bold:search_result_key|safe }}"
+                    {{ result.snippet|bold:search_result_key|safe }}
                     {% endautoescape %}
-                </div>
+                </p>
             {% endif %}
             {% empty %}
                 {% trans 'No hits found for this search configuration' %}

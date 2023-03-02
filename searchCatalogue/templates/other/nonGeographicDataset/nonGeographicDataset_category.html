@@ -1,15 +1,14 @@
 {% load static humanize i18n %}
 <div class="search-cat {% if 'nonGeographicDataset' in search_results %} active {% endif %}">
-    <div class="search-header">
-        <div class="source--title -js-title -js-accordion">
-            <span class="accordion icon closed"></span>
-            <i class="fas fa-ellipsis-h tab-icn" title="{% trans 'Miscellaneous Datasets' %}"></i>
-            {% trans 'Miscellaneous Datasets' %}
-            ({{ nonGeographicDataset.md.nresults|intcomma }})
-        </div>
-    </div><!-- end .search-header -->
+    <h2 class="search-header" title="{% trans 'Miscellaneous Datasets' %}">
+        <button id="button_nongeographic" aria-expanded="false" aria-controls="region_nongeographic" class="source--title -js-title -js-accordion">
+            <span class="accordion icon closed" aria-hidden="true"></span>
+            <i class="fas fa-ellipsis-h tab-icn" title="{% trans 'Miscellaneous Datasets' %}" aria-hidden="true"></i>
+	    <span>{% trans 'Miscellaneous Datasets' %} ({{ nonGeographicDataset.md.nresults|intcomma }})</span>
+        </button>
+    </h2><!-- end .search-header -->
 
-    <div class="nonGeographicDataset search--body hide">
+    <div id="region_nongeographic" role="region" aria-labelledby="button_nongeographic" class="nonGeographicDataset search--body hide">
         <div>
             <div class="center">
                 {% if nonGeographicDataset.md.nresults|add:0 > 0 %}

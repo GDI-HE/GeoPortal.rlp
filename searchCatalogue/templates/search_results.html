@@ -7,11 +7,11 @@
             {% if not is_info_search %}
             <h1 style="margin:-2px 0 30px 0;font-size:2em;">{% trans 'Results' %}</h1>
 	    <div class="area-wrapper">
-		    <button id="filter-area" class="area-title -js-accordion" title="{% trans 'Open and close filter settings' %}" aria-label="{% trans 'Open and close filter settings' %}">
+		    <button aria-expanded="false" aria-controls="filter-area-elements" id="filter-area" class="area-title -js-accordion" title="{% trans 'Open and close filter settings' %}" aria-label="{% trans 'Open and close filter settings' %}">
                     <span class="accordion icon closed"></span>
                     <i class="fas fa-filter tab-icn" alt="{% trans 'A filter icon' %}" aria-hidden="true"></i>{% trans 'Filter' %}
 		    </button>
-                <div class="area-elements filter-area-elements">
+                <div id="filter-area-elements" role="region" aria-labelledby="filter-area" class="area-elements filter-area-elements">
                     {% include 'filterarea.html' %}
                     <div id="mobile-categories">
                         {% include 'facets.html' %}

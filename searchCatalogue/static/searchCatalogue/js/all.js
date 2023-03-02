@@ -1027,6 +1027,7 @@ $(document).ready(function() {
         elem.find('.accordion').toggleClass('closed').toggleClass('open');
         elem.parent().find(".area-elements").slideToggle("slow");
         elem.toggleClass('manual_opened_elem');
+        elem.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
       });
 
       /**
@@ -1636,6 +1637,7 @@ $(document).ready(function() {
             resolveCoupledResources(elem.closest(".search-cat"));
         }
         elem.find('.accordion').toggleClass('closed').toggleClass('open');
+        elem.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
         var thisBody = elem.parents(".search-cat").find(".search--body");
         thisBody.toggle("slow");
         thisBody.toggleClass("hide");
