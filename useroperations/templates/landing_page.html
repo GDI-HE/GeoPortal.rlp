@@ -78,36 +78,35 @@
 </div>
 <div class="tile-wrapper favourite-wmcs">
     {% for result in results.wmc %}
-        <div class="tile">
-            <a href="#" class="tile-header" data-id="WMC={{result.id}}">
+        <div id="wmc_tile_{{result.id}}" class="tile" title="{% trans 'map combination tile' %} {{ result.title|safe }}">
+            <a href="#" class="tile-header" data-id="WMC={{result.id}}" aria-label="{% trans 'Load mapviewer with the map combination' %} {{ result.title|safe }}">
                 <div class="tile-title">
                    <p><strong>{{ result.title|safe }}</strong></p>
                 </div>
                 <div class="tile-header-img">
-                    <img alt="{% trans 'Preview of the map combination' %}" title="{% trans 'Preview of the map combination' %}" class="tile-img" src="{{ result.previewURL }}">
+                    <img alt="{% trans 'Preview of the map combination' %} {{ result.title|safe }}" class="tile-img" src="{{ result.previewURL }}">
                 </div>
             </a>
             <div class="tile-content">
                 <div class="tile-content-abstract">
                     <div class="sub-tile-container">
                         <div title="{% trans 'Total views this week' %}" class="view-count">
-                            <i class="fas fa-eye"></i>
-                            <span>{{ result.loadCount|intcomma }}</span>
+			    <span aria-label="{% trans 'Total views this week' %}"><i style="margin-right: 0.2em;" class="fas fa-eye" aria-hidden="true"></i>{{ result.loadCount|intcomma }}</span>
                         </div>
-                        <div title="{% trans 'Metadata' %}">
-                            <a class="favourite-wmc-links data-info-container" style="display:inline-block;" href="{{ result.mdLink }}" target="_blank">
+                        <div title="{% trans 'Open metadata for' %} {{ result.title|safe }}">
+                            <a aria-label="{% trans 'Open metadata for' %} {{ result.title|safe }}" class="favourite-wmc-links data-info-container" style="display:inline-block;" href="{{ result.mdLink }}" target="_blank">
                                 <i class="fas fa-file-alt icn-metadata" aria-hidden="true"></i>
                             </a>
                         </div>
                         <div title="{% trans 'Share' %}" class="share-button popup-landing">
-                            <a href="#a" class="favourite-wmc-links">
+                            <a href="#a" class="favourite-wmc-links" aria-label="{% trans 'Copy Map URL to clipboard' %}">
                                 <span class="popuptext-landing {{ result.id }}" name="sharepopup{{ result.id }}">{% trans 'Map URL copied to clipboard' %}</span>
-                                <i class="fa fa-share-alt"></i>
+                                <i class="fa fa-share-alt" aria-hidden="true"></i>
                             </a>
                         </div>
                         <div title="{% trans 'Open in mobile viewer' %}" class="mobile-button">
-                            <a href="#a" class="favourite-wmc-links">
-                                <i class="fas fa-mobile-alt"></i>
+                            <a href="#a" class="favourite-wmc-links" aria-label="{% trans 'Open in mobile viewer' %}">
+                                <i class="fas fa-mobile-alt" aria-hidden="true"></i>
                             </a>
                         </div>
                     </div>
@@ -115,8 +114,8 @@
             </div>
         </div>
     {% endfor %}
-        <div id="show-all-tile" class="tile">
-            <a href="#" id="show-all-tile-content" class="tile-header">
+        <div id="show-all-tile" class="tile" title="{% trans 'Start search for all map combinations' %}">
+            <a href="#" id="show-all-tile-content" class="tile-header" aria-label="{% trans 'Start search for all map combinations' %}">
                 <div class="tile-title"><p><strong>{% trans 'Show all' %}</strong></p></div>
                 <div class="tile-header-img">
                     <svg xmlns="http://www.w3.org/2000/svg" width="130" height="" viewBox="0 0 52 60" focusable="false" role="img" aria-hidden="true">
@@ -126,7 +125,6 @@
             </a>
             <div class="tile-content">
                 <div class="tile-content-abstract">
-                    <hr>
                     <p>
                     {% trans "Start a search and explore all results. Let's go!" %}
                     </p>

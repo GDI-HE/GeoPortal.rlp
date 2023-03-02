@@ -1027,6 +1027,7 @@ $(document).ready(function() {
         elem.find('.accordion').toggleClass('closed').toggleClass('open');
         elem.parent().find(".area-elements").slideToggle("slow");
         elem.toggleClass('manual_opened_elem');
+        elem.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
       });
 
       /**
@@ -1368,7 +1369,7 @@ $(document).ready(function() {
 
         var $this = $(this);
         var $container = $this.parent().find('.keywords--container');
-
+        $this.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
         if( $container.hasClass('hide') ) {
             $container.slideToggle("slow");
             $container.removeClass('hide');
@@ -1562,7 +1563,7 @@ $(document).ready(function() {
         var wikiKeyword = elem.attr("data-target");
         // start call for mediawiki content
         $.ajax({
-            url: "/article/" + wikiKeyword,
+            url: "/article/" + wikiKeyword.replace(/ /g, "_"),
             headers: {
                 "X-CSRFToken": getCookie("csrftoken")
             },
@@ -1636,6 +1637,7 @@ $(document).ready(function() {
             resolveCoupledResources(elem.closest(".search-cat"));
         }
         elem.find('.accordion').toggleClass('closed').toggleClass('open');
+        elem.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
         var thisBody = elem.parents(".search-cat").find(".search--body");
         thisBody.toggle("slow");
         thisBody.toggleClass("hide");

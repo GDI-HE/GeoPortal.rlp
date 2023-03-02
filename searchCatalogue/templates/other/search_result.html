@@ -1,30 +1,34 @@
 {% load static i18n %}
 <div class="result--item -js-result-dataset">
-    <a title='zu {{ result.title }}' href='{{ result.htmlLink }}' data-parent="{{ result.mdLink }}" target="_blank" style="text-decoration: none">
-        <div class="search-result-title">
-            {{ result.title }}
-        </div>
-    </a>
+    <h3 class="search-result-title">
+	<a title="{% trans 'Open metadata for' %} {{ result.title }}" href='{{ result.htmlLink }}' data-parent="{{ result.mdLink }}" target="_blank">
+            <span>{{ result.title }}</span>
+	    <i aria-hidden="true" class="fas fa-external-link-alt"></i>
+        </a>
+    </h3>
     <div class="search-result-area">
         <div class="img-area result-overview">
             <div class="flex-row">
-                <img class="img-preview" style="max-width:100px;" src="{% if result.previewUrl is not None %}{{ result.previewUrl }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
+                <img alt="" class="img-preview" style="max-width:100px;" src="{% if result.previewUrl is not None %}{{ result.previewUrl }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
             </div>
-            <article class="search-result-detail">{{ result.abstract }}</article>
+	    <article class="search-result-detail"><p>{{ result.abstract }}</p></article>
         </div>
         <hr>
-        <div class="img-area">
-        </div>
+        <div class="img-area"></div>
         <div class="flex-row metadata-links">
-            <a class="metadata-link-element" href="{{ result.htmlLink }}#tabs-3" target="_blank"><span class="metadata-button" title="{% trans 'Competent authority' %}">
-                <i class="fas fa-city icn-organization" title="{% trans 'Organizations' %}" ></i>
-                {{ result.respOrg }}
-            </span></a>
+            <a class="metadata-link-element" href="{{ result.htmlLink }}#tabs-3" target="_blank">
+		<span class="metadata-button" title="{% trans 'Competent authority' %}">
+                    <i class="fas fa-city icn-organization" title="{% trans 'Organizations' %}" aria-hidden="true"></i>
+                    {{ result.respOrg }}
+                </span>
+	    </a>
             {% if result.date|length > 0 %}
-            <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-2" target="_blank"><span class="metadata-button" title="{% trans 'Date of metadata' %}">
-                <i class="fas fa-calendar-alt icn-date"></i>
-                {{ result.date }}
-            </span></a>
+            <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-2" target="_blank">
+		<span class="metadata-button" title="{% trans 'Date of metadata' %}">
+                    <i class="fas fa-calendar-alt icn-date" aria-hidden="true"></i>
+                    {{ result.date }}
+                </span>
+	    </a>
             {% endif %}
         </div>
 

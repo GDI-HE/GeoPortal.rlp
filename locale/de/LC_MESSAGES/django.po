@@ -356,6 +356,7 @@ msgstr "Senden"
 
 #: searchCatalogue/templates/primary/application/application_search_result.html:3
 #: searchCatalogue/templates/primary/dataset/dataset_search_result.html:3
+#: useroperations/templates/landing_page.html:96
 msgid "Open metadata for"
 msgstr "Metadaten öffnen für"
 
@@ -1334,17 +1335,33 @@ msgstr "Kategorien und Themen"
 msgid "Most frequently used map combinations"
 msgstr "Meistgenutzte Karten"
 
+#: useroperations/templates/landing_page.html:57
+msgid "map combination tile"
+msgstr "Kartenzusammenstellungs Kachel"
+
 #: useroperations/templates/landing_page.html:67
 msgid "Preview of the map combination"
 msgstr "Vorschau der Kartenzusammenstellung"
 
-#: useroperations/templates/landing_page.html:73
+#: useroperations/templates/landing_page.html:82
+msgid "Load mapviewer with the map combination"
+msgstr "Lade Kartenviewer mit der Kartenzusammenstellung"
+
+#: useroperations/templates/landing_page.html:93
 msgid "Total views this week"
 msgstr "Anzahl Aufrufe diese Woche"
+
+#: useroperations/templates/landing_page.html:102
+msgid "Copy Map URL to clipboard"
+msgstr "Kopiere URL in die Zwischenablage"
 
 #: useroperations/templates/landing_page.html:77
 msgid "Open in mobile viewer"
 msgstr "Im mobilen Kartenviewer öffnen"
+
+#: useroperations/templates/landing_page.html:77
+msgid "Start search for all map combinations"
+msgstr "Starte Suche nach allen Kartenzusammenstellungen"
 
 #: useroperations/templates/landing_page.html:83
 msgid "No description available"
@@ -1756,6 +1773,9 @@ msgstr "Filtereinstellung auf- oder zuklappen"
 msgid "Open and close searchresults for "
 msgstr "Auf- und zuklappen der Suchergebnisse für "
 
+#: GeoPortal.rlp/searchCatalogue/templates/index.html:30
+msgid "Search results loading"
+msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "The letter W, as used for wikipedia"
 #~ msgstr "Der Buchstabe W, bekannt im Zusammenhang mit Wikipedia"

@@ -1,12 +1,12 @@
 {% load i18n %}
 <div data-result="dataset" class="keywords -js-keywords ">
-    <button class="keywords--headline">
-        <span class="accordion icon closed"></span>
+    <button id="button_keyword_{{var}}" aria-expanded="false" aria-controls="region_keyword_{{var}}" class="keywords--headline">
+        <span class="accordion icon closed" aria-hidden="true"></span>
         {% trans 'Search for keywords' %}
     </button>
-    <div class="keywords--container hide">
+    <div id="region_keyword_{{var}}" role="region" aria-labelledby="button_keyword_{{var}}" class="keywords--container hide" style="display:none">
         {% for tag in tags %}
-        <span class="keywords--item -js-keyword" data-params="{{ tag.url }}" title="{{ tag.title }}" style="font-size: {{ tag.weight }}px;">{{ tag.title }}</span>
+        <button class="keywords--item -js-keyword" data-params="{{ tag.url }}" title="Starte Suche mit Keyword {{ tag.title }}" style="font-size:{{ tag.weight|floatformat:0 }}px;" aria-label="Starte Suche mit Keyword {{ tag.title }} (Häufigkeit: {{ tag.weight|floatformat:0|add:"-10" }})">{{ tag.title }}</button>
         {% endfor %}
     </div><!-- end .keywords--container -->
 </div><!-- end .keywords -->

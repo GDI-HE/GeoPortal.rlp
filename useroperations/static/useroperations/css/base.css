@@ -26,7 +26,7 @@ CHANGE PLACEHOLDER COLORS
   color: var(--secondary-placeholder);
 }
 
-*{font-family:arial,helvetica,candara;}
+*{font-family:arial,helvetica,candara;scroll-padding-bottom:3em;}
 
 html{
     height: 100%;
@@ -40,7 +40,7 @@ body{
 }
 
 /* keyboard usability outline focus-visible */
-.quickstart.search:focus-visible, .quickstart:focus-visible, .footer-list a:focus-visible, .left-header a:focus-visible, nav a:focus-visible, .hessenlogotab:focus-visible, input#geoportal-search-field:focus-visible, .nobuttoncss:focus-visible, input[type="checkbox" i]:focus-visible, #backtotop:focus-visible{ 
+.quickstart.search:focus-visible, .quickstart:focus-visible, .footer-list a:focus-visible, .left-header a:focus-visible, nav a:focus-visible, .hessenlogotab:focus-visible, input#geoportal-search-field:focus-visible, .nobuttoncss:focus-visible, input[type="checkbox" i]:focus-visible, #backtotop:focus-visible, .map-viewer-selector button:focus-visible, .map-applications-toggler button:focus-visible{ 
     outline: solid .125rem #f1b709;
 }
 
@@ -681,14 +681,21 @@ ul {
     font-size: 1em;
     color: var(--hesse-green);
     font-weight: bold;
+    inline-size: max-content;
+    max-width: 289px;
 }
 
-.map-viewer-selector a, .map-applications-toggler a{
+.map-viewer-selector button, .map-applications-toggler button{
     text-decoration: none;
+    font-size: inherit;
+    font-weight: inherit;
+    background-color: inherit;
+    border: unset;
+    cursor: pointer;
     color: inherit; 
 }
 
-.map-viewer-selector a:hover, .map-applications-toggler a:hover{
+.map-viewer-selector button:hover, .map-applications-toggler button:hover{
     text-decoration: underline;
     text-underline-offset: 4px;
 }
@@ -736,14 +743,19 @@ ul {
     overflow-x: hidden;
 }
 .map-applications-list, .map-viewer-list{
-    padding: 1rem;
+    padding-top: 1rem;
 }
-.map-applications-list-entry, .map-viewer-list-entry{
+.map-applications-toggler .map-applications-list-entry, .map-viewer-selector .map-viewer-list-entry{
     color: white;
     font-weight: bold;
     padding: 0.5em;
     margin-top: 0.25em;
     background-color: var(--hesse-green);
+    width: 100%;
+    text-align: left;
+    font-size: inherit;
+    border: unset;
+    word-break: break-all;
 }
 .map-applications-list-entry:hover, .map-viewer-list-entry:hover {
     background-color: var(--hesse-blue);

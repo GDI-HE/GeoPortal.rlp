@@ -7,7 +7,7 @@
   border: 1px solid var(--secondary) !important;
 }
 
-.spatial-search-text.visible a:focus-visible {
+.spatial-search-text.visible a:focus-visible, .keywords--item.-js-keyword:focus-visible {
   outline: solid .125rem #f1b709;
   text-decoration: none;
 }
@@ -503,6 +503,25 @@ dl dd {
     padding: 0 0 0 10px;
 }
 
+#mobile-categories.horizontal-facet-selection .facet-list .catalogue-container {
+    max-width: unset;
+    margin: 0 0 0.5em 0;
+    border: unset;
+    box-shadow: unset;
+}
+
+#mobile-categories.horizontal-facet-selection .facet-list .catalogue-container .catalogue-form {
+    flex-direction: row;
+    display: inline-flex;
+}
+
+#mobile-categories.horizontal-facet-selection .facet-list .catalogue-container .facet-header {
+    display: inline-flex;
+    background-color:unset;
+    border:unset;
+    vertical-align: middle;
+}
+
 #mobile-categories{
     display: block;
 }
@@ -927,12 +946,24 @@ dl dd {
   }
 
 .keywords--container {
-  margin-top: 10px; }
+  margin: 20px 0;
+  padding: 10px 0;
+  border-radius: 15px;
+  background-color: var(--hesse-lightblue);
+  flex-flow: row wrap;
+  display: flex;
+}
 
 .keywords--item {
-  margin: 10px;
+  margin: 0 10px;
+  padding: 0;
   cursor: pointer; 
-  font-family: monospace; }
+  font-family: monospace;
+  border: none;
+  background-color: unset;
+  flex: 1 auto;
+  text-align: center;
+}
 
 .keywords--item:hover {
   color: var(--primary);
@@ -1480,4 +1511,51 @@ span.fixed-width{
     .resource-element-data{
         flex-direction: column;
     }
+}
+
+.result--item.info-result-header {
+  padding: 0 10px;
+  margin: 5px 0;
+  font-size: 0.8em;
+  background-color: unset;
+  border: unset;
+  display: inline-flex;
+}
+
+#search-results .mediawiki-article {
+  padding: 50px;
+  background-color: var(--hesse-lightblue);
+  border: 3px solid var(--hesse-green);
+  margin: 0 20px;
+}
+
+.info-search-area .search-result-area {
+  margin: 0 20px 20px 35px;
+  border: unset;
+  padding: 0;
+  line-height: 1.5;
+}
+
+.info-search-results {
+  display: flex;
+  flex-direction: column;
+}
+
+.info-search-entry-extern {
+  width: fit-content;
+}
+
+.result--item.info-result-header.info-search-result {
+  width: fit-content;
+  padding: 5px 10px !important;
+  margin: 0;
+}
+
+.info-search-entry-extern .result--item.info-result-header:hover, .result--item.info-result-header.info-search-result:hover {
+  background-color:unset;
+  color: var(--primary);
+}
+
+.info-search-entry-extern:focus-visible, .result--item.info-result-header.info-search-result:focus-visible {
+    outline: solid 2px #f1b709 !important;
 }

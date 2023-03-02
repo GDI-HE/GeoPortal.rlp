@@ -11,7 +11,7 @@
 <div class="search-result-area">
         <div class="img-area result-overview">
             <div class="flex-row">
-                <img class="img-preview" style="max-width:100px;" src="{% if result.previewURL is not None %}{{ result.previewURL }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
+                <img alt="" class="img-preview" style="max-width:100px;" src="{% if result.previewURL is not None %}{{ result.previewURL }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
             </div>
 	    <article class="search-result-detail"><p>{{ result.abstract }}</p></article>
         </div>
