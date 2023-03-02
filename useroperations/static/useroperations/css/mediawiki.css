@@ -19,6 +19,14 @@
     outline: solid .125em #f1b709;
 }
 
+.mediawiki-article a[href$=png], .mediawiki-article a[href$=PNG], .mediawiki-article a[href$=jpg]{
+    display:inline-block;
+}
+
+.mediawiki-article a[href$=png]:focus-visible, .mediawiki-article a[href$=PNG]:focus-visible, .mediawiki-article a[href$=jpg]:focus-visible {
+    outline: solid .125em #f1b709;
+}
+
 .mediawiki-article{
     padding: 1px 50px 0 0;
     max-width:900px;
