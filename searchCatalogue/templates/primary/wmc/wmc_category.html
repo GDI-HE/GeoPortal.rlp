@@ -11,7 +11,7 @@
         {% if search_results.wmc.keywords.tagCloud.tags|length > 0 and search_results.wmc.wmc.wmc.md.nresults|add:0 > 0 %}
             {% with search_results.wmc.keywords.tagCloud.tags as tags %}
 
-                {% include 'keywords.html' %}
+                {% include 'keywords.html' with var="wmc" %}
 
             {% endwith %}
         {% endif %}

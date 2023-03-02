@@ -11,7 +11,7 @@
         {% if search_results.wfs.keywords.tagCloud.tags|length > 0 and search_results.wfs.wfs.wfs.md.nresults|add:0 > 0 %}
             {% with search_results.wfs.keywords.tagCloud.tags as tags %}
 
-                {% include 'keywords.html' %}
+                {% include 'keywords.html' with var="wfs" %}
 
             {% endwith %}
         {% endif %}

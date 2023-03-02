@@ -13,7 +13,7 @@
         {% if search_results.dataset.keywords.tagCloud.tags|length > 0 and search_results.dataset.dataset.dataset.md.nresults|add:0 > 0 %}
             {% with search_results.dataset.keywords.tagCloud.tags as tags %}
 
-                {% include 'keywords.html' %}
+                {% include 'keywords.html' with var="datasets" %}
             {% endwith %}
         {% endif %}
 

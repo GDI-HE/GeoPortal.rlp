@@ -7,7 +7,7 @@
   border: 1px solid var(--secondary) !important;
 }
 
-.spatial-search-text.visible a:focus-visible {
+.spatial-search-text.visible a:focus-visible, .keywords--item.-js-keyword:focus-visible {
   outline: solid .125rem #f1b709;
   text-decoration: none;
 }
@@ -946,12 +946,24 @@ dl dd {
   }
 
 .keywords--container {
-  margin-top: 10px; }
+  margin: 20px 0;
+  padding: 10px 0;
+  border-radius: 15px;
+  background-color: var(--hesse-lightblue);
+  flex-flow: row wrap;
+  display: flex;
+}
 
 .keywords--item {
-  margin: 10px;
+  margin: 0 10px;
+  padding: 0;
   cursor: pointer; 
-  font-family: monospace; }
+  font-family: monospace;
+  border: none;
+  background-color: unset;
+  flex: 1 auto;
+  text-align: center;
+}
 
 .keywords--item:hover {
   color: var(--primary);

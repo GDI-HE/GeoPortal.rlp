@@ -15,7 +15,7 @@
     word-break: break-word;
 }
 
-*:focus-visible {
+*:focus-visible, .plainlinks a:focus-visible {
     outline: solid .125em #f1b709;
 }
 
@@ -226,13 +226,19 @@ margin: 10px 0 0 0;
     display:block;
     }
 }
+
+.plainlinks.real-external {
+    display: inline-flex;
+    align-items: center;
+}
+
 .real-external::after{
     content:"\f35d";
     font-family: 'Font Awesome 5 Free';
     font-weight: 900;
     font-size:0.6em;
     margin: 0px 0 0px 5px;
-    color: var(--hesse-grey);
+    color: var(--hesse-red);
     vertical-align: middle;
 }
 .external{}

@@ -1369,7 +1369,7 @@ $(document).ready(function() {
 
         var $this = $(this);
         var $container = $this.parent().find('.keywords--container');
-
+        $this.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
         if( $container.hasClass('hide') ) {
             $container.slideToggle("slow");
             $container.removeClass('hide');
