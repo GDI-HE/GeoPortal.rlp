@@ -744,7 +744,7 @@ $(document).ready(function() {
         // get terms from search input field
         var searchField = $(".simple-search-field");
         var terms = searchField.val();
-
+        //alert("new search terms: " + JSON.stringify(terms));
         // Make sure terms are set before search starts!
         // Racing condition might occur, when page is not completely loaded and the value of searchbarBackup
         // has not been pasted in the searchbar, yet. Check this in here!
@@ -1160,7 +1160,7 @@ $(document).ready(function() {
                 'language': value
             },
             type: 'post',
-            dataType: 'json',
+            dataType: 'html',
             success: function(data) {
                 location.reload();
             },
@@ -1169,6 +1169,10 @@ $(document).ready(function() {
                 if(textStatus === "timeout"){
                     alert("The catalogue provider didn't respond. Please try again later.");
                 }
+		//console.log(value);
+                //console.log(jqXHR);
+                //console.log(textStatus);
+                //console.log(errorThrown);
                 /*else{
                     alert(errorThrown);
                 }
@@ -1406,8 +1410,16 @@ $(document).ready(function() {
     jQuery(document).on("click", ".-js-keyword", function() {
         var $self = jQuery(this);
         var keyword = $self.text().trim();
+	//alert($self.attr('data-params'));
+        var new_params = $self.attr('data-params').replace('searchText=&', '');
+        var params = new Proxy(new URLSearchParams(new_params), {
+            get: (searchParams, prop) => searchParams.get(prop),
+        });
+        let searchText = params.searchText;
+        //alert(searchText);
         var searchInput = $(".simple-search-field");
-        searchInput.val(keyword);
+        //searchInput.val(keyword);
+        searchInput.val(searchText);
         search.setParam("terms", keyword);
         prepareAndSearch();
     });
@@ -1536,11 +1548,15 @@ $(document).ready(function() {
     jQuery(document).on("click", ".-js-term", function() {
         var $this = jQuery(this);
         var text = $this.text().trim();
-
+        
         // remove search word from input field
         var searchField = $(".simple-search-field");
         var searchText = searchField.val().trim();
-        var searchTextArr = searchText.split(" ");
+	if (searchText.includes(',')) {
+            var searchTextArr = searchText.split(",");
+	} else {
+            var searchTextArr = searchText.split(" ");
+	}
         var searchTextArrNew = []
         $.each(searchTextArr, function(i, elem){
             if (elem.trim() != text){
