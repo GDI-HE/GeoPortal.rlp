@@ -581,6 +581,42 @@ msgstr "Such/Download/Erfassungsmodule"
 msgid "Map collections"
 msgstr "Karten"
 
+#: useroperations/templates/landing_page.html:13
+msgid "Welcome to the Geoportal Hessen"
+msgstr "Herzlich willkommen im Geoportal Hessen"
+
+#: useroperations/templates/landing_page.html:18
+msgid "Here you get an unified access to the geodata of the Spatial Data Infrastructure Hesse (GDI-HE)"
+msgstr "Hier erhalten Sie einen einheitlichen Zugang zu den raumbezogenen Daten der Geodateninfrastruktur Hessen (GDI-HE)"
+
+#: useroperations/templates/landing_page.html:40
+msgid "continue to the News"
+msgstr "weiter zur Meldung"
+
+#: useroperations/templates/landing_page.html:45
+msgid "Looking for Geodata?"
+msgstr "Sie suchen Geodaten?"
+
+#: useroperations/templates/landing_page.html:46
+msgid "Here you can start your search"
+msgstr "Hier erhalten Sie einen Vorsprung bei Ihrer Suche"
+
+#: useroperations/templates/landing_page.html:47
+msgid "Now start an already filtered search by selecting one of the tiles"
+msgstr "Starten Sie jetzt eine bereits gefilterte Suche durch die Auswahl einer der Kacheln"
+
+#: useroperations/templates/landing_page.html:98
+msgid "Frequently used Maps"
+msgstr "Häufig gestartete Karten"
+
+#: useroperations/templates/landing_page.html:99
+msgid "Start our map application with already selected map layers here"
+msgstr "Hier starten Sie unsere Kartenanwendung mit bereits ausgewählten Kartenebenen"
+
+#: useroperations/templates/landing_page.html:100
+msgid "You can switch map layers on or off and add further map layers"
+msgstr "Sie können im Anschluss Kartenebenen aus- oder einschalten und weitere Kartenebenen hinzuladen"
+
 #: searchCatalogue/templates/search_forms.html:899
 msgid "GeoRSS Newsfeeds"
 msgstr ""
