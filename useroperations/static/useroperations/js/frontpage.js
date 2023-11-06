@@ -667,7 +667,7 @@ if( !window.BackToTop  ) {
 function checkForNews (){
         const currentDate = new Date();
         const currentTimestamp = currentDate.getTime();
-        url = "https://" + location.hostname + "/mediawiki/api.php?action=query&prop=revisions&rvlimit=1&rvprop=timestamp&rvdir=older&titles=Meldungen&format=json";
+        url = location.origin + "/mediawiki/api.php?action=query&prop=revisions&rvlimit=1&rvprop=timestamp&rvdir=older&titles=Meldungen&format=json";
         fetch(url)
         .then(function(response){return response.json();})
         .then(function(response) {
