@@ -1072,12 +1072,16 @@ msgstr "Bitte verwenden Sie mindestens 9 Zeichen."
 msgid "Password"
 msgstr "Passwort"
 
+#: useroperations/forms.py:19
+msgid "Please enter your password with at least at 9 characters."
+msgstr "Bitte verwenden Sie mindestens 9 Zeichen."
+
 #: useroperations/forms.py:19 useroperations/forms.py:39
 msgid "Password confirmation."
 msgstr "Bitte bestätigen Sie Ihr Passwort."
 
 #: useroperations/forms.py:19
-msgid "PasswordConfirmation"
+msgid "Password Confirmation"
 msgstr "Passwort bestätigen"
 
 #: useroperations/forms.py:21 useroperations/forms.py:41
