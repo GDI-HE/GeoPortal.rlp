@@ -15,6 +15,8 @@ from django.core.mail import send_mail
 from django.http import HttpRequest
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext as _
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
@@ -338,8 +340,10 @@ def register_view(request):
                 messages.error(request, _("The Username") + " {str_name} ".format(str_name=form.cleaned_data['name']) + _("is already taken"))
                 return redirect('useroperations:register')
 
-            if re.match(r'[A-Za-z0-9@#$%&+=!:-_]{9,}', form.cleaned_data['password']) is None:
-                messages.error(request, _("Password does not meet specified criteria, you should have at least 9 characters, allowed special chars are: @#$%&+=!:-_"))
+            try:
+                validate_password(form.cleaned_data['password'])
+            except ValidationError as e:
+                messages.error(request, e.messages)
                 return redirect('useroperations:register')
 
             user = MbUser()
