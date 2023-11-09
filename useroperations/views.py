@@ -141,7 +141,7 @@ def parse_wiki_data():
         "formatversion": 2
     }
 
-    response = requests.get(api_url, params=params)
+    response = requests.get(api_url, params=params, verify=False)
     parsed_data = []
 
     # Check if the API request was successful
