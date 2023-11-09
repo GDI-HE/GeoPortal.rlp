@@ -33,8 +33,6 @@ from .models import MbUser, MbGroup, MbUserMbGroup, MbRole, GuiMbUser, MbProxyLo
 
 logger = logging.getLogger(__name__)
 
-
-
 def prioritize_top_news(parsed_data):
     """
     Prioritizes "topNews" items based on their repair start dates and durations.
@@ -87,8 +85,23 @@ def prioritize_top_news(parsed_data):
     except:
         pass
 
+def extract_element(parent, selector):
+    try:
+        return parent.cssselect(selector)[0]
+    except IndexError:
+        return None
     
+def extract_text_content(element):
+    try:
+        return element.text_content().strip()
+    except AttributeError:
+        return ""
 
+def extract_text(element):
+    try:
+        return element.text.strip()
+    except AttributeError:
+        return None    
 
 def parse_wiki_data():
     """
@@ -107,7 +120,7 @@ def parse_wiki_data():
 
     This function performs the following steps:
     1. Constructs the URL for the Wikimedia API endpoint.
-    2. Sends a request to the API to parse the "Meldungen" page. 
+    2. Sends a request to the API to parse the "Meldungen" page.
        A t t e n t i o n !: prerequisites in Mediawiki - special template is needed!
                             The documentation can be found in Geoportal.rlp/documentation/requirement_topnews_parser.md
     3. Parses the JSON response to extract the HTML content.
@@ -144,57 +157,20 @@ def parse_wiki_data():
         top_news_elements = html_tree.cssselect("div.topNews")
         
         for top_news in top_news_elements:
-            try:
-                title_element = top_news.cssselect("h2.topNewsTitle")[0]
-            except IndexError:
-                title_element = None
+            title_element = extract_element(top_news, "h2.topNewsTitle")
+            date_element = extract_element(top_news, "span.topNewsDate strong")
+            duration_element = extract_element(top_news, "span.hiddenDuration")
+            teaser_element = extract_element(top_news, "p.teaser")
+            article_body_element = extract_element(top_news, "p.articleBody")
 
-            try:
-                date_element = top_news.cssselect("span.topNewsDate strong")[0]
-            except IndexError:
-                date_element = None
 
-            try:
-                duration_element = top_news.cssselect("span.hiddenDuration")[0]
-            except IndexError:
-                duration_element = None
-
-            try:
-                teaser_element = top_news.cssselect("p.teaser")[0]
-            except IndexError:
-                teaser_element = None
-
-            try:
-                article_body_element = top_news.cssselect("p.articleBody")[0]
-            except IndexError:
-                article_body_element = None
-
-            try:
-                title = title_element.text_content().strip()
-            except AttributeError:
-                title = ""
-
-            try:
-                date = date_element.text.strip()
-            except AttributeError:
-                date = None
+            title = extract_text_content(title_element)
+            date = extract_text(date_element)
+            if date is None:
                 continue
-
-            try:
-                duration = duration_element.text.strip()
-            except AttributeError:
-                duration = ""
-
-            try:
-                teaser = teaser_element.text_content().strip()
-            except AttributeError:
-                teaser = ""
-
-            try:
-                article_body = article_body_element.text_content().strip()
-            except AttributeError:
-                article_body = ""
-
+            duration = extract_text(duration_element)
+            teaser = extract_text_content(teaser_element)
+            article_body = extract_text_content(article_body_element)
 
             # Append the parsed data to the list
             parsed_data.append({
