@@ -34,7 +34,7 @@ Here's the structure of the `topNews` template:
 </div>
 ```
 The `<hr>` part is not necessary and could be ignored. 
-```
+
 
 ### 2. Parameters
 
