@@ -131,7 +131,7 @@ def parse_wiki_data():
     7. Returns the prioritized top news and the see more URL.
     """
     # Define the URL of your Wikimedia API endpoint
-    api_url = HTTP_OR_SSL + HOSTNAME + "/mediawiki/api.php"
+    api_url = "http://localhost/mediawiki/api.php"
 
     # Define parameters for the API request to parse the "Meldungen" page
     params = {
@@ -141,7 +141,7 @@ def parse_wiki_data():
         "formatversion": 2
     }
 
-    response = requests.get(api_url, params=params, verify=False)
+    response = requests.get(api_url, params=params)
     parsed_data = []
 
     # Check if the API request was successful
