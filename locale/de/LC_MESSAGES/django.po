@@ -582,7 +582,7 @@ msgid "Map collections"
 msgstr "Karten"
 
 #: useroperations/templates/landing_page.html:13
-msgid "Welcome to the Geoportal Hessen"
+msgid "Welcome to the Geoportal Hesse"
 msgstr "Herzlich willkommen im Geoportal Hessen"
 
 #: useroperations/templates/landing_page.html:18

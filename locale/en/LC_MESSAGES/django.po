@@ -594,6 +594,14 @@ msgstr ""
 msgid "Map collections"
 msgstr ""
 
+#: useroperations/templates/landing_page.html:13
+msgid "Welcome to the Geoportal Hesse"
+msgstr ""
+
+#: useroperations/templates/landing_page.html:18
+msgid "Here you get an unified access to the geodata of the Spatial Data Infrastructure Hesse (GDI-HE)"
+msgstr ""
+
 #: searchCatalogue/templates/search_forms.html:899
 msgid "GeoRSS Newsfeeds"
 msgstr ""
