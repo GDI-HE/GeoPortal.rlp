@@ -4,7 +4,7 @@ This repository contains documentation on creating news articles in MediaWiki, w
 
 ## Introduction
 
-The `topNews` template is designed for creating news articles in MediaWiki. It's particularly useful for highlighting important news or announcements at the top of the landingpage.
+The `topNews` template is designed for creating news articles in MediaWiki. It's particularly useful for highlighting important news or announcements at the top of the landing page.
 
 ## How to Use the `topNews` Template  
 
@@ -88,7 +88,7 @@ In the edited news articles, you can apply custom CSS to ensure that e.g. images
 
 ### What If It's Not a topNews Article?
 
-If the news article you're creating doesn't require the topNews format (or it's not a topNews), keep using the standard MediaWiki syntax for articles. If you're unsure, reach out to the documentation maintainers for guidance.
+If the news article you're creating doesn't require the topNews format (or it's not a topNews), keep using the standard MediaWiki syntax for articles.
 
 ### Custom Text Inside `topNews`
 
@@ -114,7 +114,6 @@ You can add various types of text and content within the `topNews` articleBody p
 ```
 ### error handling due to missing mandatory parameters
 What if the author forgot to write the date, title or any other mandatory part?
-An approach to create an extention for the validation during editing was done on mediawiki page but the attempt was unsuccessful.
 For the topNews to be in priority, the created date and the duration is of prime importance. If the current date is not given, the function cannot run and results error, hence was blocked with Exception error and handled it accordingly. 
 
 ### Possible Extension
