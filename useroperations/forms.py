@@ -15,11 +15,12 @@ class FeedbackForm(forms.Form):
         captcha = CaptchaField(label=_("I'm not a robot"))
 
 class RegistrationForm(forms.Form):
-    name = forms.CharField(max_length=100, label=_("Username"), widget=forms.TextInput(attrs={'title':_("Please enter your username.")}))
+    name = forms.CharField(max_length=100, label=_("Username"), widget=forms.TextInput(attrs={'id': 'username','title':_("Please enter your username.")}))
     #password = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Please enter your password with at least 9 characters."), 'pattern': ".{9,}", 'oninvalid':"this.setCustomValidity('" + str(_("Please use at least 9 characters.")) + "')", 'onchange':"try{setCustomValidity('')}catch(e){}", 'oninput':"setCustomValidity(' ')"}), label=_("Password"))
     #since django password validators will check the password, we don't need to do it here
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Please enter your password with at least at 9 characters.")}), label=_("Password"))
-    passwordconfirm = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Password confirmation."), 'pattern': ".{9,}"}), label=_("Password Confirmation"))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'id': 'password','title': _("Please enter your password with at least 9 characters.")}),label=_("Password"))
+    #passwordconfirm = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Password confirmation."), 'pattern': ".{9,}"}), label=_("PasswordConfirmation"))
+    passwordconfirm = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Password confirmation.")}),label=_("Password Confirmation"))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'title':_("Please enter your email.")}))
     organization = forms.CharField(max_length=100, label=_("Organization"), required=False, widget=forms.TextInput(attrs={'title': _("Please enter the organization you are working for.")}))
     department = forms.CharField(max_length=100, label=_("Departement"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter the departement you are working in.")}))
@@ -39,8 +40,10 @@ class LoginForm(forms.Form):
 class ChangeProfileForm(forms.Form):
     #name = forms.CharField(max_length=25, label=_("Username"),disabled=True)
     oldpassword = forms.CharField(required=False, widget=forms.PasswordInput(attrs={'title': _("Please enter your password.")}), label=_("Current password"))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Please enter your password with at least 9 characters. Allowed special chars are: @#$%&+=!:-_"), 'pattern': ".{9,}"}), label=_("New password "), required=False)
-    passwordconfirm = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Password confirmation."), 'pattern':".{9,}"}), label=_("Password confirmation"), required=False)
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'id': 'new_password','title': _("Please enter your password with at least 9 characters.")}),label=_("New password"), required=False)
+    #password = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Please enter your password with at least 9 characters. Allowed special chars are: @#$%&+=!:-_"), 'pattern': ".{9,}"}), label=_("New password "), required=False)
+    #passwordconfirm = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Password confirmation."), 'pattern':".{9,}"}), label=_("Password confirmation"), required=False)
+    passwordconfirm = forms.CharField(widget=forms.PasswordInput(attrs={'title': _("Password confirmation.")}),label=_("Password Confirmation"))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'title':_("Please enter your email.")}) )
     organization = forms.CharField(max_length=100, label=_("Organization"), required=False, widget=forms.TextInput(attrs={'title': _("Please enter the organization you are working for.")}))
     department = forms.CharField(max_length=100, label=_("Departement"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter the departement you are working in.")}))

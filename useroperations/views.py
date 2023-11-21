@@ -332,19 +332,22 @@ def register_view(request):
                     messages.error(request, _("Invalid reCAPTCHA. Please try again."))
                     return redirect('useroperations:register')
 
-            #bot honeypot field
+            # bot honeypot field
             if form.cleaned_data['identity'] != "":
-                return redirect('useroperations:register')
+                form.cleaned_data['identity'] = ''
+                return render(request, 'crispy_form_no_action.html', {'form': form})
 
             if MbUser.objects.filter(mb_user_name=form.cleaned_data['name']).exists():
                 messages.error(request, _("The Username") + " {str_name} ".format(str_name=form.cleaned_data['name']) + _("is already taken"))
-                return redirect('useroperations:register')
+                geoportal_context.get_context()['focus_username'] = True
+                return render(request, 'crispy_form_no_action.html', {'form': form, **geoportal_context.get_context()})
 
             try:
                 validate_password(form.cleaned_data['password'])
             except ValidationError as e:
                 messages.error(request, e.messages)
-                return redirect('useroperations:register')
+                return render(request, 'crispy_form_no_action.html', {'form': form})
+            
 
             user = MbUser()
             user.mb_user_name = form.cleaned_data['name']
@@ -373,7 +376,9 @@ def register_view(request):
                 }
                 geoportal_context.add_context(context)
                 messages.error(request, _("Passwords do not match"))
+                geoportal_context.get_context()['focus_password'] = True
                 return render(request, 'crispy_form_no_action.html', geoportal_context.get_context())
+                #return redirect('useroperations:register#password')
 
             try:
                 realm = mbConfReader.get_mapbender_config_value(PROJECT_DIR,'REALM')

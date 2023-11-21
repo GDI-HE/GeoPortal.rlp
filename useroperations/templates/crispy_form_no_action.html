@@ -19,6 +19,8 @@
 </p>
 <div class="wrapper form-wrapper">
     <form method="post">
+        <div id="password-strength"></div>
+<div id="password-feedback"></div>
         {% csrf_token %}
             <table>
             {% for field in form %}
@@ -31,6 +33,10 @@
                 </td>
                 <td class="field-value">
                     {{ field }}
+                    {% if field.name == "password" %}
+            <div id="password-strength"></div>
+            <div id="password-feedback"></div>
+        {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -62,6 +68,55 @@
         </div>
     </form>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zxcvbn/4.4.2/zxcvbn.js"></script>
+
+<script>
+    $(document).ready(function(){
+        $('#password').on('input', function() {
+            var password = $(this).val();
+            var result = zxcvbn(password);
+            if (result.score < 3) {
+                $('#password-strength').css('color', 'red');
+                $('form').on('submit', function(event) {
+                    event.preventDefault();
+                });
+                $('#password-error').text('Your password is too weak. Please enter a stronger password.');
+                $('#change-form-button').css({ 'opacity': '0.5', 'cursor': 'not-allowed' });
+
+            } else {
+                $('#password-strength').css('color', 'green');
+                $('form').off('submit');
+                $('#password-error').text('');
+                $('#change-form-button').css({ 'opacity': '1', 'cursor': 'pointer' });
+
+            }
+            $('#password-strength').text("Password strength: " + result.score + "/4");
+            $('#password-feedback').text(result.feedback.suggestions.join(' '));
+        });
+    });
+    </script>
+{% if focus_password %}
+<script>
+    window.onload = function() {
+        var passwordField = document.getElementById('password');
+        if (passwordField) {
+            passwordField.focus();
+        }
+    }
+</script>
+{% endif %}
+
+{% if focus_username %}
+<script>
+    window.onload = function() {
+        var usernameField = document.getElementById('username');
+        if (usernameField) {
+            usernameField.focus();
+        }
+    }
+</script>
+{% endif %}
 <input type="hidden" id="dsgvo" value="{{ dsgvo_flag }}">
 
 
