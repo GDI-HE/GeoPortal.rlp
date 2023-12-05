@@ -2,11 +2,13 @@ import hashlib
 import logging
 import re
 import smtplib
+import datetime
 import time
 import urllib.parse
 from collections import OrderedDict
 from pprint import pprint
 from urllib import error
+from lxml import html
 
 import bcrypt
 import requests
@@ -30,6 +32,174 @@ from .forms import RegistrationForm, LoginForm, PasswordResetForm, ChangeProfile
 from .models import MbUser, MbGroup, MbUserMbGroup, MbRole, GuiMbUser, MbProxyLog, Wfs, Wms
 
 logger = logging.getLogger(__name__)
+
+def prioritize_top_news(parsed_data):
+    """
+    Prioritizes "topNews" items based on their repair start dates and durations.
+
+    This function calculates the repair start date for each "topNews" item by adding
+    its duration to the specified date. It then sorts the items based on the number
+    of days until the repair start date, in ascending order. Items with repair dates
+    that have already passed are filtered out.
+
+    Additionally, if multiple "topNews" items have the same title and date, the latest entry
+    will be prioritized at the top of the list.
+
+    Args:
+        parsed_data (list of dict): A list of "topNews" items, each represented as a dictionary
+            with keys "title," "date," "duration," "teaser," and "article_body."
+
+    Returns:
+        list of dict: A sorted and filtered list of "topNews" items, prioritized by their repair dates.
+
+    """
+    
+    # Get today's date
+    today = datetime.date.today()
+
+    # Define a custom sorting function
+    def custom_sort(item):
+        # Parse the date into a format that can be compared
+        date_parts = item["date"].split(".")
+        parsed_date = datetime.date(int(date_parts[2]), int(date_parts[1]), int(date_parts[0]))
+
+        # Calculate the repair start date based on duration
+        if item["duration"]:
+            repair_start_date = parsed_date + datetime.timedelta(days=int(item["duration"]))
+        else:
+            repair_start_date = parsed_date
+
+        # Calculate the difference in days between today and the repair start date
+        days_until_repair = (repair_start_date - today).days
+
+        # Sort by days until repair (ascending)
+        return days_until_repair
+
+    # Sort the parsed data using the custom sorting function
+    try:
+        sorted_data = sorted(parsed_data, key=custom_sort)
+
+        # Filter out "topNews" items with repair dates that have already passed
+        sorted_data = [item for item in sorted_data if custom_sort(item) >= 0]
+        return sorted_data
+    except:
+        pass
+
+def extract_element(parent, selector):
+    try:
+        return parent.cssselect(selector)[0]
+    except IndexError:
+        return None
+    
+def extract_text_content(element):
+    try:
+        return element.text_content().strip()
+    except AttributeError:
+        return ""
+
+def extract_text(element):
+    try:
+        return element.text.strip()
+    except AttributeError:
+        return None    
+
+def parse_wiki_data():
+    """
+    Parse the "Meldungen" page on the wiki and return the prioritized top news, along with a URL
+    to see more details if available.
+
+    Args:
+        request: The HTTP request object (not explicitly used in this function).
+
+    Returns:
+        tuple: A tuple containing two elements:
+            - A list of prioritized top news items, each represented as a dictionary with keys
+              "title," "date," "duration," "teaser," and "article_body."
+            - A URL to see more details about the top news on the wiki page, or an empty string if
+              there are no top news items.
+
+    This function performs the following steps:
+    1. Constructs the URL for the Wikimedia API endpoint.
+    2. Sends a request to the API to parse the "Meldungen" page.
+       A t t e n t i o n !: prerequisites in Mediawiki - special template is needed!
+                            The documentation can be found in Geoportal.rlp/documentation/requirement_topnews_parser.md
+    3. Parses the JSON response to extract the HTML content.
+    4. Extracts information from HTML elements within "topNews" divs, including title, date,
+       duration, teaser, and article body.
+    5. Prioritizes the top news items based on repair start dates and durations.
+    6. Generates a URL to see more details about the top news item, adapted for MediaWiki encoding.
+    7. Returns the prioritized top news and the see more URL.
+    """
+    # Define the URL of your Wikimedia API endpoint
+    api_url = "http://localhost/mediawiki/api.php"
+
+    # Define parameters for the API request to parse the "Meldungen" page
+    params = {
+        "action": "parse",
+        "format": "json",
+        "page": "Meldungen",  
+        "formatversion": 2
+    }
+
+    response = requests.get(api_url, params=params)
+    parsed_data = []
+
+    # Check if the API request was successful
+    if response.status_code == 200:
+        # Parse the JSON response
+        data = response.json()
+        parsed_content = data["parse"]["text"]
+
+        # Parse the HTML content (in 'parsed_content') and create an HTML tree structure for further processing.
+        html_tree = html.fromstring(parsed_content)
+        
+        # Find all div elements with class="topNews" 
+        top_news_elements = html_tree.cssselect("div.topNews")
+        
+        for top_news in top_news_elements:
+            title_element = extract_element(top_news, "h2.topNewsTitle")
+            date_element = extract_element(top_news, "span.topNewsDate strong")
+            duration_element = extract_element(top_news, "span.hiddenDuration")
+            teaser_element = extract_element(top_news, "p.teaser")
+            article_body_element = extract_element(top_news, "p.articleBody")
+
+
+            title = extract_text_content(title_element)
+            date = extract_text(date_element)
+            if date is None:
+                continue
+            duration = extract_text(duration_element)
+            teaser = extract_text_content(teaser_element)
+            article_body = extract_text_content(article_body_element)
+
+            # Append the parsed data to the list
+            parsed_data.append({
+                "title": title,
+                "date": date,
+                "duration": duration,
+                "teaser": teaser,
+                "article_body": article_body
+            })
+
+    # Call the function to prioritize the "topNews" elements based on repair start date
+    prioritized_top_news = prioritize_top_news(parsed_data)
+    # If there are prioritized top news items, select the first item
+    if prioritized_top_news:
+        top_news =[prioritized_top_news[0]] 
+        one_news = prioritized_top_news[0]
+        #remove all white spaces (if there is whitespaces we cannot see it in mediawiki id and in the page, but the parsed_content will have white spaces)
+        cleaned_top_news = re.sub(r'\s+', ' ', one_news["title"])  
+        encoded_title = urllib.parse.quote(cleaned_top_news, safe='')
+        # Adapt the encoded_title for compatibility with MediaWiki encoding:
+        # - Replace '%20' with underscores ('_')
+        # - Replace '%' with periods ('.')
+        encoded_title = encoded_title.replace("%20", "_")
+        encoded_title = encoded_title.replace("%", ".")  
+        see_more_url = f'{HTTP_OR_SSL}{HOSTNAME}/article/Meldungen/#{encoded_title}' #see_more_url for the link to the wiki page
+    else:
+        top_news = []
+        see_more_url = ""
+    return top_news, see_more_url
 
 
 @check_browser
@@ -104,6 +274,7 @@ def index_view(request, wiki_keyword=""):
 
 
     geoportal_context = GeoportalContext(request)
+    top_news, see_more_url = parse_wiki_data()
     context_data = geoportal_context.get_context()
     if context_data['dsgvo'] == 'no' and context_data['loggedin'] == True and wiki_keyword not in dsgvo_list:
         return redirect('useroperations:change_profile')
@@ -129,6 +300,8 @@ def index_view(request, wiki_keyword=""):
                "content": output,
                "results": results,
                "mobile_wmc_id": MOBILE_WMC_ID,
+                "see_more_url": see_more_url,
+                "top_news": top_news,
                }
     geoportal_context.add_context(context=context)
 

@@ -3,23 +3,46 @@
 {% block title %} - {% trans 'Homepage' %} {% endblock %}
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{% static '/useroperations/css/favourite_wmcs.css' %}" media="all" />
+
 {% endblock %}
 
 {% block body %}
 
 <div class="landing-page-body">
-
+    
     <div class="landing-page-headline">
-	    <h1>Herzlich willkommen im Geoportal Hessen</h1>
+        <h1>{% trans 'Welcome to the Geoportal Hesse' %} </h1> 
     </div>
     <div class="w3-container">
-        <p>Hier erhalten Sie einen einheitlichen Zugang zu den raumbezogenen Daten der Geodateninfrastruktur Hessen (GDI-HE)</p>
+        <p>{% trans 'Here you get an unified access to the geodata of the Spatial Data Infrastructure Hesse (GDI-HE)' %}</p>
     </div>
 </div>
 
-<!--<div class="landing-page-alert" style="margin:48px 10px; border: 2px solid var(--hesse-red);background-color: var(--hesse-lighterblue);padding: 10px;">
-    <h2 style="text-align: center;line-height:1.5;margin:0;font-size:1em;">Achtung: Update wurde durchgeführt. Lesen Sie <span><a href="article/Meldungen/#Update_durchgef.C3.BChrt">hier</a></span>.</h2>
-</div>-->
+<!-- A t t e n t i o n !: prerequisites in Mediawiki - special template is needed!
+     The documentation can be found in Geoportal.rlp/documentation/requirement_topnews_parser.md -->
+
+
+{% if top_news %} 
+
+    <!-- Simple Alert Message -->
+    <div class="landing-page-alert" style="margin:48px 10px; border: 2px solid var(--hesse-red);background-color: var(--hesse-lighterblue);padding: 10px;">
+     
+            {% for data in top_news %}
+                        <h2 style="text-align: center;line-height:1.5;margin:0;font-size:1em;">
+                        {{ data.title }} <span class="text-danger">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </span></h2>
+                    <div style="text-align: center;line-height:1.5;margin:0;font-size:1em;">
+                        <p><strong>{{ data.date }}</strong></p>
+                        <p>{{ data.teaser }}</p>
+                        <i class="fas fa-newspaper"></i>
+                        <a href="{{ see_more_url }}">{% trans 'continue to the News' %}</a>
+                    </div>
+            {% endfor %}
+    </div>
+
+{% endif %}
+
 
 <div class="landing-page-box1"><!--landing-page-box-Begin -->
 <div class="landing-page-headline">
