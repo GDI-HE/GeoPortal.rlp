@@ -561,22 +561,30 @@ def register_view(request):
             user.is_active = False
 
             user.activation_key = useroperations_helper.random_string(50)
+	    activation_link = HTTP_OR_SSL + HOSTNAME + "/activate/" + user.activation_key
 
             send_mail(
                  _("Activation Mail"),
                 _("Hello ") + user.mb_user_name +
                 ", \n \n" +
                 _("This is your activation link. It will be valid until the end of the day, please click it!")
-              	+ "\n Link: "  + HTTP_OR_SSL + HOSTNAME + "/activate/" + user.activation_key,
+              	+ "\n Link: "  + activation_link, +
+		"\n\nMit freundlichen Grüßen,\nGeoportal Hessen",
                 DEFAULT_FROM_EMAIL,
                 [user.mb_user_email],
                 fail_silently=False,
+		html_message=_("Hello ") + user.mb_user_name +
+		", <br><br> +
+		_("This is your activation link. It will be valid until the end of the day, please click it!")
+		+ "<br> Link: <a href='" + activation_link + "'>" + activation_link + "</a>", +
+		"<br><br>Mit freundlichen Grüßen,<br>Geoportal Hessen",
             )
 
 
             user.save()
 
             user = MbUser.objects.get(mb_user_name=user.mb_user_name)
+
             UserGroupRel = MbUserMbGroup()
             UserGroupRel.fkey_mb_user = user
 
