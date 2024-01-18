@@ -504,33 +504,33 @@ if ($(window).width() < 689) {
 
 
 
-$(document).on('click', "#change-form-button", function(){
+// $(document).on('click', "#change-form-button", function(event){
 
-  var userLang = navigator.language || navigator.userLanguage;
-  var PasswordInput = document.getElementById("id_password");
-  var PasswordInputConfirm = document.getElementById("id_passwordconfirm");
-
-
-  if(PasswordInput.value != PasswordInputConfirm.value) {
-    if(userLang == "de") {
-      alert("Passwörter stimmen nicht überein");
-    } else {
-      alert("Passwords do not match");
-    }
-    event.preventDefault();
-
-  }
+//   var userLang = navigator.language || navigator.userLanguage;
+//   var PasswordInput = document.getElementById("password");
+//   var PasswordInputConfirm = document.getElementById("id_passwordconfirm");
 
 
-});
+//   if(PasswordInput.value != PasswordInputConfirm.value) {
+//     if(userLang == "de") {
+//       alert("Passwörter stimmen nicht überein");
+//     } else {
+//       alert("Passwords do not match");
+//     }
+//     event.preventDefault();
+
+//   }
+
+
+// });
 
 
 //captcha refresh
 $(function() {
     // Add refresh button after field (this can be done in the template as well)
     $('img.captcha').after(
-            $('<a href="#void" class="captcha-refresh">↻</a>')
-            );
+        $('<a href="#void" class="captcha-refresh" aria-label="Refresh CAPTCHA">↻</a>')
+        );
 
     // Click-handler for the refresh-link
     $('.captcha-refresh').click(function(){
@@ -611,48 +611,7 @@ $(document).ready(function(){
     // show and auto hide messages
     $(".messages-container").delay(500).slideToggle("medium");
     $(".messages-container").delay(5000).slideToggle("medium");
-    rewrite_article_urls()
 });
-
-function rewrite_article_urls() {
-    var currentURL = window.location.pathname,
-    ariclePattern = new RegExp('^/article/.*');
-
-    if (ariclePattern.test(currentURL)) {
-        var anchors = document.getElementsByTagName('a');
-        for (var i = 0; i < anchors.length; i++) {
-            link=anchors[i].href;
-            //console.log(link);
-            if (link.includes("mediawiki/index.php") && !link.includes(".pdf") && !link.includes(".odt") ){
-                var articleName = link.substr(link.lastIndexOf('/') + 1);
-                var decoded = decodeURIComponent(articleName)
-                var  wOutUmlaut = replaceUmlaute(decoded)
-                anchors[i].href = location.protocol + "//" + location.hostname + "/article/" + wOutUmlaut
-            } 
-        }
-    }
-} 
-const umlautMap = {
-    '\u00dc': 'UE',
-    '\u00c4': 'AE',
-    '\u00d6': 'OE',
-    '\u00fc': 'ue',
-    '\u00e4': 'ae',
-    '\u00f6': 'oe',
-    '\u00df': 'ss',
-    ':': '_',
-  }
-  
-function replaceUmlaute(str) {
-  return str
-    .replace(/[\u00dc|\u00c4|\u00d6][a-z]/g, (a) => {
-      const big = umlautMap[a.slice(0, 1)];
-      return big.charAt(0) + big.charAt(1).toLowerCase() + a.slice(1);
-    })
-    .replace(new RegExp('['+Object.keys(umlautMap).join('|')+']',"g"),
-      (a) => umlautMap[a]
-    );
-}
 
 $(document).on("click", "#geoportal-empty-search-button", function(){
     document.getElementById("geoportal-search-field").value = '';

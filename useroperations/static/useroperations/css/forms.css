@@ -7,7 +7,7 @@
   font-style: normal; }
 
 .field-wrapper{
-    padding: 5px;
+    padding: 5px 0px;
     display: flex;
     /*justify-content: space-around;*/
     align-items: center;
@@ -119,23 +119,24 @@ form input[type=text], form input[type=password], form input[type=email], form t
 }
 
 .valid {
-  color: green;
-}
+    color: green;
+  }
+  
+  .valid:before {
+    position: relative;
+    content: "✔ ";
+  }
+  
+  /* Add a red text color and an "x" when the requirements are wrong */
+  .invalid {
+    color: red;
+  }
+  
+  .invalid:before {
+    position: relative;
+    content: "✖ ";
+  }
 
-.valid:before {
-  position: relative;
-  content: "✔ ";
-}
-
-/* Add a red text color and an "x" when the requirements are wrong */
-.invalid {
-  color: red;
-}
-
-.invalid:before {
-  position: relative;
-  content: "✖ ";
-}
 
 .captcha{
     width: 100px;
@@ -164,12 +165,111 @@ form input[type=text], form input[type=password], form input[type=email], form t
     background-color: var(--primary-light-hover);
 }
 
+input:invalid {
+    border: 2px red;
+}
+
+input:invalid:required {
+    background-color: #f6ecec;
+    /* Light red */
+    color: #000000;
+    /* Black */
+}
+
+.password-field {
+    position: relative;
+    display: block;
+}
+
+#password-rules li, #CheckPasswordMatch, #CheckEmail {
+  display: inline-block;
+  background-color: #efefef;
+  border-radius: 5px;
+  padding: 4px 8px;
+  margin: 10px 0px 0px 0px; 
+  font-size: 12px;
+}
+
+.password-field .toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.toggle-question {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
+
+.form-wrapper {
+    width: 100%;
+    max-width: 600px;
+}
+
+#tooltip-content {
+    display: none;
+    position: absolute;
+    width: inherit;
+    background-color: #f9f9f9;
+    color: #333;
+    padding: 10px 40px 10px 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    z-index: 1;
+    cursor: pointer;
+}
+
+/* Show the tooltip content when the show-tooltip class is present */
+#tooltip-content.show-tooltip {
+    display: block;
+}
+  
+  #close-tooltip {
+    background-color: var(--hesse-green);
+    color: #fff;
+    padding: 6px 6px;
+    cursor: pointer;
+    border: 1px solid black;
+  }
+
+/* Show the tooltip content when the show-tooltip class is present */
+#tooltip-content.show-tooltip {
+    display: block;
+}
+
+/* CSS for screens less than or equal to 600px wide */
+@media (max-width: 600px) {
+    #tooltip-content {
+        display: none;
+        width: 100%;
+        /* Take up the full width */
+        font-size: 12px;
+        cursor: pointer;
+        overflow: auto;
+    }
+
+    tooltip-content.show-tooltip {
+        display: block;
+        position: absolute;
+        left: 0;
+    }
+}
+
 @media screen and (max-width: 500px){
     .field-wrapper{flex-wrap:wrap;justify-content: space-around;}
-    .field-wrapper td{display:block;width:100%;max-width:300px;}
+    .field-wrapper td{display:block;width:100%;}
+    p.description, p.foot-note, .register-table {padding: 0rem 1rem;}
+    .register-table {border-spacing: unset;}
 }
 
 @media screen and (max-width: 800px){
     .body-content.sidebar-open .field-wrapper{flex-wrap:wrap;}
     .body-content.sidebar-open .field-wrapper td{display:block;width:100%;max-width:300px;}
 }
+
