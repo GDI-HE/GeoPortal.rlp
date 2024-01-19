@@ -99,7 +99,7 @@ $("#email").on("input", function () {
 
 $("#change_profile_email").on("input", function () {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  validateInput("#change_profile_email", "#CheckEmail", emailRegex, enterValidMessageChange, ValidEmailMessageChange);
+  validateInput("#change_profile_email", "#CheckEmail", emailRegex, ValidEmailMessageChange, enterValidMessageChange);
 });
 
 $("#phone_field_id").on("input", function () {
