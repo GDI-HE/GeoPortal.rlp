@@ -6,17 +6,17 @@ from django.utils.safestring import mark_safe
 from Geoportal.settings import USE_RECAPTCHA
 from django.core.exceptions import ValidationError
 
-#try if it works in mobile devices (the mobile keyboard should appear showing only numbers)
+#Validation error if user use other characters than numbers and the allowed characters
 def validate_phone_number(value):
     """
     Custom validator for the phone number field.
     It ensures that the phone number contains only digits and a limited set of characters.
     """
-    allowed_characters = set("0123456789()-+ ")  # Define the allowed characters here
+    allowed_characters = set("0123456789()+- ")  # Define the allowed characters here
     invalid_characters = set(value) - allowed_characters
 
     if invalid_characters:
-        raise forms.ValidationError("Please enter a valid phone number.")
+        raise forms.ValidationError(_("Please enter a valid phone number."))
 
 class FeedbackForm(forms.Form):
     first_name = forms.CharField(max_length=200, label=_("First name"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter your first name.")}))
@@ -34,7 +34,7 @@ class RegistrationForm(forms.Form):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'id': 'email','title':_("Please enter your email.")}))
     organization = forms.CharField(max_length=100, label=_("Organization"), required=False, widget=forms.TextInput(attrs={'title': _("Please enter the organization you are working for.")}))
     department = forms.CharField(max_length=100, label=_("Department"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter the departement you are working in.")}))
-    phone = forms.CharField(max_length=100, label=_("Phone"), required=False,widget=forms.TextInput(attrs={'title': _("Please enter your phone number.")}), validators=[validate_phone_number])
+    phone = forms.CharField(max_length=100, label=_("Phone"), required=False,widget=forms.TextInput(attrs={'type': 'tel', 'id':'phone_field_id','title': _("Please enter your phone number.")}), validators=[validate_phone_number])
     description = forms.CharField(max_length=255, label=_("Description"), required=False, widget=forms.TextInput(attrs={'id':'id_description','title':_("Please enter a description."), 'maxlength':'255'}))
     identity = forms.CharField(max_length=255, label=_("identity"), required=False, widget=forms.TextInput(attrs={'title':_("Identity.")}))
     dsgvo = forms.BooleanField(initial=False, label=_("I understand and accept that my data will be automatically processed and securely stored, as it is stated in the general data protection regulation (GDPR)."), required=True, widget=forms.CheckboxInput(attrs={'title':_("Accept privacy policy."), 'required': 'required'}))
@@ -70,7 +70,6 @@ class PasswordResetForm(forms.Form):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'title':_("Please enter your email.")}))
 
 class DeleteProfileForm(forms.Form):
-    #confirmation_password = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'id': 'delete_profile', 'title': _("Please enter your password.")}), label=_("Confirm with password"))
     helper = FormHelper()
 
 

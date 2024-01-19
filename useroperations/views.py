@@ -548,8 +548,6 @@ def register_view(request):
             user.mb_user_description = form.cleaned_data['description']
             user.mb_user_phone = form.cleaned_data['phone']
             user.mb_user_organisation_name = form.cleaned_data['organization']
-            #user.mb_user_newsletter = form.cleaned_data['newsletter']
-            #user.mb_user_allow_survey = form.cleaned_data['survey']
             user.timestamp_dsgvo_accepted = time.time()
 
             # check if passwords match
@@ -589,23 +587,15 @@ def register_view(request):
 
             user.activation_key = useroperations_helper.random_string(50)
 
-            activation_link = HTTP_OR_SSL + HOSTNAME + "/activate/" + user.activation_key
-
             send_mail(
-                _("Activation Mail"),
+                 _("Activation Mail"),
                 _("Hello ") + user.mb_user_name +
                 ", \n \n" +
-                _("This is your activation link. It will be valid until the end of the day, please click it!")
-                + "\n Link: "  + activation_link +
-                "\n\nMit freundlichen Grüßen,\nYour Name",
+                _("This is your activation link. It will be valid until the end of the day, please copy and paste the link in your browser to activate it!")
+              	+ "\n Link: "  + HTTP_OR_SSL + HOSTNAME + "/activate/" + user.activation_key,
                 DEFAULT_FROM_EMAIL,
                 [user.mb_user_email],
                 fail_silently=False,
-                html_message=_("Hello ") + user.mb_user_name +
-                ", <br><br>" +
-                _("This is your activation link. It will be valid until the end of the day, please click it!")
-                + "<br> Link: <a href='" + activation_link + "'>" + activation_link + "</a>" +
-                "<br><br>Mit freundlichen Grüßen,<br>Geoportal Hessen",
             )
 
 
@@ -635,15 +625,18 @@ def register_view(request):
                 "small_labels": small_labels,
                 "disclaimer": disclaimer,
             }
+            context['focus_phone'] = True
             geoportal_context.add_context(context)
-            messages.error(request, _("Captcha was wrong! Please try again"))
-            #return error message with Validation error e
-            # for errors in form.errors.items():
-            #     for error in errors:
-            #         messages.error(request, error)
-            #Even there is a error in password and confirm password, Captcha error will be shown
-            #need to fix with the above code later. 
-
+            # give only one error message
+            for field, errors in form.errors.items():
+                for error in errors:
+                    if field == 'captcha':
+                        messages.error(request, _("Captcha was wrong! Please try again"))
+                    else:
+                        messages.error(request, error)
+                    break
+                break
+            
     return render(request, 'crispy_form_no_action.html', geoportal_context.get_context())
 
 
@@ -761,9 +754,6 @@ def change_profile_view(request):
                     'description': user.mb_user_description,
                     'phone': user.mb_user_phone,
                     'organization': user.mb_user_organisation_name,
-                    #newsletter and survey were removed as these are irrelevant for our geoportal
-                    #'newsletter': user.mb_user_newsletter,
-                    #'survey': user.mb_user_allow_survey,
                     'create_digest' : user.create_digest,
                     'preferred_gui' : user.fkey_preferred_gui_id,
                     }
@@ -832,9 +822,6 @@ def change_profile_view(request):
                 user.mb_user_description = form.cleaned_data['description']
                 user.mb_user_phone = form.cleaned_data['phone']
                 user.mb_user_organisation_name = form.cleaned_data['organization']
-
-                #user.mb_user_newsletter = form.cleaned_data['newsletter']
-                #user.mb_user_allow_survey = form.cleaned_data['survey']
                 user.create_digest = form.cleaned_data['create_digest']
                 user.fkey_preferred_gui_id = form.cleaned_data['preferred_gui']
 
@@ -897,6 +884,8 @@ def delete_profile_view(request):
     """
 
     geoportal_context = GeoportalContext(request=request)
+    # check if the user has access to this page and donot allow direct access
+    # to this delete the page directly from the url
     referer = request.META.get('HTTP_REFERER', '')
 
     if 'change-profile' not in referer.lower() and 'delete-profile' not in referer.lower():
@@ -904,6 +893,10 @@ def delete_profile_view(request):
     
     if not request.session.get("can_access_delete", False):
         return redirect('useroperations:change_profile')
+    
+    # TODO:
+    # check if the mapbender connection with delete profile is still working!
+    
 
     if request.COOKIES.get(SESSION_NAME) is not None:
         session_data = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))

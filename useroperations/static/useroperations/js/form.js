@@ -38,7 +38,7 @@ function validatePasswordOnChange(selector) {
 }
 
 $(document).ready(function () {
-  const hideElements = ["#password-rules", "#CheckPasswordMatch", "#CheckEmail"];
+  const hideElements = ["#password-rules", "#CheckPasswordMatch", "#CheckEmail", "#CheckPhone"];
   hideElements.forEach(selector => $(selector).hide());
 
   const handleFocusBlur = (inputSelectors, messageSelector) => {
@@ -50,6 +50,7 @@ $(document).ready(function () {
   handleFocusBlur("#password, #change_profile_password", "#password-rules");
   handleFocusBlur("#id_passwordconfirm, #change_profile_passwordconfirm", "#CheckPasswordMatch");
   handleFocusBlur("#email, #change_profile_email", "#CheckEmail");
+  handleFocusBlur("#phone_field_id", "#CheckPhone");
 });
 
 let isPasswordValid = false;
@@ -80,27 +81,42 @@ $("#password, #id_passwordconfirm, #change_profile_password, #change_profile_pas
   checkPassword(password, confirmPassword);
 });
 
-$("#email, #change_profile_email").on("input", function () {
-  const $this = $(this);
-  const email = $this.val();
-  const isChangeProfileEmail = $this.attr('id') === 'change_profile_email';
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const isValidEmail = emailRegex.test(email) && email !== "";
-  const message = isValidEmail ? (isChangeProfileEmail ? ValidEmailMessageChange : ValidEmailMessage) : (isChangeProfileEmail ? enterValidMessageChange : enterValidEmailMessage);
-  const color = isValidEmail ? "green" : "red";
-  const border = isValidEmail ? "" : "2px solid red";
-  $("#CheckEmail").html(message).css("color", color);
+function validateInput(inputElement, messageElement, regex, validMessage, invalidMessage) {
+  const $this = $(inputElement);
+  const value = $this.val();
+  const isValid = regex.test(value) && value !== "";
+  const message = isValid ? validMessage : invalidMessage;
+  const color = isValid ? "green" : "red";
+  const border = isValid ? "" : "2px solid red";
+  $(messageElement).html(message).css("color", color);
   $this.css("border", border);
+}
+
+$("#email").on("input", function () {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  validateInput("#email", "#CheckEmail", emailRegex, ValidEmailMessage, enterValidEmailMessage);
+});
+
+$("#change_profile_email").on("input", function () {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  validateInput("#change_profile_email", "#CheckChangeProfileEmail", emailRegex, ValidEmailMessageChange, enterValidEmailMessageChange);
+});
+
+$("#phone_field_id").on("input", function () {
+  const phoneRegex = /^[0-9()+-\s]+$/;
+  validateInput("#phone_field_id", "#CheckPhone", phoneRegex, ValidPhoneMessage, EnterValidPhoneMessage);
 });
 
 $("form").on("focusout", function (e) {
   if (!$(e.relatedTarget).closest("form").length) return;
   const password = $("#password, #change_profile_password").val(), confirmPassword = $("#id_passwordconfirm, #change_profile_passwordconfirm").val(), email = $("#email, #change_profile_email").val();
   const username = $("#username").val();
+  const phone = $("#phone_field_id").val();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (password === confirmPassword) $("#id_passwordconfirm, #password, #change_profile_password, #change_profile_passwordconfirm").css("border", "");
   if (emailRegex.test(email) && email !== "") $("#email, #change_profile_email").css("border", "");
   if (username) $("#username").css("border", "");
+  if (phone) $("#phone_field_id").css("border", "");
 });
 
 
@@ -162,6 +178,11 @@ window.onload = function () {
     const usernameField = document.getElementById("username");
     if (usernameField) usernameField.focus();
   }
+  if (focusPhone) {
+    const phoneField = document.getElementById("phone_field_id");
+    if (phoneField) phoneField.focus();
+  }
+
   //Scrolling to the top of the page when hash is pointing to an element
   var element = document.getElementById(location.hash.substring(1));
   if (element) {

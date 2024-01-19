@@ -1,8 +1,12 @@
-{% extends 'base.html' %} {% load i18n static %} {% block title %} - {% trans 'Registration' %} {% endblock %} {% load crispy_forms_tags %} {% block body %}
+{% extends 'base.html' %} 
+{% load i18n static %} 
+{% block title %} - {% trans 'Registration' %} {% endblock %} 
+{% load crispy_forms_tags %} 
+{% block body %}
+
 <div class="title">
     <h1>{{ headline }}</h1>
 </div>
-
 
 <p class="description">
     <a target="_self" href="/article/Registrierung/">{% trans 'Why should I create an account?' %}</a>
@@ -62,6 +66,9 @@
                     {% endif %} {% if field.name == "email" %}
                     <div id="CheckEmail" aria-live="polite" aria-label="{% trans 'Email validation' %}"></div>
                     {% endif %}
+                    {% if field.name == "phone" %}
+                    <div id="CheckPhone" style="color:red;"></div>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
@@ -118,9 +125,10 @@
 
 <script>
     // Declare global variables
-    //focus_password and focus_username are used in views.py to determine which field to focus on
+    //focus_password, focus_username and focus_phone are used in views.py to determine which field to focus on
     var focusPassword = {% if focus_password %}true{% else %}false{% endif %};
     var focusUsername = {% if focus_username %}true{% else %}false{% endif %};
+    var focusPhone = {% if focus_phone %}true{% else %}false{% endif %};
 </script>
 
 <script>
@@ -128,11 +136,12 @@
     var enterPasswordMessage = "{% trans 'Please enter a password first' %}";
     var passwordsNotMatchMessage = "{% trans 'The passwords you entered do not match' %}";
     var passwordsMatchMessage = "{% trans 'Passwords match' %}";
-    //edit in translation file too
-    var enterValidEmailMessage = "{% trans 'Die angegebene E-Mail-Adresse ist nicht gültig. Bitte überprüfen Sie sie, um sicherzustellen, dass sie korrekt ist. Ein Aktivierungslink wird an die richtige E-Mail-Adresse gesendet.' %}";
-    var ValidEmailMessage = "{% trans 'Die eingegebene E-Mail-Adresse scheint gültig zu sein. Bitte überprüfen Sie Ihr E-Mail-Postfach auf den Aktivierungslink.' %}";
-    var enterValidMessageChange = "{% trans 'Die angegebene E-Mail-Adresse ist nicht gültig.' %}";
-    var ValidEmailMessageChange = "{% trans 'Die eingegebene E-Mail-Adresse scheint gültig zu sein.' %}";
+    var enterValidEmailMessage = "{% trans 'The provided email address is not valid. Please check it to make sure it is correct. An activation link will be sent to the correct email address.' %}";
+    var ValidEmailMessage = "{% trans 'The entered email address appears to be valid. Please check your email inbox for the activation link.' %}";
+    var enterValidMessageChange = "{% trans 'The provided email address is not valid.' %}";
+    var ValidEmailMessageChange = "{% trans 'The entered email address appears to be valid.' %}";
+    var ValidPhoneMessage = "{% trans 'Phone number appears to be valid.' %}";
+    var EnterValidPhoneMessage = "{% trans 'Phone number is not valid. It can contain digits, parentheses, hyphens, plus signs, and spaces.' %}";
 </script>
 
 <script src="{% static 'useroperations/js/form.js' %}"></script>

@@ -19,7 +19,7 @@
     font-weight: bold;
 }
 
-form input[type=text], form input[type=password], form input[type=email], form textarea{
+form input[type=text], form input[type=password], form input[type=tel],  form input[type=email], form textarea{
     padding: 10px;
     border: 2px solid var(--secondary-placeholder);
     border-radius: 5px;
@@ -181,7 +181,7 @@ input:invalid:required {
     display: block;
 }
 
-#password-rules li, #CheckPasswordMatch, #CheckEmail {
+#password-rules li, #CheckPasswordMatch, #CheckEmail, #CheckPhone {
   display: inline-block;
   background-color: #efefef;
   border-radius: 5px;
