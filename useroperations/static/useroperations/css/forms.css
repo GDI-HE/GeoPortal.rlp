@@ -91,7 +91,7 @@ form input[type=text], form input[type=password], form input[type=tel],  form in
     color: var(--primary);
 }
 .field-label{
-    width: 300px;
+    width: 410px;
 }
 .field-value{
     /*min-width: 200px;*/
