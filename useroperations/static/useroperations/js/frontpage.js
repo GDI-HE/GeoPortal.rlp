@@ -529,7 +529,7 @@ if ($(window).width() < 689) {
 $(function() {
     // Add refresh button after field (this can be done in the template as well)
     $('img.captcha').after(
-        $('<a href="#void" class="captcha-refresh" aria-label="Refresh CAPTCHA">↻</a>')
+        $('<a href="#void" class="captcha-refresh" aria-label="' + refreshCaptcha + '">↻</a>')
         );
 
     // Click-handler for the refresh-link

@@ -1148,6 +1148,10 @@ msgstr "Sie können Ihr Profil bis zu 24 Stunden wiederherstellen. Nach diesem Z
 msgid "Invalid phone number."
 msgstr "Ungültige Telefonnummer."
 
+#: useroperations/crispy_form_no_action.html:137
+msgid "Refresh CAPTCHA"
+msgstr "CAPTCHA aktualisieren"
+
 #: useroperations/crispy_form_no_action.html:85
 msgid "Click for more information."
 msgstr "Klicken Sie hier, um weitere Informationen zu erhalten."
