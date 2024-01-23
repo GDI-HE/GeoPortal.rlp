@@ -1265,6 +1265,15 @@ msgstr "Bitte geben Sie Ihre Organisation ein."
 msgid "Departement"
 msgstr "Abteilung"
 
+#: useroperations/templates/crispy_form_no_action.html:145
+msgid "Password is valid."
+msgstr "Passwort ist gültig."
+
+#: useroperations/templates/crispy_form_no_action.html:146
+msgid "Password is invalid. Please check the password rules."
+msgstr "Passwort ist ungültig. Bitte überprüfen Sie die Passwortregeln."
+
+
 #: useroperations/forms.py:22 useroperations/forms.py:42
 msgid "Please enter the departement you are working in."
 msgstr "Bitte geben Sie Ihre Abteilung ein."

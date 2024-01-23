@@ -17,6 +17,10 @@ function updatePasswordStrength(passwordFieldSelector) {
   $("#number").css("color", number ? "green" : "red");
 
   $(passwordFieldSelector).css("border", (length && lowercase && uppercase && number) ? "" : "2px solid red");
+
+  // Update the ARIA live region with the password status
+  const passwordStatus = (length && lowercase && uppercase && number) ? passwordIsValid : passwordIsNotValid;
+  $("#passwordStatus").text(passwordStatus);
 }
 
 // Event handler for password input
@@ -154,7 +158,7 @@ $(document).ready(function () {
   $("#question-mark").attr("role", "button");
   $("#close-tooltip").attr("tabindex", "0");
 
-  $("#question-mark, #exclamationIcon").on("click keydown", function (event) {
+  $("#question-mark").on("click keydown", function (event) {
     if (event.type === "click" || (event.type === "keydown" && (event.key === "Enter" || event.key === " "))) {
       event.stopPropagation();
       const tooltip = $("#tooltip-content");
