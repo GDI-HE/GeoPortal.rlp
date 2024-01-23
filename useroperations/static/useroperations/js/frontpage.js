@@ -526,8 +526,9 @@ if ($(window).width() < 689) {
 
 
 //captcha refresh
-let refreshCaptcha;
 $(function() {
+    // it checks if the variable is defined already (e.g. in the template) and if not, it sets a default value
+    var refreshCaptcha = typeof window.refreshCaptcha !== 'undefined' ? window.refreshCaptcha : 'Refresh CAPTCHA';
     // Add refresh button after field (this can be done in the template as well)
     $('img.captcha').after(
         $('<a href="#void" class="captcha-refresh" aria-label="' + refreshCaptcha + '">↻</a>')
