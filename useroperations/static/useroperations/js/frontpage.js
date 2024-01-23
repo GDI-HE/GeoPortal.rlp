@@ -526,6 +526,7 @@ if ($(window).width() < 689) {
 
 
 //captcha refresh
+let refreshCaptcha;
 $(function() {
     // Add refresh button after field (this can be done in the template as well)
     $('img.captcha').after(
