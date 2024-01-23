@@ -843,7 +843,10 @@ def change_profile_view(request):
                 messages.success(request, _("Successfully changed data"))
                 return redirect('useroperations:index')
         else:
-            messages.error(request, _("For changing your profile, you have to enter your current password."))
+            if form.errors.get('phone'): 
+                messages.error(request, _("Invalid phone number."))
+            else:
+                messages.error(request, _("For changing your profile, you have to enter your current password."))
             return HttpResponseRedirect(reverse('useroperations:change_profile') + '#change_profile_oldpassword')
 
     small_labels = [

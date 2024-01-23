@@ -1141,8 +1141,12 @@ msgid "The entered email address appears to be valid."
 msgstr "Die eingegebene E-Mail-Adresse scheint gültig zu sein."
 
 #: useroperations/crispy_form_no_action.html:94
-msgid "If you delete the profile by mistake, you can recover it up to 24 hours. The activation email is sent to your email."
-msgstr "Wenn Sie das Profil versehentlich löschen, können Sie es bis zu 24 Stunden wiederherstellen. Die Aktivierungs-E-Mail wird an Ihre E-Mail-Adresse gesendet."
+msgid "You can recover your profile up to 24 hours. After this time period reactivation is not possible. The reactivation link is sent to you by email automatically."
+msgstr "Sie können Ihr Profil bis zu 24 Stunden wiederherstellen. Nach diesem Zeitraum ist eine Reaktivierung nicht mehr möglich. Der Reaktivierungslink wird Ihnen automatisch per E-Mail zugesandt."
+
+#: useroperations/crispy_form_no_action.html:135
+msgid "Invalid phone number."
+msgstr "Ungültige Telefonnummer."
 
 #: useroperations/crispy_form_no_action.html:85
 msgid "Click for more information."
