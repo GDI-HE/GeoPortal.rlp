@@ -1906,6 +1906,10 @@ msgstr "Logo Hessisches Wappentier: zur Startseit"
 msgid "Back to homepage"
 msgstr "Zurück zur Startseite"
 
+#templates/base.html:208 
+msgid "Back to top"
+msgstr "Zum Seitenanfang"
+
 #: GeoPortal.rlp/templates/base.html:55
 #: GeoPortal.rlp/searchCatalogue/templates/index.html:43
 msgid "Search field"
