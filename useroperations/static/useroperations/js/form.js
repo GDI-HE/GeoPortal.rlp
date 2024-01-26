@@ -135,7 +135,7 @@ $(document).ready(function () {
   $(".toggle-password").on("click keydown", function (e) {
     if (e.type === "click" || (e.type === "keydown" && (e.key === "Enter" || e.key === " "))) {
       const toggleIcon = $(this);
-      $("#password, #id_passwordconfirm, #change_profile_password, #change_profile_passwordconfirm, #delete_profile").each(function () { 
+      $("#password, #id_passwordconfirm, #change_profile_password, #change_profile_passwordconfirm, #delete_profile, #new_password, #confirm_password").each(function () { 
         const passwordField = $(this);
         const passwordFieldType = passwordField.attr("type");
         if (passwordFieldType == "password") {
@@ -173,6 +173,8 @@ $(document).ready(function () {
 
 //captcha refresh
 $(function() {
+  // Check if the captcha field exists
+  if ($('img.captcha').length > 0) {
   // Add refresh button after field (this can be done in the template as well)
   $('img.captcha').after(
       $('<a href="#void" class="captcha-refresh" aria-label="' + refreshCaptcha + '">↻</a>')
@@ -192,6 +194,7 @@ $(function() {
 
       return false;
   });
+  }
 });
 
 //its working

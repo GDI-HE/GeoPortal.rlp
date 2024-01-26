@@ -21,6 +21,14 @@ from django.contrib.auth.password_validation import validate_password, UserAttri
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.utils.http import urlsafe_base64_encode
+from django.template.loader import render_to_string
+from django.core.mail import EmailMessage   # this could be changed to old style which is used in register_view
+from django.utils.encoding import force_bytes
+from django.contrib.sites.shortcuts import get_current_site
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.http import urlsafe_base64_decode
+from django.utils.encoding import force_text
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
@@ -32,7 +40,7 @@ from searchCatalogue.utils.url_conf import URL_INSPIRE_DOC
 from searchCatalogue.settings import PROXIES
 from useroperations.settings import LISTED_VIEW_AS_DEFAULT, ORDER_BY_DEFAULT, INSPIRE_CATEGORIES, ISO_CATEGORIES
 from useroperations.utils import useroperations_helper
-from .forms import RegistrationForm, LoginForm, PasswordResetForm, ChangeProfileForm, DeleteProfileForm, FeedbackForm
+from .forms import RegistrationForm, LoginForm, PasswordResetForm, ChangeProfileForm, DeleteProfileForm, FeedbackForm, PasswordResetConfirmForm
 from .models import MbUser, MbGroup, MbUserMbGroup, MbRole, GuiMbUser, MbProxyLog, Wfs, Wms
 
 logger = logging.getLogger(__name__)
@@ -205,6 +213,17 @@ def parse_wiki_data():
         see_more_url = ""
     return top_news, see_more_url
 
+
+
+class CustomTokenGenerator(PasswordResetTokenGenerator):
+    def _make_hash_value(self, user, timestamp):
+        login_timestamp = '' if user.mb_user_last_login_date is None else user.mb_user_last_login_date.strftime('%Y%m%d')
+        return (
+            str(user.pk) + str(timestamp) +
+            str(user.password) + login_timestamp
+        )
+
+custom_token_generator = CustomTokenGenerator()
 
 @check_browser
 def index_view(request, wiki_keyword=""):
@@ -639,14 +658,13 @@ def register_view(request):
             
     return render(request, 'crispy_form_no_action.html', geoportal_context.get_context())
 
-
 @check_browser
 def pw_reset_view(request):
     """ View to reset password
 
     This view has the purpose to regain access if a password is lost.
-    To achieve this the user has to enter the correct username and password combination.
-    After doing so he gets an email with a new password.
+    To achieve this the user has to enter the correct username and email combination.
+    After doing so he gets an email with a password reset link.
 
     Args:
         request: HTTPRequest
@@ -655,14 +673,14 @@ def pw_reset_view(request):
         Email confirmation
     """
 
-    request.session["current_page"] = "pw_reset"
+    request.session["current_page"] = "password_reset"
     geoportal_context = GeoportalContext(request=request)
 
     form = PasswordResetForm()
     btn_label = _("Submit")
     context = {
         'form': form,
-        'headline': _("Password reset"),
+        'headline': _("Reset Password"),
         "btn_label2": btn_label,
     }
     geoportal_context.add_context(context)
@@ -674,34 +692,95 @@ def pw_reset_view(request):
             username = form.cleaned_data['name']
             email = form.cleaned_data['email']
 
-
-            if not MbUser.objects.filter(mb_user_name=username, mb_user_email=email):
+            if not MbUser.objects.filter(mb_user_name=username, mb_user_email=email).exists():
                 messages.error(request, _("No Account with this Username or Email found"))
             else:
                 user = MbUser.objects.get(mb_user_name=username, mb_user_email=email)
                 email = user.mb_user_email
 
-                newpassword = useroperations_helper.random_string(20)
+                if not user.is_active:  # Check if the user profile is active
+                    messages.error(request, _("No Account with this Username or Email found"))
+                    return redirect('useroperations:login')
 
-                user.password = (str(bcrypt.hashpw(newpassword.encode('utf-8'), bcrypt.gensalt(12)),'utf-8'))
+                token = custom_token_generator.make_token(user)
+                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                mail_subject = 'Reset your password.'
+                message = render_to_string('password_reset_email.html', {
+                    'user': user,
+                    'domain': HTTP_OR_SSL + HOSTNAME,
+                    'uid': uid,
+                    'token': token,
+                })
 
-                user.save()
-
-                send_mail(
-                        _("Lost Password"),
-                        _("Hello ") + user.mb_user_name +
-                        ", \n\n" +
-                        _("This is your new password, please change it immediately!\n Password: ") + newpassword ,
-                        DEFAULT_FROM_EMAIL,
-                        [user.mb_user_email],
-                        fail_silently=False,
+                email = EmailMessage(
+                    mail_subject, message, to=[email]
                 )
-
-
-                messages.success(request, _("Password reset was successful, check your mails."))
+                email.send()
+                messages.success(request, _("We have emailed you instructions for setting your password. You should receive them shortly."))
                 return redirect('useroperations:login')
 
     return render(request, "crispy_form_no_action.html", geoportal_context.get_context())
+
+def password_reset_confirm_view(request, uidb64=None, token=None):
+    """ View to confirm password reset
+
+    This view checks if the token is valid and if it is, it allows the user to set a new password.
+    After the new password is set, the user is redirected to a page indicating that the password reset was successful.
+
+    Args:
+        request: HTTPRequest
+        uidb64: User ID encoded in base 64
+        token: Token to check if the password reset request is valid
+    Returns:
+        PasswordResetConfirmForm or redirect to password reset complete view
+    """
+
+    try:
+        uid = force_text(urlsafe_base64_decode(uidb64))
+        user = MbUser._default_manager.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, MbUser.DoesNotExist):
+        user = None
+
+    if user is not None and user.is_active and custom_token_generator.check_token(user, token):
+        if request.method == 'POST':
+            form = PasswordResetConfirmForm(request.POST)
+            if form.is_valid():
+                if form.cleaned_data['new_password'] != form.cleaned_data['confirm_password']:
+                    messages.error(request, _("The two password fields didn’t match."))
+                else:
+                    try:
+                        validate_password(form.cleaned_data['new_password'])
+                    except ValidationError as e:
+                        messages.error(request, e.messages)
+                        return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)
+                    validator = UserAttributeSimilarityValidator(user_attributes=['mb_user_name'])
+
+                    try:
+                        validator.validate(form.cleaned_data['new_password'], user)
+                    except ValidationError:
+                        messages.error(request, _("Your password can't be too similar to your username."))
+                        return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)    
+                    user.password = (str(bcrypt.hashpw(form.cleaned_data.get('new_password').encode('utf-8'), bcrypt.gensalt(12)),'utf-8'))
+                    user.save()
+                    messages.success(request, _("Your password has been reset. You can now log in with your new password."))
+                    return redirect('useroperations:login')
+        else:
+            form = PasswordResetConfirmForm()
+        # Get the geoportal context
+        if request.method == 'GET':
+            geoportal_context = GeoportalContext(request)
+            context = {
+                'form': form,
+                'headline': _("Password reset"),
+                "btn_label2": _("Submit"),
+            }
+            geoportal_context.add_context(context)
+            return render(request, 'password_reset_confirm.html', geoportal_context.get_context())
+    else:
+        messages.error(request, _("The password reset link is invalid or has expired."))
+        return redirect('useroperations:password_reset')
+
+
 
 
 @check_browser

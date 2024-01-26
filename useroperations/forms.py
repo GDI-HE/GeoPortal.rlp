@@ -54,7 +54,7 @@ class LoginForm(forms.Form):
 
 class ChangeProfileForm(forms.Form):
     oldpassword = forms.CharField(required=True, widget=forms.PasswordInput(attrs={'id': 'change_profile_oldpassword', 'title': _("Please enter your password.")}), label=_("Current password"))
-    password = forms.CharField(widget=forms.PasswordInput(attrs={'id': 'change_profile_password', 'title': _("Please enter a password that is at least 9 characters long, includes at least one uppercase letter, one lowercase letter, and one number."), 'pattern': "(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}"}), label=_("New password "), required=False)
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'id': 'change_profile_password', 'title': _("Please enter a password that is at least 9 characters long, includes at least one uppercase letter, one lowercase letter, and one number."), 'pattern': "(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}"}), label=_("New password"), required=False)
     passwordconfirm = forms.CharField(widget=forms.PasswordInput(attrs={'id': 'change_profile_passwordconfirm', 'title': _("Please confirm your password."), 'pattern':".{9,}"}), label=_("Password confirmation"), required=False)
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'id': 'change_profile_email', 'title':_("Please enter your email.")}))
     organization = forms.CharField(max_length=100, label=_("Organization"), required=False, widget=forms.TextInput(attrs={'title': _("Please enter the organization you are working for.")}))
@@ -66,10 +66,13 @@ class ChangeProfileForm(forms.Form):
     dsgvo = forms.BooleanField(initial=False, label=mark_safe(_("I understand and accept that my data will be automatically processed and securely stored, as it is stated in the general data protection regulation (GDPR).") + '(<a href="/article/Datenschutz" target="_blank">' + str(_("privacy policy")) + '</a>)'), required=False, widget=forms.CheckboxInput(attrs={'title':_("Accept privacy policy.")}))
 
 class PasswordResetForm(forms.Form):
-    name = forms.CharField(max_length=100, label=_("Username"), widget=forms.TextInput(attrs={'title':_("Please enter your username.")}))
+    name = forms.CharField(max_length=100, label=_("Username"), widget=forms.TextInput(attrs={'title':_("Please enter your username."), 'autofocus': 'autofocus'}))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'title':_("Please enter your email.")}))
 
 class DeleteProfileForm(forms.Form):
     helper = FormHelper()
 
+class PasswordResetConfirmForm(forms.Form):
+    new_password = forms.CharField(widget=forms.PasswordInput(attrs={'id': 'new_password','title': _("Please enter a password that is at least 9 characters long, includes at least one uppercase letter, one lowercase letter, and one number."),'required': 'required','pattern': "(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}", 'autofocus': 'autofocus'}),label=_("New password"))
+    confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'id': 'confirm_password', 'title': _("Please confirm your new password."), 'required': 'required', 'pattern': "(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{9,}"}), label=_("Confirm new password"))
 

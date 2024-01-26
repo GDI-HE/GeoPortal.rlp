@@ -1144,6 +1144,14 @@ msgstr "Die eingegebene E-Mail-Adresse scheint gültig zu sein."
 msgid "You can recover your profile up to 24 hours. After this time period reactivation is not possible. The reactivation link is sent to you by email automatically."
 msgstr "Sie können Ihr Profil bis zu 24 Stunden wiederherstellen. Nach diesem Zeitraum ist eine Reaktivierung nicht mehr möglich. Der Reaktivierungslink wird Ihnen automatisch per E-Mail zugesandt."
 
+#: useroperations/views.py:765
+msgid "Your password has been reset. You can now log in with your new password."
+msgstr "Ihr Passwort wurde zurückgesetzt. Sie können sich jetzt mit Ihrem neuen Passwort anmelden."
+
+#: useroperations/useroperations/templates/password_reset_email.html:8
+msgid "Note that this link is valid only for 24 hours."
+msgstr "Bitte beachten Sie, dass dieser Link nur 24 Stunden gültig ist."
+
 #: useroperations/crispy_form_no_action.html:135
 msgid "Invalid phone number."
 msgstr "Ungültige Telefonnummer."
@@ -1281,6 +1289,9 @@ msgstr "Passwort ist gültig."
 msgid "Password is invalid. Please check the password rules."
 msgstr "Passwort ist ungültig. Bitte überprüfen Sie die Passwortregeln."
 
+#: useroperations/forms.py:22 useroperations/forms.py:42
+msgid "Confirm new password"
+msgstr "Neues Passwort bestätigen"
 
 #: useroperations/forms.py:22 useroperations/forms.py:42
 msgid "Please enter the departement you are working in."
@@ -1342,7 +1353,7 @@ msgid "Current password"
 msgstr "Aktuelles Passwort"
 
 #: useroperations/forms.py:38
-msgid "New password "
+msgid "New password"
 msgstr "Neues Passwort"
 
 #: useroperations/forms.py:39
@@ -1659,6 +1670,10 @@ msgstr "Relevanz"
 msgid "Forgot Password?"
 msgstr "Passwort vergessen?"
 
+#: useroperations/forms.py:76
+msgid "Reset Password"
+msgstr "Passwort zurücksetzen"
+
 #: useroperations/views.py:291
 msgid ""
 "Personal data will not be transmitted to other parties or services. Further "
@@ -1830,6 +1845,10 @@ msgid ""
 msgstr ""
 "Falls Sie ihr Konto versehentlich gelöscht haben, können Sie es unter dem "
 "folgenden Link reaktivieren!"
+
+#: useroperations/views.py:713
+msgid "We have emailed you instructions for setting your password. You should receive them shortly."
+msgstr "Wir haben Ihnen per E-Mail eine Anleitung zum Einrichten Ihres Passworts zugesandt. Sie sollten sie in Kürze erhalten."
 
 #: useroperations/views.py:716
 msgid "Successfully deleted the user:"
@@ -2072,9 +2091,6 @@ msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "A magnifying class"
 #~ msgstr "Ein Ver"
-
-#~ msgid "Reset Password"
-#~ msgstr "Passwort zurücksetzen"
 
 #~ msgid "A magnifying glass icon"
 #~ msgstr "Ein Lupensymbol"

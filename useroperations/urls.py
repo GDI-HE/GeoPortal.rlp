@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include , re_path
 from .views import *
+from . import views
 
 app_name = "useroperations"
 urlpatterns = [
@@ -14,7 +15,8 @@ urlpatterns = [
 
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
-    path('password_reset/', pw_reset_view, name='pw_reset'),
+    path('password_reset/', pw_reset_view, name='password_reset'),
+    path('password_reset_confirm/<uidb64>/<token>/', views.password_reset_confirm_view, name='password_reset_confirm'),
     path('change-profile/', change_profile_view, name='change_profile'),
     path('delete-profile/', delete_profile_view, name='delete_profile'),
     path('logout/', logout_view, name='logout'),
