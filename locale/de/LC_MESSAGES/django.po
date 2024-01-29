@@ -1297,6 +1297,10 @@ msgstr "Neues Passwort bestätigen"
 msgid "Please enter the departement you are working in."
 msgstr "Bitte geben Sie Ihre Abteilung ein."
 
+#: templates/base.html:186
+msgid "Close message"
+msgstr "Nachricht schließen"
+
 #: useroperations/forms.py:23
 msgid "Phone"
 msgstr "Telefon"

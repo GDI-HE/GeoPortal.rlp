@@ -179,11 +179,11 @@
 	</nav>
 	
 	{% if messages %}
-	<div class="messages-container">
+	<div class="messages-container" aria-live="polite">
 			{% for message in messages %}
-			<div class="messages {{ message.tags }}">
+			<div class="messages {{ message.tags }}" role="alert">
 				{{ message }}
-				<div class="message-toggler">
+				<div class="message-toggler" aria-label="{% trans 'Close message' %}">
 					x
 				</div>
 			</div>
