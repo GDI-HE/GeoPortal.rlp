@@ -71,6 +71,9 @@ DEFAULT_FROM_EMAIL = DEFAULT_TO_EMAIL
 EMAIL_PORT = 25
 ROOT_EMAIL_ADDRESS = "geoportal-root@server.domain.tld"
 
+# Add the PASSWORD_RESET_TIMEOUT to the custom token generator
+PASSWORD_RESET_TIMEOUT = 86400 # 1 day in seconds
+
 # Gui settings
 MODERN_GUI = "Geoportal-RLP_2019"
 DEFAULT_GUI = "Geoportal-RLP"
