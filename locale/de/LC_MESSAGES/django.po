@@ -1643,6 +1643,10 @@ msgstr "Anmeldung erfolgreich"
 msgid "Account not active, please check your emails to reactivate!"
 msgstr "Konto nicht aktiv, bitte prüfen Sie Ihre Emails!"
 
+#: useroperations/views.py:85
+msgid "You have to wait 24 hours to reset your password again!"
+msgstr "Sie müssen 24 Stunden warten, um Ihr Passwort erneut zurückzusetzen!"
+
 #: useroperations/views.py:86
 msgid ""
 "Password failed too many times! Account is deactivated! Activation mail was "

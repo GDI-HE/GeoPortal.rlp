@@ -25,7 +25,6 @@ from django.utils.http import urlsafe_base64_encode
 from django.template.loader import render_to_string
 from django.core.mail import EmailMessage   # this could be changed to old style which is used in register_view
 from django.utils.encoding import force_bytes
-from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_text
@@ -217,7 +216,7 @@ def parse_wiki_data():
 
 class CustomTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
-        login_timestamp = '' if user.mb_user_last_login_date is None else user.mb_user_last_login_date.strftime('%Y%m%d')
+        login_timestamp = '' if user.mb_user_password_ticket is '' else datetime.datetime.fromtimestamp(int(user.mb_user_password_ticket)).strftime('%Y%m%d%H%M%S')
         return (
             str(user.pk) + str(timestamp) +
             str(user.password) + login_timestamp
@@ -460,6 +459,11 @@ def login_view(request):
         'headline': _("Login"),
     }
     geoportal_context.add_context(context)
+    # The mb_user_password_ticket is set to null or empty string, if the user login successful,
+    # in order to make the password forgot token link invalid. Since the user has logged in, he doesn't need it anymore.
+    # If the user is blocked from the Forgot password (after 1 attempt), after login he can again use forget password to reset his password.
+    # But if not logged in, he has to wait 24 hours to use the forget password. Or he has to change the password, and the mb_user_password_ticket will again set to current time - 86400 allowing him to use the forget password.
+    # Since the authenication is done in php (authentication.php:61), change the code in the php script to set the mb_user_password_ticket to null or empty string after successful login.
 
     return render(request, "crispy_form_auth.html", geoportal_context.get_context())
 
@@ -701,6 +705,20 @@ def pw_reset_view(request):
                 if not user.is_active:  # Check if the user profile is active
                     messages.error(request, _("No Account with this Username or Email found"))
                     return redirect('useroperations:login')
+                
+                # get the mb_user_password_ticket from the user and if it is true, the user has to wait 24 hours
+                if user.mb_user_password_ticket != "":
+                    time_difference = int(time.time()) - int(user.mb_user_password_ticket)
+                    if time_difference < 86400:  # 1 day = 86400 seconds
+                        messages.error(request, _("You have to wait 24 hours to reset your password!")) #change it later
+                        return redirect('useroperations:login')
+                    else:
+                        user.mb_user_password_ticket = str(int(time.time()))
+                        user.save()
+                else:
+                    # use the current time as the mb_user_password_ticket and write it to the user
+                    user.mb_user_password_ticket = str(int(time.time()))
+                    user.save()
 
                 token = custom_token_generator.make_token(user)
                 uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -720,6 +738,7 @@ def pw_reset_view(request):
                 return redirect('useroperations:login')
 
     return render(request, "crispy_form_no_action.html", geoportal_context.get_context())
+
 
 def password_reset_confirm_view(request, uidb64=None, token=None):
     """ View to confirm password reset
@@ -761,6 +780,8 @@ def password_reset_confirm_view(request, uidb64=None, token=None):
                         messages.error(request, _("Your password can't be too similar to your username."))
                         return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)    
                     user.password = (str(bcrypt.hashpw(form.cleaned_data.get('new_password').encode('utf-8'), bcrypt.gensalt(12)),'utf-8'))
+                    # when the password is changed, the mb_user_password_ticket is set to now-86400 so that he can again use the forget password
+                    user.mb_user_password_ticket = str(int(time.time()) - 86400)
                     user.save()
                     messages.success(request, _("Your password has been reset. You can now log in with your new password."))
                     return redirect('useroperations:login')
@@ -779,8 +800,6 @@ def password_reset_confirm_view(request, uidb64=None, token=None):
     else:
         messages.error(request, _("The password reset link is invalid or has expired."))
         return redirect('useroperations:password_reset')
-
-
 
 
 @check_browser
