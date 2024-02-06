@@ -213,7 +213,7 @@ def parse_wiki_data():
     return top_news, see_more_url
 
 
-
+# might be good to move this to a separate file
 class CustomTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
         login_timestamp = '' if user.mb_user_password_ticket is '' else datetime.datetime.fromtimestamp(int(user.mb_user_password_ticket)).strftime('%Y%m%d%H%M%S')
@@ -707,10 +707,10 @@ def pw_reset_view(request):
                     return redirect('useroperations:login')
                 
                 # get the mb_user_password_ticket from the user and if it is true, the user has to wait 24 hours
-                if user.mb_user_password_ticket != "":
+                if user.mb_user_password_ticket is not None and user.mb_user_password_ticket != "":
                     time_difference = int(time.time()) - int(user.mb_user_password_ticket)
                     if time_difference < 86400:  # 1 day = 86400 seconds
-                        messages.error(request, _("You have to wait 24 hours to reset your password!")) #change it later
+                        messages.error(request, _("You have to wait 24 hours to reset your password again!")) #change it later
                         return redirect('useroperations:login')
                     else:
                         user.mb_user_password_ticket = str(int(time.time()))
@@ -720,8 +720,8 @@ def pw_reset_view(request):
                     user.mb_user_password_ticket = str(int(time.time()))
                     user.save()
 
-                token = custom_token_generator.make_token(user)
-                uid = urlsafe_base64_encode(force_bytes(user.pk))
+                token = custom_token_generator.make_token(user) 
+                uid = urlsafe_base64_encode(force_bytes(user.pk)) # encode the user id to base64
                 mail_subject = 'Reset your password.'
                 message = render_to_string('password_reset_email.html', {
                     'user': user,
@@ -732,7 +732,7 @@ def pw_reset_view(request):
 
                 email = EmailMessage(
                     mail_subject, message, to=[email]
-                )
+                ) 
                 email.send()
                 messages.success(request, _("We have emailed you instructions for setting your password. You should receive them shortly."))
                 return redirect('useroperations:login')
@@ -755,36 +755,45 @@ def password_reset_confirm_view(request, uidb64=None, token=None):
     """
 
     try:
-        uid = force_text(urlsafe_base64_decode(uidb64))
-        user = MbUser._default_manager.get(pk=uid)
+        uid = force_text(urlsafe_base64_decode(uidb64)) # decode the user id from base64
+        user = MbUser._default_manager.get(pk=uid) # get the user by the user id
     except(TypeError, ValueError, OverflowError, MbUser.DoesNotExist):
         user = None
 
     if user is not None and user.is_active and custom_token_generator.check_token(user, token):
         if request.method == 'POST':
             form = PasswordResetConfirmForm(request.POST)
-            if form.is_valid():
-                if form.cleaned_data['new_password'] != form.cleaned_data['confirm_password']:
-                    messages.error(request, _("The two password fields didn’t match."))
-                else:
-                    try:
-                        validate_password(form.cleaned_data['new_password'])
-                    except ValidationError as e:
-                        messages.error(request, e.messages)
+            try:
+                if form.is_valid():
+                    if form.cleaned_data['new_password'] != form.cleaned_data['confirm_password']:
+                        messages.error(request, _("The two password fields didn’t match."))
                         return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)
-                    validator = UserAttributeSimilarityValidator(user_attributes=['mb_user_name'])
+                    else:
+                        try:
+                            validate_password(form.cleaned_data['new_password'])
+                        except ValidationError as e:
+                            messages.error(request, e.messages)
+                            return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)
+                        validator = UserAttributeSimilarityValidator(user_attributes=['mb_user_name'])
 
-                    try:
-                        validator.validate(form.cleaned_data['new_password'], user)
-                    except ValidationError:
-                        messages.error(request, _("Your password can't be too similar to your username."))
-                        return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)    
-                    user.password = (str(bcrypt.hashpw(form.cleaned_data.get('new_password').encode('utf-8'), bcrypt.gensalt(12)),'utf-8'))
-                    # when the password is changed, the mb_user_password_ticket is set to now-86400 so that he can again use the forget password
-                    user.mb_user_password_ticket = str(int(time.time()) - 86400)
-                    user.save()
-                    messages.success(request, _("Your password has been reset. You can now log in with your new password."))
-                    return redirect('useroperations:login')
+                        try:
+                            validator.validate(form.cleaned_data['new_password'], user)
+                        except ValidationError:
+                            messages.error(request, _("Your password can't be too similar to your username."))
+                            return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)    
+                        user.password = (str(bcrypt.hashpw(form.cleaned_data.get('new_password').encode('utf-8'), bcrypt.gensalt(12)),'utf-8'))
+                        # when the password is changed, the mb_user_password_ticket is set to now-86400 so that he can again use the forget password
+                        user.mb_user_password_ticket = str(int(time.time()) - 86400)
+                        user.save()
+                        messages.success(request, _("Your password has been reset. You can now log in with your new password."))
+                        return redirect('useroperations:login')
+                else:
+                    messages.error(request, _("The form is not valid."))
+                    return redirect('useroperations:password_reset')
+            except ValidationError as e:
+                messages.error(request, e.messages)
+                return redirect('useroperations:password_reset_confirm', uidb64=uidb64, token=token)
+              
         else:
             form = PasswordResetConfirmForm()
         # Get the geoportal context

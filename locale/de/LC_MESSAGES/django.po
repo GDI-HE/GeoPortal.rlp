@@ -1096,6 +1096,10 @@ msgstr "Benutzername"
 msgid "Please enter your username."
 msgstr "Bitte geben Sie Ihren Benutzernamen ein."
 
+#: useroperations/forms.py:18
+msgid "Your password can't be too similar to your username. "
+msgstr "Ihr Passwort darf nicht zu ähnlich zu Ihrem Benutzernamen sein."
+
 #: useroperations/views.py:816
 msgid "For changing your profile, you have to enter your current password."
 msgstr "Damit Ihr Profil angepasst wird, müssen Sie Ihr aktuelles Password angeben."
