@@ -123,10 +123,19 @@ $("form").on("focusout", function (e) {
 });
 
 
-$("#delete-form-button").on("click", function () {
-  // Find the closest form and remove 'required' attribute for oldpassword
-  $(this).closest('.form-wrapper').find("#change_profile_oldpassword").prop("required", false);
-});
+// $("#delete-form-button").on("click", function () {
+//   // Find the closest form and remove 'required' attribute for oldpassword
+//   $(this).closest('.form-wrapper').find("#change_profile_oldpassword").prop("required", false);
+// });
+// if the user clicked delete and button without writing in password field, it pointed to the password field and make the field red.
+$("#delete-form-button, #change-form-button").on("click", function () {
+  const oldPassword = $("#change_profile_oldpassword");
+  if (oldPassword.val() === "") {
+    oldPassword.css("border", "2px solid red");
+    oldPassword.focus();
+  }
+}
+);
 
 
 $(document).ready(function () {
