@@ -122,12 +122,6 @@ $("form").on("focusout", function (e) {
   if (phone) $("#phone_field_id").css("border", "");
 });
 
-
-// $("#delete-form-button").on("click", function () {
-//   // Find the closest form and remove 'required' attribute for oldpassword
-//   $(this).closest('.form-wrapper').find("#change_profile_oldpassword").prop("required", false);
-// });
-// if the user clicked delete and button without writing in password field, it pointed to the password field and make the field red.
 $("#delete-form-button, #change-form-button").on("click", function () {
   const oldPassword = $("#change_profile_oldpassword");
   if (oldPassword.val() === "") {
@@ -136,7 +130,6 @@ $("#delete-form-button, #change-form-button").on("click", function () {
   }
 }
 );
-
 
 $(document).ready(function () {
   $(".toggle-password").attr("role", "button");
@@ -161,7 +154,6 @@ $(document).ready(function () {
   });
 });
 
-
 $(document).ready(function () {
   $("#question-mark").attr("role", "button");
   $("#close-tooltip").attr("tabindex", "0");
@@ -180,33 +172,7 @@ $(document).ready(function () {
   });
 });
 
-//captcha refresh
-$(function() {
-  // Check if the captcha field exists
-  if ($('img.captcha').length > 0) {
-  // Add refresh button after field (this can be done in the template as well)
-  $('img.captcha').after(
-      $('<a href="#void" class="captcha-refresh" aria-label="' + refreshCaptcha + '">↻</a>')
-      );
-
-  // Click-handler for the refresh-link
-  $('.captcha-refresh').click(function(){
-      var $form = $(this).parents('form');
-      var url = location.protocol + "//" + window.location.hostname + ":"
-                + location.port + "/captcha/refresh/";
-
-      // Make the AJAX-call
-      $.getJSON(url, {}, function(json) {
-          $form.find('input[name="captcha_0"]').val(json.key);
-          $form.find('img.captcha').attr('src', json.image_url);
-      });
-
-      return false;
-  });
-  }
-});
-
-//its working
+// when reloading the page, focus on the password field, username field or phone field
 window.onload = function () {
   if (focusPassword) {
     const passwordField = document.getElementById("password");

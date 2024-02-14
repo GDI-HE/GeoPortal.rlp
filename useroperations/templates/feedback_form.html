@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block body %}
 <h1>{% trans 'Feedback form' %}</h1>
@@ -43,5 +43,12 @@
     </form>
 
 </div>
-
+<script>
+    // Declare global variables
+    var focusPassword = false;  //set to false as it is not needed for this form
+    var focusUsername = false;  
+    var focusPhone = false; 
+    var refreshCaptcha = "{% trans 'Refresh CAPTCHA'%}";    
+</script>
+<script src="{% static 'useroperations/js/frontpage.js' %}"></script>
 {% endblock %}

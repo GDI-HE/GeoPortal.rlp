@@ -524,6 +524,28 @@ if ($(window).width() < 689) {
 
 // });
 
+//captcha refresh
+$(function() {
+    if (typeof refreshCaptcha !== 'undefined') {
+    $('img.captcha').after(
+        $('<a href="#void" class="captcha-refresh" aria-label="' + refreshCaptcha + '" title="' + refreshCaptcha + '">↻</a>')
+         );
+    $('.captcha-refresh').click(function(){
+        var $form = $(this).parents('form');
+        var url = location.protocol + "//" + window.location.hostname + ":"
+                  + location.port + "/captcha/refresh/";
+
+        // Make the AJAX-call
+        $.getJSON(url, {}, function(json) {
+            $form.find('input[name="captcha_0"]').val(json.key);
+            $form.find('img.captcha').attr('src', json.image_url);
+        });
+
+        return false;
+    });
+    }
+  });
+
 /* BEGIN resizeObserver bodyContent */
 $(document).ready(function(){
     bodyBoxElement = document.querySelector('#body-content');

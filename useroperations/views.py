@@ -861,6 +861,8 @@ def change_profile_view(request):
                     'description': user.mb_user_description,
                     'phone': user.mb_user_phone,
                     'organization': user.mb_user_organisation_name,
+                    'newsletter': user.mb_user_newsletter,
+                    'survey': user.mb_user_allow_survey,
                     'create_digest' : user.create_digest,
                     'preferred_gui' : user.fkey_preferred_gui_id,
                     }
@@ -929,6 +931,8 @@ def change_profile_view(request):
                 user.mb_user_description = form.cleaned_data['description']
                 user.mb_user_phone = form.cleaned_data['phone']
                 user.mb_user_organisation_name = form.cleaned_data['organization']
+                user.mb_user_newsletter = form.cleaned_data['newsletter']
+                user.mb_user_allow_survey = form.cleaned_data['survey']
                 user.create_digest = form.cleaned_data['create_digest']
                 user.fkey_preferred_gui_id = form.cleaned_data['preferred_gui']
 
@@ -973,7 +977,7 @@ def change_profile_view(request):
         'headline': _("Change data"),
         'small_labels': small_labels,
         'dsgvo_flag': dsgvo_flag,
-        'is_change_page': True,
+        #'is_change_page': True,
     }
     geoportal_context.add_context(context)
     return render(request, 'crispy_form_no_action.html', geoportal_context.get_context())
