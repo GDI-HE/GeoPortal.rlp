@@ -27,10 +27,16 @@
             </tr>{% endfor %}
         </table>
         <div class="submit-button-wrapper">
-            <a class="forgot-pw-button" href="{% url 'useroperations:pw_reset' %}">{{ btn_label_pw }}</a>
+            <a class="forgot-pw-button" href="{% url 'useroperations:password_reset' %}">{{ btn_label_pw }}</a>
             <input id="login-form-button" class="form-submit-button" type="submit" value="{{ btn_label_login }}">
         </div>
     </form>
 </div>
-
+<script src="{% static 'useroperations/js/form.js' %}"></script>
+<script>
+    // Declare global variables
+    var focusPassword = true;
+    var focusUsername = true;
+    var focusPhone = false;
+</script>
 {% endblock %}
