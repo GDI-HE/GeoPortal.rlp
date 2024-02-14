@@ -571,6 +571,8 @@ def register_view(request):
             user.mb_user_description = form.cleaned_data['description']
             user.mb_user_phone = form.cleaned_data['phone']
             user.mb_user_organisation_name = form.cleaned_data['organization']
+            user.mb_user_newsletter = form.cleaned_data['newsletter']
+            user.mb_user_allow_survey = form.cleaned_data['survey']
             user.timestamp_dsgvo_accepted = time.time()
 
             # check if passwords match
