@@ -1144,16 +1144,30 @@ def feedback_view(request: HttpRequest):
                 "message": form.cleaned_data["message"],
             }
             try:
+                from_email = DEFAULT_FROM_EMAIL[0] if isinstance(DEFAULT_FROM_EMAIL, list) else DEFAULT_FROM_EMAIL 
+                user_email = form.cleaned_data["email"]
 
                 send_mail(
                     _("Geoportal Feedback"),
                     _("Feedback from ") + form.cleaned_data["first_name"] + " " + form.cleaned_data["family_name"]
-                    + ", \n \n" +
+                    + " \n \n" + user_email + ", \n \n" +
                     form.cleaned_data["message"],
-                    form.cleaned_data["email"],
+                    from_email,
                     [DEFAULT_TO_EMAIL],
                     fail_silently=False,
                 )
+                # translate the text later
+                try:
+                    send_mail(
+                        _("Feedback-Bestätigung"),
+                        _("Sehr geehrte(r) ") + form.cleaned_data["first_name"] + " " + form.cleaned_data["family_name"] + ",\n\nVielen Dank für Ihr Feedback. Wir haben Ihre Rückmeldung erhalten und werden diese so schnell wie möglich bearbeiten. Wir werden uns so schnell wie möglich bei Ihnen melden.\n\nMit freundlichen Grüßen,\nGeoportal Hessen",
+                        from_email,
+                        [user_email],
+                        fail_silently=False,
+                    )
+                except smtplib.SMTPException:
+                        pass
+                
             except smtplib.SMTPException:
                 logger.error("Could not send feedback mail!")
                 messages.error(request, _("An error occured during sending. Please inform an administrator."))
