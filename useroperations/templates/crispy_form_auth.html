@@ -4,8 +4,6 @@
 {% load crispy_forms_tags %}
 {% block body %}
 
-
-
 <div class="title">
     <h1>{{ headline }}</h1>
 </div>
@@ -32,11 +30,5 @@
         </div>
     </form>
 </div>
-<script src="{% static 'useroperations/js/form.js' %}"></script>
-<script>
-    // Declare global variables
-    var focusPassword = true;
-    var focusUsername = true;
-    var focusPhone = false;
-</script>
+
 {% endblock %}
