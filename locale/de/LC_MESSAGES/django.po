@@ -1097,7 +1097,7 @@ msgid "Please enter your username."
 msgstr "Bitte geben Sie Ihren Benutzernamen ein."
 
 #: useroperations/forms.py:18
-msgid "Your password can't be too similar to your username. "
+msgid "Your password can't be too similar to your username."
 msgstr "Ihr Passwort darf nicht zu ähnlich zu Ihrem Benutzernamen sein."
 
 #: useroperations/views.py:816
@@ -1730,7 +1730,7 @@ msgid ""
 "please copy and paste the link in your browser to activate it!"
 msgstr ""
 "Dies ist ihr Aktivierungslink. Er wird für die nächsten 24 Stunden gültig "
-"sein. Bitte kopieren Sie den Link und fügen Sie ihn in Ihren Browser ein, um ihn zu aktivieren!"
+"sein. Bitte kopieren Sie den Link und fügen Sie ihn in Ihren Browser ein, um den Account zu aktivieren!"
 
 #: useroperations/views.py:409
 msgid ""
@@ -1865,6 +1865,10 @@ msgstr "Wir haben Ihnen per E-Mail eine Anleitung zum Einrichten Ihres Passworts
 #: useroperations/views.py:716
 msgid "Successfully deleted the user:"
 msgstr "Konto erfolgreich gelöscht für:"
+
+#: useroperations/views.py
+msgid "The password reset link is invalid or has expired."
+msgstr "Der Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen."
 
 #: useroperations/views.py:718
 msgid ""
