@@ -94,8 +94,7 @@ def get_wiki_body_content(wiki_keyword, lang, category=None):
     # render back to html
     return html.tostring(doc=body_con, method='html', encoding='unicode')
 
-
-def get_landing_page(lang: str):
+def get_all_data(lang: str):
     """ Returns the landing page content (favourite wmcs)
 
     Args:
@@ -105,7 +104,7 @@ def get_landing_page(lang: str):
     """
     ret_dict = {}
     # get favourite wmcs
-    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=1, order_by="rank", host=HOSTNAME, max_results=10)
+    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=1, order_by="date", host=HOSTNAME, max_results=10)
     search_results = searcher.search_primary_catalogue_data()
     ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
 
@@ -115,6 +114,72 @@ def get_landing_page(lang: str):
     # get number of organizations
     ret_dict["num_orgs"] = len(get_all_organizations())
 
+    # get number of applications
+    ret_dict["num_apps"] = len(get_all_applications())
+
+    # get number of topics
+    len_inspire = len(get_topics(lang, INSPIRE_CATEGORIES).get("tags", []))
+    len_iso = len(get_topics(lang, ISO_CATEGORIES).get("tags", []))
+    ret_dict["num_topics"] = len_inspire + len_iso
+
+    # get number of datasets and layers
+    tmp = {
+        "dataset": "num_dataset",
+        "wms": "num_wms",
+    }
+    for key, val in tmp.items():
+        searcher = Searcher(keywords="", result_target="", resource_set=[key], host=HOSTNAME)
+        search_results = searcher.search_primary_catalogue_data()
+        ret_dict[val] = search_results.get(key, {}).get(key, {}).get("md", {}).get("nresults")
+
+    return ret_dict
+
+def get_landing_page(lang: str, page_num: str, order_by: str = "rank"):
+    """ Returns the landing page content (favourite wmcs)
+
+    Args:
+        lang (str): The language for which the data shall be fetched
+    Returns:
+        A dict containing an overview of how many organizations, topics, wmcs, services and so on are available
+    """
+    # get number of wmc's
+    ret_dict = {}
+    # get favourite wmcs
+    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=page_num, page_res="wmc", order_by=order_by, host=HOSTNAME, max_results=5)
+    search_results = searcher.search_primary_catalogue_data()
+    ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
+
+    # get number of wmc's
+    ret_dict["num_wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("md", {}).get("nresults")
+
+    # get number of applications
+    ret_dict["num_apps"] = len(get_all_applications())
+
+    # get number of topics
+    len_inspire = len(get_topics(lang, INSPIRE_CATEGORIES).get("tags", []))
+    len_iso = len(get_topics(lang, ISO_CATEGORIES).get("tags", []))
+    ret_dict["num_topics"] = len_inspire + len_iso
+
+    # get number of datasets and layers
+    tmp = {
+        "dataset": "num_dataset",
+        "wms": "num_wms",
+    }
+    for key, val in tmp.items():
+        searcher = Searcher(keywords="", result_target="", resource_set=[key], host=HOSTNAME)
+        search_results = searcher.search_primary_catalogue_data()
+        ret_dict[val] = search_results.get(key, {}).get(key, {}).get("md", {}).get("nresults")
+
+    return ret_dict
+
+def get_wmc_title(lang: str):
+    # get number of wmc's
+    ret_dict = {}
+    # get favourite wmcs
+    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME, max_results=98)
+    search_results = searcher.search_primary_catalogue_data()
+    ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
+    
     # get number of applications
     ret_dict["num_apps"] = len(get_all_applications())
 

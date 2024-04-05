@@ -38,6 +38,20 @@
     transition: all 0.1s ease-in-out;
     background-color: var(--hesse-lightblue);
 }
+
+.new-label {
+    display: block;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #f00;
+    padding: 3px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
 .tile:hover{
     transform: scale(1.05);
     box-shadow: 0 0 10px var(--primary);

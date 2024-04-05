@@ -26,4 +26,6 @@ urlpatterns = [
     path('incompatible/', incompatible_browser, name='incompatible-browser'),
     path('service_abo/', service_abo, name='service_abo'),
     path('linked_open_data/', open_linked_data, name='open_linked_data'),
+    path('get_landing_page/', landing_page_view),
+    path('get_titles/', get_titles, name='get_titles'),
     ]
