@@ -1727,10 +1727,10 @@ msgstr "Passwörter stimmen nicht überein"
 #: useroperations/views.py:388
 msgid ""
 "This is your activation link. It will be valid until the end of the day, "
-"please copy and paste the link in your browser to activate it!"
+"please copy and paste the link in your browser to activate it."
 msgstr ""
-"Dies ist ihr Aktivierungslink. Er wird für die nächsten 24 Stunden gültig "
-"sein. Bitte kopieren Sie den Link und fügen Sie ihn in Ihren Browser ein, um den Account zu aktivieren!"
+"Dies ist Ihr Aktivierungslink. Er wird für die nächsten 24 Stunden gültig "
+"sein. Bitte kopieren Sie den Link und fügen Sie ihn in Ihren Browser ein, um den Account zu aktivieren."
 
 #: useroperations/views.py:409
 msgid ""
