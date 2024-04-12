@@ -1538,6 +1538,14 @@ msgstr "Startseite"
 msgid "Search for all map collections"
 msgstr "Suche nach allen Karten starten"
 
+#: useroperations/templates/landing_page.html:105
+msgid "List of Frequently used Maps"
+msgstr "Liste der meistgenutzten Karten"
+
+#: useroperations/templates/landing_page.html:107
+msgid "List of Latest Maps"
+msgstr "Liste der neuesten Karten"
+
 #: useroperations/templates/landing_page.html:12
 msgid "A lying map in the background. A large plus in the foreground."
 msgstr "Eine liegende Karte im Hintergrund. Ein großes Plus im Vordergrund."

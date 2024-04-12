@@ -101,8 +101,8 @@
 <div class="landing-page-headline">
     <!-- <h2>Häufig gestartete Karten</h2> -->
     <div class="tab" role="tablist">
-        <button class="tablinks active" id="mostusedWMC" role="tab" aria-selected="true" tabindex="0"><h2>{% trans "Frequently used Maps"  %}</h2></button>
-        <button class="tablinks notactive" id="newWMC" role="tab" aria-selected="false" tabindex="0"><h2>{% trans "Latest Maps"  %}</h2></button>
+        <button class="tablinks active" id="mostusedWMC" role="tab" aria-selected="true" title="{% trans 'List of Frequently used Maps' %}" tabindex="0"><h2>{% trans "Frequently used Maps"  %}</h2></button>
+        <button class="tablinks notactive" id="newWMC" role="tab" aria-selected="false" title="{% trans 'List of Latest Maps' %}" tabindex="0"><h2>{% trans "Latest Maps"  %}</h2></button>
         <!-- <div class="search-container">
             <input type="text" id="search-input" placeholder="Search for WMCs...">
             <button id="clear-input" aria-label="Clear search input"><i class="fas fa-times"></i></button>
@@ -112,7 +112,7 @@
     <p class="landing-page-second-paragraph">{% trans "You can switch map layers on or off and add further map layers" %}</p>
 </div>
 <div class="search-container">
-    <input type="text" id="search-input" placeholder="{% trans 'Search for WMCs...' %}">
+    <input type="text" id="search-input" title= "{% trans 'Search for WMCs...' %}" placeholder="{% trans 'Search for WMCs...' %}">
     <button id="clear-input" aria-label="{% trans 'Clear search input' %}"><i class="fas fa-times"></i></button>
 </div>
 

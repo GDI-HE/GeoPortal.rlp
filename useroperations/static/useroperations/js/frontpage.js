@@ -649,7 +649,8 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
                     text: pageNumber,
                     class: 'pagination-link',
                     href: '#',
-                    'aria-label': GoToPage + pageNumber
+                    'aria-label': GoToPage + pageNumber,
+                    title: GoToPage + pageNumber
                 });
                     link.click((function(pageNumber) {
                         return function(e) {
@@ -674,6 +675,7 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
                 class: 'pagination-button flex-container',
                 href: '#',
                 'aria-label': GoToPrevious,
+                title: GoToPrevious,
             });
             prevButton.on('click', function(e) {
                 e.preventDefault(); // Always prevent the default action
@@ -694,6 +696,7 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
                 class: 'pagination-button flex-container',
                 href: '#',
                 'aria-label': GoToNext,
+                title: GoToNext,
                 click: function(e) {
                     e.preventDefault();
                     if (end < totalPages) {
