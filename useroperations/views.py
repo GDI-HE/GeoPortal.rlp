@@ -682,21 +682,16 @@ def register_view(request):
 
             user.activation_key = useroperations_helper.random_string(50)
 
-            try:
-                send_mail(
-                    _("Activation Mail"),
-                    _("Hello ") + user.mb_user_name +
-                    ", \n \n" +
-                    _("This is your activation link. It will be valid until the end of the day, please copy and paste the link in your browser to activate it.")
-                    + "\n Link: "  + HTTP_OR_SSL + HOSTNAME + "/activate/" + user.activation_key,
-                    DEFAULT_FROM_EMAIL,
-                    [user.mb_user_email],
-                    fail_silently=False,
-                )
-            except smtplib.SMTPException:
-                logger.error("Could not send activation mail!")
-                messages.error(request, _("An error occured during sending. Please inform an administrator."))
-                return redirect('useroperations:register')
+            send_mail(
+                 _("Activation Mail"),
+                _("Hello ") + user.mb_user_name +
+                ", \n \n" +
+                _("This is your activation link. It will be valid until the end of the day, please copy and paste the link in your browser to activate it.")
+              	+ "\n Link: "  + HTTP_OR_SSL + HOSTNAME + "/activate/" + user.activation_key,
+                DEFAULT_FROM_EMAIL,
+                [user.mb_user_email],
+                fail_silently=False,
+            )
 
 
             user.save()
