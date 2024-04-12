@@ -1184,7 +1184,6 @@ z-index:1;
     border-radius: 50%;
     cursor: pointer;
     background-color: var(--hesse-green);
-    /* create a right.svg in mapbender/img/geoportal2019 */
     background-image: url("../../../mapbender/img/geoportal2019/right.svg");
     color: white;
     background-repeat: no-repeat;
@@ -1401,6 +1400,21 @@ width: 25px;
 margin: 3px 206px;
 border:none;
 z-index: 1;
+}
+
+.see-all-button {   
+min-width: 30px;
+text-align: center;
+color: var(--hesse-green);
+/* float: left; */
+padding: 8px 16px;
+margin: 0 2px;
+cursor: pointer;
+}
+
+.see-all-button:hover {
+    text-decoration: underline;
+    background-color: #ddd;
 }
 
 #search-input:not(:placeholder-shown) ~ #clear-input {

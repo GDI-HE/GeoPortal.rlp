@@ -609,6 +609,22 @@ msgstr "Starten Sie jetzt eine bereits gefilterte Suche durch die Auswahl einer 
 msgid "Frequently used Maps"
 msgstr "Häufig gestartete Karten"
 
+#: useroperations/templates/landing_page.html:98
+msgid "Latest Maps"
+msgstr "Neueste Karten"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "See all"
+msgstr "Alle anzeigen"
+
+msgid "Show all WMCs"
+msgstr "Alle WMCs anzeigen"
+
+msgid "No result found"
+msgstr "Kein Ergebnis gefunden"
+
 #: useroperations/templates/landing_page.html:99
 msgid "Start our map application with already selected map layers here"
 msgstr "Hier starten Sie unsere Kartenanwendung mit bereits ausgewählten Kartenebenen"
@@ -1100,6 +1116,10 @@ msgstr "Bitte geben Sie Ihren Benutzernamen ein."
 msgid "Your password can't be too similar to your username."
 msgstr "Ihr Passwort darf nicht zu ähnlich zu Ihrem Benutzernamen sein."
 
+#: useroperations/forms.py:18
+msgid "The form is not valid."
+msgstr "Das Formular ist nicht gültig."
+
 #: useroperations/views.py:816
 msgid "For changing your profile, you have to enter your current password."
 msgstr "Damit Ihr Profil angepasst wird, müssen Sie Ihr aktuelles Password angeben."
@@ -1395,6 +1415,28 @@ msgstr "Mit Passwort bestätigen"
 #: useroperations/templates/activation.html:13
 msgid "Account successfully activated!"
 msgstr "Konto erfolgreich aktiviert!"
+
+#: useroperations/templates/activation.html:13
+msgid "Account successfully reactivated!"
+msgstr "Konto erfolgreich reaktiviert!"
+
+msgid "Search for WMCs..."
+msgstr "Suche WMCs..."
+
+msgid "Clear search input"
+msgstr "Sucheingabe löschen"
+
+msgid "Previous"
+msgstr "Zurück"
+
+msgid "Go to previous set of pages"
+msgstr "Zur vorherigen Seitengruppe gehen"
+
+msgid "Go to next set of pages"
+msgstr "Zur nächsten Seitengruppe gehen"
+
+msgid "Go to page "
+msgstr "Gehe zu Seite "
 
 #: useroperations/templates/activation.html:15
 msgid "Activation failed. Please contact an administrator!"
@@ -1727,10 +1769,10 @@ msgstr "Passwörter stimmen nicht überein"
 #: useroperations/views.py:388
 msgid ""
 "This is your activation link. It will be valid until the end of the day, "
-"please copy and paste the link in your browser to activate it!"
+"please copy and paste the link in your browser to activate it."
 msgstr ""
-"Dies ist ihr Aktivierungslink. Er wird für die nächsten 24 Stunden gültig "
-"sein. Bitte kopieren Sie den Link und fügen Sie ihn in Ihren Browser ein, um den Account zu aktivieren!"
+"Dies ist Ihr Aktivierungslink. Er wird für die nächsten 24 Stunden gültig "
+"sein. Bitte kopieren Sie den Link und fügen Sie ihn in Ihren Browser ein, um den Account zu aktivieren."
 
 #: useroperations/views.py:409
 msgid ""
@@ -1920,7 +1962,7 @@ msgstr ""
 
 #: useroperations/views.py:967
 msgid "Feedback from "
-msgstr "Feedback Formular"
+msgstr "Feedback Formular von "
 
 
 #: searchCatalogue/templates/search_result_list_entry.html:57

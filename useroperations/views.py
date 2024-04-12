@@ -687,7 +687,7 @@ def register_view(request):
                     _("Activation Mail"),
                     _("Hello ") + user.mb_user_name +
                     ", \n \n" +
-                    _("This is your activation link. It will be valid until the end of the day, please copy and paste the link in your browser to activate it!")
+                    _("This is your activation link. It will be valid until the end of the day, please copy and paste the link in your browser to activate it.")
                     + "\n Link: "  + HTTP_OR_SSL + HOSTNAME + "/activate/" + user.activation_key,
                     DEFAULT_FROM_EMAIL,
                     [user.mb_user_email],
@@ -1327,6 +1327,7 @@ def activation_view(request, activation_key=""):
 
     """
     geoportal_context = GeoportalContext(request=request)
+    reactivated = False
 
     if MbUser.objects.filter(activation_key=activation_key, is_active=True):
         messages.error(request, _("Account already active"))
@@ -1341,6 +1342,7 @@ def activation_view(request, activation_key=""):
     else:
         user = MbUser.objects.get(activation_key=activation_key, is_active=False)
         user.is_active = True
+        reactivated = user.timestamp_delete is not None
         user.mb_user_login_count = 0
         activated = True
         user.save()
@@ -1349,6 +1351,7 @@ def activation_view(request, activation_key=""):
     context = {
         "headline": _('Account activation'),
         "activated": activated,
+        "reactivated": reactivated,
         "navigation": utils.get_navigation_items(),
     }
     geoportal_context.add_context(context=context)

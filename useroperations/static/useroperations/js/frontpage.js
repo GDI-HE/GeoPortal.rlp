@@ -422,7 +422,7 @@ $(document).on("click", "#geoportal-search-button", function(){
 });
 
 
- $(document).on("click", ".quickstart.search", function(event){
+ $(document).on("click", ".quickstart.search, .quickstarts.search", function(event){
      event.preventDefault();
      var elem = $(this);
      var resource = elem.attr("data-resource");
@@ -649,7 +649,7 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
                     text: pageNumber,
                     class: 'pagination-link',
                     href: '#',
-                    'aria-label': 'Go to page ' + pageNumber
+                    'aria-label': GoToPage + pageNumber
                 });
                     link.click((function(pageNumber) {
                         return function(e) {
@@ -659,21 +659,21 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
                             loadPage(currentPage);
                             }    
                         };
-                    })(pageNumber));
+                    })(pageNumber));  
                 if (pageNumber > totalPages) {
                     //link.addClass('disabled');
                     link.hide();
                     //or change to link.hide() if you want to hide the number
                 }
                 $('#pagination').append(link);
-            }
+            }    
             // Add a "Previous" button at the beginning
             var prevButton = $('<a>', {
-                html: '<span class="arrow"><</span><span class="text"> Previous</span>',
+                html: '<span class="arrow"><</span><span class="text">' + Back + '</span>',
                 id: 'pagination-button-right',
                 class: 'pagination-button flex-container',
                 href: '#',
-                'aria-label': 'Go to previous set of pages',
+                'aria-label': GoToPrevious,
             });
             prevButton.on('click', function(e) {
                 e.preventDefault(); // Always prevent the default action
@@ -689,11 +689,11 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
             $('#pagination').prepend(prevButton);
             // Add a "Next" button at the end
             var nextButton = $('<a>', {
-                html: '<span class="text">Next</span><span class="arrow">></span>',
+                html: '<span class="text">' + Next + '</span><span class="arrow">></span>',
                 id: 'pagination-button-left',
                 class: 'pagination-button flex-container',
                 href: '#',
-                'aria-label': 'Go to next set of pages',
+                'aria-label': GoToNext,
                 click: function(e) {
                     e.preventDefault();
                     if (end < totalPages) {
@@ -708,6 +708,18 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
                 nextButton.addClass('disabled');
             }
             $('#pagination').append(nextButton);
+
+            //create see all button before the next button
+            var seeAllButton = $('<a>', {
+                text: SeeAll,
+                class: 'quickstarts search pagination-button flex-container see-all-button',
+                href: '#',
+                title: ShowAllWMCs,
+                'data-resource': 'wmc'  // Set the data-resource attribute to 'wmc'
+            });
+
+            $('#pagination').append(seeAllButton);
+
             $('.pagination-link').removeClass('active');
             $('.pagination-link').eq(pageNum-start).addClass('active');
 
@@ -744,11 +756,11 @@ function nextPage() {
 
 function prevPage() {
     if (currentPage > 1) {  // Prevent going to page 0 or negative
-        currentPage--;   
+        currentPage--;
     $('.pagination-link').removeClass('active');
     $('.pagination-link').eq(currentPage-1).addClass('active');
     loadPage(currentPage);
-    currentSet = Math.ceil((currentPage)/5); 
+    currentSet = Math.ceil((currentPage)/5);    
     }
 }
 
@@ -799,10 +811,9 @@ function ajaxCall(query, pageNum) {
         dataType: 'json',
         success: function (data) {
             // Insert the search results into the #search-results div
-            // the query search for the title and abstract of the wmc
             //check if the search results are empty
             if (data.html.trim() == ''){
-                $('.tile-wrapper.favourite-wmcs').html('<p>No results found</p>');
+                $('.tile-wrapper.favourite-wmcs').html(noResults);
                 $('#previousPage, #nextPages').fadeOut();
                 //$('.tablinks').show();
                 currentPage = 1;

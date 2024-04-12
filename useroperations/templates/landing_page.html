@@ -46,9 +46,9 @@
 
 <div class="landing-page-box1"><!--landing-page-box-Begin -->
 <div class="landing-page-headline">
-    <h2>Sie suchen Geodaten?</h2>
-    <p class="landing-page-first-paragraph">Hier erhalten Sie einen Vorsprung bei Ihrer Suche</p>
-    <p class="landing-page-second-paragraph">Starten Sie jetzt eine bereits gefilterte Suche durch die Auswahl einer der Kacheln</p>
+    <h2>{% trans "Looking for Geodata?" %}</h2>
+    <p class="landing-page-first-paragraph">{% trans "Here you can start your search" %}</p>
+    <p class="landing-page-second-paragraph">{% trans "Now start an already filtered search by selecting one of the tiles" %}</p>
 </div>
 <div class="quickstart-container">
     <a class="quickstart search" href="#" title="{% trans 'Search for all map collections' %}" data-resource="wmc">
@@ -101,19 +101,19 @@
 <div class="landing-page-headline">
     <!-- <h2>Häufig gestartete Karten</h2> -->
     <div class="tab" role="tablist">
-        <button class="tablinks active" id="mostusedWMC" role="tab" aria-selected="true" tabindex="0"><h2>Häufig gestartete Karten</h2></button>
-        <button class="tablinks notactive" id="newWMC" role="tab" aria-selected="false" tabindex="0"><h2>Neuste Karten</h2></button>
+        <button class="tablinks active" id="mostusedWMC" role="tab" aria-selected="true" tabindex="0"><h2>{% trans "Frequently used Maps"  %}</h2></button>
+        <button class="tablinks notactive" id="newWMC" role="tab" aria-selected="false" tabindex="0"><h2>{% trans "Latest Maps"  %}</h2></button>
         <!-- <div class="search-container">
             <input type="text" id="search-input" placeholder="Search for WMCs...">
             <button id="clear-input" aria-label="Clear search input"><i class="fas fa-times"></i></button>
         </div> -->
     </div>
-    <p class="landing-page-first-paragraph">Hier starten Sie unsere Kartenanwendung mit bereits ausgewählten Kartenebenen</p>
-    <p class="landing-page-second-paragraph">Sie können im Anschluss Kartenebenen aus- oder einschalten und weitere Kartenebenen hinzuladen</p>
+    <p class="landing-page-first-paragraph">{% trans "Start our map application with already selected map layers here" %}</p>
+    <p class="landing-page-second-paragraph">{% trans "You can switch map layers on or off and add further map layers" %}</p>
 </div>
 <div class="search-container">
-    <input type="text" id="search-input" placeholder="Search for WMCs...">
-    <button id="clear-input" aria-label="Clear search input"><i class="fas fa-times"></i></button>
+    <input type="text" id="search-input" placeholder="{% trans 'Search for WMCs...' %}">
+    <button id="clear-input" aria-label="{% trans 'Clear search input' %}"><i class="fas fa-times"></i></button>
 </div>
 
 <div class="button-wrapper">
@@ -151,5 +151,14 @@
 </div>
 </div>
 </div><!--landing-page-box-END -->
-
+<script>
+    var Back = "{% trans 'Back' %}";
+    var Next = "{% trans 'Next' %}";
+    var GoToPrevious = "{% trans 'Go to previous set of pages' %}"
+    var GoToNext = "{% trans 'Go to next set of pages' %}"
+    var GoToPage = "{% trans 'Go to page ' %}"
+    var SeeAll = "{% trans 'See all' %}"
+    var ShowAllWMCs = "{% trans 'Show all WMCs' %}"
+    var noResults = "{% trans 'No result found' %}"
+</script>
 {% endblock %}
