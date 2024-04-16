@@ -169,7 +169,7 @@ input:invalid {
     border: 2px red;
 }
 
-input:invalid:required {
+input:invalid:required, textarea:invalid:required {
     background-color: #f6ecec;
     /* Light red */
     color: #000000;
