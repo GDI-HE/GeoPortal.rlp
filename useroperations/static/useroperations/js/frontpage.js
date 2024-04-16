@@ -623,6 +623,7 @@ $(document).ready(function() {
 var currentPage = 1;
 var totalPages;
 var currentSet = 1;
+var GoToPage, Back, Next, GoToPrevious, GoToNext, SeeAll, ShowAllWMCs; //define variable so that it won't create console error when the variable is not defined
 $('#nextPage').hide();
 function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
     sort_by = lastClickedTab;
@@ -643,7 +644,6 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
             var start = (currentSet - 1) *5 + 1;
             var end = Math.min(currentSet * 5, totalPages);
             // Populate the pagination with buttons
-            var GoToPage, Back, Next, GoToPrevious, GoToNext, SeeAll, ShowAllWMCs; //define variable so that it won't create console error when the variable is not defined
             for (var i = 1; i <= 5; i++) {
                 var pageNumber = (currentSet - 1) * 5 + i;
                 var link = $('<a>', {
