@@ -32,7 +32,9 @@
                 <td class="field-value">
                     <div class="password-field">
                         {{ field }} {% if field.name == "password" %}
-                        <span id="question-mark" aria-label="Klicken Sie für Passwortanforderungen" tabindex="0" title="Klicken Sie für Passwortanforderungen" role="button" class="toggle-question info-box">Info</span>
+                        <i id="question-mark" class="fas fa-info-circle toggle-question"
+                            aria-label="{% trans 'Click for password requirements' %}" tabindex="0"
+                            title="{% trans 'Click for password requirements' %}"></i>
                         <div class="tooltip-container">
                             <div id="tooltip-content" role="tooltip" aria-live="polite">
                                 {% trans "Your password is being checked against a list of known and already compromised passwords (approximately 20,000 entries)." %}
@@ -101,11 +103,11 @@
         
             {% if btn_label1 %}
             <input id="change-form-button" class="form-change-submit-button" data-toggle="save" name="submit"
-                type="submit" value="{{ btn_label1 }}" />
+                type="submit" value="{{ btn_label1 }}" aria-label="{{ btn_label1 }}" title="{{ btn_label1 }}" />
             {% endif %}
             {% if btn_label2 %}
             <input id="delete-form-button" class="form-delete-submit-button" data-toggle="delete" name="submit"
-                type="submit" value="{{ btn_label2 }}" />
+                type="submit" value="{{ btn_label2 }}" aria-label="{{ btn_label2 }}" title="{{ btn_label2 }}" />
             {% endif %}
         </div>
     </form>

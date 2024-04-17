@@ -25,8 +25,8 @@
             </tr>{% endfor %}
         </table>
         <div class="submit-button-wrapper">
-            <a class="forgot-pw-button" href="{% url 'useroperations:password_reset' %}">{{ btn_label_pw }}</a>
-            <input id="login-form-button" class="form-submit-button" type="submit" value="{{ btn_label_login }}">
+            <a class="forgot-pw-button" href="{% url 'useroperations:password_reset' %}" title="{{ btn_label_pw }}" aria-label="{{ btn_label_pw }}">{{ btn_label_pw }}</a>
+            <input id="login-form-button" class="form-submit-button" type="submit" value="{{ btn_label_login }}" aria-label="{{ btn_label_login }}" title="{{ btn_label_login }}">
         </div>
     </form>
 </div>
