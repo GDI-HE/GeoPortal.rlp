@@ -1216,6 +1216,7 @@ z-index:1;
     justify-content: flex-start;
     /* align-items: center; */
     flex-wrap: wrap;
+    z-index: 0;
   }
   
   #pagination .pagination-link {
