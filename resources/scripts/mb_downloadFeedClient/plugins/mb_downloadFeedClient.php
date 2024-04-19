@@ -57,10 +57,7 @@ $localeObj->setCurrentLocale($languageCode);
 <!--<link rel="stylesheet" href="../extensions/bootstrap-3.3.6-dist/css/bootstrap.min.css" type="text/css" />-->
 <!--<link rel="stylesheet" href="../extensions/bootstrap-select-1.9.3/dist/css/bootstrap-select.css" type="text/css" />-->
 <link rel="stylesheet" href="../extensions/bootstrap-4.6.2-dist/css/bootstrap.min.css" type="text/css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <!-- https://icons.getbootstrap.com/ -->
-<!--<link rel="stylesheet" href="../extensions/bootstrap-5.3.3-dist/css/bootstrap.min.css" type="text/css" />-->
-<link rel="stylesheet" href="../extensions/bootstrap-select-1.13.14/dist/css/bootstrap-select.css" type="text/css" />
+<link rel="stylesheet" href="../extensions/bootstrap-select-1.13.18/css/bootstrap-select.min.css" type="text/css" />
 <link rel="stylesheet" href="../extensions/jquery-ui-1.13.2.custom/jquery-ui.min.css" type="text/css" />
 <style type="text/css">
 
@@ -167,13 +164,12 @@ select {max-width: 100%;}
 </style>
 <!--<script src="../extensions/OpenLayers-2.13.1/OpenLayers.mobile.js"></script>//TODO: bugs with control panels-->
 
-<script src="../extensions/jquery-1.12.0.min.js"></script>
-<!-- <script src="../extensions/jquery-3.7.1/jquery-3.7.1.min.js"></script> -->
-<script src="https://code.jquery.com/jquery-migrate-3.4.1.js"></script>
+<!-- <script src="../extensions/jquery-1.12.0.min.js"></script> -->
+<!-- <script src="https://code.jquery.com/jquery-migrate-3.4.1.js"></script> -->
+<script src="../extensions/jquery-3.7.1/jquery-3.7.1.min.js"></script>
 <script src="../extensions/jquery-ui-1.13.2.custom/jquery-ui.min.js"></script>
-<script src="../extensions/bootstrap-4.6.2-dist/js/bootstrap.bundle.js"></script>
-<!--<script src="../extensions/bootstrap-select-1.13.14/dist/js/bootstrap-select.js"></script>-->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/js/bootstrap-select.js"></script>
+<script src="../extensions/bootstrap-4.6.2-dist/js/bootstrap.bundle.min.js"></script>
+<script src="../extensions/bootstrap-select-1.13.18/js/bootstrap-select.min.js"></script>
 <script src="../extensions/OpenLayers-2.13.1/OpenLayers.js"></script>
 <script src="../javascripts/mb_downloadFeedClient.php"></script>
 </head>
