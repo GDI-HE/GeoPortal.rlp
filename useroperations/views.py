@@ -1247,7 +1247,7 @@ def activation_view(request, activation_key=""):
 
     """
     geoportal_context = GeoportalContext(request=request)
-    activated = False
+    reactivated = False
 
     if MbUser.objects.filter(activation_key=activation_key, is_active=True):
         messages.error(request, _("Account already active"))
