@@ -53,9 +53,15 @@ $localeObj->setCurrentLocale($languageCode);
 <meta http-equiv="content-style-type" content="text/css" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" href="../extensions/OpenLayers-2.13.1/theme/default/style.css" type="text/css" />
-<link type="text/css" href="../extensions/jquery-ui-1.12.1/jquery-ui.min.css" rel="Stylesheet" />
-<link rel="stylesheet" href="../extensions/bootstrap-3.3.6-dist/css/bootstrap.min.css" type="text/css" />
-<link rel="stylesheet" href="../extensions/bootstrap-select-1.9.3/dist/css/bootstrap-select.css" type="text/css" />
+<!--<link type="text/css" href="../extensions/jquery-ui-1.12.1/jquery-ui.min.css" rel="Stylesheet" />-->
+<!--<link rel="stylesheet" href="../extensions/bootstrap-3.3.6-dist/css/bootstrap.min.css" type="text/css" />-->
+<!--<link rel="stylesheet" href="../extensions/bootstrap-select-1.9.3/dist/css/bootstrap-select.css" type="text/css" />-->
+<link rel="stylesheet" href="../extensions/bootstrap-4.6.2-dist/css/bootstrap.min.css" type="text/css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <!-- https://icons.getbootstrap.com/ -->
+<!--<link rel="stylesheet" href="../extensions/bootstrap-5.3.3-dist/css/bootstrap.min.css" type="text/css" />-->
+<link rel="stylesheet" href="../extensions/bootstrap-select-1.13.14/dist/css/bootstrap-select.css" type="text/css" />
+<link rel="stylesheet" href="../extensions/jquery-ui-1.13.2.custom/jquery-ui.min.css" type="text/css" />
 <style type="text/css">
 
 
@@ -88,8 +94,14 @@ body,td, form, input, select{
   margin-left: 10px;
 }
 .nav-tabs > li.active > a, .nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover {background-color:#f8f8f8;}
+#mytabs .nav-link.active {border-color: #dee2e6 #dee2e6 #f8f9fa;}
+.example_service_feed {line-height: 19px;}
+#example_feeds li {padding: 4px 10px;}
 .navbar-brand{font-size:14px;}
-div, p a {overflow-wrap:break-word;word-wrap: break-word;}
+.filter-option-inner-inner, span.text {word-wrap: break-word;white-space: break-spaces;}
+.bs-searchbox .form-control {padding: 0 0.5em;margin: 0 0 0.5em 0;}
+#dataset_information label {font-weight: 700;margin-bottom: 0em;margin-top: 0.5em;}
+#dataset_information p {margin-bottom: 0.1em;}
 div.olControlZoom{left:12px}
 .olControlPanPanel{margin-top:70px;left:9px;}
 .olControlPanPanel div {background-image: url("../img/misc/pan-panel.png");background-color: rgba(0, 60, 136, 0.5);cursor: pointer;height: 18px;position: absolute;width: 18px;}
@@ -115,7 +127,7 @@ select {max-width: 100%;}
   top: 0;
   left: 0;
   width: 100%;
-  max-width: 800px;
+  /* max-width: 800px; */
   margin-bottom:10px !important;
   height: calc(100vh - 300px);
   max-height: 600px;
@@ -126,7 +138,7 @@ select {max-width: 100%;}
 
 #mapframe_file_list {
   width: 100%;
-  max-width: 800px;
+  /* max-width: 800px; */
   margin-bottom:10px !important;
   height: calc(100vh - 300px);
   max-height: 600px;
@@ -136,8 +148,8 @@ select {max-width: 100%;}
   z-index: 1500;
 }
 .example_service_feed {cursor:pointer;}
-#input_feed_url, #dataset_info, #representations {
-  background-color: #f8f8f8;
+#input_feed_url, #dataset_info, #representations, .navbar {
+  /* background-color: #f8f8f8;*/
   border-bottom: 1px solid #ddd;
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
@@ -145,40 +157,44 @@ select {max-width: 100%;}
   border-right: 1px solid #ddd;
   padding: 10px;
 }
+
+.navbar {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  border-top: 1px solid #ddd;
+  margin-bottom: 10px;
+}
 </style>
 <!--<script src="../extensions/OpenLayers-2.13.1/OpenLayers.mobile.js"></script>//TODO: bugs with control panels-->
-<script src="../extensions/OpenLayers-2.13.1/OpenLayers.js"></script>
+
 <script src="../extensions/jquery-1.12.0.min.js"></script>
-<script src="../extensions/jquery-ui-1.12.1/jquery-ui.min.js"></script>
-<script src="../extensions/bootstrap-3.3.6-dist/js/bootstrap.min.js"></script>
-<script src="../extensions/bootstrap-select-1.9.3/dist/js/bootstrap-select.min.js"></script>
-<script src="../extensions/bootstrap-select-1.9.3/dist/js/i18n/defaults-de_DE.js"></script>
+<!-- <script src="../extensions/jquery-3.7.1/jquery-3.7.1.min.js"></script> -->
+<script src="https://code.jquery.com/jquery-migrate-3.4.1.js"></script>
+<script src="../extensions/jquery-ui-1.13.2.custom/jquery-ui.min.js"></script>
+<script src="../extensions/bootstrap-4.6.2-dist/js/bootstrap.bundle.js"></script>
+<!--<script src="../extensions/bootstrap-select-1.13.14/dist/js/bootstrap-select.js"></script>-->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/js/bootstrap-select.js"></script>
+<script src="../extensions/OpenLayers-2.13.1/OpenLayers.js"></script>
 <script src="../javascripts/mb_downloadFeedClient.php"></script>
 </head>
 <body onload="init()">
 <!-- Navbar -->
-<nav class="navbar navbar-default">
-  <div class="container-fluid">
-    <!-- Titel und Schalter werden für eine bessere mobile Ansicht zusammengefasst -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Navigation ein-/ausblenden</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a style="float:none;display:block;padding:10px 15px;height:auto;" class="navbar-brand" href="#"><?php echo _mb("INSPIRE ATOM Feed Client");?>
-      <img style="display:inline;margin-right:7px;" alt="INSPIRE symbol" src="../img/misc/inspire_eu_klein.png" title="INSPIRE">
-      <img style="display:inline;margin-right:7px;" alt="European Union symbol" src="../img/misc/eu.png" title="<?php echo _mb("Implements European Standards");?>" ></a>
-    </div>
-    <!-- Alle Navigationslinks, Formulare und anderer Inhalt werden hier zusammengefasst und können dann ein- und ausgeblendet werden -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav navbar-right">
-        <li><a href="#"><?php if ((integer)(Mapbender::session()->get("mb_user_id")) > 0) { echo _mb("Your logged in as ").Mapbender::session()->get("mb_user_name");} else { echo _mb("Your not logged in - please authenticate!");}?></a></li>
-      </ul>
-
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+<nav class="navbar navbar-expand-sm navbar-light bg-light">
+  <a class="navbar-brand"><?php echo _mb("INSPIRE ATOM Feed Client");?>
+    <img style="display:inline;margin-right:7px;" alt="INSPIRE symbol" src="../img/misc/inspire_eu_klein.png" title="INSPIRE">
+    <img style="display:inline;margin-right:7px;" alt="European Union symbol" src="../img/misc/eu.png" title="<?php echo _mb("Implements European Standards");?>" >
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-controls="bs-example-navbar-collapse-1" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <!-- Alle Navigationslinks, Formulare und anderer Inhalt werden hier zusammengefasst und können dann ein- und ausgeblendet werden -->
+  <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="#"><?php if ((integer)(Mapbender::session()->get("mb_user_id")) > 0) { echo _mb("Your logged in as ").Mapbender::session()->get("mb_user_name");} else { echo _mb("Your not logged in - please authenticate!");}?></a>
+      </li>
+    </ul>
+  </div><!-- /.navbar-collapse -->
 </nav>
 <!-- Modal Meldungen TODO: maybe usefull for input dialog - service feed url?-->
 <!--<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="title" id="parse_service_feed_modal">
@@ -199,14 +215,14 @@ select {max-width: 100%;}
 <!-- <button class="btn btn-primary" type="button" id="stop_parsing"><?php echo _mb("reset");?></button> TODO: check if it is possible to use it if some error orccurs or if it possible to interrupt a ajax call / timeout handling? -->
 <div id="loading_image_dataset" style="display: none;"><p><img class="inspire_loading" src="../img/inspire_tr_36.png" style="margin-left: auto; margin-right: auto;"/><?php echo _mb("Loading Dataset Feed ...");?></p></div>
 <!-- Tabs-Navs -->
-<ul class="nav nav-tabs" role="tablist" id="mytabs">
-  <li role="presentation" class="active"><a href="#input_feed_url" role="tab" data-toggle="tab"><?php echo _mb("Url to feed");?></a></li>
-  <li role="presentation"><a href="#dataset_info" role="tab" data-toggle="tab" id="tab_header_datasets"><?php echo _mb("Datasets");?><span id="tab_header_number_datasets"></span></a></li>
-  <li role="presentation"><a href="#representations" role="tab" data-toggle="tab" id="tab_header_representations"><?php echo _mb("Representations");?><span id="tab_header_number_representations"></span></a></li>
-</ul>
+<div class="nav nav-tabs" role="tablist" id="mytabs">
+  <button id="nav-feedurl-button" class="nav-link active bg-light" data-toggle="tab" data-target="#input_feed_url" type="button" role="tab" aria-controls="input_feed_url" aria-selected="true"><?php echo _mb("Url to feed");?></button>
+  <button id="nav-dataset-button" class="nav-link bg-light" data-toggle="tab" data-target="#dataset_info" type="button" role="tab" aria-controls="dataset_info" aria-selected="false"><?php echo _mb("Datasets");?></button>
+  <button id="nav-presentations-button" class="nav-link bg-light" data-toggle="tab" data-target="#representations" type="button" role="tab" aria-controls="representations" aria-selected="false"><?php echo _mb("Representations");?></button>
+</div>
 <!-- Tab-Inhalte -->
-<div class="tab-content" style="height:100%">
-  <div role="tabpanel" class="tab-pane active" id="input_feed_url">
+<div class="tab-content bg-light" id="nav-tabContent">
+  <div role="tabpanel" class="tab-pane fade show active" id="input_feed_url" aria-labelledby="nav-feedurl-button">
     <form id="service_feed_form" style="margin:0 !important;">
       <div class="input-group" style="margin:0 0 10px 0">
         <span class="input-group-btn">
@@ -243,7 +259,7 @@ select {max-width: 100%;}
         <!--<input type="button" title="Get Feed" id="download_feed_button" value="<?php echo _mb("Get feed content");?>"/>-->
       </form>
   </div>
-  <div role="tabpanel" class="tab-pane" id="dataset_info">
+  <div role="tabpanel" class="tab-pane" id="dataset_info" aria-labelledby="nav-dataset-button">
     <div style="z-index: 1200; margin:0 0 10px 0;" id="dataset_list">
         <div id="dataset_select"></div>
     </div>
@@ -270,7 +286,7 @@ select {max-width: 100%;}
       </p>
     </div>
   </div>
-  <div role="tabpanel" class="tab-pane" id="representations">
+  <div role="tabpanel" class="tab-pane" id="representations" aria-labelledby="nav-presentations-button">
     <label for="capabilities_hybrid" id="label_capabilities_hybrid"><?php echo _mb("Capabilities (WFS-hybrid)");?>:</label>
     <div id="capabilities_hybrid"></div>
     <div id="representation_select" style="margin:10px 0;">

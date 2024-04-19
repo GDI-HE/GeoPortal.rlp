@@ -100,7 +100,7 @@ var options = {
   inputWidth: 300,
   searchEpsg: "4326",
   maxResults: 15,
-  gazetteerUrl: "https://" + location.hostname + "/mapbender/geoportal/gaz_geom_mobile.php?",
+  gazetteerUrl: "http://" + location.hostname + "/mapbender/geoportal/gaz_geom_mobile.php?",
   isGeonames: false,
   minLength: 3,
   delay: 3,
@@ -111,7 +111,7 @@ var options = {
 }
 
 var formContainer = $(document.createElement('form')).attr({'id':'json-autocomplete-gazetteer'}).appendTo('#' + options.id);
-formContainer.submit(function() {
+formContainer.on( "click", function() {
   return false;
 });
 if (options.isDraggable){
@@ -128,7 +128,7 @@ var inputAddress = $(document.createElement('input')).appendTo(formContainer);
 inputAddress.attr({'id':'geographicName'});
 //default value
 inputAddress.val('Search for addresses');
-inputAddress.click(function() {
+inputAddress.on( "click", function() {
   inputAddress.val('');
 });
 inputAddress.css('width',options.inputWidth);
@@ -282,14 +282,14 @@ sf.multi.activate();
 	}
 	//initialize button for load service feed - the first feed will be parsed.
 	$(document).ready(function(e) {
-    		$('#download_feed_button').click(function() {
+    		$('#download_feed_button').on("click",function() {
 			resetForm();
 			method =  "getServiceFeedObjectFromUrl";
         		data = $("#download_feed_url").val();
 			//call server by ajax function
 			callServer(data,method);
     		});
-		$('.example_service_feed').click(function() {
+		$('.example_service_feed').on("click",function() {
 			//alert('click');
 			resetForm();
 			method =  "getServiceFeedObjectFromUrl";
@@ -297,7 +297,7 @@ sf.multi.activate();
 			//call server by ajax function
 			callServer(data,method);
     		});
-		$('#stop_parsing').click(function () {
+		$('#stop_parsing').on("click",function() {
   			alert("test");
 		});
 	});
@@ -436,7 +436,7 @@ function showDatasetList(featureCollection,id) {
 	$("#label_dataset_select").css("display","block");
 	//preselect option
 	$("#dataset_select option[optionid='" + id + "']").attr("selected","selected");
-	$('#dataset_select').bind('change', function() {
+	$('#dataset_select').on('change', function() {
 		var $this = $(this);
 		optionSelected = $(this).find('option:selected').attr('optionid');
 		//alert(optionSelected);
@@ -482,7 +482,7 @@ function showDatasetEntryList(featureCollection, id) {
 	datasetEntrySelect.selectpicker('refresh');
 	fillSectionList(featureCollection, id);
 
-	$('#dataset_representation_select').bind('change', function() {
+	$('#dataset_representation_select').on('change', function() {
 		var $this = $(this);
     DlSet.urls = [];
     DlSet.names = [];
