@@ -10,7 +10,11 @@
 </div>
 
 {% if activated %}
-    <p> {% trans 'Account successfully activated!' %} </p>
+    {% if reactivated %}
+        <p> {% trans 'Account successfully reactivated!' %} </p>
+    {% else %}
+        <p> {% trans 'Account successfully activated!' %} </p>
+    {% endif %}
 {% else %}
     <p> {% trans 'Activation failed. Please contact an administrator!' %} </p>
 {% endif %}

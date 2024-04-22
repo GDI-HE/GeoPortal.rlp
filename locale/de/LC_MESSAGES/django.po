@@ -1082,6 +1082,10 @@ msgstr "Bitte geben Sie ihre Nachricht ein."
 msgid "I'm not a robot"
 msgstr "Ich bin kein Roboter"
 
+#: useroperations/forms.py:14 useroperations/forms.py:29
+msgid "Please confirm that you are not a robot."
+msgstr "Bitte bestätigen Sie, dass Sie kein Roboter sind."
+
 #: useroperations/forms.py:17 useroperations/forms.py:32
 #: useroperations/forms.py:53
 msgid "Username"
@@ -1092,6 +1096,85 @@ msgstr "Benutzername"
 msgid "Please enter your username."
 msgstr "Bitte geben Sie Ihren Benutzernamen ein."
 
+#: useroperations/forms.py:18
+msgid "Your password can't be too similar to your username."
+msgstr "Ihr Passwort darf nicht zu ähnlich zu Ihrem Benutzernamen sein."
+
+#: useroperations/views.py:816
+msgid "For changing your profile, you have to enter your current password."
+msgstr "Damit Ihr Profil angepasst wird, müssen Sie Ihr aktuelles Password angeben."
+
+#: useroperations/views.py:816
+msgid "For changing your password, all password fields must be filled."
+msgstr "Um Ihr Password zu ändern, müssen alle Passwortfelder ausgefüllt werden."
+
+#: useroperations/validators.py:7
+msgid "Password must be at least 9 characters long."
+msgstr "Das Passwort muss mindestens 9 Zeichen lang sein."
+
+#: useroperations/validators.py:9
+msgid "Password must contain at least one digit."
+msgstr "Das Passwort muss mindestens eine Ziffer enthalten."
+
+#: useroperations/validators.py:11
+msgid "Password must contain at least one uppercase letter."
+msgstr "Das Passwort muss mindestens einen Großbuchstaben enthalten."
+
+#: useroperations/validators.py:7
+msgid "Password must contain at least one lowercase letter."
+msgstr "Das Passwort muss mindestens einen Kleinbuchstaben enthalten."
+
+#: useroperations/crispy_form_no_action.html:83
+msgid "Do you really want to delete the profile?"
+msgstr "Möchten Sie das Profil wirklich löschen?"
+
+#: useroperations/crispy_form_no_action.html:132
+msgid "The provided email address is not valid. Please check it to make sure it is correct. An activation link will be sent to the correct email address."    
+msgstr "Die angegebene E-Mail-Adresse ist nicht gültig. Bitte überprüfen Sie sie, um sicherzustellen, dass sie korrekt ist. Ein Aktivierungslink wird an die richtige E-Mail-Adresse gesendet."
+
+#: useroperations/crispy_form_no_action.html:133
+msgid "The entered email address appears to be valid. Please check your email inbox for the activation link."
+msgstr "Die eingegebene E-Mail-Adresse scheint gültig zu sein. Bitte überprüfen Sie Ihr E-Mail-Postfach auf den Aktivierungslink."
+
+#: useroperations/crispy_form_no_action.html:134
+msgid "The provided email address is not valid."
+msgstr "Die angegebene E-Mail-Adresse ist nicht gültig."
+
+#: useroperations/crispy_form_no_action.html:135
+msgid "The entered email address appears to be valid."
+msgstr "Die eingegebene E-Mail-Adresse scheint gültig zu sein."
+
+#: useroperations/crispy_form_no_action.html:94
+msgid "You can recover your profile up to 24 hours. After this time period reactivation is not possible. The reactivation link is sent to you by email automatically."
+msgstr "Sie können Ihr Profil bis zu 24 Stunden wiederherstellen. Nach diesem Zeitraum ist eine Reaktivierung nicht mehr möglich. Der Reaktivierungslink wird Ihnen automatisch per E-Mail zugesandt."
+
+#: useroperations/views.py:765
+msgid "Your password has been reset. You can now log in with your new password."
+msgstr "Ihr Passwort wurde zurückgesetzt. Sie können sich jetzt mit Ihrem neuen Passwort anmelden."
+
+#: useroperations/useroperations/templates/password_reset_email.html:8
+msgid "Note that this link is valid only for 24 hours."
+msgstr "Bitte beachten Sie, dass dieser Link nur 24 Stunden gültig ist."
+
+#: useroperations/crispy_form_no_action.html:135
+msgid "Invalid phone number."
+msgstr "Ungültige Telefonnummer."
+
+#: useroperations/crispy_form_no_action.html:137
+msgid "Refresh CAPTCHA"
+msgstr "CAPTCHA aktualisieren"
+
+#: useroperations/crispy_form_no_action.html:85
+msgid "Click for more information."
+msgstr "Klicken Sie hier, um weitere Informationen zu erhalten."
+
+#: useroperations/crispy_form_no_action.html:143
+msgid "Phone number appears to be valid."
+msgstr "Telefonnummer scheint gültig zu sein."
+
+#: useroperations/crispy_form_no_action.html:144
+msgid "Phone number is not valid. It can contain digits, parentheses, hyphens, plus signs, and spaces."
+msgstr "Telefonnummer ist nicht gültig. Sie kann Ziffern, Klammern, Bindestriche, Pluszeichen und Leerzeichen enthalten."
 
 msgid ""
 "Please enter your password with at least 9 characters. Allowed special chars "
@@ -1100,8 +1183,18 @@ msgstr ""
 "Bitte geben Sie Ihr Passwort mit mindestens 9 Zeichen ein."
 "Erlaubte Sonderzeichen @#$%&+=!:-_"
 
+#: useroperations/forms.py:17 useroperations/forms.py:32
+#: useroperations/forms.py:57
+msgid "Please enter a password that is at least 9 characters long, includes at least one uppercase letter, one lowercase letter, and one number."
+msgstr "Bitte geben Sie ein Passwort ein, das mindestens 9 Zeichen lang ist, mindestens einen Großbuchstaben, einen Kleinbuchstaben und eine Zahl enthält."
+
 #: useroperations/forms.py:18
 msgid "Please use at least 9 characters."
+msgstr "Bitte verwenden Sie mindestens 9 Zeichen."
+
+#: useroperations/forms.py:21
+#: reference number should be changed while cleaning up the code
+msgid "Please enter your password with at least at 9 characters."
 msgstr "Bitte verwenden Sie mindestens 9 Zeichen."
 
 #: useroperations/forms.py:18 useroperations/forms.py:33
@@ -1109,12 +1202,76 @@ msgid "Password"
 msgstr "Passwort"
 
 #: useroperations/forms.py:19 useroperations/forms.py:39
-msgid "Password confirmation."
+msgid "Please confirm your password."
 msgstr "Bitte bestätigen Sie Ihr Passwort."
 
+#: reference number should be changed while cleaning up the code
+msgid "Please enter a password first"
+msgstr "Bitte geben Sie zuerst ein Passwort ein"
+
+#: reference number should be changed while cleaning up the code
+msgid "The passwords you entered do not match"
+msgstr "Die eingegebenen Passwörter stimmen nicht überein"
+
+#: reference number should be changed while cleaning up the code
+msgid "Passwords match"
+msgstr "Passwörter stimmen überein"
+
+#: reference number should be changed while cleaning up the code
+msgid "Toggle password visibility"
+msgstr "Passwortsichtbarkeit umschalten"
+
+#: reference number should be changed while cleaning up the code
+msgid "Your password is being checked against a list of known and already compromised passwords (approximately 20,000 entries)."
+msgstr "Ihr Passwort wird gegen eine Liste bekannter und bereits kompromittierter Passwörter überprüft. (ca. 20.000 Einträge)"
+
+#: reference number should be changed while cleaning up the code
+msgid "Link to the list"
+msgstr "Link zur Liste"
+
+#: useroperations/templates/crispy_form_no_action.html:35
+msgid "If your input is affected, you must choose a new, secure password."
+msgstr "Falls Ihre Eingabe betroffen ist, müssen Sie ein neues, sicheres Passwort auswählen."
+
+#: useroperations/templates/crispy_form_no_action.html:29
+msgid "Click for password requirements"
+msgstr "Klicken Sie für Passwortanforderungen"
+
+#: useroperations/templates/crispy_form_no_action.html:37, 96
+msgid "Close tooltip"
+msgstr "Tooltip schließen"
+
+#: useroperations/templates/crispy_form_no_action.html:55
+msgid "At least 9 characters"
+msgstr "Mindestens 9 Zeichen"
+
+#: useroperations/templates/crispy_form_no_action.html:56
+msgid "At least one lowercase letter"
+msgstr "Mindestens ein Kleinbuchstabe"
+
+#: useroperations/templates/crispy_form_no_action.html:57
+msgid "At least one uppercase letter"
+msgstr "Mindestens ein Großbuchstabe"
+
+#: useroperations/templates/crispy_form_no_action.html:58
+msgid "At least one number"
+msgstr "Mindestens eine Zahl"
+
 #: useroperations/forms.py:19
-msgid "PasswordConfirmation"
+msgid "Password Confirmation"
 msgstr "Passwort bestätigen"
+
+#: useroperations/forms.py: 19
+msgid "Please enter a valid phone number."
+msgstr "Please enter a valid phone number."
+
+#: reference number should be changed while cleaning up the code
+msgid "Please enter a valid email address"
+msgstr "Bitte geben Sie eine gültige E-Mail-Adresse ein"
+
+#: reference number should be changed while cleaning up the code
+msgid "The entered email address is valid"
+msgstr "Die eingegebene E-Mail-Adresse ist gültig"
 
 #: useroperations/forms.py:21 useroperations/forms.py:41
 msgid "Organization"
@@ -1128,9 +1285,25 @@ msgstr "Bitte geben Sie Ihre Organisation ein."
 msgid "Departement"
 msgstr "Abteilung"
 
+#: useroperations/templates/crispy_form_no_action.html:145
+msgid "Password is valid."
+msgstr "Passwort ist gültig."
+
+#: useroperations/templates/crispy_form_no_action.html:146
+msgid "Password is invalid. Please check the password rules."
+msgstr "Passwort ist ungültig. Bitte überprüfen Sie die Passwortregeln."
+
+#: useroperations/forms.py:22 useroperations/forms.py:42
+msgid "Confirm new password"
+msgstr "Neues Passwort bestätigen"
+
 #: useroperations/forms.py:22 useroperations/forms.py:42
 msgid "Please enter the departement you are working in."
 msgstr "Bitte geben Sie Ihre Abteilung ein."
+
+#: templates/base.html:186
+msgid "Close message"
+msgstr "Nachricht schließen"
 
 #: useroperations/forms.py:23
 msgid "Phone"
@@ -1188,7 +1361,7 @@ msgid "Current password"
 msgstr "Aktuelles Passwort"
 
 #: useroperations/forms.py:38
-msgid "New password "
+msgid "New password"
 msgstr "Neues Passwort"
 
 #: useroperations/forms.py:39
@@ -1474,6 +1647,10 @@ msgstr "Anmeldung erfolgreich"
 msgid "Account not active, please check your emails to reactivate!"
 msgstr "Konto nicht aktiv, bitte prüfen Sie Ihre Emails!"
 
+#: useroperations/views.py:85
+msgid "You have to wait 24 hours to reset your password again!"
+msgstr "Sie müssen 24 Stunden warten, um Ihr Passwort erneut zurückzusetzen!"
+
 #: useroperations/views.py:86
 msgid ""
 "Password failed too many times! Account is deactivated! Activation mail was "
@@ -1504,6 +1681,10 @@ msgstr "Relevanz"
 #: useroperations/views.py:252
 msgid "Forgot Password?"
 msgstr "Passwort vergessen?"
+
+#: useroperations/forms.py:76
+msgid "Reset Password"
+msgstr "Passwort zurücksetzen"
 
 #: useroperations/views.py:291
 msgid ""
@@ -1546,10 +1727,10 @@ msgstr "Passwörter stimmen nicht überein"
 #: useroperations/views.py:388
 msgid ""
 "This is your activation link. It will be valid until the end of the day, "
-"please click it!"
+"please copy and paste the link in your browser to activate it."
 msgstr ""
-"Dies ist ihr Aktivierungslink. Er wird für die nächsten 24 Stunden gültig "
-"sein. Bitte klicken um Aktivierung abzuschließen!"
+"Dies ist Ihr Aktivierungslink. Er wird für die nächsten 24 Stunden gültig "
+"sein. Bitte kopieren Sie den Link und fügen Sie ihn in Ihren Browser ein, um den Account zu aktivieren."
 
 #: useroperations/views.py:409
 msgid ""
@@ -1677,9 +1858,17 @@ msgstr ""
 "Falls Sie ihr Konto versehentlich gelöscht haben, können Sie es unter dem "
 "folgenden Link reaktivieren!"
 
+#: useroperations/views.py:713
+msgid "We have emailed you instructions for setting your password. You should receive them shortly."
+msgstr "Wir haben Ihnen per E-Mail eine Anleitung zum Einrichten Ihres Passworts zugesandt. Sie sollten sie in Kürze erhalten."
+
 #: useroperations/views.py:716
 msgid "Successfully deleted the user:"
 msgstr "Konto erfolgreich gelöscht für:"
+
+#: useroperations/views.py
+msgid "The password reset link is invalid or has expired."
+msgstr "Der Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen."
 
 #: useroperations/views.py:718
 msgid ""
@@ -1759,6 +1948,10 @@ msgstr "Logo Hessisches Wappentier: zur Startseit"
 #templates/base.html:42 useroperations/templates/landing_page.html:44
 msgid "Back to homepage"
 msgstr "Zurück zur Startseite"
+
+#templates/base.html:208 
+msgid "Back to top"
+msgstr "Zum Seitenanfang"
 
 #: GeoPortal.rlp/templates/base.html:55
 #: GeoPortal.rlp/searchCatalogue/templates/index.html:43
@@ -1914,9 +2107,6 @@ msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "A magnifying class"
 #~ msgstr "Ein Ver"
-
-#~ msgid "Reset Password"
-#~ msgstr "Passwort zurücksetzen"
 
 #~ msgid "A magnifying glass icon"
 #~ msgstr "Ein Lupensymbol"

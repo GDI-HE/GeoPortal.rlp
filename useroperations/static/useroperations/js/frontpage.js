@@ -504,35 +504,32 @@ if ($(window).width() < 689) {
 
 
 
-$(document).on('click', "#change-form-button", function(){
+// $(document).on('click', "#change-form-button", function(event){
 
-  var userLang = navigator.language || navigator.userLanguage;
-  var PasswordInput = document.getElementById("id_password");
-  var PasswordInputConfirm = document.getElementById("id_passwordconfirm");
-
-
-  if(PasswordInput.value != PasswordInputConfirm.value) {
-    if(userLang == "de") {
-      alert("Passwörter stimmen nicht überein");
-    } else {
-      alert("Passwords do not match");
-    }
-    event.preventDefault();
-
-  }
+//   var userLang = navigator.language || navigator.userLanguage;
+//   var PasswordInput = document.getElementById("password");
+//   var PasswordInputConfirm = document.getElementById("id_passwordconfirm");
 
 
-});
+//   if(PasswordInput.value != PasswordInputConfirm.value) {
+//     if(userLang == "de") {
+//       alert("Passwörter stimmen nicht überein");
+//     } else {
+//       alert("Passwords do not match");
+//     }
+//     event.preventDefault();
 
+//   }
+
+
+// });
 
 //captcha refresh
 $(function() {
-    // Add refresh button after field (this can be done in the template as well)
+    if (typeof refreshCaptcha !== 'undefined') {
     $('img.captcha').after(
-            $('<a href="#void" class="captcha-refresh">↻</a>')
-            );
-
-    // Click-handler for the refresh-link
+        $('<a href="#void" class="captcha-refresh" aria-label="' + refreshCaptcha + '" title="' + refreshCaptcha + '">↻</a>')
+         );
     $('.captcha-refresh').click(function(){
         var $form = $(this).parents('form');
         var url = location.protocol + "//" + window.location.hostname + ":"
@@ -546,7 +543,8 @@ $(function() {
 
         return false;
     });
-});
+    }
+  });
 
 /* BEGIN resizeObserver bodyContent */
 $(document).ready(function(){
@@ -642,7 +640,7 @@ const umlautMap = {
     '\u00df': 'ss',
     ':': '_',
   }
-  
+
 function replaceUmlaute(str) {
   return str
     .replace(/[\u00dc|\u00c4|\u00d6][a-z]/g, (a) => {

@@ -1,68 +1,144 @@
-{% extends 'base.html' %}
-{% load i18n static %}
-{% block title %} - {% trans 'Registration' %} {% endblock %}
-{% load crispy_forms_tags %}
+{% extends 'base.html' %} 
+{% load i18n static %} 
+{% block title %} - {% trans 'Registration' %} {% endblock %} 
+{% load crispy_forms_tags %} 
 {% block body %}
 
 <div class="title">
     <h1>{{ headline }}</h1>
 </div>
 
+{% if not is_delete_page %}
 <p class="description">
     <a target="_self" href="/article/Registrierung/">{% trans 'Why should I create an account?' %}</a>
     {% trans 'A short explanation of the benefits of an account for this Geoportal!' %}
 </p>
 
-<hr>
-<p class="foot-note">
-       {% trans '* The field is required.' %}
-</p>
+<hr />
+{% endif %}
+
+{% if not is_delete_page %}
+<p class="foot-note">{% trans '* The field is required.' %}</p>
+{% endif %}
 <div class="wrapper form-wrapper">
     <form method="post">
         {% csrf_token %}
-            <table>
+        <table>
             {% for field in form %}
             <tr class="field-wrapper {% if field.id_for_label in small_labels %}small-label{% endif %}">
                 <td class="field-label">
-                    {{ field.label_tag }}
-                    {% if field.field.required %}
-                    *
-                    {% endif %}
+                    {{ field.label_tag }} {% if field.field.required %} * {% endif %}
                 </td>
                 <td class="field-value">
-                    {{ field }}
+                    <div class="password-field">
+                        {{ field }} {% if field.name == "password" %}
+                        <i id="question-mark" class="fas fa-info-circle toggle-question"
+                            aria-label="{% trans 'Click for password requirements' %}" tabindex="0"
+                            title="{% trans 'Click for password requirements' %}"></i>
+                        <div class="tooltip-container">
+                            <div id="tooltip-content" role="tooltip" aria-live="polite">
+                                {% trans "Your password is being checked against a list of known and already compromised passwords (approximately 20,000 entries)." %}
+                                <a href="https://gist.github.com/roycewilliams/226886fd01572964e1431ac8afc999ce" target="_blank" rel="noopener noreferrer">{% trans "Link to the list" %}</a>.
+                                {% trans "If your input is affected, you must choose a new, secure password." %}
+                                <button id="close-tooltip" class="close-tooltip" type="button" style="position: absolute; top: 10px; right: 10px"
+                                    aria-label="{% trans 'Close tooltip' %}" title="{% trans 'Close tooltip' %} ">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        {% endif %} {% if field.name == "passwordconfirm" %}
+                        <i class="toggle-password fa fa-eye-slash" aria-label="{% trans 'Toggle password visibility' %}"
+                            tabindex="0" title="{% trans 'Toggle password visibility' %}"></i>
+                        {% endif %}
+                        {% if field.name == "confirmation_password" %}
+                            <i class="toggle-password fa fa-eye-slash" aria-label="{% trans 'Toggle password visibility' %}"
+                                tabindex="0" title="{% trans 'Toggle password visibility' %}"></i>
+                        {% endif %}
+                        
+                    </div>
+
+                    {% if field.name == "password" %}
+                    <ul id="password-rules" aria-live="polite" aria-label="{% trans 'Password rules' %}" role="list">
+                        <li id="length" role="listitem">{% trans "At least 9 characters" %}</li>
+                        <li id="lowercase" role="listitem">{% trans "At least one lowercase letter" %}</li>
+                        <li id="uppercase" role="listitem">{% trans "At least one uppercase letter" %}</li>
+                        <li id="number" role="listitem">{% trans "At least one number" %}</li>
+                    </ul>
+                    {% endif %} {% if field.name == "passwordconfirm" %}
+                    <div id="CheckPasswordMatch" aria-live="polite" aria-label="{% trans 'Password confirmation check' %}"></div>
+                    {% endif %} {% if field.name == "email" %}
+                    <div id="CheckEmail" aria-live="polite" aria-label="{% trans 'Email validation' %}"></div>
+                    {% endif %}
+                    {% if field.name == "phone" %}
+                    <div id="CheckPhone" style="color:red;"></div>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
         </table>
         {% if use_recaptcha == 1 and register == 1 %}
-         <div class="g-recaptcha" data-sitekey="{{ recaptcha_public_key }}"></div>
+        <div class="g-recaptcha" data-sitekey="{{ recaptcha_public_key }}"></div>
         {% endif %}
-        <p class="foot-note">
-            {% trans '* The field is required.' %}
-        </p>
-        <hr>
-        <p class="foot-note">
-            {% trans 'For additional information regarding your privacy and the GDPR, please read our ' %}
-            <a target="_self" href="/article/Datenschutz">{% trans 'privacy rules' %}.</a>
-        </p>
+        {% if not is_delete_page %}
+    <p class="foot-note">{% trans '* The field is required.' %}</p>
+    <hr />
+    <div id="passwordStatus" aria-live="polite" style="position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;"></div> 
+{% endif %}
+<p class="foot-note">
+    {% trans 'For additional information regarding your privacy and the GDPR, please read our ' %}
+    <a target="_self" href="/article/Datenschutz">{% trans 'privacy rules' %}.</a>
+</p>
+{% if is_delete_page %}
+<p style="color: red; font-weight: bold; display: inline;">
+    {% trans 'Do you really want to delete the profile?' %}
+    <div id="confirmationContainer">
+            <p>{% trans 'You can recover your profile up to 24 hours. After this time period reactivation is not possible. The reactivation link is sent to you by email automatically.' %}</p>
+    </div>
+</p>
+  
+
+{% endif %}
         <div class="submit-button-wrapper">
             <input type="hidden" name="action" value="submit" />
-
-
+        
             {% if btn_label1 %}
-            <input id="change-form-button" class="form-change-submit-button" data-toggle="save" name="submit" type="submit" value="{{ btn_label1 }}">
+            <input id="change-form-button" class="form-change-submit-button" data-toggle="save" name="submit"
+                type="submit" value="{{ btn_label1 }}" aria-label="{{ btn_label1 }}" title="{{ btn_label1 }}" />
             {% endif %}
-
             {% if btn_label2 %}
-                <!--<input id="change-form-button" class="hidden-form-submit-button" name="submit" type="submit" value="{{ btn_label1 }}">-->
-            <input id="delete-form-button" class="form-delete-submit-button" data-toggle="delete" name="submit" type="submit" value="{{ btn_label2 }}">
+            <input id="delete-form-button" class="form-delete-submit-button" data-toggle="delete" name="submit"
+                type="submit" value="{{ btn_label2 }}" aria-label="{{ btn_label2 }}" title="{{ btn_label2 }}" />
             {% endif %}
-
         </div>
     </form>
 </div>
-<input type="hidden" id="dsgvo" value="{{ dsgvo_flag }}">
 
+<script>
+    // Declare global variables
+    //focus_password, focus_username and focus_phone are used in views.py to determine which field to focus on
+    var focusPassword = {% if focus_password %}true{% else %}false{% endif %};
+    var focusUsername = {% if focus_username %}true{% else %}false{% endif %};
+    var focusPhone = {% if focus_phone %}true{% else %}false{% endif %};
+</script>
+
+<script>
+    // Declare global variables
+    var enterPasswordMessage = "{% trans 'Please enter a password first' %}";
+    var passwordsNotMatchMessage = "{% trans 'The passwords you entered do not match' %}";
+    var passwordsMatchMessage = "{% trans 'Passwords match' %}";
+    var enterValidEmailMessage = "{% trans 'The provided email address is not valid. Please check it to make sure it is correct. An activation link will be sent to the correct email address.' %}";
+    var ValidEmailMessage = "{% trans 'The entered email address appears to be valid. Please check your email inbox for the activation link.' %}";
+    var enterValidMessageChange = "{% trans 'The provided email address is not valid.' %}";
+    var ValidEmailMessageChange = "{% trans 'The entered email address appears to be valid.' %}";
+    var ValidPhoneMessage = "{% trans 'Phone number appears to be valid.' %}";
+    var EnterValidPhoneMessage = "{% trans 'Phone number is not valid. It can contain digits, parentheses, hyphens, plus signs, and spaces.' %}";
+    var passwordIsValid = "{% trans 'Password is valid.'%}";
+    var passwordIsNotValid =  "{% trans 'Password is invalid. Please check the password rules.'%}";
+    var refreshCaptcha = "{% trans 'Refresh CAPTCHA'%}";
+</script>
+
+<script src="{% static 'useroperations/js/form.js' %}"></script>
+
+<input type="hidden" id="dsgvo" value="{{ dsgvo_flag }}" />  
 
 {% endblock %}
