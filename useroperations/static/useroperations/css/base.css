@@ -814,6 +814,26 @@ ul {
     font-size: 1.5em;
 }
 
+.search4AllWmc:hover {
+    transform: unset;
+    box-shadow: unset;
+    text-decoration: underline;
+    background-color: #ddd;
+} 
+
+.search4AllWmc{
+    padding: 5px;
+    transition: unset;
+    flex-grow: unset;
+    color: var(--hesse-green);
+    font-size: unset;
+    font-weight: unset;
+    text-decoration: none;
+    background: unset;
+    margin: 0 2px;
+   
+} 
+
 .sidebar-toggler, .map-viewer-toggler {
     color: var(--primary);
     display: flex;
@@ -1401,21 +1421,6 @@ width: 25px;
 margin: 3px 206px;
 border:none;
 z-index: 1;
-}
-
-.see-all-button {   
-min-width: 30px;
-text-align: center;
-color: var(--hesse-green);
-/* float: left; */
-padding: 8px 16px;
-margin: 0 2px;
-cursor: pointer;
-}
-
-.see-all-button:hover {
-    text-decoration: underline;
-    background-color: #ddd;
 }
 
 #search-input:not(:placeholder-shown) ~ #clear-input {

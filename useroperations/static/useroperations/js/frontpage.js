@@ -623,7 +623,7 @@ $(document).ready(function() {
 var currentPage = 1;
 var totalPages;
 var currentSet = 1;
-var GoToPage, Back, Next, GoToPrevious, GoToNext, SeeAll, ShowAllWMCs; //define variable so that it won't create console error when the variable is not defined
+var GoToPage, Back, Next, GoToPrevious, GoToNext, ShowAllWMCs; //define variable so that it won't create console error when the variable is not defined
 $('#nextPage').hide();
 function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
     sort_by = lastClickedTab;
@@ -712,17 +712,6 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
                 nextButton.addClass('disabled');
             }
             $('#pagination').append(nextButton);
-
-            //create see all button before the next button
-            var seeAllButton = $('<a>', {
-                text: SeeAll,
-                class: 'quickstarts search pagination-button flex-container see-all-button',
-                href: '#',
-                title: ShowAllWMCs,
-                'data-resource': 'wmc'  // Set the data-resource attribute to 'wmc'
-            });
-
-            $('#pagination').append(seeAllButton);
 
             $('.pagination-link').removeClass('active');
             $('.pagination-link').eq(pageNum-start).addClass('active');
@@ -885,6 +874,17 @@ $(document).ready(function() {
         }
     });
 });
+
+//if the user clicks search4AllWmc class in landing_page.html, the localStorage will be set to true
+function setFilter() {
+    localStorage.setItem('hideFilter', 'true');
+}
+
+$(document).ready(function() {
+    // Attach the click event handler
+    $('.search4AllWmc').click(setFilter);
+});
+
 
 $(document).ready(function(){
     resetSearchCatalogue("primary");
