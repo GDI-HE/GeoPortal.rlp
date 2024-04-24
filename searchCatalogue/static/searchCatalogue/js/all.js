@@ -1676,10 +1676,12 @@ $(document).ready(function() {
     if (hideFilter === 'true') {
         setTimeout(function() {
             $('#button_wmc').click();
-        }, 500); // Delay of 1 second
-    } else {
+        }, 500); // Delay of 500 ms
+    } 
+    //remove the localStorage item after 550 ms (wait until the button_wmc is clicked and the area is toggled)
+    setTimeout(function() {
         localStorage.removeItem('hideFilter');
-    }
+    }, 550);
   
     $(document).on('change', '#geoportal-maxResults', function() {
         search.setParam('maxResults', $(this).val());
