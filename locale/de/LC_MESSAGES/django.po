@@ -1396,6 +1396,10 @@ msgstr "Mit Passwort bestätigen"
 msgid "Account successfully activated!"
 msgstr "Konto erfolgreich aktiviert!"
 
+#: useroperations/templates/activation.html:13
+msgid "Account successfully reactivated!"
+msgstr "Konto erfolgreich reaktiviert!"
+
 #: useroperations/templates/activation.html:15
 msgid "Activation failed. Please contact an administrator!"
 msgstr ""
