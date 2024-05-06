@@ -603,7 +603,10 @@ function fillSectionList(featureCollection, k) {
 					//console.log(DlSet.urls.length)
 		//create link do django download servie if more than one tile selected
 		//if (document.getElementById("user_id").getAttribute("value") == 2){
-
+				//Ticket: For wfs outputFormat v3.2 Links are not working due to "+" being decoded to " " automatically -> Has to be encoded due to that
+  				if(url.includes("gml+xml")){
+     				url = url.replace("gml+xml", "gml%2Bxml");
+  				}
                 if(DlSet.urls.length > 1){
 
                     downloadLink = $(document.createElement('a')).appendTo('#section_list');
