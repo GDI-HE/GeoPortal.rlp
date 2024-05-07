@@ -599,25 +599,27 @@ var lastClickedTab = 'rank';
 var activeTab = 'mostusedWMC';
 
 $(document).ready(function() {
-    $('#mostusedWMC').click(function(event) {
-        event.preventDefault();
-        lastClickedTab = 'rank';
-        activeTab = 'mostusedWMC';
-        currentPage=1;
-        currentSet=1;
+    if (window.location.pathname === '/') {
+        $('#mostusedWMC').click(function(event) {
+            event.preventDefault();
+            lastClickedTab = 'rank';
+            activeTab = 'mostusedWMC';
+            currentPage=1;
+            currentSet=1;
+            loadPage(1, false, lastClickedTab);
+        });
+
+        $('#newWMC').click(function(event) {
+            event.preventDefault();
+            lastClickedTab = 'date';
+            activeTab = 'newWMC';
+            currentPage=1;
+            currentSet=1;
+            loadPage(1, false, lastClickedTab);
+        });
+
         loadPage(1, false, lastClickedTab);
     }
-    );
-    $('#newWMC').click(function(event) {
-        event.preventDefault();
-        lastClickedTab = 'date';
-        activeTab = 'newWMC';
-        currentPage=1;
-        currentSet=1;
-        loadPage(1, false, lastClickedTab);
-    }
-    );
-    loadPage(1, false, lastClickedTab);
 });
 
 var currentPage = 1;
