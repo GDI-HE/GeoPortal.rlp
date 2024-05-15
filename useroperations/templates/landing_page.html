@@ -111,10 +111,12 @@
     <p class="landing-page-first-paragraph">{% trans "Start our map application with already selected map layers here" %}</p>
     <p class="landing-page-second-paragraph">{% trans "You can switch map layers on or off and add further map layers" %}</p>
 </div>
+{% if show_search_container %}
 <div class="search-container">
     <input type="text" id="search-input" title= "{% trans 'Search for WMCs...' %}" placeholder="{% trans 'Search for WMCs...' %}">
     <button id="clear-input" aria-label="{% trans 'Clear search input' %}"><i class="fas fa-times"></i></button>
 </div>
+{% if show_search_container %}
 
 <div class="button-wrapper">
 <div class="tile-wrapper favourite-wmcs">
@@ -123,6 +125,7 @@
 <button id="previousPage" style="display: none;" aria-label="{% trans 'Go to previous set of pages' %}" title="{% trans 'Go to previous set of pages' %}"></button>
 <button id="nextPages" style="display: none;" aria-label="{% trans 'Go to next set of pages' %}" title="{% trans 'Go to next set of pages' %}"></button>
 <div id="outer-container">
+    {% if show_paging %}
     <div id="inner-container">
         <div id="spacer"></div>
         <div id="pagination">
@@ -130,6 +133,7 @@
         </div>
         <div id="spacer"></div>
     </div>
+    {% endif %} 
     <!-- onclick set the flag setFilter to true: see frontpage.js-->
     <a class="quickstart search search4AllWmc" href="#" title="{% trans 'Search for all map collections' %}" data-resource="wmc" onclick="setFilter()">
         <div class="quickstart-header">

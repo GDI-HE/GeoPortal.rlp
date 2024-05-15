@@ -30,12 +30,13 @@ from django.utils.http import urlsafe_base64_decode
 from django.utils.encoding import force_text
 from django.core.paginator import Paginator
 from datetime import date
+# from thefuzz import fuzz     ## also include the fuzz in the requirements.txt if fuzz is needed in WMC search
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
 from Geoportal.settings import DEFAULT_GUI, HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, \
     SESSION_NAME, PROJECT_DIR, MULTILINGUAL, LANGUAGE_CODE, DEFAULT_FROM_EMAIL, GOOGLE_RECAPTCHA_SECRET_KEY, \
-    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID
+    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID, SHOW_SEARCH_CONTAINER, SHOW_PAGING, MAX_RESULTS
 from Geoportal.utils import utils, php_session_data, mbConfReader
 from searchCatalogue.utils.url_conf import URL_INSPIRE_DOC
 from searchCatalogue.settings import PROXIES
@@ -328,7 +329,10 @@ def index_view(request, wiki_keyword=""):
                "results": results,
                "mobile_wmc_id": MOBILE_WMC_ID,
                "see_more_url": see_more_url,
-                "top_news": top_news,
+               "top_news": top_news,
+               "show_search_container": SHOW_SEARCH_CONTAINER,
+               "show_paging": SHOW_PAGING,
+               "max_results": MAX_RESULTS
                }
     geoportal_context.add_context(context=context)
 
@@ -355,8 +359,8 @@ def landing_page_view(request):
     results_num = results.get("num_wmc", 0)
     new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <= 15] #use sort_wmc fn
     new_wmcs = sorted(new_wmcs, key=sort_wmc)[:3]
-    html = render_to_string('tile_wmc.html', {'results': results, 'num_wmc': results_num, 'new_wmcs': new_wmcs})
-    return JsonResponse({"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs})
+    html = render_to_string('tile_wmc.html', {'results': results, 'num_wmc': results_num, 'new_wmcs': new_wmcs, 'show_search_container': SHOW_SEARCH_CONTAINER, 'max_results': MAX_RESULTS})
+    return JsonResponse({"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs, 'max_results': MAX_RESULTS})
 
 # Sorting function for getting the new wmcs
 def sort_wmc(wmc):
@@ -367,13 +371,15 @@ def sort_wmc(wmc):
     return days_since_wmc
 
 def get_titles(request):
-    # This is only used for the search function in the landing page with query now.
+    """This is only used for the search function in the landing page with query now and return the matching wmcs."""
     lang = request.GET.get('lang', 'en')  
     page_num = request.GET.get('page_num', 1)  
     query = request.GET.get('query', '')  # Default to an empty string if no query is provided
     results = useroperations_helper.get_wmc_title(lang)
     wmcs = results.get('wmc', [])
     matching_wmcs = [wmc for wmc in wmcs if query.lower() in wmc.get('title', '').lower() or query.lower() in wmc.get('abstract', '').lower()]
+    # remove the comment if fuzz needs to be used and pip install thefuzz
+    # matching_wmcs = [wmc for wmc in wmcs if fuzz.partial_ratio(query.lower(), wmc.get('title', '').lower()) > 70 or fuzz.partial_ratio(query.lower(), wmc.get('abstract', '').lower()) > 70]
     # Create a Django Paginator
     paginator = Paginator(matching_wmcs, 5)  # Show 5 results per page
     # Get the requested page of results
@@ -389,6 +395,7 @@ def get_titles(request):
         },
         'num_wmc': results_num,
         'new_wmcs': new_wmcs,
+        'max_results': MAX_RESULTS,
         }
     html = render_to_string('tile_wmc.html', context)
     titles = [wmc.get('title') for wmc in page]
@@ -403,7 +410,7 @@ def get_titles(request):
         "has_next": page.has_next(),
         "next_page_number": page.next_page_number() if page.has_next() else None,
         "new_wmcs": [wmc.get('title') for wmc in new_wmcs],  # Add the titles of the new wmcs to the JSON response
-
+        "max_results": MAX_RESULTS
     })
 
 @check_browser

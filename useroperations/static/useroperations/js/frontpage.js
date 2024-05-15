@@ -622,6 +622,9 @@ $(document).ready(function() {
     }
 });
 
+
+//The pagination part is hard-coded and only works when the max_results=5 (set in settings.py as MAX_RESULTS = 5). 
+//If max_results=10 to be used; for example, the js codes need to be changed accordingly.
 var currentPage = 1;
 var totalPages;
 var currentSet = 1;
@@ -795,6 +798,7 @@ $(document).ready(function() {
     });
 });
 
+//specially for the wmc searchbar in the landing_page.html
 function ajaxCall(query, pageNum) {
     $.ajax({
         url: '/get_titles/',

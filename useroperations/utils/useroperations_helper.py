@@ -5,7 +5,7 @@ import string
 import bcrypt
 import requests
 from lxml import html
-from Geoportal.settings import HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, MULTILINGUAL
+from Geoportal.settings import HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, MULTILINGUAL, MAX_RESULTS
 from Geoportal.utils import utils
 from searchCatalogue.utils.searcher import Searcher
 from useroperations.models import MbUser
@@ -145,7 +145,7 @@ def get_landing_page(lang: str, page_num: str, order_by: str = "rank"):
     # get number of wmc's
     ret_dict = {}
     # get favourite wmcs
-    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=page_num, page_res="wmc", order_by=order_by, host=HOSTNAME, max_results=5)
+    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=page_num, page_res="wmc", order_by=order_by, host=HOSTNAME, max_results=MAX_RESULTS)
     search_results = searcher.search_primary_catalogue_data()
     ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
 
@@ -172,13 +172,26 @@ def get_landing_page(lang: str, page_num: str, order_by: str = "rank"):
 
     return ret_dict
 
+def get_all_results(max_results, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME):
+    results = []
+    page = 1
+    while len(results) < max_results:
+        searcher = Searcher(keywords=keywords, result_target=result_target, resource_set=resource_set, page=page, page_res=page_res, order_by=order_by, host=host, max_results=50)
+        search_results = searcher.search_primary_catalogue_data()
+        new_results = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
+        results.extend(new_results)
+        if not new_results:
+            # If the new_results is empty, break the loop
+            break
+        page += 1
+    return results[:max_results]
+
 def get_wmc_title(lang: str):
+    """ get_titles from views.py calls this function to get the data for searching WMCs in the landing page"""
     # get number of wmc's
     ret_dict = {}
     # get favourite wmcs
-    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME, max_results=98)
-    search_results = searcher.search_primary_catalogue_data()
-    ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
+    ret_dict["wmc"] = get_all_results(106, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME)
     
     # get number of applications
     ret_dict["num_apps"] = len(get_all_applications())
@@ -199,7 +212,6 @@ def get_wmc_title(lang: str):
         ret_dict[val] = search_results.get(key, {}).get(key, {}).get("md", {}).get("nresults")
 
     return ret_dict
-
 
 def get_all_organizations():
     """ Returns a list of all data publishing organizations
