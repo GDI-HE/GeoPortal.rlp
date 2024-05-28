@@ -422,7 +422,7 @@ $(document).on("click", "#geoportal-search-button", function(){
 });
 
 
- $(document).on("click", ".quickstart.search, .quickstarts.search", function(event){
+ $(document).on("click", ".quickstart.search", function(event){
      event.preventDefault();
      var elem = $(this);
      var resource = elem.attr("data-resource");
