@@ -5,7 +5,7 @@ import string
 import bcrypt
 import requests
 from lxml import html
-from Geoportal.settings import HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, MULTILINGUAL, MAX_RESULTS
+from Geoportal.settings import HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, MULTILINGUAL, MAX_RESULTS, MAX_API_RESULTS
 from Geoportal.utils import utils
 from searchCatalogue.utils.searcher import Searcher
 from useroperations.models import MbUser
@@ -104,7 +104,7 @@ def get_all_data(lang: str):
     """
     ret_dict = {}
     # get favourite wmcs
-    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=1, order_by="date", host=HOSTNAME, max_results=10)
+    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=1, order_by="date", host=HOSTNAME, max_results=MAX_RESULTS)
     search_results = searcher.search_primary_catalogue_data()
     ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
 
@@ -191,7 +191,10 @@ def get_wmc_title(lang: str):
     # get number of wmc's
     ret_dict = {}
     # get favourite wmcs
-    ret_dict["wmc"] = get_all_results(106, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME)
+    # max_result set to 3000 to get all the results in while searching WMCs. It could be changed to lower value if needed.
+    # If set to lower value, the search will show less or no results. Since the maximum 99 results is possible from 
+    # API, the results are added to the list until the max_results is reached.
+    ret_dict["wmc"] = get_all_results(max_results=MAX_API_RESULTS, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME)
     
     # get number of applications
     ret_dict["num_apps"] = len(get_all_applications())
