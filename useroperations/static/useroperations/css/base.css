@@ -1883,6 +1883,18 @@ transition: all 0.2s ease-in-out;}
 	height: 175px;
     }
 
+    .search4AllWmc {
+        transform: unset;
+        font-size: 12px;
+    }
+    .quickstart.search.search4AllWmc{
+        font-size: 12px;
+        width: 0%;
+    } 
+    .quickstart.search.search4AllWmc:hover {
+        background: none;
+    }
+
     .mobile-advice{
         font-weight: bold;
     }
