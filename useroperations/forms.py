@@ -37,8 +37,8 @@ class RegistrationForm(forms.Form):
     phone = forms.CharField(max_length=100, label=_("Phone"), required=False,widget=forms.TextInput(attrs={'type': 'tel', 'id':'phone_field_id','title': _("Please enter your phone number."), 'pattern': '^\d+$'}), validators=[validate_phone_number])
     description = forms.CharField(max_length=255, label=_("Description"), required=False, widget=forms.TextInput(attrs={'id':'id_description','title':_("Please enter a description."), 'maxlength':'255'}))
     identity = forms.CharField(max_length=255, label=_("identity"), required=False, widget=forms.TextInput(attrs={'title':_("Identity.")}))
-    newsletter = forms.BooleanField(initial=True, label=_("I want to sign up for the newsletter"), required=False, widget=forms.CheckboxInput(attrs={'title':_("Sign up for the newsletter.")}))
-    survey = forms.BooleanField(initial=True, label=_("I want to participate in surveys"), required=False, widget=forms.CheckboxInput(attrs={'title':_("Participate in surveys.")}))
+    newsletter = forms.BooleanField(initial=False, label=_("I want to sign up for the newsletter"), required=False, widget=forms.CheckboxInput(attrs={'title':_("Sign up for the newsletter.")}))
+    survey = forms.BooleanField(initial=False, label=_("I want to participate in surveys"), required=False, widget=forms.CheckboxInput(attrs={'title':_("Participate in surveys.")}))
     dsgvo = forms.BooleanField(initial=False, label=_("I understand and accept that my data will be automatically processed and securely stored, as it is stated in the general data protection regulation (GDPR)."), required=True, widget=forms.CheckboxInput(attrs={'title':_("Accept privacy policy."), 'required': 'required'}))
     if USE_RECAPTCHA == 0:
         captcha = CaptchaField(label=_("I'm not a robot"))
