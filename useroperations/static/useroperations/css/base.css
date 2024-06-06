@@ -1284,7 +1284,7 @@ z-index:1;
 
 #search-input {
     padding: 5px 30px 5px 7px;
-    border: 1px solid var(--primary);
+    border: 1px solid var(--hesse-green);
     width: 100%;
     box-sizing: border-box;
     font: inherit;
