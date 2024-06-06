@@ -1420,8 +1420,8 @@ msgstr "Konto erfolgreich aktiviert!"
 msgid "Account successfully reactivated!"
 msgstr "Konto erfolgreich reaktiviert!"
 
-msgid "Search for WMCs..."
-msgstr "Suche WMCs..."
+msgid "Search through mapsets..."
+msgstr "Karten durchsuchen..."
 
 msgid "Clear search input"
 msgstr "Sucheingabe löschen"
