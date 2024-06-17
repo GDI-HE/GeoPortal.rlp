@@ -385,7 +385,7 @@ def get_titles(request):
     # Get the requested page of results
     page = paginator.get_page(page_num)
     results_num = results.get('num_wmc', 0)
-    new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <= 15]
+    new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <= NO_OF_DAYS]
     new_wmcs = sorted(new_wmcs, key=sort_wmc)[:3]
 
     context = {
