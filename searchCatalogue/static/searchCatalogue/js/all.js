@@ -480,7 +480,11 @@ function focus_on_search_input(){
 function toggleSearchArea(){
     $("#search-area").click();
 }
+//define toggleFilterArea function also to check if the localStorage.getItem is true or false
 function toggleFilterArea(){
+    if (localStorage.getItem("hideFilter") === "true") {
+        return;
+    }
     $("#filter-area").click();
 }
 
@@ -1029,6 +1033,10 @@ $(document).ready(function() {
         elem.toggleClass('manual_opened_elem');
         elem.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
       });
+      // localStorage.getItem from landing_page.html to get the value and toggle the filter area
+      if (localStorage.getItem('hideFilter') == 'true') {
+        toggleFilterArea();
+      } 
 
       /**
       * Handle spatial search result clicking
@@ -1663,6 +1671,18 @@ $(document).ready(function() {
         subelements.click();
     });
 
+    var hideFilter = localStorage.getItem('hideFilter');
+    
+    if (hideFilter === 'true') {
+        setTimeout(function() {
+            $('#button_wmc').click();
+        }, 500); // Delay of 500 ms
+    } 
+    //remove the localStorage item after 550 ms (wait until the button_wmc is clicked and the area is toggled)
+    setTimeout(function() {
+        localStorage.removeItem('hideFilter');
+    }, 550);
+  
     $(document).on('change', '#geoportal-maxResults', function() {
         search.setParam('maxResults', $(this).val());
         prepareAndSearch();

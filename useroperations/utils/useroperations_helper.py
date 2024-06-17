@@ -5,7 +5,7 @@ import string
 import bcrypt
 import requests
 from lxml import html
-from Geoportal.settings import HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, MULTILINGUAL
+from Geoportal.settings import HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, MULTILINGUAL, MAX_RESULTS, MAX_API_RESULTS
 from Geoportal.utils import utils
 from searchCatalogue.utils.searcher import Searcher
 from useroperations.models import MbUser
@@ -94,8 +94,7 @@ def get_wiki_body_content(wiki_keyword, lang, category=None):
     # render back to html
     return html.tostring(doc=body_con, method='html', encoding='unicode')
 
-
-def get_landing_page(lang: str):
+def get_all_data(lang: str):
     """ Returns the landing page content (favourite wmcs)
 
     Args:
@@ -105,7 +104,7 @@ def get_landing_page(lang: str):
     """
     ret_dict = {}
     # get favourite wmcs
-    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=1, order_by="rank", host=HOSTNAME, max_results=10)
+    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=1, order_by="date", host=HOSTNAME, max_results=MAX_RESULTS)
     search_results = searcher.search_primary_catalogue_data()
     ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
 
@@ -135,6 +134,87 @@ def get_landing_page(lang: str):
 
     return ret_dict
 
+def get_landing_page(lang: str, page_num: str, order_by: str = "rank"):
+    """ Returns the landing page content (favourite wmcs)
+
+    Args:
+        lang (str): The language for which the data shall be fetched
+    Returns:
+        A dict containing an overview of how many organizations, topics, wmcs, services and so on are available
+    """
+    # get number of wmc's
+    ret_dict = {}
+    # get favourite wmcs
+    searcher = Searcher(keywords="", result_target="", resource_set=["wmc"], page=page_num, page_res="wmc", order_by=order_by, host=HOSTNAME, max_results=MAX_RESULTS)
+    search_results = searcher.search_primary_catalogue_data()
+    ret_dict["wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
+
+    # get number of wmc's
+    ret_dict["num_wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("md", {}).get("nresults")
+
+    # get number of applications
+    ret_dict["num_apps"] = len(get_all_applications())
+
+    # get number of topics
+    len_inspire = len(get_topics(lang, INSPIRE_CATEGORIES).get("tags", []))
+    len_iso = len(get_topics(lang, ISO_CATEGORIES).get("tags", []))
+    ret_dict["num_topics"] = len_inspire + len_iso
+
+    # get number of datasets and layers
+    tmp = {
+        "dataset": "num_dataset",
+        "wms": "num_wms",
+    }
+    for key, val in tmp.items():
+        searcher = Searcher(keywords="", result_target="", resource_set=[key], host=HOSTNAME)
+        search_results = searcher.search_primary_catalogue_data()
+        ret_dict[val] = search_results.get(key, {}).get(key, {}).get("md", {}).get("nresults")
+
+    return ret_dict
+
+def get_all_results(max_results, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME):
+    results = []
+    page = 1
+    while len(results) < max_results:
+        searcher = Searcher(keywords=keywords, result_target=result_target, resource_set=resource_set, page=page, page_res=page_res, order_by=order_by, host=host, max_results=50)
+        search_results = searcher.search_primary_catalogue_data()
+        new_results = search_results.get("wmc", {}).get("wmc", {}).get("srv", [])
+        results.extend(new_results)
+        if not new_results:
+            # If the new_results is empty, break the loop
+            break
+        page += 1
+    return results[:max_results]
+
+def get_wmc_title(lang: str):
+    """ get_titles from views.py calls this function to get the data for searching WMCs in the landing page"""
+    # get number of wmc's
+    ret_dict = {}
+    # get favourite wmcs
+    # max_result set to 3000 to get all the results in while searching WMCs. It could be changed to lower value if needed.
+    # If set to lower value, the search will show less or no results. Since the maximum 99 results is possible from 
+    # API, the results are added to the list until the max_results is reached.
+    ret_dict["wmc"] = get_all_results(max_results=MAX_API_RESULTS, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME)
+    
+    # get number of applications
+    ret_dict["num_apps"] = len(get_all_applications())
+
+    # get number of topics
+    len_inspire = len(get_topics(lang, INSPIRE_CATEGORIES).get("tags", []))
+    len_iso = len(get_topics(lang, ISO_CATEGORIES).get("tags", []))
+    ret_dict["num_topics"] = len_inspire + len_iso
+
+    # get number of datasets and layers
+    tmp = {
+        "dataset": "num_dataset",
+        "wms": "num_wms",
+    }
+    for key, val in tmp.items():
+        searcher = Searcher(keywords="", result_target="", resource_set=[key], host=HOSTNAME)
+        search_results = searcher.search_primary_catalogue_data()
+        ret_dict[val] = search_results.get(key, {}).get(key, {}).get("md", {}).get("nresults")
+
+    return ret_dict
 
 def get_all_organizations():
     """ Returns a list of all data publishing organizations

@@ -609,6 +609,22 @@ msgstr "Starten Sie jetzt eine bereits gefilterte Suche durch die Auswahl einer 
 msgid "Frequently used Maps"
 msgstr "Häufig gestartete Karten"
 
+#: useroperations/templates/landing_page.html:98
+msgid "Latest Maps"
+msgstr "Neueste Karten"
+
+msgid "New"
+msgstr "Neu"
+
+msgid "See all"
+msgstr "Alle anzeigen"
+
+msgid "Show all WMCs"
+msgstr "Alle WMCs anzeigen"
+
+msgid "No result found"
+msgstr "Kein Ergebnis gefunden"
+
 #: useroperations/templates/landing_page.html:99
 msgid "Start our map application with already selected map layers here"
 msgstr "Hier starten Sie unsere Kartenanwendung mit bereits ausgewählten Kartenebenen"
@@ -1100,6 +1116,10 @@ msgstr "Bitte geben Sie Ihren Benutzernamen ein."
 msgid "Your password can't be too similar to your username."
 msgstr "Ihr Passwort darf nicht zu ähnlich zu Ihrem Benutzernamen sein."
 
+#: useroperations/forms.py:18
+msgid "The form is not valid."
+msgstr "Das Formular ist nicht gültig."
+
 #: useroperations/views.py:816
 msgid "For changing your profile, you have to enter your current password."
 msgstr "Damit Ihr Profil angepasst wird, müssen Sie Ihr aktuelles Password angeben."
@@ -1400,6 +1420,24 @@ msgstr "Konto erfolgreich aktiviert!"
 msgid "Account successfully reactivated!"
 msgstr "Konto erfolgreich reaktiviert!"
 
+msgid "Search through mapsets..."
+msgstr "Karten durchsuchen..."
+
+msgid "Clear search input"
+msgstr "Sucheingabe löschen"
+
+msgid "Previous"
+msgstr "Zurück"
+
+msgid "Go to previous set of pages"
+msgstr "Zur vorherigen Seitengruppe gehen"
+
+msgid "Go to next set of pages"
+msgstr "Zur nächsten Seitengruppe gehen"
+
+msgid "Go to page "
+msgstr "Gehe zu Seite "
+
 #: useroperations/templates/activation.html:15
 msgid "Activation failed. Please contact an administrator!"
 msgstr ""
@@ -1499,6 +1537,14 @@ msgstr "Startseite"
 #: useroperations/templates/landing_page.html:10
 msgid "Search for all map collections"
 msgstr "Suche nach allen Karten starten"
+
+#: useroperations/templates/landing_page.html:105
+msgid "List of Frequently used Maps"
+msgstr "Liste der meistgenutzten Karten"
+
+#: useroperations/templates/landing_page.html:107
+msgid "List of Latest Maps"
+msgstr "Liste der neuesten Karten"
 
 #: useroperations/templates/landing_page.html:12
 msgid "A lying map in the background. A large plus in the foreground."
@@ -1924,7 +1970,7 @@ msgstr ""
 
 #: useroperations/views.py:967
 msgid "Feedback from "
-msgstr "Feedback Formular"
+msgstr "Feedback Formular von "
 
 
 #: searchCatalogue/templates/search_result_list_entry.html:57

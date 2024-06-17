@@ -22,6 +22,16 @@ SESSION_NAME = 'MAPBENDER'
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 SESSION_COOKIE_SAMESITE_FORCE_ALL = True
+SHOW_SEARCH_CONTAINER = False
+SHOW_PAGING= False
+#MAX_RESULTS need to be set to 5, if the pagination is needed in geoportal.
+#If 10 results needed to be showed, change the hard-coded js in frontpage.js
+#TODO
+MAX_RESULTS = 10
+NO_OF_DAYS=15
+#MAX_RESULTS from the search API (php is sending) is only 99 data, and hence function in useroperations_helper.py 
+#helps to add more results and helps in searching all the data rather than only 99 results.
+MAX_API_RESULTS = 3000
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '#m+rso_^a!ii6fg97kd7woxa$ttr&jn^!=_(!wgrukal81q(9+'

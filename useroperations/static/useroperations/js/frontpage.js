@@ -595,6 +595,302 @@ $(window).on("load", function(param){
 
 });
 
+var lastClickedTab = 'rank';
+var activeTab = 'mostusedWMC';
+
+$(document).ready(function() {
+    if (window.location.pathname === '/') {
+        $('#mostusedWMC').click(function(event) {
+            event.preventDefault();
+            lastClickedTab = 'rank';
+            activeTab = 'mostusedWMC';
+            currentPage=1;
+            currentSet=1;
+            loadPage(1, false, lastClickedTab);
+        });
+
+        $('#newWMC').click(function(event) {
+            event.preventDefault();
+            lastClickedTab = 'date';
+            activeTab = 'newWMC';
+            currentPage=1;
+            currentSet=1;
+            loadPage(1, false, lastClickedTab);
+        });
+
+        loadPage(1, false, lastClickedTab);
+    }
+});
+
+
+//The pagination part is hard-coded and only works when the max_results=5 (set in settings.py as MAX_RESULTS = 5). 
+//If max_results=10 to be used; for example, the js codes need to be changed accordingly.
+var currentPage = 1;
+var totalPages;
+var currentSet = 1;
+var GoToPage, Back, Next, GoToPrevious, GoToNext, ShowAllWMCs; //define variable so that it won't create console error when the variable is not defined
+$('#nextPage').hide();
+function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
+    sort_by = lastClickedTab;
+
+    $.ajax({
+        url: '/get_landing_page/',
+        type: 'GET',
+        data: {
+            'lang': 'en',
+            'page_num': pageNum,
+            'sort_by': sort_by
+        },
+        success: function(response) {
+            totalPages = response.num_wmc;
+            totalPages = Math.ceil(totalPages / 5);
+            //empty the pagination element
+            $('#pagination').empty();
+            var start = (currentSet - 1) *5 + 1;
+            var end = Math.min(currentSet * 5, totalPages);
+            // Populate the pagination with buttons
+            for (var i = 1; i <= 5; i++) {
+                var pageNumber = (currentSet - 1) * 5 + i;
+                var link = $('<a>', {
+                    text: pageNumber,
+                    class: 'pagination-link',
+                    href: '#',
+                    'aria-label': GoToPage + pageNumber,
+                    title: GoToPage + pageNumber
+                });
+                    link.click((function(pageNumber) {
+                        return function(e) {
+                            e.preventDefault(); //it always prevent the default action enabling to make the number disable when not available
+                            if (!$(this).hasClass('disabled')){ 
+                                currentPage = pageNumber;
+                            loadPage(currentPage);
+                            }    
+                        };
+                    })(pageNumber));  
+                if (pageNumber > totalPages) {
+                    //link.addClass('disabled');
+                    link.hide();
+                    //or change to link.hide() if you want to hide the number
+                }
+                $('#pagination').append(link);
+            }    
+            // Add a "Previous" button at the beginning
+            var prevButton = $('<a>', {
+                html: '<span class="arrow"><</span><span class="text">' + Back + '</span>',
+                id: 'pagination-button-right',
+                class: 'pagination-button flex-container',
+                href: '#',
+                'aria-label': GoToPrevious,
+                title: GoToPrevious,
+            });
+            prevButton.on('click', function(e) {
+                e.preventDefault(); // Always prevent the default action
+                if (!$(this).hasClass('disabled') && currentSet > 1) {
+                    currentSet--;
+                    currentPage = (currentSet - 1) * 5 + 1;
+                    loadPage(currentPage);
+                }
+            });
+            if (currentSet == 1) {
+                prevButton.addClass('disabled');
+            }
+            $('#pagination').prepend(prevButton);
+            // Add a "Next" button at the end
+            var nextButton = $('<a>', {
+                html: '<span class="text">' + Next + '</span><span class="arrow">></span>',
+                id: 'pagination-button-left',
+                class: 'pagination-button flex-container',
+                href: '#',
+                'aria-label': GoToNext,
+                title: GoToNext,
+                click: function(e) {
+                    e.preventDefault();
+                    if (end < totalPages) {
+                        currentSet++;
+                        currentPage = (currentSet - 1) * 5 + 1;
+                        loadPage(currentPage);
+                    }
+                }
+            });
+
+            if (end >= totalPages) {
+                nextButton.addClass('disabled');
+            }
+            $('#pagination').append(nextButton);
+
+            $('.pagination-link').removeClass('active');
+            $('.pagination-link').eq(pageNum-start).addClass('active');
+
+            if (checkNextPage) {
+                if ($.trim(response.html) !== '') {
+                    currentPage++;
+                    loadPage(currentPage);
+                }
+            } else {
+                $('.tile-wrapper.favourite-wmcs').html(response.html);
+                if (pageNum == 1) {
+                    //make the previous button disappear
+                    $('#prevPage').fadeOut();
+                } else {
+                    $('#prevPage').fadeIn();
+                }
+            }
+        },
+        error: function(error) {
+            console.log('Error:', error);
+        }
+    });
+}
+
+function nextPage() {
+    // first check if the next page is empty.
+    loadPage(currentPage + 1, true);
+    // Update the active class on the pagination links
+    $('.pagination-link').removeClass('active');
+    $('.pagination-link').eq(currentPage-1).addClass('active');
+
+    currentSet = Math.ceil((currentPage +1)/5);
+}
+
+function prevPage() {
+    if (currentPage > 1) {  // Prevent going to page 0 or negative
+        currentPage--;
+    $('.pagination-link').removeClass('active');
+    $('.pagination-link').eq(currentPage-1).addClass('active');
+    loadPage(currentPage);
+    currentSet = Math.ceil((currentPage)/5);    
+    }
+}
+
+$(document).ready(function() {
+    var currentPage = 1;
+    // Add a keyup event handler for the search input
+    $('#search-input').on('keyup', function() {
+        var query = $(this).val();
+        // If the query is empty, restore the original HTML and return
+        if (query === '') {
+            resetSearch();
+            return false;
+        }
+        $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
+        $('#previousPage, #nextPages').fadeIn();
+        $('.tablinks').prop('disabled', true); // Disable the tablinks
+        // Call the AJAX function with page number 1
+        ajaxCall(query, currentPage);
+        $('.active').removeClass('active');
+    });
+
+    // Add click handlers for the previous and next buttons
+    $('#previousPage').on('click', function(e) {
+        e.preventDefault();
+        var query = $('#search-input').val();
+        if (currentPage > 1) {
+            currentPage--;
+            ajaxCall(query, currentPage);
+        }
+    });
+
+    $('#nextPages').on('click', function(e) {
+        e.preventDefault();
+        var query = $('#search-input').val();
+        currentPage++;
+        ajaxCall(query, currentPage);
+    });
+});
+
+//specially for the wmc searchbar in the landing_page.html
+function ajaxCall(query, pageNum) {
+    $.ajax({
+        url: '/get_titles/',
+        data: {
+            'lang': 'en',
+            'query': query,
+            'page_num': pageNum
+        },
+        dataType: 'json',
+        success: function (data) {
+            // Insert the search results into the #search-results div
+            //check if the search results are empty
+            if (data.html.trim() == ''){
+                $('.tile-wrapper.favourite-wmcs').html(noResults);
+                $('#previousPage, #nextPages').fadeOut();
+                //$('.tablinks').show();
+                currentPage = 1;
+                return;
+            } 
+            $('.tile-wrapper.favourite-wmcs').html(data.html);
+
+            // Check if the buttons already exist
+            if ($('#previousPage').length === 0 && $('#nextPage').length === 0) {
+                // Append the buttons only if they don't exist
+                $('.tile-wrapper.favourite-wmcs').append('<button id="previousPage">Previous</button><button id="nextPage">Next</button>');
+            }
+            // Update the previous and next buttons
+            $('#previousPage').prop('disabled', pageNum <= 1);
+            $('#nextPages').prop('disabled', !data.has_next);
+        },
+        error: function (error) {
+            console.error('Error:', error);
+        }
+    });
+}
+
+//the mostusedWMC tab is clicked by default and active. newWMC tab is notactive. When the newWMC tab is clicked, the mostusedWMC tab should be active and newWMC tab should be inactive.
+$(document).ready(function() {
+    $('#newWMC, #mostusedWMC').click(function() {
+        $('#newWMC, #mostusedWMC').removeClass('active').addClass('notactive');
+        $(this).removeClass('notactive').addClass('active');
+    });
+});
+
+function resetSearch() {
+    loadPage(1, false, lastClickedTab);
+    $('#previousPage, #nextPages').fadeOut();
+    $('#prevPage, #nextPage, #pagination').show();
+    $('.tablinks').show();
+    currentPage = 1;
+
+    $('.tablinks').removeClass('active');
+    $('#' + activeTab).addClass('active');
+    $('.tablinks').prop('disabled', false); // enable the tablinks if empty searchbar
+}
+
+$(document).ready(function() {
+    // Function to show or hide the clear button
+    function toggleClearButton() {
+        if ($('#search-input').val() !== '') {
+            $('#clear-input').show();
+        } else {
+            $('#clear-input').hide();
+        }
+    }
+    // Initially hide the clear button
+    toggleClearButton();
+    // Show or hide the button when the user types in the input field
+    $('#search-input').on('input', toggleClearButton);
+    // Clear the input field and hide the button when it's clicked
+    $('#clear-input').click(function() {
+        $('#search-input').val('');
+        $('.tablinks').prop('disabled', false);
+        $(this).hide();  // Hide the button
+        // If the query is empty, restore the original HTML and return
+        if ($('#search-input').val() === '') {
+            resetSearch();
+            return false;
+        }
+    });
+});
+
+//if the user clicks search4AllWmc class in landing_page.html, the localStorage will be set to true
+function setFilter() {
+    localStorage.setItem('hideFilter', 'true');
+}
+
+$(document).ready(function() {
+    // Attach the click event handler
+    $('.search4AllWmc').click(setFilter);
+});
+
 
 $(document).ready(function(){
     resetSearchCatalogue("primary");
@@ -614,9 +910,9 @@ $(document).ready(function(){
 
 function rewrite_article_urls() {
     var currentURL = window.location.pathname,
-    ariclePattern = new RegExp('^/article/.*');
+    articlePattern = new RegExp('^/article/.*');
 
-    if (ariclePattern.test(currentURL)) {
+    if (articlePattern.test(currentURL)) {
         var anchors = document.getElementsByTagName('a');
         for (var i = 0; i < anchors.length; i++) {
             link=anchors[i].href;
@@ -625,7 +921,7 @@ function rewrite_article_urls() {
                 var articleName = link.substr(link.lastIndexOf('/') + 1);
                 var decoded = decodeURIComponent(articleName)
                 var  wOutUmlaut = replaceUmlaute(decoded)
-                anchors[i].href = location.protocol + "//" + location.hostname + "/article/" + wOutUmlaut
+                anchors[i].href = location.protocol + "//" + location.hostname + "/mediawiki/" + wOutUmlaut
             } 
         }
     }
