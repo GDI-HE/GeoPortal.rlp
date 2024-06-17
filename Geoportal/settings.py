@@ -28,6 +28,7 @@ SHOW_PAGING= False
 #If 10 results needed to be showed, change the hard-coded js in frontpage.js
 #TODO
 MAX_RESULTS = 10
+NO_OF_DAYS=15
 #MAX_RESULTS from the search API (php is sending) is only 99 data, and hence function in useroperations_helper.py 
 #helps to add more results and helps in searching all the data rather than only 99 results.
 MAX_API_RESULTS = 3000

@@ -36,7 +36,7 @@ from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
 from Geoportal.settings import DEFAULT_GUI, HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, \
     SESSION_NAME, PROJECT_DIR, MULTILINGUAL, LANGUAGE_CODE, DEFAULT_FROM_EMAIL, GOOGLE_RECAPTCHA_SECRET_KEY, \
-    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID, SHOW_SEARCH_CONTAINER, SHOW_PAGING, MAX_RESULTS
+    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID, SHOW_SEARCH_CONTAINER, SHOW_PAGING, MAX_RESULTS, NO_OF_DAYS
 from Geoportal.utils import utils, php_session_data, mbConfReader
 from searchCatalogue.utils.url_conf import URL_INSPIRE_DOC
 from searchCatalogue.settings import PROXIES
@@ -357,7 +357,7 @@ def landing_page_view(request):
     all_data = useroperations_helper.get_all_data(lang)
     wmcs = all_data.get('wmc', [])
     results_num = results.get("num_wmc", 0)
-    new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <= 15] #use sort_wmc fn
+    new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <=NO_OF_DAYS] #use sort_wmc fn
     new_wmcs = sorted(new_wmcs, key=sort_wmc)[:3]
     html = render_to_string('tile_wmc.html', {'results': results, 'num_wmc': results_num, 'new_wmcs': new_wmcs, 'show_search_container': SHOW_SEARCH_CONTAINER, 'max_results': MAX_RESULTS})
     return JsonResponse({"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs, 'max_results': MAX_RESULTS})
