@@ -219,7 +219,7 @@ def parse_wiki_data():
 # might be good to move this to a separate file
 class CustomTokenGenerator(PasswordResetTokenGenerator):
     def _make_hash_value(self, user, timestamp):
-        login_timestamp = '' if user.mb_user_password_ticket is '' else datetime.datetime.fromtimestamp(int(user.mb_user_password_ticket)).strftime('%Y%m%d%H%M%S')
+        login_timestamp = '' if user.mb_user_password_ticket == '' else datetime.datetime.fromtimestamp(int(user.mb_user_password_ticket)).strftime('%Y%m%d%H%M%S')
         return (
             str(user.pk) + str(timestamp) +
             str(user.password) + login_timestamp
