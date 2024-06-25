@@ -563,7 +563,7 @@ function fillSectionList(featureCollection, k) {
       //console.log(bboxFiles.features);
 			bboxFiles.events.on({
 				"featureselected": function(event){
-          var selected_format = document.getElementsByClassName("filter-option pull-left").item(1).innerHTML;
+          var selected_format = document.getElementsByClassName("filter-option-inner-inner").item(1).innerHTML;
           selected_format = encodeURIComponent(selected_format.split(" ").splice(-1))
 
 					//console.log(event)
