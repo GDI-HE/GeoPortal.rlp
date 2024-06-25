@@ -631,6 +631,7 @@ var currentSet = 1;
 var GoToPage, Back, Next, GoToPrevious, GoToNext, ShowAllWMCs; //define variable so that it won't create console error when the variable is not defined
 $('#nextPage').hide();
 function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
+    $('#loading').show();
     sort_by = lastClickedTab;
 
     $.ajax({
@@ -642,6 +643,7 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
             'sort_by': sort_by
         },
         success: function(response) {
+            $('#loading').hide();
             totalPages = response.num_wmc;
             totalPages = Math.ceil(totalPages / 5);
             //empty the pagination element
@@ -744,6 +746,7 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
 
 function nextPage() {
     // first check if the next page is empty.
+    $('.tile-wrapper.favourite-wmcs').empty();
     loadPage(currentPage + 1, true);
     // Update the active class on the pagination links
     $('.pagination-link').removeClass('active');
@@ -809,6 +812,7 @@ function ajaxCall(query, pageNum) {
         },
         dataType: 'json',
         success: function (data) {
+            $('#loading').hide();
             // Insert the search results into the #search-results div
             //check if the search results are empty
             if (data.html.trim() == ''){
@@ -838,6 +842,8 @@ function ajaxCall(query, pageNum) {
 //the mostusedWMC tab is clicked by default and active. newWMC tab is notactive. When the newWMC tab is clicked, the mostusedWMC tab should be active and newWMC tab should be inactive.
 $(document).ready(function() {
     $('#newWMC, #mostusedWMC').click(function() {
+        $('#loading').show();
+        $('.tile-wrapper.favourite-wmcs').empty();
         $('#newWMC, #mostusedWMC').removeClass('active').addClass('notactive');
         $(this).removeClass('notactive').addClass('active');
     });

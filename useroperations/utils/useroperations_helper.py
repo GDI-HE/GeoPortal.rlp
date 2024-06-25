@@ -152,6 +152,9 @@ def get_landing_page(lang: str, page_num: str, order_by: str = "rank"):
     # get number of wmc's
     ret_dict["num_wmc"] = search_results.get("wmc", {}).get("wmc", {}).get("md", {}).get("nresults")
 
+    # get number of organizations
+    ret_dict["num_orgs"] = len(get_all_organizations())
+
     # get number of applications
     ret_dict["num_apps"] = len(get_all_applications())
 
