@@ -31,6 +31,7 @@ from django.utils.encoding import force_text
 from django.core.paginator import Paginator
 from datetime import date
 # from thefuzz import fuzz     ## also include the fuzz in the requirements.txt if fuzz is needed in WMC search
+from django.core.cache import cache
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
@@ -345,14 +346,21 @@ def index_view(request, wiki_keyword=""):
         return render(request, template, geoportal_context.get_context())
 
 def landing_page_view(request):
-    """ It render the 5 WMC on the landing page according to the request from the user in the landing page.
+    """ It render the WMC (according to the number given in MAX_RESULTS in settings.py) on the landing page according to the request from the user in the landing page.
     The user can choose the WMC rankwise and datewise. The num_wmc helps to create a pagination and new_wmcs helps to 
     mark the top 3 new WMCs which are not older than 15 days as new. """
     lang = request.GET.get('lang', 'en')  # Default to 'en' if no language is provided
     page_num = request.GET.get('page_num', '1')  # Default to '1' if no page number is provided
+    sort_by = request.GET.get('sort_by', 'rank')
+    # Construct a unique cache key based on request parameters
+    cache_key = f"landing_page_{lang}_{page_num}_{sort_by}"
+    # Try to get cached response
+    cached_response = cache.get(cache_key)
+    if cached_response:
+        return JsonResponse(cached_response)
+    # If not cached, proceed with generating the response
     request.session["page_num"] = int(page_num)
     page_num = int(page_num)
-    sort_by = request.GET.get('sort_by', 'rank') 
     results = useroperations_helper.get_landing_page(lang, page_num, sort_by)
     all_data = useroperations_helper.get_all_data(lang)
     wmcs = all_data.get('wmc', [])
@@ -360,7 +368,13 @@ def landing_page_view(request):
     new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <=NO_OF_DAYS] #use sort_wmc fn
     new_wmcs = sorted(new_wmcs, key=sort_wmc)[:3]
     html = render_to_string('tile_wmc.html', {'results': results, 'num_wmc': results_num, 'new_wmcs': new_wmcs, 'show_search_container': SHOW_SEARCH_CONTAINER, 'max_results': MAX_RESULTS})
-    return JsonResponse({"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs, 'max_results': MAX_RESULTS})
+
+    # Cache the generated response
+    response_data = {"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs, 'max_results': MAX_RESULTS}
+    cache.set(cache_key, response_data, timeout=3600)  # Cache for 1 hour
+
+    return JsonResponse(response_data)
+
 
 # Sorting function for getting the new wmcs
 def sort_wmc(wmc):
@@ -372,9 +386,19 @@ def sort_wmc(wmc):
 
 def get_titles(request):
     """This is only used for the search function in the landing page with query now and return the matching wmcs."""
-    lang = request.GET.get('lang', 'en')  
-    page_num = request.GET.get('page_num', 1)  
-    query = request.GET.get('query', '')  # Default to an empty string if no query is provided
+    lang = request.GET.get('lang', 'en')
+    page_num = request.GET.get('page_num', 1)
+    query = request.GET.get('query', '')
+
+    # Generate a unique cache key
+    cache_key = f"get_titles_{lang}_{page_num}_{query}"
+
+    # Check for cached response
+    cached_response = cache.get(cache_key)
+    if cached_response:
+        return JsonResponse(cached_response)
+
+    # Proceed if no cached response
     results = useroperations_helper.get_wmc_title(lang)
     wmcs = results.get('wmc', [])
     matching_wmcs = [wmc for wmc in wmcs if query.lower() in wmc.get('title', '').lower() or query.lower() in wmc.get('abstract', '').lower()]
@@ -400,18 +424,21 @@ def get_titles(request):
     html = render_to_string('tile_wmc.html', context)
     titles = [wmc.get('title') for wmc in page]
 
-    # Include previous and next page information in the JSON response and return it.
-    # The ajax call will use this information to update the results on the landing page on search.
-    return JsonResponse({
-        "html": html, 
+    response_data = {
+        "html": html,
         "titles": titles,
         "has_previous": page.has_previous(),
         "previous_page_number": page.previous_page_number() if page.has_previous() else None,
         "has_next": page.has_next(),
         "next_page_number": page.next_page_number() if page.has_next() else None,
-        "new_wmcs": [wmc.get('title') for wmc in new_wmcs],  # Add the titles of the new wmcs to the JSON response
+        "new_wmcs": [wmc.get('title') for wmc in new_wmcs],
         "max_results": MAX_RESULTS
-    })
+    }
+
+    # Cache the response before returning
+    cache.set(cache_key, response_data, timeout=3600)  # Cache for 1 hour
+
+    return JsonResponse(response_data)
 
 @check_browser
 def applications_view(request: HttpRequest):
