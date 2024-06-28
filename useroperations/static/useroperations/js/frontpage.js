@@ -784,9 +784,9 @@ $(document).ready(function() {
         } else {
             // Set a new timeout
             timeout = setTimeout(() => {
-                // Function to call after 60 milliseconds of inactivity
+                // Function to call after 500 milliseconds of inactivity
                 performSearch(query);
-            }, 60); // 60 milliseconds delay
+            }, 500); // 500 milliseconds delay
         }
     });
 
