@@ -352,8 +352,13 @@ def landing_page_view(request):
     lang = request.GET.get('lang', 'en')  # Default to 'en' if no language is provided
     page_num = request.GET.get('page_num', '1')  # Default to '1' if no page number is provided
     sort_by = request.GET.get('sort_by', 'rank')
+    #check if there is new wmc
+    wmcs = all_data.get('wmc', [])
+    if wmcs:
+        latest_wmc_date = max(wmcs, key=lambda w: date(int(w.get('date', '01.01.1990').split(".")[2]), int(w.get('date', '01.01.1990').split(".")[1]), int(w.get('date', '01.01.1990').split(".")[0]))).get('date', '01.01.1990')
+
     # Construct a unique cache key based on request parameters
-    cache_key = f"landing_page_{lang}_{page_num}_{sort_by}"
+    cache_key = f"landing_page_{lang}_{page_num}_{sort_by}_{latest_wmc_date}"
     # Try to get cached response
     cached_response = cache.get(cache_key)
     if cached_response:
