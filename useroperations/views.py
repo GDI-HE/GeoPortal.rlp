@@ -377,7 +377,7 @@ def landing_page_view(request):
 
     # Cache the generated response
     response_data = {"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs, 'max_results': MAX_RESULTS}
-    cache.set(cache_key, response_data, timeout=3600)  # Cache for 1 hour
+    cache.set(cache_key, response_data)  
 
     return JsonResponse(response_data)
 
@@ -395,9 +395,12 @@ def get_titles(request):
     lang = request.GET.get('lang', 'en')
     page_num = request.GET.get('page_num', 1)
     query = request.GET.get('query', '')
-
-    # Generate a unique cache key
-    cache_key = f"get_titles_{lang}_{page_num}_{query}"
+    if len(query) >= 4:  #suppose that user needs to type at least 4 character to get the cache result, otherwise gets the uncached result
+        # if doesn't work, TODO
+        # Generate a unique cache key
+        cache_key = f"get_titles_{lang}_{page_num}_{query}"
+    else:
+        cache_key = None
 
     # Check for cached response
     cached_response = cache.get(cache_key)
@@ -442,7 +445,7 @@ def get_titles(request):
     }
 
     # Cache the response before returning
-    cache.set(cache_key, response_data, timeout=3600)  # Cache for 1 hour
+    cache.set(cache_key, response_data)
 
     return JsonResponse(response_data)
 
