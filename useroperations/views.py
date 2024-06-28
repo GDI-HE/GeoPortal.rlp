@@ -353,6 +353,7 @@ def landing_page_view(request):
     page_num = request.GET.get('page_num', '1')  # Default to '1' if no page number is provided
     sort_by = request.GET.get('sort_by', 'rank')
     #check if there is new wmc
+    all_data = useroperations_helper.get_all_data(lang)
     wmcs = all_data.get('wmc', [])
     if wmcs:
         latest_wmc_date = max(wmcs, key=lambda w: date(int(w.get('date', '01.01.1990').split(".")[2]), int(w.get('date', '01.01.1990').split(".")[1]), int(w.get('date', '01.01.1990').split(".")[0]))).get('date', '01.01.1990')
