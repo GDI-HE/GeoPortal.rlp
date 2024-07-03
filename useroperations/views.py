@@ -389,7 +389,7 @@ def landing_page_view(request):
     all_data = cache.get(all_data_cache_key)
     if not all_data:
         all_data = useroperations_helper.get_all_data(lang)
-        cache.set(all_data_cache_key, all_data, 12*60*60)  # Cache for 12 hours
+        cache.set(all_data_cache_key, all_data, 600)  # since the number of viewers will not be updated if cached for 12 hours, the timeout is reduced to 10 minutes
 
     # Check if latest_wmc_date is cached
     latest_wmc_date_cache_key = f"latest_wmc_date_{lang}"
@@ -400,7 +400,7 @@ def landing_page_view(request):
             latest_wmc_date = max(wmcs, key=lambda w: parse_date(w.get('date', '01.01.1990'))).get('date', '01.01.1990')
         else:
             latest_wmc_date = "01.01.1990"
-        cache.set(latest_wmc_date_cache_key, latest_wmc_date, 12*60*60)  # Cache for 12 hours
+        cache.set(latest_wmc_date_cache_key, latest_wmc_date, 600)  # Cache for 10 minutes
         
     cache_key = f"landing_page_{lang}_{page_num}_{sort_by}_{latest_wmc_date}"
     cached_response = cache.get(cache_key)
