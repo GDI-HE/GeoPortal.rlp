@@ -438,17 +438,6 @@ def get_titles(request):
     lang = request.GET.get('lang', 'en')
     page_num = request.GET.get('page_num', 1)
     query = request.GET.get('query', '')
-    #if len(query) >= 4:  #suppose that user needs to type at least 4 character to get the cache result, otherwise gets the uncached result
-        # if doesn't work, TODO
-        # Generate a unique cache key
-        #cache_key = f"get_titles_{lang}_{page_num}_{query}"
-    #else:
-        #cache_key = None
-
-    # Check for cached response
-    #cached_response = cache.get(cache_key)
-    #if cached_response:
-        #return JsonResponse(cached_response)
 
     # Proceed if no cached response
     results = useroperations_helper.get_wmc_title(lang)
@@ -486,9 +475,6 @@ def get_titles(request):
         "new_wmcs": [wmc.get('title') for wmc in new_wmcs],
         "max_results": MAX_RESULTS
     }
-
-    # Cache the response before returning
-    #cache.set(cache_key, response_data)
 
     return JsonResponse(response_data)
 
