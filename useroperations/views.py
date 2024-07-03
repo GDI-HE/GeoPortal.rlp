@@ -391,11 +391,17 @@ def landing_page_view(request):
         all_data = useroperations_helper.get_all_data(lang)
         cache.set(all_data_cache_key, all_data, 300)  # Cache for 5 minutes
 
-    wmcs = all_data.get('wmc', [])
-    latest_wmc_date = "01.01.1990"
-    if wmcs:
-        latest_wmc_date = max(wmcs, key=lambda w: parse_date(w.get('date', '01.01.1990'))).get('date', '01.01.1990')
-
+    # Check if latest_wmc_date is cached
+    latest_wmc_date_cache_key = f"latest_wmc_date_{lang}"
+    latest_wmc_date = cache.get(latest_wmc_date_cache_key)
+    if not latest_wmc_date:
+        wmcs = all_data.get('wmc', [])
+        if wmcs:
+            latest_wmc_date = max(wmcs, key=lambda w: parse_date(w.get('date', '01.01.1990'))).get('date', '01.01.1990')
+        else:
+            latest_wmc_date = "01.01.1990"
+        cache.set(latest_wmc_date_cache_key, latest_wmc_date, 300)  # Cache for 5 minutes
+        
     cache_key = f"landing_page_{lang}_{page_num}_{sort_by}_{latest_wmc_date}"
     cached_response = cache.get(cache_key)
     if cached_response:
