@@ -389,7 +389,7 @@ def landing_page_view(request):
     all_data = cache.get(all_data_cache_key)
     if not all_data:
         all_data = useroperations_helper.get_all_data(lang)
-        cache.set(all_data_cache_key, all_data, 300)  # Cache for 5 minutes
+        cache.set(all_data_cache_key, all_data, 12*60*60)  # Cache for 12 hours
 
     # Check if latest_wmc_date is cached
     latest_wmc_date_cache_key = f"latest_wmc_date_{lang}"
@@ -400,7 +400,7 @@ def landing_page_view(request):
             latest_wmc_date = max(wmcs, key=lambda w: parse_date(w.get('date', '01.01.1990'))).get('date', '01.01.1990')
         else:
             latest_wmc_date = "01.01.1990"
-        cache.set(latest_wmc_date_cache_key, latest_wmc_date, 300)  # Cache for 5 minutes
+        cache.set(latest_wmc_date_cache_key, latest_wmc_date, 12*60*60)  # Cache for 12 hours
         
     cache_key = f"landing_page_{lang}_{page_num}_{sort_by}_{latest_wmc_date}"
     cached_response = cache.get(cache_key)
@@ -420,7 +420,8 @@ def landing_page_view(request):
 
     # Cache the generated response
     response_data = {"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs, 'max_results': MAX_RESULTS}
-    cache.set(cache_key, response_data)  
+    # store the cache until the latest wmc date changes, default is 5 minutes
+    cache.set(cache_key, response_data, None)  
 
     return JsonResponse(response_data)
 
