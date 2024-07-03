@@ -10,6 +10,7 @@ from Geoportal.utils import utils
 from searchCatalogue.utils.searcher import Searcher
 from useroperations.models import MbUser
 from useroperations.settings import INSPIRE_CATEGORIES, ISO_CATEGORIES
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 def random_string(stringLength=15):
@@ -197,25 +198,29 @@ def get_wmc_title(lang: str):
     # max_result set to 3000 to get all the results in while searching WMCs. It could be changed to lower value if needed.
     # If set to lower value, the search will show less or no results. Since the maximum 99 results is possible from 
     # API, the results are added to the list until the max_results is reached.
-    ret_dict["wmc"] = get_all_results(max_results=MAX_API_RESULTS, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME)
-    
-    # get number of applications
-    ret_dict["num_apps"] = len(get_all_applications())
+    def fetch_wmc():
+        return get_all_results(max_results=MAX_API_RESULTS, keywords="", result_target="", resource_set=["wmc"], page_res="wmc", order_by="rank", host=HOSTNAME)
 
-    # get number of topics
-    len_inspire = len(get_topics(lang, INSPIRE_CATEGORIES).get("tags", []))
-    len_iso = len(get_topics(lang, ISO_CATEGORIES).get("tags", []))
-    ret_dict["num_topics"] = len_inspire + len_iso
-
-    # get number of datasets and layers
-    tmp = {
-        "dataset": "num_dataset",
-        "wms": "num_wms",
-    }
-    for key, val in tmp.items():
+    def fetch_datasets_and_layers(key, val):
         searcher = Searcher(keywords="", result_target="", resource_set=[key], host=HOSTNAME)
         search_results = searcher.search_primary_catalogue_data()
-        ret_dict[val] = search_results.get(key, {}).get(key, {}).get("md", {}).get("nresults")
+        return val, search_results.get(key, {}).get(key, {}).get("md", {}).get("nresults")
+
+    tasks = {
+        "wmc": fetch_wmc,
+        "dataset": lambda: fetch_datasets_and_layers("dataset", "num_dataset"),
+        "wms": lambda: fetch_datasets_and_layers("wms", "num_wms"),
+    }
+
+    with ThreadPoolExecutor() as executor:
+        future_map = {executor.submit(task): name for name, task in tasks.items()}
+        for future in as_completed(future_map):
+            task_name = future_map[future]
+            if task_name in ["dataset", "wms"]:
+                key, result = future.result()
+                ret_dict[key] = result
+            else:
+                ret_dict[task_name] = future.result()
 
     return ret_dict
 

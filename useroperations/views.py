@@ -32,6 +32,7 @@ from django.core.paginator import Paginator
 from datetime import date
 # from thefuzz import fuzz     ## also include the fuzz in the requirements.txt if fuzz is needed in WMC search
 from django.core.cache import cache
+from functools import wraps
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
@@ -344,7 +345,38 @@ def index_view(request, wiki_keyword=""):
         return GeoportalJsonResponse(html=output).get_response()
     else:
         return render(request, template, geoportal_context.get_context())
+    
+def rate_limit(limit=5, period=10):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(request, *args, **kwargs):
+            client_ip = request.META.get('REMOTE_ADDR')
+            cache_key = f"rate_limit_{client_ip}"
+            requests = cache.get(cache_key, [])
+            
+            # Filter out requests outside the current period
+            current_time = time.time()
+            requests = [req for req in requests if current_time - req < period]
+            
+            if len(requests) >= limit:
+                return JsonResponse({"error": "Rate limit exceeded"}, status=429)
+            
+            requests.append(current_time)
+            cache.set(cache_key, requests, timeout=period)
+            return func(request, *args, **kwargs)
+        return wrapper
+    return decorator
 
+def parse_date(date_str):
+    # Cache parsed dates to avoid re-parsing
+    if date_str in parse_date.cache:
+        return parse_date.cache[date_str]
+    parsed_date = datetime.datetime.strptime(date_str, "%d.%m.%Y").date()
+    parse_date.cache[date_str] = parsed_date
+    return parsed_date
+parse_date.cache = {}
+
+@rate_limit(limit=5, period=10)  # Allow 5 requests per 10 seconds  
 def landing_page_view(request):
     """ It render the WMC (according to the number given in MAX_RESULTS in settings.py) on the landing page according to the request from the user in the landing page.
     The user can choose the WMC rankwise and datewise. The num_wmc helps to create a pagination and new_wmcs helps to 
@@ -352,18 +384,23 @@ def landing_page_view(request):
     lang = request.GET.get('lang', 'en')  # Default to 'en' if no language is provided
     page_num = request.GET.get('page_num', '1')  # Default to '1' if no page number is provided
     sort_by = request.GET.get('sort_by', 'rank')
-    #check if there is new wmc
-    all_data = useroperations_helper.get_all_data(lang)
-    wmcs = all_data.get('wmc', [])
-    if wmcs:
-        latest_wmc_date = max(wmcs, key=lambda w: date(int(w.get('date', '01.01.1990').split(".")[2]), int(w.get('date', '01.01.1990').split(".")[1]), int(w.get('date', '01.01.1990').split(".")[0]))).get('date', '01.01.1990')
+    # Check if all_data is cached
+    all_data_cache_key = f"all_data_{lang}"
+    all_data = cache.get(all_data_cache_key)
+    if not all_data:
+        all_data = useroperations_helper.get_all_data(lang)
+        cache.set(all_data_cache_key, all_data, 300)  # Cache for 5 minutes
 
-    # Construct a unique cache key based on request parameters
+    wmcs = all_data.get('wmc', [])
+    latest_wmc_date = "01.01.1990"
+    if wmcs:
+        latest_wmc_date = max(wmcs, key=lambda w: parse_date(w.get('date', '01.01.1990'))).get('date', '01.01.1990')
+
     cache_key = f"landing_page_{lang}_{page_num}_{sort_by}_{latest_wmc_date}"
-    # Try to get cached response
     cached_response = cache.get(cache_key)
     if cached_response:
         return JsonResponse(cached_response)
+
     # If not cached, proceed with generating the response
     request.session["page_num"] = int(page_num)
     page_num = int(page_num)
@@ -371,7 +408,7 @@ def landing_page_view(request):
     all_data = useroperations_helper.get_all_data(lang)
     wmcs = all_data.get('wmc', [])
     results_num = results.get("num_wmc", 0)
-    new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <=NO_OF_DAYS] #use sort_wmc fn
+    new_wmcs = [wmc for wmc in wmcs if sort_wmc(wmc) <= NO_OF_DAYS]
     new_wmcs = sorted(new_wmcs, key=sort_wmc)[:3]
     html = render_to_string('tile_wmc.html', {'results': results, 'num_wmc': results_num, 'new_wmcs': new_wmcs, 'show_search_container': SHOW_SEARCH_CONTAINER, 'max_results': MAX_RESULTS})
 
@@ -395,17 +432,17 @@ def get_titles(request):
     lang = request.GET.get('lang', 'en')
     page_num = request.GET.get('page_num', 1)
     query = request.GET.get('query', '')
-    if len(query) >= 4:  #suppose that user needs to type at least 4 character to get the cache result, otherwise gets the uncached result
+    #if len(query) >= 4:  #suppose that user needs to type at least 4 character to get the cache result, otherwise gets the uncached result
         # if doesn't work, TODO
         # Generate a unique cache key
-        cache_key = f"get_titles_{lang}_{page_num}_{query}"
-    else:
-        cache_key = None
+        #cache_key = f"get_titles_{lang}_{page_num}_{query}"
+    #else:
+        #cache_key = None
 
     # Check for cached response
-    cached_response = cache.get(cache_key)
-    if cached_response:
-        return JsonResponse(cached_response)
+    #cached_response = cache.get(cache_key)
+    #if cached_response:
+        #return JsonResponse(cached_response)
 
     # Proceed if no cached response
     results = useroperations_helper.get_wmc_title(lang)
@@ -445,7 +482,7 @@ def get_titles(request):
     }
 
     # Cache the response before returning
-    cache.set(cache_key, response_data)
+    #cache.set(cache_key, response_data)
 
     return JsonResponse(response_data)
 
