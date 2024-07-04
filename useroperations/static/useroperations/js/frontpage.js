@@ -767,37 +767,21 @@ function prevPage() {
 
 $(document).ready(function() {
     var currentPage = 1;
-    let timeout = null;
     // Add a keyup event handler for the search input
-    $('#search-input').on('keyup', function(e) {
+    $('#search-input').on('keyup', function() {
         var query = $(this).val();
-        clearTimeout(timeout);
         // If the query is empty, restore the original HTML and return
         if (query === '') {
             resetSearch();
             return false;
         }
-
-        if (e.code === 'Space' || e.key === ' ' || e.code === 'Enter' || e.key === 'Enter') {
-            // Perform the action immediately
-            performSearch(query);
-        } else {
-            // Set a new timeout
-            timeout = setTimeout(() => {
-                // Function to call after 500 milliseconds of inactivity
-                performSearch(query);
-            }, 500); // 500 milliseconds delay
-        }
-    });
-
-    function performSearch(query) {
         $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
         $('#previousPage, #nextPages').fadeIn();
         $('.tablinks').prop('disabled', true); // Disable the tablinks
         // Call the AJAX function with page number 1
         ajaxCall(query, currentPage);
         $('.active').removeClass('active');
-    }
+    });
 
     // Add click handlers for the previous and next buttons
     $('#previousPage').on('click', function(e) {
