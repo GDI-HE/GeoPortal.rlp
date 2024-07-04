@@ -764,23 +764,35 @@ function prevPage() {
     currentSet = Math.ceil((currentPage)/5);    
     }
 }
-
+// if timeout is necessary, revert this code to the previous version
 $(document).ready(function() {
     var currentPage = 1;
+    var previousQuery = '';    
     // Add a keyup event handler for the search input
     $('#search-input').on('keyup', function() {
         var query = $(this).val();
-        // If the query is empty, restore the original HTML and return
-        if (query === '') {
-            resetSearch();
+
+        // Check if the current query is empty and the previous query was also empty
+        if (query === '' && previousQuery === '') {
+            // If true, do nothing and return
             return false;
+        } else if (query === '') {
+            // If the current query is empty but the previous query was not, call resetSearch
+            resetSearch();
+            $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
+            $('#previousPage, #nextPages').fadeIn();
+            $('.tablinks').prop('disabled', true); // Disable the tablinks
+        } else {
+            // If the current query is not empty, proceed with the search
+            $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
+            $('#previousPage, #nextPages').fadeIn();
+            $('.tablinks').prop('disabled', true); // Disable the tablinks
+            ajaxCall(query, currentPage);
+            $('.active').removeClass('active');
         }
-        $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
-        $('#previousPage, #nextPages').fadeIn();
-        $('.tablinks').prop('disabled', true); // Disable the tablinks
-        // Call the AJAX function with page number 1
-        ajaxCall(query, currentPage);
-        $('.active').removeClass('active');
+
+        // Update the previousQuery with the current query at the end of the function
+        previousQuery = query;
     });
 
     // Add click handlers for the previous and next buttons
