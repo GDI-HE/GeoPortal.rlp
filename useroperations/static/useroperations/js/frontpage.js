@@ -767,21 +767,43 @@ function prevPage() {
 
 $(document).ready(function() {
     var currentPage = 1;
+    let timeout = null;
+    var isSearchReset = false;
     // Add a keyup event handler for the search input
-    $('#search-input').on('keyup', function() {
+    $('#search-input').on('keyup', function(e) {
         var query = $(this).val();
+        clearTimeout(timeout);
         // If the query is empty, restore the original HTML and return
         if (query === '') {
-            resetSearch();
+            if (!isSearchReset) { // Check if resetSearch has not been called yet
+                resetSearch();
+                isSearchReset = true; // Set the flag to true after resetting search
+            }
             return false;
+        } else {
+            isSearchReset = false; // Reset the flag when the query is not empty
         }
+
+        if (e.code === 'Space' || e.key === ' ' || e.code === 'Enter' || e.key === 'Enter') {
+            // Perform the action immediately
+            performSearch(query);
+        } else {
+            // Set a new timeout
+            timeout = setTimeout(() => {
+                // Function to call after 500 milliseconds of inactivity
+                performSearch(query);
+            }, 300); // 300 milliseconds delay
+        }
+    });
+
+    function performSearch(query) {
         $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
         $('#previousPage, #nextPages').fadeIn();
         $('.tablinks').prop('disabled', true); // Disable the tablinks
         // Call the AJAX function with page number 1
         ajaxCall(query, currentPage);
         $('.active').removeClass('active');
-    });
+    }
 
     // Add click handlers for the previous and next buttons
     $('#previousPage').on('click', function(e) {
@@ -800,6 +822,7 @@ $(document).ready(function() {
         ajaxCall(query, currentPage);
     });
 });
+
 
 //specially for the wmc searchbar in the landing_page.html
 function ajaxCall(query, pageNum) {
