@@ -800,9 +800,13 @@ $(document).ready(function() {
         $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
         $('#previousPage, #nextPages').fadeIn();
         $('.tablinks').prop('disabled', true); // Disable the tablinks
+        $('.tablinks').css('cursor', 'not-allowed');
         // Call the AJAX function with page number 1
         ajaxCall(query, currentPage);
         $('.active').removeClass('active');
+        // Add style dynamically
+        var style = $('<style id="inactiveStyle">.notactive h2:hover { color: inherit; border-bottom: none;}</style>');
+        $('head').append(style);
     }
 
     // Add click handlers for the previous and next buttons
@@ -901,6 +905,8 @@ $(document).ready(function() {
     $('#clear-input').click(function() {
         $('#search-input').val('');
         $('.tablinks').prop('disabled', false);
+        $('.tablinks').css('cursor', '');
+        $('#inactiveStyle').remove();
         $(this).hide();  // Hide the button
         // If the query is empty, restore the original HTML and return
         if ($('#search-input').val() === '') {
