@@ -423,7 +423,7 @@ def landing_page_view(request):
     # Cache the generated response
     response_data = {"html": html, "num_wmc": results_num, 'new_wmcs': new_wmcs, 'max_results': MAX_RESULTS}
     # store the cache until the latest wmc date changes by using parameter None, default is 5 minutes
-    cache.set(cache_key, response_data, None)  
+    cache.set(cache_key, response_data,600)  
 
     return JsonResponse(response_data)
 
