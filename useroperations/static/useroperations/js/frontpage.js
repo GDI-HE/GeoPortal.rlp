@@ -775,6 +775,7 @@ $(document).ready(function() {
         clearTimeout(timeout);
         // If the query is empty, restore the original HTML and return
         if (query === '') {
+            $('.tablinks').css('cursor', '');
             if (!isSearchReset) { // Check if resetSearch has not been called yet
                 resetSearch();
                 isSearchReset = true; // Set the flag to true after resetting search
