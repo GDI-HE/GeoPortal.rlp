@@ -12,6 +12,8 @@ import csv
 from django.shortcuts import render
 from .forms import UploadFileForm
 from django.shortcuts import render, redirect
+from django.shortcuts import render
+from .models import SessionData
 
 def upload_file(request):
     reporting_date_list = []
@@ -146,7 +148,6 @@ def dashboard(request):
     #fig_wms.write_html(full_image_path_wms)
 
     fig_wms = fig_wms.to_html(full_html=False, include_plotlyjs='cdn')
-    
     users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
   
     user_creation_counts = defaultdict(int)
@@ -249,7 +250,7 @@ def dashboard(request):
             #month_year = start_date.strftime('%Y-%m')
             user_creation_counts[end_date] = count
             #user_creation_counts[end_date] += 0 
-            #print(f"Number of users created between {start_date} and {end_date}: {count}")
+            #print(f"Number of users created between kiya {start_date} and {end_date}: {count}")
 
 
         # Sort the dictionary by month
@@ -307,6 +308,18 @@ def dashboard(request):
     else:
         fig_html_report = None
 
+    sessions = SessionData.objects.all()
+    #take only the last 100 sessions
+    latest_sessions = sessions.order_by('-timestamp_create').first()
+    latest_timestamp = latest_sessions.timestamp_create
+    start_time = latest_timestamp - timedelta(hours=48)
+    sessions = sessions.filter(timestamp_create__range=[start_time, latest_timestamp])
+    sessions = sessions.order_by('timestamp_create')
+
+    
+
+    session_data = get_session_data(sessions)
+    
 
     context = {
         'fig_html_report': fig_html_report,
@@ -320,11 +333,43 @@ def dashboard(request):
         'today_date': today_date,
         'form': UploadFileForm(),
         'reporting_date_list': reporting_date_list,
+        'session_data': session_data,
         #'csv_data': csv_data,
         #'image_path': '/' + image_path,
     }    
 
     return render(request, 'dashboard.html', context)
 
-   
+def get_session_data(sessions):
+    session_data = []
+    for session in sessions:
+        session_data.append({
+            'timestamp_create': session.timestamp_create,
+            'number_of_user': session.number_of_user
+        })
+    timestamps = [session['timestamp_create'] for session in session_data]
+    user_counts = [session['number_of_user'] for session in session_data]
 
+    fig_session = go.Figure()
+    fig_session.add_trace(go.Scatter
+    (
+        x=timestamps,
+        y=user_counts,
+        mode='lines',
+        name='User Sessions',
+        text=user_counts,
+        textposition='top center'
+    ))
+    fig_session.update_layout(
+        xaxis=dict(
+            title='Timestamp',
+            tickformat='%Y-%m-%d %H:%M:%S',  # Format the ticks as Year-Month-Day
+            tickangle=45  # Rotate the tick labels for better readability
+        ),
+        yaxis=dict(
+            title='Number of Users'
+        ),
+        title='User Sessions Report'
+    )
+    fig_html_session = fig_session.to_html(full_html=False, include_plotlyjs='cdn')
+    return fig_html_session
