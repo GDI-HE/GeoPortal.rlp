@@ -115,6 +115,7 @@ INSTALLED_APPS = [
     'captcha',
     'django_user_agents',
     'resourceManager',
+    'dashboard'
 ]
 
 MIDDLEWARE = [
