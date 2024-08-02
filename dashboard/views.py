@@ -148,6 +148,12 @@ def dashboard(request):
     #fig_wms.write_html(full_image_path_wms)
 
     fig_wms = fig_wms.to_html(full_html=False, include_plotlyjs='cdn')
+    
+
+
+    
+    
+    
     users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
   
     user_creation_counts = defaultdict(int)
@@ -304,22 +310,45 @@ def dashboard(request):
         
         
         # Convert the figure to HTML for embedding in Django template
-        fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn')
+        fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'],
+        'modeBarButtonsToAdd': ['toImage']})
     else:
         fig_html_report = None
 
+    # naive_datetime = datetime.strptime('2024-08-01 11:43:25', '%Y-%m-%d %H:%M:%S')
+    # aware_datetime = timezone.make_aware(naive_datetime, timezone.get_current_timezone())
+    
+    # # Create a new session data entry
+    # session = SessionData(timestamp_create=aware_datetime, number_of_user=10)
+    # session.save()
+
+    latest_timestamp = timezone.now()
+    start_time = latest_timestamp - timedelta(hours=72)
+
+    # Get date range from GET parameters if available
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+
+    if start_date_str and end_date_str:
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+        # Make dates timezone-aware
+        start_date = timezone.make_aware(datetime.combine(start_date, datetime.min.time()), timezone.get_current_timezone())
+        end_date = timezone.make_aware(datetime.combine(end_date, datetime.min.time()), timezone.get_current_timezone())
+    else:
+        start_date = start_time
+        end_date = latest_timestamp
+
+    # Get all session data
     sessions = SessionData.objects.all()
-    #take only the last 100 sessions
-    latest_sessions = sessions.order_by('-timestamp_create').first()
-    latest_timestamp = latest_sessions.timestamp_create
-    start_time = latest_timestamp - timedelta(hours=48)
-    sessions = sessions.filter(timestamp_create__range=[start_time, latest_timestamp])
+
+    # Filter sessions within the date range
+    sessions = sessions.filter(timestamp_create__range=[start_date, end_date])
     sessions = sessions.order_by('timestamp_create')
 
-    
+    session_data = get_session_data(sessions, start_date=start_date, end_date=end_date)
 
-    session_data = get_session_data(sessions)
-    
 
     context = {
         'fig_html_report': fig_html_report,
@@ -340,9 +369,25 @@ def dashboard(request):
 
     return render(request, 'dashboard.html', context)
 
-def get_session_data(sessions):
+from django.utils import timezone
+
+def get_session_data(sessions, start_date=None, end_date=None):
+    if not start_date:
+        start_date = timezone.now() - timedelta(hours=72)
+    elif start_date and isinstance(start_date, str):
+        start_date = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d'), timezone.get_current_timezone())
+    
+    if not end_date:
+        end_date = timezone.now()
+    if end_date and isinstance(end_date, str):
+        end_date = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d'), timezone.get_current_timezone())
+
     session_data = []
     for session in sessions:
+        if start_date and session.timestamp_create < start_date:
+            continue
+        if end_date and session.timestamp_create > end_date:
+            continue
         session_data.append({
             'timestamp_create': session.timestamp_create,
             'number_of_user': session.number_of_user
