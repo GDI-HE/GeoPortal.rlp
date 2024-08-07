@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block body %}
+<script src="{% static 'js/update_graph.js' %}"></script>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
 <body>
     <div class="landing-page-box1"><!--landing-page-box-Begin -->
@@ -26,54 +29,82 @@
                     <i class="fas fa-globe" title="Datensätze" aria-hidden="true"></i>
                     <span>Number of WFS:</span>
                 </div>
-                <form method="get">
-                    <!-- create form in forms.py later -->
-                    <label for="start_date">Start Date:</label>
-                    <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
-                    <label for="end_date">End Date:</label>
-                    <input type="date" id="end_date" name="end_date" value="{{ end_date }}" max="{{ today_date }}">
-                    <button type="submit">Filter</button>
-                </form>
+              
                 <span class="quickstart-body"> {{ wfs_count|safe }}</span>
             </a>
         </div>
     </div>
-    <form method="get">
-        <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
-        <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" max="{{ today_date }}">
-        <button type="submit">Filter</button>
-    </form>
-    <div id="plotly-chart">
-        {{ fig_html|safe }}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="iframe-container">
+                        <iframe id="graph1" src="{{ image_path }}" width="600px" height="400px" alt="Plotly Image"></iframe>
+                        <div class="overlay" onclick="redirectToFilter('graph1')"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="iframe-container">
+                        <iframe id="graph2" src="{{ image_path_wms }}" width="600px" height="400px" alt="Plotly Image"></iframe>
+                        <div class="overlay" onclick="redirectToFilter('graph2')"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-4">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="iframe-container">
+                        <iframe id="graph3" src="{{ image_path_session }}" width="600px" height="400px" alt="Plotly Image"></iframe>
+                        <div class="overlay" onclick="redirectToFilter('graph3')"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="iframe-container">
+                        
+                        <iframe id="graph4" src="{{ image_path_report }}" width="600px" height="400px" alt="Plotly Image"></iframe>
+                        <div class="overlay" onclick="redirectToFilter('graph4')"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="plotly-chart">
-        {{ fig_wms|safe }}
-    </div>
-    <div id="plotly-chart">
-        {{ fig_html_report|safe }}
-    <!-- <div>
-        <iframe src="{{ image_path }} " width="100%" height="600px" alt="Plotly Image"></iframe>
-    </div> -->
-    <div>
-    <h1>Generate Reporting Date</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload</button>
-    </form>
-    </div>
-    <form method="get">
-        <!-- create form in forms.py later -->
-        <label for="start_date">Start Date:</label>
-        <input type="date" id="start_date" name="start_date" value="{{ start_date }}">
-        <label for="end_date">End Date:</label>
-        <input type="date" id="end_date" name="end_date" value="{{ end_date }}" max="{{ today_date }}">
-        <button type="submit">Filter</button>
-    </form>
-    <div id="plotly-chart">
-        {{ session_data |safe }}
-    </div>
+
+    <script>
+        function redirectToFilter(chartId) {
+            window.location.href = "{% url 'dashboard:filter' %}#" + chartId;
+        }
+    </script>
+
+    <style>
+        .iframe-container {
+            position: relative;
+            width: 590px;
+            height: 400px;
+        }
+        .container{
+            max-width: 1100px;
+        } 
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        #graph1, #graph2, #graph3, #graph4 {
+            border: none;
+        }
+        .row{
+            justify-content: center;
+            margin-left: -90px;
+        } 
+
+    </style>
 </body>
-    {% endblock %}
+{% endblock %}
