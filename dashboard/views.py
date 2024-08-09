@@ -17,7 +17,9 @@ from .models import SessionData
 from django.http import JsonResponse
 import os
 from django.utils import timezone
-
+from django.utils.timezone import make_aware
+import pytz
+import json
 
 def upload_file(request):
     reporting_date_list = []
@@ -26,6 +28,11 @@ def upload_file(request):
         if form.is_valid():
             file = request.FILES['file']
             reporting_date_list = read_reporting_dates_from_csv(file)
+            # Ensure reporting_date_list contains datetime objects
+            if all(isinstance(date, datetime) for date in reporting_date_list):
+                # Convert naive datetime objects to timezone-aware datetime objects
+                reporting_date_list = [make_aware(date, timezone=pytz.UTC) for date in reporting_date_list]
+            
             if request.is_ajax():
                 return JsonResponse({'reporting_date_list': reporting_date_list})
     else:
@@ -304,8 +311,13 @@ def render_template(request, template_name):
     # for year in range(start_year, end_year + 1):
     #     reporting_date_list.append(tm.datetime.strptime(f'{year}-01-01', '%Y-%m-%d'))
     #     reporting_date_list.append(tm.datetime.strptime(f'{year}-06-01', '%Y-%m-%d'))
-
+    
     reporting_date_list = upload_file(request)
+    if isinstance(reporting_date_list, JsonResponse):
+        print("reporting_date_list is a JsonResponse")
+        reporting_date_list = json.loads(reporting_date_list.content)
+        # Extract the reporting_date_list from the JSON response
+        reporting_date_list = reporting_date_list.get('reporting_date_list', [])
     #convert tuple to list
     if reporting_date_list!=[]:
         reporting_date_list = list(reporting_date_list[1])
@@ -467,6 +479,7 @@ def render_template(request, template_name):
 
     }    
     if request.is_ajax():
+        #print ("AJAX request")
         return JsonResponse({ 'fig_html': fig_html,
         'fig_html_report': fig_html_report,
         'fig_wms': fig_wms,
