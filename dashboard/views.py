@@ -26,6 +26,8 @@ def upload_file(request):
         if form.is_valid():
             file = request.FILES['file']
             reporting_date_list = read_reporting_dates_from_csv(file)
+            if request.is_ajax():
+                return JsonResponse({'reporting_date_list': reporting_date_list})
     else:
         form = UploadFileForm()
 
@@ -408,6 +410,7 @@ def render_template(request, template_name):
     image_path_report = 'static/images/plotly_image_report.png'
     full_image_path_report = os.path.join(os.path.dirname(__file__), image_path_report)
     fig_report.write_image(full_image_path_report)
+    
 
     # Convert the figure to HTML for embedding in Django template
     fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'],
@@ -464,7 +467,10 @@ def render_template(request, template_name):
 
     }    
     if request.is_ajax():
-        return JsonResponse({'fig_html': fig_html} )
+        return JsonResponse({ 'fig_html': fig_html,
+        'fig_html_report': fig_html_report,
+        'fig_wms': fig_wms,
+        'session_data': session_data} )
     return render(request, template_name, context)
 
 def dashboard(request):
