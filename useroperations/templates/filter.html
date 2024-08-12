@@ -52,11 +52,15 @@
         {{ session_data |safe }}
     </div>
 
+    <div id="graph4">
+        {{ fig_wfs |safe }}
+    </div>
+
 <h1>Generate Reporting Date</h1>
 <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Upload</button>
+    <button type="submit" data-url="{% url 'dashboard:filter' %}">Upload</button>
 </form>
 </div>
 <form method="get">

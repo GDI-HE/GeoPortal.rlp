@@ -20,6 +20,7 @@ from django.utils import timezone
 from django.utils.timezone import make_aware
 import pytz
 import json
+import time
 
 def upload_file(request):
     reporting_date_list = []
@@ -110,8 +111,59 @@ def get_session_data(sessions, start_date=None, end_date=None):
     fig_html_session = fig_session.to_html(full_html=False, include_plotlyjs='cdn')
     return fig_html_session, image_path_session
 
+def get_data_counts(model, timestamp_field, start_date, end_date):
+    start_date_unix = int(time.mktime(start_date.timetuple()))
+    end_date_unix = int(time.mktime(end_date.timetuple()))
+    users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_unix}).count()
+    data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_unix, end_date_unix]})
+    data_counts = defaultdict(int)
+
+    for data in data_all:
+        data_datetime = datetime.fromtimestamp(getattr(data, timestamp_field))
+        month_year_data = data_datetime.strftime('%Y-%m')
+        data_counts[month_year_data] += 1
+
+    sorted_months_data = sorted(data_counts.keys())
+    sorted_counts_data = [data_counts[month] for month in sorted_months_data]
+
+    # Calculate cumulative counts
+    cumulative_counts_data = []
+    cumulative_sum_data = users_before_start_date_count
+    for count in sorted_counts_data:
+        cumulative_sum_data += count
+        cumulative_counts_data.append(cumulative_sum_data)
+
+    return sorted_months_data, sorted_counts_data, cumulative_counts_data
+
+def process_request(request):
+    # Initialize start_date and end_date with default values
+    start_date = datetime.now() - timedelta(days=365)
+    end_date = datetime.now()
+
+    # Check if start_date and end_date are provided in the request
+    if request.is_ajax():
+        if request.GET.get('start_date') and request.GET.get('end_date'):
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+
+    start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    # Get WMS data counts
+    sorted_months_wms, sorted_counts_wms, cumulative_counts_wms = get_data_counts(Wms, 'wms_timestamp_create', start_date, end_date)
+
+    # Get WFS data counts
+    sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = get_data_counts(Wfs, 'wfs_timestamp_create', start_date, end_date)
+
+    # Now you can use sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, and cumulative_counts_wfs as needed
+    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs
+
 def render_template(request, template_name):
      # Default date range: last one year
+     #if request.get contains contentType === 'fig_html_report', the return json response separately
+     
     end_date_default = datetime.now()
     start_date_default = end_date_default - timedelta(days=365)
 
@@ -228,38 +280,9 @@ def render_template(request, template_name):
     fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
     today_date = datetime.now().strftime('%Y-%m-%d')
 
-    users_report = MbUser.objects.filter(timestamp_create__range=[start_date_report, end_date_report])
+    #users_report = MbUser.objects.filter(timestamp_create__range=[start_date_report, end_date_report])
 
-    import time
-    user_count = MbUser.objects.count()
-    wms_count = Wms.objects.count()
-    wfs_count = Wfs.objects.count()
-
-    # Determine the earliest user registration date
-    earliest_user = MbUser.objects.earliest('timestamp_create')
-    wms_timestamp = Wms.objects.earliest('wms_timestamp_create')
-    wms_start = wms_timestamp.wms_timestamp_create
-    start_of_data = earliest_user.timestamp_create
-
-    users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
-    start_date_unix = int(time.mktime(start_date.timetuple()))
-    end_date_unix = int(time.mktime(end_date.timetuple()))
-    wms_all = Wms.objects.filter(wms_timestamp__range=[start_date_unix, end_date_unix])
-    wms_counts = defaultdict(int)
-    for wms in wms_all:
-         wms_datetime = tm.datetime.fromtimestamp(wms.wms_timestamp_create)
-         month_year_wms = wms_datetime.strftime('%Y-%m')
-         wms_counts[month_year_wms] += 1
-        
-    sorted_months_wms = sorted(wms_counts.keys())
-    sorted_counts_wms = [wms_counts[month] for month in sorted_months_wms]
-
-    # Calculate cumulative counts
-    cumulative_counts_wms = []
-    cumulative_sum_wms = 0
-    for count in sorted_counts_wms:
-        cumulative_sum_wms += count
-        cumulative_counts_wms.append(cumulative_sum_wms)
+    sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = process_request(request)
 
     fig_wms = go.Figure()
 
@@ -301,6 +324,105 @@ def render_template(request, template_name):
     fig_wms.write_image(full_image_path_wms)
 
     fig_wms = fig_wms.to_html(full_html=False, include_plotlyjs='cdn')
+
+    
+    #wfs make a different function if possible
+
+    user_count = MbUser.objects.count()
+    wms_count = Wms.objects.count()
+    wfs_count = Wfs.objects.count()
+
+     # Determine the earliest user registration date
+    earliest_user = MbUser.objects.earliest('timestamp_create')
+    wfs_timestamp = Wfs.objects.earliest('wfs_timestamp_create')
+    wfs_start = wfs_timestamp.wfs_timestamp_create
+    start_of_data = earliest_user.timestamp_create
+    
+
+    #change variable names later
+    #check iif start_date and end_date are not empty and if they are empty, use 12 months from now
+    if request.is_ajax():
+       
+        #if request contains start_date and end_date and not empty, use them
+        if request.GET.get('start_date') and request.GET.get('end_date'):
+            start_date = request.GET.get('start_date')
+            end_date = request.GET.get('end_date')
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            start_date_unix = int(time.mktime(start_date.timetuple()))
+            users_before_start_date_count_wfs = Wfs.objects.filter(wfs_timestamp_create__lt=start_date_unix).count()
+        else:
+            start_date = datetime.now() - timedelta(days=365)
+            end_date = datetime.now()
+            users_before_start_date_count_wfs = Wfs.objects.filter(wfs_timestamp_create__lt=int(time.mktime(start_date.timetuple()))).count()
+        
+    start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+
+    users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
+    start_date_unix = int(time.mktime(start_date.timetuple()))
+    end_date_unix = int(time.mktime(end_date.timetuple()))
+    users_before_start_date_count_wfs = Wfs.objects.filter(wfs_timestamp_create__lt=start_date_unix).count()
+    wfs_all = Wfs.objects.filter(wfs_timestamp_create__range=[start_date_unix, end_date_unix])
+    wfs_counts = defaultdict(int)
+
+    
+    for wfs in wfs_all:
+         wfs_datetime = tm.datetime.fromtimestamp(wfs.wfs_timestamp_create)
+         month_year_wfs = wfs_datetime.strftime('%Y-%m')
+         wfs_counts[month_year_wfs] += 1
+        
+    sorted_months_wfs = sorted(wfs_counts.keys())
+    sorted_counts_wfs = [wfs_counts[month] for month in sorted_months_wfs]
+
+    # Calculate cumulative counts
+    cumulative_counts_wfs = []
+    cumulative_sum_wfs = users_before_start_date_count_wfs
+    for count in sorted_counts_wfs:
+        cumulative_sum_wfs += count
+        cumulative_counts_wfs.append(cumulative_sum_wfs)
+
+    fig_wfs = go.Figure()
+
+    fig_wfs.add_trace(go.Bar(x=sorted_months_wfs, y=sorted_counts_wfs, name='WFS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wfs, textposition='outside'))
+    fig_wfs.add_trace(go.Scatter(x=sorted_months_wfs, y=cumulative_counts_wfs, mode='lines+markers+text', name='Cumulative WFS', line=dict(color='rgba(54, 162, 235, 1)')))
+    fig_wfs.update_layout(
+        title_text='WFS per Month',
+        xaxis_title='Month',
+        xaxis=dict(
+            title='Month',
+            tickangle=45
+        ),
+        yaxis=dict(
+            title='Cumulative Number of WFS',
+            titlefont=dict(color='rgba(54, 162, 235, 1)'),
+            tickfont=dict(color='rgba(54, 162, 235, 1)'),
+
+
+        ),
+        yaxis2=dict(
+            title='WFS per Month',
+            titlefont=dict(color='rgba(255, 99, 132, 1)'),
+            tickfont=dict(color='rgba(255, 99, 132, 1)'),
+            overlaying='y',
+            side='right'
+        )
+    )
+    fig_wfs.update_layout(
+        legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="center",
+        x=0.5
+    )
+    )
+    image_path_wfs = 'static/images/plotly_image_wfs.png'
+    full_image_path_wfs = os.path.join(os.path.dirname(__file__), image_path_wfs)
+    fig_wfs.write_image(full_image_path_wfs)
+
+    fig_wfs = fig_wfs.to_html(full_html=False, include_plotlyjs='cdn')
+    #end of wfs
 
     users_report = MbUser.objects.filter(timestamp_create__range=[start_date_report, end_date_report])
     # # Generate the reporting date list
@@ -476,14 +598,18 @@ def render_template(request, template_name):
         'image_path_wms': '/' + image_path_wms,
         'image_path_session': '/' + image_path_session,
         'image_path_report': '/' + image_path_report,
+        'fig_wfs': fig_wfs,
+        'image_path_wfs': '/' + image_path_wfs,
 
     }    
     if request.is_ajax():
-        #print ("AJAX request")
+        print ("AJAX request")
         return JsonResponse({ 'fig_html': fig_html,
         'fig_html_report': fig_html_report,
         'fig_wms': fig_wms,
-        'session_data': session_data} )
+        'session_data': session_data,
+        'fig_wfs': fig_wfs,
+        } )
     return render(request, template_name, context)
 
 def dashboard(request):
