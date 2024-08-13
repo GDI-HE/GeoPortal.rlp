@@ -111,6 +111,8 @@ def get_session_data(sessions, start_date=None, end_date=None):
     fig_html_session = fig_session.to_html(full_html=False, include_plotlyjs='cdn')
     return fig_html_session, image_path_session
 
+
+
 def get_data_counts(model, timestamp_field, start_date, end_date):
     start_date_unix = int(time.mktime(start_date.timetuple()))
     end_date_unix = int(time.mktime(end_date.timetuple()))
@@ -185,83 +187,127 @@ def render_template(request, template_name):
     except ValueError:
         end_date = end_date_default
     
-
+    keyword = request.GET.get('keyword', 'default')
+    #once call the generate_wms_plot function on loading the page
+    #generate_wms_plot(request, start_date, end_date) 
+    if not request.is_ajax():
+        fig_html, image_path = generate_user_plot(start_date, end_date)
+        fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
+        fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+        fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
+        session_data, image_path_session = get_filtered_session_data(request)
+    else:
+        if keyword == 'fig_html':
+            fig_html, image_path = generate_user_plot(start_date, end_date)
+            fig_wms_html, image_path_wms = None, None
+            fig_wfs_html, image_path_wfs = None, None
+            fig_report_html, image_path_report = None, None
+            session_data, image_path_session = None, None
+        elif keyword == 'fig_wms':
+            fig_html, image_path = None, None
+            fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
+            fig_wfs_html, image_path_wfs = None, None
+            fig_report_html, image_path_report = None, None
+            session_data, image_path_session = None, None
+        elif keyword == 'fig_wfs':
+            fig_html, image_path = None, None
+            fig_wms_html, image_path_wms = None, None
+            fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_report_html, image_path_report = None, None
+            session_data, image_path_session = None, None
+        elif keyword == 'session_data':
+            fig_html, image_path = None, None
+            fig_wms_html, image_path_wms = None, None
+            fig_wfs_html, image_path_wfs = None, None
+            fig_report_html, image_path_report = None, None
+            session_data, image_path_session = get_filtered_session_data(request)
+        else:
+            fig_html, image_path = generate_user_plot(start_date, end_date)
+            fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
+            fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
+            session_data, image_path_session = get_filtered_session_data(request)
+    
     user = None
 
-    users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
-
-    session_cookie = request.COOKIES.get(SESSION_NAME)
-    if session_cookie is not None:
-        session_data = php_session_data.get_mapbender_session_by_memcache(session_cookie)
-        if session_data is not None:
-            if b'mb_user_id' in session_data and session_data[b'mb_user_name'] != b'guest':
-                userid = session_data[b'mb_user_id']
-                try:
-                    user = MbUser.objects.get(mb_user_id=userid)
-                except MbUser.DoesNotExist:
-                    # Handle the case where the user does not exist in the database
-                    messages.add_message(request, messages.ERROR, ("The page is unavailable!"))
-
-                    return redirect('useroperations:index')
-                
-            else:
-                messages.add_message(request, messages.ERROR, ("The page is unavailable!"))
-                return redirect('useroperations:index')
-            
-            if user is None:
-        # we expect it to be read out of the session data until this point!!
-                messages.add_message(request, messages.ERROR, ("The user could not be found. Please contact an administrator!"))
-                return redirect('useroperations:index')
-  
+    #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
 
     import time
     user_count = MbUser.objects.count()
     wms_count = Wms.objects.count()
     wfs_count = Wfs.objects.count()
     
+    context = {
+        'fig_html': fig_html,
+        'fig_wms': fig_wms_html,
+        'fig_wfs': fig_wfs_html,
+        'fig_html_report': fig_report_html,
+        'session_data': session_data,
+
+        'start_date': start_date.strftime('%Y-%m-%d'),
+        'end_date': end_date.strftime('%Y-%m-%d'),
+        'user_count': user_count,
+        'wms_count': wms_count,
+        'wfs_count': wfs_count,
+        #'today_date': today_date,
+        'form': UploadFileForm(),
+        'image_path': '/' + image_path if image_path else '',
+        'image_path_wms': '/' + image_path_wms if image_path_wms else '',
+        'image_path_wfs': '/' + image_path_wfs if image_path_wfs else '',
+        'image_path_report': '/' + image_path_report if image_path_report else '',
+        'image_path_session': '/' + image_path_session if image_path_session else '',
+    }
+    if context is None:
+        context = {}
+    image_path = context.get('image_path')
+    if image_path is None:
+        context['image_path'] = ''
+    if request.is_ajax():
+        return JsonResponse({'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'fig_html_report': fig_report_html, 'session_data':session_data})
+
+    return render(request, template_name, context)
+
+def dashboard(request):
+   return render_template(request, 'dashboard.html')
+
+def filter(request):
+    return render_template(request, 'filter.html')
+
+
+def generate_user_plot(start_date, end_date):
+    users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
     users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
-  
     user_creation_counts = defaultdict(int)
-    # Process each user's timestamp_create to extract the month and year, then count
+
     for user in users:
-    # Assuming timestamp_create is a datetime object. If it's a string, parse it first:
-    # user.timestamp_create = datetime.strptime(user.timestamp_create, '%Y-%m-%d %H:%M:%S.%f')
         month_year = user.timestamp_create.strftime('%Y-%m')
         user_creation_counts[month_year] += 1
 
-        # Sort the dictionary by month
     sorted_months = sorted(user_creation_counts.keys())
     sorted_counts = [user_creation_counts[month] for month in sorted_months]
 
-        # Calculate cumulative counts
     cumulative_counts = []
     cumulative_sum = users_before_start_date_count
     for count in sorted_counts:
-                cumulative_sum += count
-                cumulative_counts.append(cumulative_sum)
+        cumulative_sum += count
+        cumulative_counts.append(cumulative_sum)
 
-        # Plotting
     fig = go.Figure()
-
-        # Add bar chart for new users per month with secondary y-axis
     fig.add_trace(go.Bar(x=sorted_months, y=sorted_counts, name='New Users per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)')))
-
-        # Add line chart for cumulative new users
     fig.add_trace(go.Scatter(x=sorted_months, y=cumulative_counts, mode='lines+markers', name='Cumulative New Users', line=dict(color='rgba(54, 162, 235, 1)')))
 
-        # Update layout to include secondary y-axis
     fig.update_layout(
         title_text='New and Cumulative New Users per Month',
         xaxis_title='Month',
         yaxis=dict(
             title='Cumulative Number of Users',
-            titlefont=dict(color='rgba(54, 162, 235, 1)'),  # Color for the left y-axis
-            tickfont=dict(color='rgba(54, 162, 235, 1)')    # Color for the left y-axis ticks
+            titlefont=dict(color='rgba(54, 162, 235, 1)'),
+            tickfont=dict(color='rgba(54, 162, 235, 1)')
         ),
         yaxis2=dict(
             title='New Users per Month',
-            titlefont=dict(color='rgba(255, 99, 132, 1)'),  # Color for the right y-axis
-            tickfont=dict(color='rgba(255, 99, 132, 1)'),   # Color for the right y-axis ticks
+            titlefont=dict(color='rgba(255, 99, 132, 1)'),
+            tickfont=dict(color='rgba(255, 99, 132, 1)'),
             overlaying='y',
             side='right'
         ),
@@ -276,230 +322,132 @@ def render_template(request, template_name):
     image_path = 'static/images/plotly_image.png'
     full_image_path = os.path.join(os.path.dirname(__file__), image_path)
     fig.write_image(full_image_path)
-        # Convert the figure to HTML for embedding in Django template
     fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
-    today_date = datetime.now().strftime('%Y-%m-%d')
+    return fig_html, image_path
 
-    #users_report = MbUser.objects.filter(timestamp_create__range=[start_date_report, end_date_report])
-
-    sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = process_request(request)
-
-    fig_wms = go.Figure()
-
-    fig_wms.add_trace(go.Bar(x=sorted_months_wms, y=sorted_counts_wms, name='WMS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wms, textposition='outside'))
-    fig_wms.add_trace(go.Scatter(x=sorted_months_wms, y=cumulative_counts_wms, mode='lines+markers+text', name='Cumulative WMS', line=dict(color='rgba(54, 162, 235, 1)')))
-    fig_wms.update_layout(
-        title_text='WMS per Month',
-        xaxis_title='Month',
-        xaxis=dict(
-            title='Month',
-            tickangle=45
-        ),
-        yaxis=dict(
-            title='Cumulative Number of WMS',
-            titlefont=dict(color='rgba(54, 162, 235, 1)'),
-            tickfont=dict(color='rgba(54, 162, 235, 1)'),
-
-
-        ),
-        yaxis2=dict(
-            title='WMS per Month',
-            titlefont=dict(color='rgba(255, 99, 132, 1)'),
-            tickfont=dict(color='rgba(255, 99, 132, 1)'),
-            overlaying='y',
-            side='right'
-        )
-    )
-    fig_wms.update_layout(
-        legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="center",
-        x=0.5
-    )
-    )
-    image_path_wms = 'static/images/plotly_image_wms.png'
-    full_image_path_wms = os.path.join(os.path.dirname(__file__), image_path_wms)
-    fig_wms.write_image(full_image_path_wms)
-
-    fig_wms = fig_wms.to_html(full_html=False, include_plotlyjs='cdn')
-
-    
-    #wfs make a different function if possible
-
-    user_count = MbUser.objects.count()
-    wms_count = Wms.objects.count()
-    wfs_count = Wfs.objects.count()
-
-     # Determine the earliest user registration date
-    earliest_user = MbUser.objects.earliest('timestamp_create')
-    wfs_timestamp = Wfs.objects.earliest('wfs_timestamp_create')
-    wfs_start = wfs_timestamp.wfs_timestamp_create
-    start_of_data = earliest_user.timestamp_create
-    
-
-    #change variable names later
-    #check iif start_date and end_date are not empty and if they are empty, use 12 months from now
-    if request.is_ajax():
-       
-        #if request contains start_date and end_date and not empty, use them
-        if request.GET.get('start_date') and request.GET.get('end_date'):
-            start_date = request.GET.get('start_date')
-            end_date = request.GET.get('end_date')
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-            start_date_unix = int(time.mktime(start_date.timetuple()))
-            users_before_start_date_count_wfs = Wfs.objects.filter(wfs_timestamp_create__lt=start_date_unix).count()
-        else:
-            start_date = datetime.now() - timedelta(days=365)
-            end_date = datetime.now()
-            users_before_start_date_count_wfs = Wfs.objects.filter(wfs_timestamp_create__lt=int(time.mktime(start_date.timetuple()))).count()
+def generate_wms_plot(request, start_date, end_date):
         
-    start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-    users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
-    start_date_unix = int(time.mktime(start_date.timetuple()))
-    end_date_unix = int(time.mktime(end_date.timetuple()))
-    users_before_start_date_count_wfs = Wfs.objects.filter(wfs_timestamp_create__lt=start_date_unix).count()
-    wfs_all = Wfs.objects.filter(wfs_timestamp_create__range=[start_date_unix, end_date_unix])
-    wfs_counts = defaultdict(int)
-
-    
-    for wfs in wfs_all:
-         wfs_datetime = tm.datetime.fromtimestamp(wfs.wfs_timestamp_create)
-         month_year_wfs = wfs_datetime.strftime('%Y-%m')
-         wfs_counts[month_year_wfs] += 1
-        
-    sorted_months_wfs = sorted(wfs_counts.keys())
-    sorted_counts_wfs = [wfs_counts[month] for month in sorted_months_wfs]
-
-    # Calculate cumulative counts
-    cumulative_counts_wfs = []
-    cumulative_sum_wfs = users_before_start_date_count_wfs
-    for count in sorted_counts_wfs:
-        cumulative_sum_wfs += count
-        cumulative_counts_wfs.append(cumulative_sum_wfs)
-
-    fig_wfs = go.Figure()
-
-    fig_wfs.add_trace(go.Bar(x=sorted_months_wfs, y=sorted_counts_wfs, name='WFS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wfs, textposition='outside'))
-    fig_wfs.add_trace(go.Scatter(x=sorted_months_wfs, y=cumulative_counts_wfs, mode='lines+markers+text', name='Cumulative WFS', line=dict(color='rgba(54, 162, 235, 1)')))
-    fig_wfs.update_layout(
-        title_text='WFS per Month',
-        xaxis_title='Month',
-        xaxis=dict(
-            title='Month',
-            tickangle=45
-        ),
-        yaxis=dict(
-            title='Cumulative Number of WFS',
-            titlefont=dict(color='rgba(54, 162, 235, 1)'),
-            tickfont=dict(color='rgba(54, 162, 235, 1)'),
-
-
-        ),
-        yaxis2=dict(
-            title='WFS per Month',
-            titlefont=dict(color='rgba(255, 99, 132, 1)'),
-            tickfont=dict(color='rgba(255, 99, 132, 1)'),
-            overlaying='y',
-            side='right'
+        sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _ = process_request(request)
+        fig_wms = go.Figure()
+        fig_wms.add_trace(go.Bar(x=sorted_months_wms, y=sorted_counts_wms, name='WMS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wms, textposition='outside'))
+        fig_wms.add_trace(go.Scatter(x=sorted_months_wms, y=cumulative_counts_wms, mode='lines+markers+text', name='Cumulative WMS', line=dict(color='rgba(54, 162, 235, 1)')))
+        fig_wms.update_layout(
+            title_text='WMS per Month',
+            xaxis_title='Month',
+            xaxis=dict(
+                title='Month',
+                tickangle=45
+            ),
+            yaxis=dict(
+                title='Cumulative Number of WMS',
+                titlefont=dict(color='rgba(54, 162, 235, 1)'),
+                tickfont=dict(color='rgba(54, 162, 235, 1)')
+            ),
+            yaxis2=dict(
+                title='WMS per Month',
+                titlefont=dict(color='rgba(255, 99, 132, 1)'),
+                tickfont=dict(color='rgba(255, 99, 132, 1)'),
+                overlaying='y',
+                side='right'
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5
+            )
         )
-    )
-    fig_wfs.update_layout(
-        legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="center",
-        x=0.5
-    )
-    )
-    image_path_wfs = 'static/images/plotly_image_wfs.png'
-    full_image_path_wfs = os.path.join(os.path.dirname(__file__), image_path_wfs)
-    fig_wfs.write_image(full_image_path_wfs)
+        image_path_wms = 'static/images/plotly_image_wms.png'
+        full_image_path_wms = os.path.join(os.path.dirname(__file__), image_path_wms)
+        fig_wms.write_image(full_image_path_wms)
+        fig_wms_html = fig_wms.to_html(full_html=False, include_plotlyjs='cdn')
+        return fig_wms_html, image_path_wms
 
-    fig_wfs = fig_wfs.to_html(full_html=False, include_plotlyjs='cdn')
-    #end of wfs
+def generate_wfs_plot(request, start_date, end_date):
+        
+        _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = process_request(request)
+        fig_wfs = go.Figure()
+        fig_wfs.add_trace(go.Bar(x=sorted_months_wfs, y=sorted_counts_wfs, name='WFS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wfs, textposition='outside'))
+        fig_wfs.add_trace(go.Scatter(x=sorted_months_wfs, y=cumulative_counts_wfs, mode='lines+markers+text', name='Cumulative WFS', line=dict(color='rgba(54, 162, 235, 1)')))
+        fig_wfs.update_layout(
+            title_text='WFS per Month',
+            xaxis_title='Month',
+            xaxis=dict(
+                title='Month',
+                tickangle=45
+            ),
+            yaxis=dict(
+                title='Cumulative Number of WFS',
+                titlefont=dict(color='rgba(54, 162, 235, 1)'),
+                tickfont=dict(color='rgba(54, 162, 235, 1)')
+            ),
+            yaxis2=dict(
+                title='WFS per Month',
+                titlefont=dict(color='rgba(255, 99, 132, 1)'),
+                tickfont=dict(color='rgba(255, 99, 132, 1)'),
+                overlaying='y',
+                side='right'
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        image_path_wfs = 'static/images/plotly_image_wfs.png'
+        full_image_path_wfs = os.path.join(os.path.dirname(__file__), image_path_wfs)
+        fig_wfs.write_image(full_image_path_wfs)
+        fig_wfs_html = fig_wfs.to_html(full_html=False, include_plotlyjs='cdn')
+        return fig_wfs_html, image_path_wfs
 
+def generate_user_report(request, start_date_report, end_date_report):
     users_report = MbUser.objects.filter(timestamp_create__range=[start_date_report, end_date_report])
-    # # Generate the reporting date list
-    reporting_date_list = []
-    # start_year = 2014
-    # end_year = 2027
-
-    # for year in range(start_year, end_year + 1):
-    #     reporting_date_list.append(tm.datetime.strptime(f'{year}-01-01', '%Y-%m-%d'))
-    #     reporting_date_list.append(tm.datetime.strptime(f'{year}-06-01', '%Y-%m-%d'))
     
     reporting_date_list = upload_file(request)
     if isinstance(reporting_date_list, JsonResponse):
-        print("reporting_date_list is a JsonResponse")
         reporting_date_list = json.loads(reporting_date_list.content)
-        # Extract the reporting_date_list from the JSON response
         reporting_date_list = reporting_date_list.get('reporting_date_list', [])
-    #convert tuple to list
-    if reporting_date_list!=[]:
+    
+    if reporting_date_list:
         reporting_date_list = list(reporting_date_list[1])
-        # remove the key from the dict and only use the value
         reporting_date_list = [d['reporting_date'] for d in reporting_date_list]
-
-        #convert it to tm.datetime.strptime
         reporting_date_list = [tm.datetime.strptime(date, '%Y-%m-%d') for date in reporting_date_list]
-        
     else:
-        # Use a default list of dates if reporting_date_list is empty
         default_dates = ['2014-03-01', '2014-07-01', '2015-07-01', '2015-03-01', '2016-02-01', '2016-12-01', '2017-01-01', '2017-06-01', '2018-01-01', '2018-06-01', '2019-01-01', '2019-06-01', '2020-01-01', '2020-06-01', '2021-01-01', '2021-06-01', '2022-01-01', '2022-06-01', '2023-01-01', '2023-06-01', '2024-01-01', '2024-06-01', '2025-01-01', '2025-06-01', '2026-01-01', '2029-12-01']
         reporting_date_list = [tm.datetime.strptime(date, '%Y-%m-%d') for date in default_dates]
-    # sort it
+    
     reporting_date_list = sorted(reporting_date_list)
-
-    # Initialize the defaultdict for counting user creations
     user_creation_counts = defaultdict(int)
-    # Handle the first data point separately
+    
     first_start_date = reporting_date_list[0]
     count = 0
     for user in users_report:
         if user.timestamp_create < first_start_date:
             count += 1
     user_creation_counts[first_start_date] = count
-    #print(f"Number of users created before {first_start_date}: {count}")
-
-    # Calculate the number of users created between each pair of consecutive dates
+    
     for i in range(len(reporting_date_list) - 1):
         start_date = reporting_date_list[i]
         end_date = reporting_date_list[i+1]
         count = 0
-
-        #print(f"Start Date: {start_date} (Type: {type(start_date)})")
         for user in users_report:
-            # print(f"User Timestamp: {user.timestamp_create} (Type: {type(user.timestamp_create)})")
             if start_date <= user.timestamp_create < end_date:
                 count += 1
-        #count = sum(1 for user in users if start_date <= user.timestamp_create < end_date)
-        #month_year = start_date.strftime('%Y-%m')
         user_creation_counts[end_date] = count
-        #user_creation_counts[end_date] += 0 
-        #print(f"Number of users created between kiya {start_date} and {end_date}: {count}")
-
-
-    # Sort the dictionary by month
+    
     sorted_months = sorted(user_creation_counts.keys())
     sorted_counts = [user_creation_counts[month] for month in sorted_months]
-
-    # Calculate cumulative counts
+    
     cumulative_counts = []
-    cumulative_sum = 0  # Initialize with users_before_start_date_count if needed
+    cumulative_sum = 0
     for count in sorted_counts:
         cumulative_sum += count
         cumulative_counts.append(cumulative_sum)
-
-    # Prepare the graph using Plotly
+    
     fig_report = go.Figure()
-
-    # Add trace for individual data points
     fig_report.add_trace(go.Scatter(
         x=sorted_months,
         y=sorted_counts,
@@ -507,10 +455,7 @@ def render_template(request, template_name):
         name='User per interval',
         text=sorted_counts,
         textposition='top center'
-        
     ))
-
-    # Add trace for cumulative data
     fig_report.add_trace(go.Scatter(
         x=sorted_months,
         y=cumulative_counts,
@@ -519,40 +464,37 @@ def render_template(request, template_name):
         text=cumulative_counts,
         textposition='top center'
     ))
-
+    
     fig_report.update_layout(
         xaxis=dict(
             title='Reporting Date',
-            tickformat='%Y-%m-%d',  # Format the ticks as Year-Month-Day
-            #insert dtick from reporting date list
-            #tickvals=reporting_date_list,
-            #tickangle=45  # Rotate the tick labels for better readability
+            tickformat='%Y-%m-%d',
         ),
         legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="center",
-        x=0.5
-    ),
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5
+        ),
         yaxis=dict(
             title='Number of Users'
         ),
         title='User Creation Report'
     )
-
+    
     image_path_report = 'static/images/plotly_image_report.png'
     full_image_path_report = os.path.join(os.path.dirname(__file__), image_path_report)
     fig_report.write_image(full_image_path_report)
     
+    fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
+    
+    return fig_html_report, image_path_report
 
-    # Convert the figure to HTML for embedding in Django template
-    fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'],
-    'modeBarButtonsToAdd': ['toImage']})
-  
-        
+from django.utils import timezone
+from datetime import datetime, timedelta
 
-
+def get_filtered_session_data(request):
     latest_timestamp = timezone.now()
     start_time = latest_timestamp - timedelta(hours=72)
 
@@ -579,42 +521,5 @@ def render_template(request, template_name):
     sessions = sessions.order_by('timestamp_create')
 
     session_data, image_path_session = get_session_data(sessions, start_date=start_date, end_date=end_date)
-        
-    context = {
-        'fig_html_report': fig_html_report,
-        'fig_html': fig_html,
-        'start_date': start_date.strftime('%Y-%m-%d'),
-        'end_date': end_date.strftime('%Y-%m-%d'),
-        'user_count': user_count,  
-        'wms_count': wms_count,
-        'wfs_count': wfs_count,
-        'today_date': today_date,
-        'form': UploadFileForm(),
-        'fig_wms': fig_wms,
-        #'reporting_date_list': reporting_date_list,
-        'session_data': session_data,
-        #'csv_data': csv_data,
-        'image_path': '/' + image_path,
-        'image_path_wms': '/' + image_path_wms,
-        'image_path_session': '/' + image_path_session,
-        'image_path_report': '/' + image_path_report,
-        'fig_wfs': fig_wfs,
-        'image_path_wfs': '/' + image_path_wfs,
-
-    }    
-    if request.is_ajax():
-        print ("AJAX request")
-        return JsonResponse({ 'fig_html': fig_html,
-        'fig_html_report': fig_html_report,
-        'fig_wms': fig_wms,
-        'session_data': session_data,
-        'fig_wfs': fig_wfs,
-        } )
-    return render(request, template_name, context)
-
-def dashboard(request):
-   return render_template(request, 'dashboard.html')
-
-def filter(request):
-    return render_template(request, 'filter.html')
-
+    
+    return session_data, image_path_session
