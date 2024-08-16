@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from useroperations.models import MbUser, Wms, Wfs
+from useroperations.models import MbUser, Wms, Wfs, Wmc
 from Geoportal.utils import utils, php_session_data, mbConfReader
 from Geoportal.settings import SESSION_NAME
 from django.contrib import messages
@@ -90,7 +90,7 @@ def get_session_data(sessions, start_date=None, end_date=None):
     fig_session.update_layout(
         xaxis=dict(
             title='Timestamp',
-            tickformat='%Y-%m-%d %H:%M:%S',  # Format the ticks as Year-Month-Day
+            tickformat='%Y-%m-%d',  # Format the ticks as Year-Month-Day
             tickangle=45  # Rotate the tick labels for better readability
         ),
         legend=dict(
@@ -159,8 +159,11 @@ def process_request(request):
     # Get WFS data counts
     sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = get_data_counts(Wfs, 'wfs_timestamp_create', start_date, end_date)
 
+    # Get WMC data counts
+    sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc = get_data_counts(Wmc, 'wmc_timestamp', start_date, end_date)
+
     # Now you can use sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, and cumulative_counts_wfs as needed
-    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs
+    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc
 
 def render_template(request, template_name):
      # Default date range: last one year
@@ -194,6 +197,7 @@ def render_template(request, template_name):
         fig_html, image_path = generate_user_plot(start_date, end_date)
         fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
         fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+        fig_wmc_html, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
         fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
         session_data, image_path_session = get_filtered_session_data(request)
     else:
@@ -201,30 +205,42 @@ def render_template(request, template_name):
             fig_html, image_path = generate_user_plot(start_date, end_date)
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
+            fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
         elif keyword == 'fig_wms':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
             fig_wfs_html, image_path_wfs = None, None
+            fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
         elif keyword == 'fig_wfs':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_wmc_html, image_path_wmc = None, None
+            fig_report_html, image_path_report = None, None
+            session_data, image_path_session = None, None
+        elif keyword == 'fig_wmc':
+            fig_html, image_path = None, None
+            fig_wms_html, image_path_wms = None, None
+            fig_wfs_html, image_path_wfs = None, None
+            fig_wmc_html, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
         elif keyword == 'session_data':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
+            fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = get_filtered_session_data(request)
         else:
             fig_html, image_path = generate_user_plot(start_date, end_date)
             fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
             fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_wmc_html, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
             fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
             session_data, image_path_session = get_filtered_session_data(request)
     
@@ -236,6 +252,8 @@ def render_template(request, template_name):
     user_count = MbUser.objects.count()
     wms_count = Wms.objects.count()
     wfs_count = Wfs.objects.count()
+    session_count = SessionData.objects.count()
+    wmc_count = Wmc.objects.count()
     
     context = {
         'fig_html': fig_html,
@@ -243,12 +261,14 @@ def render_template(request, template_name):
         'fig_wfs': fig_wfs_html,
         'fig_html_report': fig_report_html,
         'session_data': session_data,
+        'fig_wmc': fig_wmc_html,
 
         'start_date': start_date.strftime('%Y-%m-%d'),
         'end_date': end_date.strftime('%Y-%m-%d'),
         'user_count': user_count,
         'wms_count': wms_count,
         'wfs_count': wfs_count,
+        'wmc_count': wmc_count,
         #'today_date': today_date,
         'form': UploadFileForm(),
         'image_path': '/' + image_path if image_path else '',
@@ -256,6 +276,7 @@ def render_template(request, template_name):
         'image_path_wfs': '/' + image_path_wfs if image_path_wfs else '',
         'image_path_report': '/' + image_path_report if image_path_report else '',
         'image_path_session': '/' + image_path_session if image_path_session else '',
+        'image_path_wmc': '/' + image_path_wmc if image_path_wmc else '',
     }
     if context is None:
         context = {}
@@ -263,7 +284,7 @@ def render_template(request, template_name):
     if image_path is None:
         context['image_path'] = ''
     if request.is_ajax():
-        return JsonResponse({'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'fig_html_report': fig_report_html, 'session_data':session_data})
+        return JsonResponse({'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'fig_html_report': fig_report_html, 'session_data':session_data, 'fig_wmc': fig_wmc_html})
 
     return render(request, template_name, context)
 
@@ -327,7 +348,7 @@ def generate_user_plot(start_date, end_date):
 
 def generate_wms_plot(request, start_date, end_date):
         
-        sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _ = process_request(request)
+        sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_ = process_request(request)
         fig_wms = go.Figure()
         fig_wms.add_trace(go.Bar(x=sorted_months_wms, y=sorted_counts_wms, name='WMS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wms, textposition='outside'))
         fig_wms.add_trace(go.Scatter(x=sorted_months_wms, y=cumulative_counts_wms, mode='lines+markers+text', name='Cumulative WMS', line=dict(color='rgba(54, 162, 235, 1)')))
@@ -366,7 +387,7 @@ def generate_wms_plot(request, start_date, end_date):
 
 def generate_wfs_plot(request, start_date, end_date):
         
-        _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = process_request(request)
+        _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _ = process_request(request)
         fig_wfs = go.Figure()
         fig_wfs.add_trace(go.Bar(x=sorted_months_wfs, y=sorted_counts_wfs, name='WFS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wfs, textposition='outside'))
         fig_wfs.add_trace(go.Scatter(x=sorted_months_wfs, y=cumulative_counts_wfs, mode='lines+markers+text', name='Cumulative WFS', line=dict(color='rgba(54, 162, 235, 1)')))
@@ -402,6 +423,46 @@ def generate_wfs_plot(request, start_date, end_date):
         fig_wfs.write_image(full_image_path_wfs)
         fig_wfs_html = fig_wfs.to_html(full_html=False, include_plotlyjs='cdn')
         return fig_wfs_html, image_path_wfs
+
+def generate_wmc_plot(request, start_date, end_date):
+        
+        _, _, _,_, _, _, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc = process_request(request)
+        fig_wmc = go.Figure()
+        fig_wmc.add_trace(go.Bar(x=sorted_months_wmc, y=sorted_counts_wmc, name='wmc per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wmc, textposition='outside'))
+        fig_wmc.add_trace(go.Scatter(x=sorted_months_wmc, y=cumulative_counts_wmc, mode='lines+markers+text', name='Cumulative wmc', line=dict(color='rgba(54, 162, 235, 1)')))
+        fig_wmc.update_layout(
+            title_text='wmc per Month',
+            xaxis_title='Month',
+            xaxis=dict(
+                title='Month',
+                tickangle=45
+            ),
+            yaxis=dict(
+                title='Cumulative Number of wmc',
+                titlefont=dict(color='rgba(54, 162, 235, 1)'),
+                tickfont=dict(color='rgba(54, 162, 235, 1)')
+            ),
+            yaxis2=dict(
+                title='wmc per Month',
+                titlefont=dict(color='rgba(255, 99, 132, 1)'),
+                tickfont=dict(color='rgba(255, 99, 132, 1)'),
+                overlaying='y',
+                side='right'
+            ),
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="center",
+                x=0.5
+            )
+        )
+        image_path_wmc = 'static/images/plotly_image_wmc.png'
+        full_image_path_wmc = os.path.join(os.path.dirname(__file__), image_path_wmc)
+        fig_wmc.write_image(full_image_path_wmc)
+        fig_wmc_html = fig_wmc.to_html(full_html=False, include_plotlyjs='cdn')
+        return fig_wmc_html, image_path_wmc
+
 
 def generate_user_report(request, start_date_report, end_date_report):
     users_report = MbUser.objects.filter(timestamp_create__range=[start_date_report, end_date_report])
@@ -496,7 +557,7 @@ from datetime import datetime, timedelta
 
 def get_filtered_session_data(request):
     latest_timestamp = timezone.now()
-    start_time = latest_timestamp - timedelta(hours=72)
+    start_time = latest_timestamp - timedelta(hours=120)
 
     # Get date range from GET parameters if available
     start_date_str = request.GET.get('start_date')
@@ -512,7 +573,7 @@ def get_filtered_session_data(request):
     else:
         start_date = start_time
         end_date = latest_timestamp
-
+ 
     # Get all session data
     sessions = SessionData.objects.all()
 

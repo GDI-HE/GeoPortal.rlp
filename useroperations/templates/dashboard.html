@@ -67,6 +67,14 @@
               
                 <span class="quickstart-body"> {{ wfs_count|safe }}</span>
             </a>
+            <a class="quickstart search" href="#" title="Suche nach allen Datensätzen">
+                <div class="quickstart-header">
+                    <i class="fas fa-globe" title="Datensätze" aria-hidden="true"></i>
+                    <span>Number of WMC:</span>
+                </div>
+              
+                <span class="quickstart-body"> {{ wmc_count|safe }}</span>
+            </a>
         </div>
     </div>
         <div class="container mt-4">
@@ -108,6 +116,14 @@
                         <div class="iframe-container">
                             <iframe id="graph4" src="{{ image_path_wfs }}" width="100%" height="400px" alt="Plotly Image"></iframe>
                             <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 mb-4">
+                    <div class="card">
+                        <div class="iframe-container">
+                            <iframe id="graph4" src="{{ image_path_wmc }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <div class="overlay" onclick="showGraphInModal('fig_wmc')"></div>
                         </div>
                     </div>
                 </div>
