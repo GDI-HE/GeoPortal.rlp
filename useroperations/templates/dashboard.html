@@ -33,7 +33,7 @@
                     <iframe id="modalGraphContent" width="100%" height="400px" frameborder="0"></iframe>
                 </div>
                 <div class="modal-footer">
-                                        <a id="downloadWmsCsvLink" href="#" class="btn btn-primary">Download CSV</a>
+                        <a id="downloadWmsCsvLink" href="#" class="btn btn-primary">Download CSV</a>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -195,6 +195,14 @@
                     backdrop: false
                 });
                 spinnerContainer.style.display = 'none';
+
+                // hide download button for 3 modal
+                const downloadLink = document.getElementById('downloadWmsCsvLink');
+        if (contentType === 'fig_html' ||  contentType === 'session_data'||  contentType === 'fig_html_report') {
+            downloadLink.style.display = 'none';
+        } else {
+            downloadLink.style.display = 'block';
+        }
         
     
                 if (contentType !== 'fig_html_report') {
@@ -336,6 +344,12 @@
             background-color: rgba(255, 255, 255, 0.8); 
             z-index: 1000; 
         }
+        .card{
+        /* remove flex direction as column */
+        /* flex-direction: row !important; */
+        overflow:hidden !important;
+        } 
+
         .dragging{
             cursor: move !important;
         } 
@@ -360,7 +374,7 @@
         }
         /* .row{
             justify-content: center;
-            margin-left: -90px;
+            margin-left: -190px;
         }  */
         .cookie-container{
             display: none;
