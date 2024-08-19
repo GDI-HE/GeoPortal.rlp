@@ -346,6 +346,55 @@ def generate_user_plot(start_date, end_date):
     fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
     return fig_html, image_path
 
+import csv
+from django.http import HttpResponse, JsonResponse
+
+def download_csv(request):
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    is_ajax = request.GET.get('is_ajax')
+    keyword = request.GET.get('keyword', 'default')
+
+    if keyword == 'fig_wms':
+        sorted_months, sorted_counts, cumulative_counts, _, _, _, _, _, _ = process_request(request)
+    elif keyword == 'fig_wfs':
+        _, _, _, sorted_months, sorted_counts, cumulative_counts, _, _, _ = process_request(request)
+    elif keyword == "fig_html":
+        #TODO
+        pass
+    elif keyword == "session_data":
+        pass
+        #TODO
+    elif keyword == 'fig_html_report':
+        pass
+    elif keyword == 'fig_wmc':
+        _, _, _, _, _, _, sorted_months, sorted_counts, cumulative_counts = process_request(request)
+    else:
+        return HttpResponse(status=400, content="Invalid keyword")
+    
+    clean_keyword = keyword.replace('fig_', '').upper()
+    # Create the CSV data
+    csv_data = []
+    csv_data.append(['Month', f'{clean_keyword} per Month', f'Cumulative {clean_keyword}'])
+    for month, count, cumulative in zip(sorted_months, sorted_counts, cumulative_counts):
+        csv_data.append([month, count, cumulative])
+
+    if is_ajax:
+        # Return the CSV data as a string for AJAX requests
+        response = HttpResponse(content_type='text/csv')
+        writer = csv.writer(response)
+        for row in csv_data:
+            writer.writerow(row)
+        return response
+    else:
+        # Return the CSV data as a file download for non-AJAX requests
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="wms_data.csv"'
+        writer = csv.writer(response)
+        for row in csv_data:
+            writer.writerow(row)
+        return response
+
 def generate_wms_plot(request, start_date, end_date):
         
         sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_ = process_request(request)
