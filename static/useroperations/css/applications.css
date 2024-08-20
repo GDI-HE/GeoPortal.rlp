@@ -1,0 +1,40 @@
+.tile-content-abstract-text{
+    max-height: 200px;
+    overflow: auto;
+}
+
+.sub-tile-container{
+    margin: 0 0 0.25em 0;
+}
+
+.icn-sub-tile, .icn-organization, .icn-metadata{
+    opacity: 0.6;
+    font-size: 2em;
+}
+
+.applications a{
+    text-decoration: none;
+    width: 100%;
+    color: var(--secondary-font);
+}
+
+.applications .data-info-container{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.5em;
+}
+
+.applications .data-info-container:hover{
+    cursor: default;
+}
+
+.metadata-link:hover{
+    color: white;
+    background-color: var(--primary);
+    cursor: pointer !important;
+}
+
+.organization-title{
+    margin: 0 0 0 1em
+}

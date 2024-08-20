@@ -1,0 +1,29 @@
+/*
+DECLARE FIX COLOR CODES FOR CORPORATE DESIGN
+*/
+:root{
+    --primary: #16191f;
+    --primary-invert: #78e2cc;
+    --primary-hover: #888888;
+    --primary-light: #868686;
+    --primary-light-hover: #d51f28;
+    --primary-complementary: #fff;
+    
+    --hesse-red: #d51f28;
+    --hesse-blue: #0362b9;
+    --hesse-lightblue: #eef2ee;
+    --hesse-lighterblue: #d9edfc;
+    --hesse-green: #137673;
+    --hesse-grey: #303030;
+    --viewer-darkgrey: #555555;
+        
+    --secondary: #e2e2e2;
+    --secondary-font: #666;
+    --secondary-hover: #aeaeae;
+    --secondary-placeholder: #797676;
+    --secondary-light: #EFEFEF;
+
+    --success-green: #1d873c;
+    --error-red: #871d28;
+    --warning: #87711d;
+}

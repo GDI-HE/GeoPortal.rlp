@@ -115,6 +115,8 @@ INSTALLED_APPS = [
     'captcha',
     'django_user_agents',
     'resourceManager',
+    'dashboard',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -127,6 +129,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django_user_agents.middleware.UserAgentMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'Geoportal.urls'
@@ -160,6 +163,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Geoportal.wsgi.application'
 
+# Later change the cors settings. Also include cors to some  function call only by adding @cors 
+# decorator to the function. 
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_HOSTS = [HOSTNAME, '127.0.0.1', 'localhost']
+
+CORS_ALLOW_HEADERS = [
+    'content-type',
+    'authorization',
+    'x-csrftoken',
+    # Add other headers if needed
+]
+
+CORS_ALLOW_METHODS = [
+    'GET',
+    'POST',
+    'PUT',
+    'DELETE',
+    'OPTIONS',
+    # Add other methods if needed
+]
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases

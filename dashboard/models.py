@@ -1,9 +1,13 @@
 from django.db import models
 
-class SESSION_USER(models.Model):
-    id = models.AutoField(primary_key=True)
-    datetime = models.DateTimeField()
-    session_number = models.IntegerField()
+class SessionData(models.Model):
+	sn = models.AutoField(primary_key=True)
+	timestamp_create = models.DateTimeField()
+	number_of_user = models.IntegerField()
 
-    def __str__(self):
-        return f"{self.id} - {self.datetime} - {self.session_number}"
+	def __str__(self):
+		return f"Session {self.sn} - {self.timestamp_create} - Users: {self.number_of_user}"
+
+	class Meta:
+		db_table = "session_data"
+		

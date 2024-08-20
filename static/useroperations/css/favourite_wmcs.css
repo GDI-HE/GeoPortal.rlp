@@ -1,0 +1,221 @@
+/*
+
+    THIS IS THE STYLESHEET FOR landing_page.html, publishing_organizations.html and
+    ALL CHANGES SHOULD GO HERE
+
+*/
+
+@import 'color_schema.css';
+
+.tile-wrapper{
+    display: flex;
+    flex-direction:row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+}
+
+.tile-wrapper a{
+    outline: none;
+    text-decoration: none;
+    color: unset;
+}
+
+.tile-wrapper a:focus-visible {
+    outline: solid .125rem #f1b709;
+    color: unset;
+    outline-offset: -9px;
+}
+
+.tile{
+    display: flex;
+    flex-direction: column;
+    margin: 10px;
+    /*
+    width: 250px;
+    */
+    width: 15em;
+    transition: all 0.1s ease-in-out;
+    background-color: var(--hesse-lightblue);
+}
+
+.new-label {
+    display: block;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #f00;
+    padding: 3px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.tile:hover{
+    transform: scale(1.05);
+    box-shadow: 0 0 10px var(--primary);
+}
+
+.tile-header{
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    color: var(--primary);
+    flex-direction: column;
+    -webkit-hyphens: auto;
+       -moz-hyphens: auto;
+        -ms-hyphens: auto;
+            hyphens: auto;
+}
+
+.tile-header:hover{
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.tile-title{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px 10px 10px;
+    height: 100%;
+    text-align: center;
+}
+
+.tile-img{
+    /*
+    width: 250px;
+    height: 150px;
+    */
+    width: 13em;
+    height: 13em;
+    object-fit: cover;
+}
+
+.tile-img.fill-color{
+    color: var(--primary);
+}
+
+.topics .tile-img, .topics .icn-sub-tile.only{
+    transition: all 0.1s ease-in-out;
+    /*
+    -webkit-filter: grayscale(1.0);
+    filter: grayscale(1.0);
+    */
+}
+.topics .tile-img:hover, .topics .icn-sub-tile.only:hover{
+    opacity: 1.0;
+    /*
+    -webkit-filter: grayscale(0.0);
+    filter: grayscale(0.0);
+    */
+}
+
+.tile-content{
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    hyphens: auto;
+    line-height:1.5;
+    height: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.tile-content-abstract{
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 1.5em 0 0 0 !important;
+}
+
+.tile-header-img{
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.favourite-wmc-links{
+ outline-offset: 1px !important;
+}
+
+.tile-body:hover{
+    background-color: var(--primary-light-hover);
+}
+
+.sub-tile-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mobile-button{
+    font-size: 2em;
+    padding: 0 0.25em;
+}
+.mobile-button:hover{
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.view-count{
+    font-size: 1.25em;
+}
+.view-count img{
+}
+.view-count:hover{
+    cursor: default;
+}
+
+#show-all-tile{
+    background: var(--hesse-green);
+    color: white;
+}
+
+.icn-sub-tile{
+    padding: 0 0.5em 0 0;
+    font-size: 1.5em;
+    opacity: 0.75;
+}
+
+
+.icn-sub-tile.only{
+    padding: 0;
+}
+
+.favourite-wmcs .data-info-container .icn-metadata {font-size: 2em;font-weight:unset;}
+.favourite-wmcs .data-info-container .icn-metadata:hover{opacity: 1;color: var(--primary);cursor: pointer;}
+
+@media screen and (max-width: 540px){
+    .tile-wrapper{flex-direction:column;}
+    .tile{width: 100%;word-break: break-word;border:none;margin: 1rem 0;}
+    .tile:hover {transform: unset;box-shadow: none;}
+    .tile-header{height:100%;}
+    .tile-title {font-size:1.5em;}
+    .tile-img{width:70vw;height:auto;}
+    .tile-content{padding: 0 10px 10px 10px;height:100%}
+    .tile-content-abstract{padding: 0 1rem 0px 1rem;display: -webkit-box !important;-webkit-line-clamp: 6;-webkit-box-orient: vertical;}
+    .tile-content-abstract p {overflow: hidden;}
+}
+
+}
+@media screen and (max-width: 700px){
+
+    .mobile-button{
+        padding: 0 1em;
+    }
+
+    .mobile-button img{
+        height: 3em;
+    }
+
+    .view-count{
+
+    }
+
+    .view-count img{
+        width: 2em;
+    }
+}
