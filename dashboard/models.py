@@ -10,4 +10,17 @@ class SessionData(models.Model):
 
 	class Meta:
 		db_table = "session_data"
-		
+
+
+class WMC(models.Model):
+    date = models.DateField()
+    wmc_id = models.IntegerField()
+    wmc_public = models.IntegerField()
+    wmc_title = models.CharField(max_length=255, null=True)
+    mb_group_name = models.CharField(max_length=255)  # Add this field
+    load_count = models.IntegerField()
+    actual_load = models.IntegerField(default=0) # New column for actual load
+    
+
+    class Meta:
+        ordering = ('date',)  # Sort by date
