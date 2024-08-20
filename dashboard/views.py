@@ -9,18 +9,15 @@ from datetime import datetime, timedelta
 from collections import defaultdict
 import datetime as tm
 import csv
-from django.shortcuts import render
 from .forms import UploadFileForm
-from django.shortcuts import render, redirect
-from django.shortcuts import render
 from .models import SessionData
-from django.http import JsonResponse
 import os
 from django.utils import timezone
 from django.utils.timezone import make_aware
 import pytz
 import json
 import time
+from django.http import HttpResponse, JsonResponse
 
 def upload_file(request):
     reporting_date_list = []
@@ -90,7 +87,7 @@ def get_session_data(sessions, start_date=None, end_date=None):
     fig_session.update_layout(
         xaxis=dict(
             title='Timestamp',
-            tickformat='%Y-%m-%d',  # Format the ticks as Year-Month-Day
+            tickformat='%Y-%m-%d %H:%M:%S',  # Format the ticks as Year-Month-Day
             tickangle=45  # Rotate the tick labels for better readability
         ),
         legend=dict(
@@ -252,7 +249,7 @@ def render_template(request, template_name):
     user_count = MbUser.objects.count()
     wms_count = Wms.objects.count()
     wfs_count = Wfs.objects.count()
-    session_count = SessionData.objects.count()
+    #session_count = SessionData.objects.count()
     wmc_count = Wmc.objects.count()
     
     context = {
@@ -346,12 +343,9 @@ def generate_user_plot(start_date, end_date):
     fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
     return fig_html, image_path
 
-import csv
-from django.http import HttpResponse, JsonResponse
+
 
 def download_csv(request):
-    start_date = request.GET.get('start_date')
-    end_date = request.GET.get('end_date')
     is_ajax = request.GET.get('is_ajax')
     keyword = request.GET.get('keyword', 'default')
 
@@ -600,9 +594,6 @@ def generate_user_report(request, start_date_report, end_date_report):
     fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
     
     return fig_html_report, image_path_report
-
-from django.utils import timezone
-from datetime import datetime, timedelta
 
 def get_filtered_session_data(request):
     latest_timestamp = timezone.now()

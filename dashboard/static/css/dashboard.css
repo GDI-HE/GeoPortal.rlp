@@ -1,0 +1,73 @@
+#spinnerContainer {
+    display: block;
+    justify-content: center;
+    align-items: center;
+    height: 100%; 
+    width: 100%; 
+    position: absolute; 
+    top: 0;
+    left: 0;
+    background-color: rgba(255, 255, 255, 0.8); 
+    z-index: 1000; 
+}
+.card{
+/* remove flex direction as column */
+/* flex-direction: row !important; */
+overflow:hidden !important;
+} 
+
+.dragging{
+    cursor: move !important;
+} 
+.iframe-container {
+    position: relative;
+    width: 590px;
+    height: 400px;
+}
+.container{
+    max-width: 1100px;
+} 
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+#graph1, #graph2, #graph3, #graph4, #graph5 {
+    border: none;
+}
+/* .row{
+    justify-content: center;
+    margin-left: -190px;
+}  */
+.cookie-container{
+    display: none;
+} 
+.modal-backdrop {
+    background-color: transparent !important;
+    opacity: 0.5 !important;
+}
+.modal {
+    pointer-events: auto !important;
+}
+        
+.modal-dialog {
+    max-width: 80%; 
+}
+
+.modal-body {
+    max-height: 70vh; /* Set a maximum height for the modal body */
+    overflow-y: auto; /* Enable vertical scrolling */
+}
+ .modal-dialog-centered {
+display: flex;
+align-items: center;
+justify-content: center;
+min-height: 100vh; /* Ensure the modal takes up the full height of the viewport */
+}
+.modal-content {
+width: 100%;
+max-width: 800px; /* Adjust the max-width as needed */
+}
