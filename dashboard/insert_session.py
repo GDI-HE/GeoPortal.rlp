@@ -1,6 +1,6 @@
 import csv
 import psycopg2
-
+# to test
 # Connection parameters
 conn_params = {
 	'dbname': 'mapbender',
