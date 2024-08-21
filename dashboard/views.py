@@ -18,6 +18,7 @@ import pytz
 import json
 import time
 from django.http import HttpResponse, JsonResponse
+from django.middleware.csrf import get_token
 
 def upload_file(request):
     reporting_date_list = []
@@ -251,6 +252,7 @@ def render_template(request, template_name):
     wfs_count = Wfs.objects.count()
     #session_count = SessionData.objects.count()
     wmc_count = Wmc.objects.count()
+    csrf_token = get_token(request)
     
     context = {
         'fig_html': fig_html,
@@ -259,6 +261,7 @@ def render_template(request, template_name):
         'fig_html_report': fig_report_html,
         'session_data': session_data,
         'fig_wmc': fig_wmc_html,
+        'csrf_token': csrf_token,
 
         'start_date': start_date.strftime('%Y-%m-%d'),
         'end_date': end_date.strftime('%Y-%m-%d'),

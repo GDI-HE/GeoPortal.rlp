@@ -83,11 +83,11 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                 htmlContent = `
                     <h1>Generate Reporting Date</h1>
                     <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="hidden" name="contenttype" value="user_report">
-    <button type="submit">Upload</button>
-</form>
+                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                        ${formHtml}
+                        <input type="hidden" name="contenttype" value="user_report">
+                        <button type="submit">Upload</button>
+                    </form>
                 `;
             } else {
                 htmlContent = `

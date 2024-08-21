@@ -9,9 +9,7 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 <script src="{% static 'js/update_graph.js' %}"></script>
 
-   
-
-     
+      <!-- Modal -->
     <div class="modal fade" id="graphModal" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -42,7 +40,7 @@
     </div>
     
 
-    <div class="landing-page-box1">
+    <div class="landing-page-box1"><!--landing-page-box-Begin -->
         <div class="landing-page-headline">
             <h2>Statistik</h2>
         </div>
@@ -139,6 +137,8 @@
             const downloadCsvUrl = "{% url 'dashboard:download_csv' %}";
             const startDate = "{{ start_date }}";
             const endDate = "{{ end_date }}";
+            const csrfToken = "{{ csrf_token }}";
+            const formHtml = `{{ form.as_p|safe }}`;
         </script>
           
           <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
