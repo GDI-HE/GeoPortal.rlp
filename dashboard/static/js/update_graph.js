@@ -80,11 +80,15 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
             let htmlContent = '';
 
             if (contentType === 'fig_html_report') {
+                let modifiedFormHtml = formHtml.replace(
+                    /<input type="file" name="file"[^>]*>/,
+                '<input type="file" name="file" required id="id_file" accept=".csv">'
+                );
                 htmlContent = `
                     <h1>Generate Reporting Date</h1>
                     <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
                         <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-                        ${formHtml}
+                        ${modifiedFormHtml}
                         <input type="hidden" name="contenttype" value="user_report">
                         <button type="submit">Upload</button>
                     </form>
