@@ -1,7 +1,6 @@
 from django.core.management.base import BaseCommand
 import pandas as pd
 from django.conf import settings
-from datetime import datetime
 from pathlib import Path
 
 class Command(BaseCommand):
@@ -31,18 +30,15 @@ class Command(BaseCommand):
                 # Not a Monday, calculate actual load as the difference between
                 # today's load and the previous day's load
                 if wmc_id in previous_loads:
-                    actual_load = load - previous_loads[wmc_id] 
+                    actual_load = load - previous_loads[wmc_id]
+                    df.at[index, 'actual_load'] = int(actual_load)
                 else:
-                    # If there's no previous load data, set actual load to 0
-                    actual_load = 0
+                    df.at[index, 'actual_load'] = int(load)
             else:
-                # Monday, actual load is load_count
-                actual_load = load
+                # On Mondays, the actual load is the same as the load count
+                df.at[index, 'actual_load'] = int(load)
 
-            # Update the 'actual_load' column in the DataFrame and cast it to integer # 
-            df.at[index, 'actual_load'] = int(actual_load)
-
-            # Update the previous load for this wmc_id
+            # Update the previous load for the current wmc_id
             previous_loads[wmc_id] = load
 
         return df
@@ -74,14 +70,9 @@ class Command(BaseCommand):
             # Calculate the 'actual_load' column
             df = self.calculate_actual_load(df)
 
-        # Handle any exceptions, e.g., encoding issues
+            # Save the cleaned DataFrame to a new CSV file
+            df.to_csv(cleaned_csv_file_path, sep=',', encoding=expected_encoding, index=False, float_format='%0.0f')
+
         except Exception as e:
-            self.stdout.write(self.style.ERROR(f"An error occurred while reading the CSV file: {e}"))
+            self.stderr.write(f"Error: {e}")
             exception_count += 1
-
-        # Save the DataFrame back to the cleaned CSV file
-        df.to_csv(cleaned_csv_file_path, sep=',', encoding=expected_encoding, index=False, float_format='%0.0f')
-
-        self.stdout.write(self.style.SUCCESS(f"Total exceptions encountered: {exception_count}"))
-        self.stdout.write(self.style.SUCCESS(f"Data loaded successfully into DataFrame."))
-        self.stdout.write(self.style.SUCCESS(f"Actual load calculated and saved in the CSV file."))
