@@ -165,7 +165,6 @@ def process_request(request):
 
 def render_template(request, template_name):
      # Default date range: last one year
-     #if request.get contains contentType === 'fig_html_report', the return json response separately
      
     end_date_default = datetime.now()
     start_date_default = end_date_default - timedelta(days=365)
@@ -189,8 +188,7 @@ def render_template(request, template_name):
         end_date = end_date_default
     
     keyword = request.GET.get('keyword', 'default')
-    #once call the generate_wms_plot function on loading the page
-    #generate_wms_plot(request, start_date, end_date) 
+    
     if not request.is_ajax():
         fig_html, image_path = generate_user_plot(start_date, end_date)
         fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
