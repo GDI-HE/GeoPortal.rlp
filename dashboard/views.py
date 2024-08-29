@@ -244,10 +244,10 @@ def render_template(request, template_name):
 
     session_cookie = request.COOKIES.get(SESSION_NAME)
     if session_cookie is not None:
-        session_data = php_session_data.get_mapbender_session_by_memcache(session_cookie)
-        if session_data is not None:
-            if b'mb_user_id' in session_data and session_data[b'mb_user_name'] != b'guest':
-                userid = session_data[b'mb_user_id']
+        session_data_mapbender = php_session_data.get_mapbender_session_by_memcache(session_cookie)
+        if session_data_mapbender is not None:
+            if b'mb_user_id' in session_data_mapbender and session_data_mapbender[b'mb_user_name'] != b'guest':
+                userid = session_data_mapbender[b'mb_user_id']
                 try:
                     user = MbUser.objects.get(mb_user_id=userid)
                 except MbUser.DoesNotExist:
