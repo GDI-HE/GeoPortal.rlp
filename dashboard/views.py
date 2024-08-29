@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
-from useroperations.models import MbUser, Wms, Wfs, Wmc
+from useroperations.models import MbUser, Wms, Wfs, Wmc, MbGroup, MbUserMbGroup
 from Geoportal.utils import utils, php_session_data, mbConfReader
-from Geoportal.settings import SESSION_NAME
+from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS
 from django.contrib import messages
 from django.db.models.functions import TruncMonth
 import plotly.graph_objs as go
@@ -241,6 +241,38 @@ def render_template(request, template_name):
             session_data, image_path_session = get_filtered_session_data(request)
     
     user = None
+
+    session_cookie = request.COOKIES.get(SESSION_NAME)
+    if session_cookie is not None:
+        session_data = php_session_data.get_mapbender_session_by_memcache(session_cookie)
+        if session_data is not None:
+            if b'mb_user_id' in session_data and session_data[b'mb_user_name'] != b'guest':
+                userid = session_data[b'mb_user_id']
+                try:
+                    user = MbUser.objects.get(mb_user_id=userid)
+                except MbUser.DoesNotExist:
+                    # Handle the case where the user does not exist in the database
+                    messages.add_message(request, messages.ERROR, ("The page is unavailable!"))
+                    return redirect('useroperations:index')
+
+                # Check if the user belongs to the allowed group(s)
+                allowed_groups = ALLOWED_GROUPS
+                user_groups = MbGroup.objects.filter(
+                    mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
+                ).values_list('mb_group_name', flat=True)
+                if not any(group in allowed_groups for group in user_groups):
+                    messages.add_message(request, messages.ERROR, ("You do not have the necessary permissions to access this page."))
+                    return redirect('useroperations:index')
+
+            else:
+                messages.add_message(request, messages.ERROR, ("The page is unavailable!"))
+                return redirect('useroperations:index')
+
+            if user is None:
+                # We expect it to be read out of the session data until this point!!
+                messages.add_message(request, messages.ERROR, ("The user could not be found. Please contact an administrator!"))
+                return redirect('useroperations:index')
+
 
     #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
 

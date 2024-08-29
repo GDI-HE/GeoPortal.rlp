@@ -33,6 +33,9 @@ NO_OF_DAYS=15
 #helps to add more results and helps in searching all the data rather than only 99 results.
 MAX_API_RESULTS = 3000
 
+#add allowed groups to allow the user to access the dashboard
+ALLOWED_GROUPS = ['testgruppe1', 'Bereichsadmin']
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '#m+rso_^a!ii6fg97kd7woxa$ttr&jn^!=_(!wgrukal81q(9+'
 
