@@ -188,6 +188,7 @@ def render_template(request, template_name):
         end_date = end_date_default
     
     keyword = request.GET.get('keyword', 'default')
+    dropdown_value = request.GET.get('dropdown', 'default')
     
     if not request.is_ajax():
         fig_html, image_path = generate_user_plot(start_date, end_date)
@@ -198,7 +199,7 @@ def render_template(request, template_name):
         session_data, image_path_session = get_filtered_session_data(request)
     else:
         if keyword == 'fig_html':
-            fig_html, image_path = generate_user_plot(start_date, end_date)
+            fig_html, image_path = generate_user_plot(start_date, end_date, dropdown_value)
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
             fig_wmc_html, image_path_wmc = None, None
@@ -295,6 +296,7 @@ def render_template(request, template_name):
 
         'start_date': start_date.strftime('%Y-%m-%d'),
         'end_date': end_date.strftime('%Y-%m-%d'),
+        'dropdown_value': dropdown_value,
         'user_count': user_count,
         'wms_count': wms_count,
         'wfs_count': wfs_count,
@@ -325,17 +327,23 @@ def filter(request):
     return render_template(request, 'filter.html')
 
 
-def generate_user_plot(start_date, end_date):
+def generate_user_plot(start_date, end_date, dropdown_value = 'monthly'):
     users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
     users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
     user_creation_counts = defaultdict(int)
 
     for user in users:
-        month_year = user.timestamp_create.strftime('%Y-%m')
-        user_creation_counts[month_year] += 1
+        if dropdown_value == 'daily':
+            time_period = user.timestamp_create.strftime('%Y-%m-%d')
+        elif dropdown_value == 'weekly':
+                       time_period = f"{user.timestamp_create.isocalendar()[0]}-W{user.timestamp_create.isocalendar()[1]:02d}"  # %U is the week number of the year
+        else:  # default to monthly
+            time_period = user.timestamp_create.strftime('%Y-%m')
 
-    sorted_months = sorted(user_creation_counts.keys())
-    sorted_counts = [user_creation_counts[month] for month in sorted_months]
+        user_creation_counts[time_period] += 1
+
+    sorted_periods = sorted(user_creation_counts.keys())
+    sorted_counts = [user_creation_counts[period] for period in sorted_periods]
 
     cumulative_counts = []
     cumulative_sum = users_before_start_date_count
@@ -344,19 +352,19 @@ def generate_user_plot(start_date, end_date):
         cumulative_counts.append(cumulative_sum)
 
     fig = go.Figure()
-    fig.add_trace(go.Bar(x=sorted_months, y=sorted_counts, name='New Users per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)')))
-    fig.add_trace(go.Scatter(x=sorted_months, y=cumulative_counts, mode='lines+markers', name='Cumulative New Users', line=dict(color='rgba(54, 162, 235, 1)')))
+    fig.add_trace(go.Bar(x=sorted_periods, y=sorted_counts, name=f'New Users per {dropdown_value.capitalize()}', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)')))
+    fig.add_trace(go.Scatter(x=sorted_periods, y=cumulative_counts, mode='lines+markers', name=f'Cumulative New Users', line=dict(color='rgba(54, 162, 235, 1)')))
 
     fig.update_layout(
-        title_text='New and Cumulative New Users per Month',
-        xaxis_title='Month',
+        title_text=f'New and Cumulative New Users per {dropdown_value.capitalize()}',
+        xaxis_title=dropdown_value.capitalize(),
         yaxis=dict(
             title='Cumulative Number of Users',
             titlefont=dict(color='rgba(54, 162, 235, 1)'),
             tickfont=dict(color='rgba(54, 162, 235, 1)')
         ),
         yaxis2=dict(
-            title='New Users per Month',
+            title=f'New Users per {dropdown_value.capitalize()}',
             titlefont=dict(color='rgba(255, 99, 132, 1)'),
             tickfont=dict(color='rgba(255, 99, 132, 1)'),
             overlaying='y',
@@ -422,6 +430,7 @@ def download_csv(request):
             writer.writerow(row)
         return response
 
+#TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
 def generate_wms_plot(request, start_date, end_date):
         
         sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_ = process_request(request)

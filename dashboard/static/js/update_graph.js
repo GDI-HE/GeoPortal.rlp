@@ -101,6 +101,16 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                     <input type="date" id="end_date" name="end_date" value="${endDate}">
                     <button id="update_graph_btn" data-url="${filterUrl}" data-keyword="${contentType}">Filter</button>
                 `;
+                if (contentType === 'fig_html') {
+                    htmlContent += `
+                        <label for="dropdown">Select Option:</label>
+                        <select id="dropdown" name="dropdown">
+                            <option value="monthly" data-url="monthly_url">Monthly</option>
+                            <option value="daily" data-url="daily_url">Daily</option>
+                            <option value="weekly" data-url="weekly_url">Weekly</option>
+                        </select>
+                    `;
+                }
             }
 
             $('#dynamicContent').html(htmlContent);
@@ -119,11 +129,14 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
         downloadLink.style.display = 'block';
     }
     
-
+            let dropdownValue = "";
             if (contentType !== 'fig_html_report') {
                 document.getElementById('update_graph_btn').addEventListener('click', function() {
                     const startDate = document.getElementById('start_date').value;
                     const endDate = document.getElementById('end_date').value;
+                    if (contentType === 'fig_html') {
+                    dropdownValue = document.getElementById('dropdown').value;
+                    } 
                     const url = this.getAttribute('data-url');
                     const keyword = this.getAttribute('data-keyword');
 
@@ -137,7 +150,9 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                         data: {
                             start_date: startDate,
                             end_date: endDate,
-                            keyword: keyword
+                            keyword: keyword,
+                            //if dropdownValue is empty, do nothing
+                            dropdown: dropdownValue ? dropdownValue : null
                         },
                         success: function(data) {
                             $('#modalGraphContent').attr('srcdoc', data[contentType]);
@@ -206,10 +221,6 @@ spinnerContainer.style.display = 'block';
                                 spinnerContainer.style.display = 'none';
                             },
                             error: function(xhr, status, error) {
-                                console.error('Failed to fetch the content from ' + url);
-                                console.error('Status:', status);
-                                console.error('Error:', error);
-                                console.error('Response:', xhr.responseText);
                             }
                         });
                     });
