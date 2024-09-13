@@ -108,6 +108,8 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                             <option value="monthly" data-url="monthly_url">Monthly</option>
                             <option value="daily" data-url="daily_url">Daily</option>
                             <option value="weekly" data-url="weekly_url">Weekly</option>
+                            <option value="6months" data-url="6months_url">6 Months</option>
+                            <option value="yearly" data-url="yearly_url">Yearly</option>
                         </select>
                     `;
                 }
@@ -227,6 +229,117 @@ spinnerContainer.style.display = 'block';
                 }
         });
     }
+
+ document.addEventListener('DOMContentLoaded', function() {
+    const userCreationReportButton = document.getElementById('userCreationReportButton');
+    if (userCreationReportButton) {
+        userCreationReportButton.addEventListener('click', function() {
+            // Change the modal content
+            const baseUrl = getBaseUrl();
+            const filterUrl = `${baseUrl}/filter/`;
+            const spinnerContainer = document.getElementById('spinnerContainer');
+
+            // Show the spinner
+            spinnerContainer.style.display = 'block';
+
+            $.ajax({
+                url: filterUrl,
+                type: 'GET',
+                data: {
+                    contentType: 'fig_html_report'
+                },
+                success: function(data) {
+                    // Assuming csrfToken and modifiedFormHtml are defined elsewhere in your script
+                    const csrfToken = getCookie('csrftoken'); // Function to get CSRF token
+                    const modifiedFormHtml = '<input type="file" name="file" required id="id_file" accept=".csv">'; // Example form HTML
+
+                    let htmlContent = `
+                        <h1>Generate Reporting Date</h1>
+                        <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                            ${modifiedFormHtml}
+                            <input type="hidden" name="contenttype" value="user_report">
+                            <button type="submit">Upload</button>
+                        </form>
+                    `;
+
+                    $('#dynamicContent').html(htmlContent);
+                    $('#modalGraphContent').attr('srcdoc', data['fig_html_report']);
+
+                    // Hide the spinner after the content is loaded
+                    spinnerContainer.style.display = 'none';
+
+                    // Add event listener for form submission
+                    document.getElementById('reportForm').addEventListener('submit', function(event) {
+                        event.preventDefault(); // Prevent the default form submission
+
+                        const formData = new FormData(this);
+                        const url = this.getAttribute('data-url');
+
+                        if (!url) {
+                            console.error('Form action URL is not set.');
+                            return;
+                        }
+
+                        spinnerContainer.style.display = 'block';
+
+                        $.ajax({
+                            url: url,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            headers: {
+                                'X-CSRFToken': csrfToken // Include CSRF token in the headers
+                            },
+                            success: function(data) {
+                                try {
+                                    $('#modalGraphContent').attr('srcdoc', data['fig_html_report']);
+                                } catch (e) {
+                                    console.error('Response data:', data);
+                                }
+                                spinnerContainer.style.display = 'none';
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Failed to fetch the content from ' + url);
+                                console.error('Status:', status);
+                                console.error('Error:', error);
+                                console.error('Response:', xhr.responseText);
+                                spinnerContainer.style.display = 'none';
+                            }
+                        });
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to fetch the content from ' + filterUrl);
+                    console.error('Status:', status);
+                    console.error('Error:', error);
+                    console.error('Response:', xhr.responseText);
+                    // Hide the spinner if there is an error
+                    spinnerContainer.style.display = 'none';
+                }
+            });
+        });
+    } else {
+        console.error('Element with ID userCreationReportButton not found.');
+    }
+});
+        
+        // Function to get the CSRF token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
 
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('downloadWmsCsvLink').addEventListener('click', function() {

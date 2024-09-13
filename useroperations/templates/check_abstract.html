@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Layer Abstract and Keyword Check</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+
+        .dashboard {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px
+        }
+        .load-more-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin: 20px auto;
+            display: block;
+        }
+        .load-more-btn:hover {
+            background-color: #1582cc;
+            transform: translateY(-2px);
+        }
+        .load-more-btn:active {
+            background-color: #1f6391;
+            transform: translateY(0);
+        }
+        .card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 16px;
+            text-align: center;
+            width: 200px;
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .number {
+            font-size: 48px;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 0;
+        }
+        .label {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 8px;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .search-container input {
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            margin: inherit;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e6f3ff;
+        }
+        .status {
+            font-weight: bold;
+        }
+        .status-yes {
+            color: #27ae60;
+        }
+        .status-no {
+            color: #c0392b;
+        }
+        .dropdown-btn {
+            background-color: #3498db;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+        .dropdown-content {
+            display: none;
+        }
+        .show {
+            display: table-row;
+        }
+        .pagination {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            color: #3498db;
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+            border-radius: 4px;
+        }
+        .pagination a:hover {
+            background-color: #ddd;
+        }
+        .pagination .active {
+            background-color: #3498db;
+            color: white;
+            border: 1px solid #3498db;
+        }
+        .short-abstract {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Service Layer Abstract and Keyword Check</h1>
+    <div class="dashboard">
+        <div class="card">
+            <h2>Layers Without Abstracts</h2>
+            <p class="number">{{ total_layers_without_abstract }}</p>
+            <p class="label">Total across all services</p>
+        </div>
+        <div class="card">
+            <h2>Layers Without Keywords</h2>
+            <p class="number">{{ total_layers_without_keyword }}</p>
+            <p class="label">Total across all services</p>
+        </div>
+        <div class="card">
+            <h2>Abstracts Match Titles</h2>
+            <p class="number">{{ total_layers_abstract_matches_title }}</p>
+            <p class="label">Total across all services</p>
+        </div>
+        <div class="card">
+            <h2>Layers With Short Abstracts</h2>
+            <p class="number">{{ total_layers_with_short_abstract }}</p>
+            <p class="label">Total across all services</p>
+        </div>
+    </div>
+    <div class="search-container">
+        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for Service Title (Min: 5 Char)">
+    </div>
+    <table id="serviceTable">
+        <thead>
+            <tr>
+                <th>Serial No.</th>
+                <th>Service ID</th>
+                <th>Service Title</th>
+                <th>Total Layers</th>
+                <th>Layers Without Abstract</th>
+                <th>Layers Without Keywords</th>
+                <th>All Layers Have Abstract</th>
+                <th>All Layers Have Keywords</th>
+                <th>Keywords Present</th>
+                <th>Abstracts Present</th>
+                <th>Abstract Matches Title</th>
+                <th>Layers With Short Abstract</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr class="main-row">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ result.wms_id }}</td>
+                <td>{{ result.wms_title }}</td>
+                <td>{{ result.total_layers }}</td>
+                <td>{{ result.layers_without_abstract }}</td>
+                <td>{{ result.layers_without_keywords }}</td>
+                <td class="status {% if result.all_layers_have_abstract %}status-yes{% else %}status-no{% endif %}">
+                    {% if result.all_layers_have_abstract %}Yes{% else %}No{% endif %}
+                </td>
+                <td class="status {% if result.all_layers_have_keywords %}status-yes{% else %}status-no{% endif %}">
+                    {% if result.all_layers_have_keywords %}Yes{% else %}No{% endif %}
+                </td>
+                <td>{{ result.keywords_present|length }} keywords</td>
+                <td>{{ result.abstracts_present|length }} abstracts</td>
+                <td>
+                    {% for match in result.layers_abstract_match %}
+                        <span>{{ match }}</span><br>
+                    {% endfor %}
+                </td>
+                <td>{{ result.layers_with_short_abstract_count }}</td>
+                <td>
+                    <button class="dropdown-btn" onclick="toggleDropdown(this)">Show Details</button>
+                </td>
+            </tr>
+            <tr class="dropdown-content">
+                <td colspan="12">
+                    <h3>Keywords Present:</h3>
+                    <ul>
+                        {% for keyword in result.keywords_present %}
+                        <li>{{ keyword }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3>Abstracts Present:</h3>
+                    <ul>
+                        {% for abstract in result.abstracts_present %}
+                        <li>{{ abstract }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3>Layers Without Abstracts:</h3>
+                    <ul>
+                        {% for layer_name in result.layers_without_abstract_names %}
+                        <li>{{ layer_name }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3>Layers Without Keywords:</h3>
+                    <ul>
+                        {% for layer_name in result.layers_without_keyword_names %}
+                        <li>{{ layer_name }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3>Layers Where Abstract Matches Title:</h3>
+                    <ul>
+                        {% for layer_name in result.layers_abstract_matches_title_names %}
+                        <li>{{ layer_name }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3>Layer Names:</h3>
+                    <ul>
+                        {% for layer_name in result.layer_names %}
+                        <li>{{ layer_name }}</li>
+                        {% endfor %}
+                    </ul>
+                    <h3>Layers With Short Abstracts:</h3>
+                    <ul>
+                        {% for layer_name, layer_abstract in result.layers_with_short_abstract_info %}
+                        <li class="short-abstract">{{ layer_name }}: {{ layer_abstract }}</li>
+                        {% endfor %}
+                    </ul>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <button id="load-more" class="load-more-btn">Load More</button>
+    
+
+    <script>
+        function toggleDropdown(button) {
+            const row = button.closest('tr');
+            const dropdownContent = row.nextElementSibling;
+            dropdownContent.classList.toggle('show');
+            button.textContent = dropdownContent.classList.contains('show') ? 'Hide Details' : 'Show Details';
+        }
+
+                function searchTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+        
+            if (filter.length < 5) {
+                return; // Do not search until at least 5 characters are entered
+            }
+        
+            fetch(`/search-data?query=${filter}`)
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#serviceTable tbody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    let serialNo = 0;
+                    data.results.forEach(result => {
+                        serialNo += 1; // Increment serial number for each new row
+                        const mainRow = document.createElement('tr');
+                        mainRow.classList.add('main-row');
+                        mainRow.innerHTML = `
+                            <td>${serialNo}</td>
+                            <td>${result.wms_id}</td>
+                            <td>${result.wms_title}</td>
+                            <td>${result.total_layers}</td>
+                            <td>${result.layers_without_abstract}</td>
+                            <td>${result.layers_without_keywords}</td>
+                            <td class="status ${result.all_layers_have_abstract ? 'status-yes' : 'status-no'}">
+                                ${result.all_layers_have_abstract ? 'Yes' : 'No'}
+                            </td>
+                            <td class="status ${result.all_layers_have_keywords ? 'status-yes' : 'status-no'}">
+                                ${result.all_layers_have_keywords ? 'Yes' : 'No'}
+                            </td>
+                            <td>${result.keywords_present.length} keywords</td>
+                            <td>${result.abstracts_present.length} abstracts</td>
+                            <td>
+                                ${result.layers_abstract_match.map(match => `<span>${match}</span><br>`).join('')}
+                            </td>
+                            <td>${result.layers_with_short_abstract_count}</td>
+                            <td>
+                                <button class="dropdown-btn" onclick="toggleDropdown(this)">Show Details</button>
+                            </td>
+                        `;
+        
+                        const detailRow = document.createElement('tr');
+                        detailRow.classList.add('dropdown-content');
+                        detailRow.innerHTML = `
+                            <td colspan="12">
+                                <h3>Keywords Present:</h3>
+                                <ul>
+                                    ${result.keywords_present.map(keyword => `<li>${keyword}</li>`).join('')}
+                                </ul>
+                                <h3>Abstracts Present:</h3>
+                                <ul>
+                                    ${result.abstracts_present.map(abstract => `<li>${abstract}</li>`).join('')}
+                                </ul>
+                                <h3>Layers Without Abstracts:</h3>
+                                <ul>
+                                    ${result.layers_without_abstract_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                </ul>
+                                <h3>Layers Without Keywords:</h3>
+                                <ul>
+                                    ${result.layers_without_keyword_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                </ul>
+                                <h3>Layers Where Abstract Matches Title:</h3>
+                                <ul>
+                                    ${result.layers_abstract_matches_title_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                </ul>
+                                <h3>Layer Names:</h3>
+                                <ul>
+                                    ${result.layer_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                </ul>
+                                <h3>Layers With Short Abstracts:</h3>
+                                <ul>
+                                    ${result.layers_with_short_abstract_info.map(info => `<li class="short-abstract">${info[0]}: ${info[1]}</li>`).join('')}
+                                </ul>
+                            </td>
+                        `;
+        
+                        tableBody.appendChild(mainRow);
+                        tableBody.appendChild(detailRow);
+                    });
+                });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+            let page = 1;
+            let serialNo = {{ results|length }}; // Start serial number from the current number of results
+            const loadMoreButton = document.getElementById('load-more');
+            const tableBody = document.querySelector('#serviceTable tbody');
+
+            loadMoreButton.addEventListener('click', function() {
+                page += 1;
+                fetch(`/load-more-data?page=${page}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.results) {
+                            data.results.forEach(result => {
+                                serialNo += 1; // Increment serial number for each new row
+                                const mainRow = document.createElement('tr');
+                                mainRow.classList.add('main-row');
+                                mainRow.innerHTML = `
+                                    <td>${serialNo}</td>
+                                    <td>${result.wms_id}</td>
+                                    <td>${result.wms_title}</td>
+                                    <td>${result.total_layers}</td>
+                                    <td>${result.layers_without_abstract}</td>
+                                    <td>${result.layers_without_keywords}</td>
+                                    <td class="status ${result.all_layers_have_abstract ? 'status-yes' : 'status-no'}">
+                                        ${result.all_layers_have_abstract ? 'Yes' : 'No'}
+                                    </td>
+                                    <td class="status ${result.all_layers_have_keywords ? 'status-yes' : 'status-no'}">
+                                        ${result.all_layers_have_keywords ? 'Yes' : 'No'}
+                                    </td>
+                                    <td>${result.keywords_present.length} keywords</td>
+                                    <td>${result.abstracts_present.length} abstracts</td>
+                                    <td>
+                                        ${result.layers_abstract_match.map(match => `<span>${match}</span><br>`).join('')}
+                                    </td>
+                                    <td>${result.layers_with_short_abstract_count}</td>
+                                    <td>
+                                        <button class="dropdown-btn" onclick="toggleDropdown(this)">Show Details</button>
+                                    </td>
+                                `;
+
+                                const detailRow = document.createElement('tr');
+                                detailRow.classList.add('dropdown-content');
+                                detailRow.innerHTML = `
+                                    <td colspan="12">
+                                        <h3>Keywords Present:</h3>
+                                        <ul>
+                                            ${result.keywords_present.map(keyword => `<li>${keyword}</li>`).join('')}
+                                        </ul>
+                                        <h3>Abstracts Present:</h3>
+                                        <ul>
+                                            ${result.abstracts_present.map(abstract => `<li>${abstract}</li>`).join('')}
+                                        </ul>
+                                        <h3>Layers Without Abstracts:</h3>
+                                        <ul>
+                                            ${result.layers_without_abstract_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                        </ul>
+                                        <h3>Layers Without Keywords:</h3>
+                                        <ul>
+                                            ${result.layers_without_keyword_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                        </ul>
+                                        <h3>Layers Where Abstract Matches Title:</h3>
+                                        <ul>
+                                            ${result.layers_abstract_matches_title_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                        </ul>
+                                        <h3>Layer Names:</h3>
+                                        <ul>
+                                            ${result.layer_names.map(layer_name => `<li>${layer_name}</li>`).join('')}
+                                        </ul>
+                                        <h3>Layers With Short Abstracts:</h3>
+                                        <ul>
+                                            ${result.layers_with_short_abstract_info.map(info => `<li class="short-abstract">${info[0]}: ${info[1]}</li>`).join('')}
+                                        </ul>
+                                    </td>
+                                `;
+
+                                tableBody.appendChild(mainRow);
+                                tableBody.appendChild(detailRow);
+                            });
+
+                            if (!data.has_next) {
+                                loadMoreButton.style.display = 'none';
+                            }
+                        }
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

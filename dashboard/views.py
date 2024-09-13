@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from useroperations.models import MbUser, Wms, Wfs, Wmc, MbGroup, MbUserMbGroup
+from useroperations.models import MbUser, Wms, Wfs, Wmc, WfsAvailability, MbGroup, MbUserMbGroup
 from Geoportal.utils import utils, php_session_data, mbConfReader
 from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS
 from django.contrib import messages
@@ -19,6 +19,7 @@ import json
 import time
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
+import requests
 
 def upload_file(request):
     reporting_date_list = []
@@ -32,8 +33,10 @@ def upload_file(request):
                 # Convert naive datetime objects to timezone-aware datetime objects
                 reporting_date_list = [make_aware(date, timezone=pytz.UTC) for date in reporting_date_list]
             
-            if request.is_ajax():
+            if request.is_ajax() and reporting_date_list:
                 return JsonResponse({'reporting_date_list': reporting_date_list})
+        else:
+            return JsonResponse({'error': 'Invalid form data.'})
     else:
         form = UploadFileForm()
 
@@ -45,11 +48,14 @@ def read_reporting_dates_from_csv(file):
     reporting_date_list = []
     csv_data = []
     csv_reader = csv.DictReader(file.read().decode('utf-8').splitlines())
-    for row in csv_reader:
-        date = tm.datetime.strptime(row['reporting_date'], '%Y-%m-%d')
-        reporting_date_list.append(date)
-        csv_data.append(row)
-    return reporting_date_list, csv_data
+    try:
+        for row in csv_reader:
+            date = tm.datetime.strptime(row['reporting_date'], '%Y-%m-%d')
+            reporting_date_list.append(date)
+            csv_data.append(row)
+        return reporting_date_list, csv_data
+    except KeyError:
+        return JsonResponse({'error': 'reporting_date column not found in the CSV file.'})
 
 def get_session_data(sessions, start_date=None, end_date=None):
     if not start_date:
@@ -165,6 +171,7 @@ def process_request(request):
 
 def render_template(request, template_name):
      # Default date range: last one year
+     #if request.get contains contentType === 'fig_html_report', the return json response separately
      
     end_date_default = datetime.now()
     start_date_default = end_date_default - timedelta(days=365)
@@ -189,7 +196,8 @@ def render_template(request, template_name):
     
     keyword = request.GET.get('keyword', 'default')
     dropdown_value = request.GET.get('dropdown', 'default')
-    
+    #once call the generate_wms_plot function on loading the page
+    #generate_wms_plot(request, start_date, end_date) 
     if not request.is_ajax():
         fig_html, image_path = generate_user_plot(start_date, end_date)
         fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
@@ -274,7 +282,6 @@ def render_template(request, template_name):
                 messages.add_message(request, messages.ERROR, ("The user could not be found. Please contact an administrator!"))
                 return redirect('useroperations:index')
 
-
     #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
 
     import time
@@ -336,10 +343,22 @@ def generate_user_plot(start_date, end_date, dropdown_value = 'monthly'):
         if dropdown_value == 'daily':
             time_period = user.timestamp_create.strftime('%Y-%m-%d')
         elif dropdown_value == 'weekly':
-                       time_period = f"{user.timestamp_create.isocalendar()[0]}-W{user.timestamp_create.isocalendar()[1]:02d}"  # %U is the week number of the year
+            time_period = f"{user.timestamp_create.isocalendar()[0]}-W{user.timestamp_create.isocalendar()[1]:02d}"
+        elif dropdown_value == 'biyearly':
+            if user.timestamp_create.month <= 6:
+                time_period = f"{user.timestamp_create.year}-H1"
+            else:
+                time_period = f"{user.timestamp_create.year}-H2"
+        elif dropdown_value == '6months':
+            if user.timestamp_create.month <= 6:
+                time_period = f"{user.timestamp_create.year}-H1"
+            else:
+                time_period = f"{user.timestamp_create.year}-H2"
+        elif dropdown_value == 'yearly':
+            time_period = user.timestamp_create.strftime('%Y')
         else:  # default to monthly
             time_period = user.timestamp_create.strftime('%Y-%m')
-
+    
         user_creation_counts[time_period] += 1
 
     sorted_periods = sorted(user_creation_counts.keys())
@@ -429,7 +448,6 @@ def download_csv(request):
         for row in csv_data:
             writer.writerow(row)
         return response
-
 #TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
 def generate_wms_plot(request, start_date, end_date):
         
@@ -666,3 +684,379 @@ def get_filtered_session_data(request):
     session_data, image_path_session = get_session_data(sessions, start_date=start_date, end_date=end_date)
     
     return session_data, image_path_session
+
+from django.shortcuts import render
+from django.utils.translation import gettext as _
+from datetime import datetime
+
+from django.shortcuts import render, get_object_or_404
+
+def display_service_quality(request, resource_id):
+    # Fetch the service quality data from the database
+    service_quality = get_object_or_404(WfsAvailability, pk=resource_id)
+    resource_metadata = {
+        'timestamp': service_quality.fkey_upload_id,  # Assuming this is a timestamp
+        'serviceid': service_quality.fkey_wfs_id
+    }
+
+    html = ""
+    table_begin = "<table>"
+
+    html += table_begin
+
+    if resource_id != 'wmc':
+        last_status = service_quality.last_status
+        availability = service_quality.availability
+        fkey_upload_id = service_quality.fkey_upload_id
+        feature_content = service_quality.feature_content
+        status_comment = service_quality.status_comment
+        average_resp_time = service_quality.average_resp_time
+        upload_url = service_quality.upload_url
+        feature_urls = service_quality.feature_urls
+        cap_diff = service_quality.cap_diff
+        monitor_count = service_quality.monitor_count
+
+        if last_status == 1:
+            html += f"<tr><td>{_('status')}</td><td><img src='../img/trafficlights/go.bmp' height='24px' width='24px' alt='{_('statusOK')}' title='{_('statusOK')}'></td></tr>"
+        elif last_status == 0:
+            html += f"<tr><td>{_('status')}</td><td><img src='../img/trafficlights/wait.bmp' height='24px' width='24px' alt='{_('statusChanged')}' title='{_('statusChanged')}'></td></tr>"
+            if availability is not None:
+                html += f"<tr><td>{_('changes')}</td><td><input type='button' value='{_('show')}' onclick=\"var newWindow = window.open('../php/mod_showCapDiff.php?serviceType={service_quality.service_type}&id={resource_metadata['serviceid']}','Capabilities Diff','width=700,height=300,scrollbars');newWindow.focus();\"></td></tr>"
+        elif last_status == -1:
+            html += f"<tr><td>{_('status')}</td><td><img src='../img/trafficlights/stop.bmp' height='24px' width='24px' alt='{_('statusProblem')}' title='{_('statusChanged')}'></td></tr>"
+
+        if fkey_upload_id is not None:
+            date_service = datetime.fromtimestamp(int(resource_metadata['timestamp']))  # Assuming fkey_upload_id is a timestamp
+            date_monitoring = datetime.fromtimestamp(int(fkey_upload_id))  # Assuming fkey_upload_id is a timestamp
+            interval = date_service - date_monitoring
+            html += f"<tr><td>{_('metadataAge')}</td><td>{interval.days} {_('days')}</td></tr>"
+
+        if availability is not None:
+            html += f"<tr><td>{_('availability')}</td><td>{availability} %</td></tr>"
+        else:
+            html += f"<tr><td>{_('availability')}</td><td>{_('notMonitored')}</td></tr>"
+
+        html += f"<tr><td>{_('featureContent')}</td><td>{feature_content}</td></tr>"
+        html += f"<tr><td>{_('statusComment')}</td><td>{status_comment}</td></tr>"
+        html += f"<tr><td>{_('averageResponseTime')}</td><td>{average_resp_time} ms</td></tr>"
+        html += f"<tr><td>{_('uploadURL')}</td><td>{upload_url}</td></tr>"
+        html += f"<tr><td>{_('featureURLs')}</td><td>{feature_urls}</td></tr>"
+        html += f"<tr><td>{_('capDiff')}</td><td>{cap_diff}</td></tr>"
+        html += f"<tr><td>{_('monitorCount')}</td><td>{monitor_count}</td></tr>"
+
+        try:
+            response = requests.get(upload_url)
+            if response.status_code == 200:
+                html += f"<tr><td>{_('serviceStatus')}</td><td>{_('serviceStatusOK')}</td></tr>"
+            else:
+                html += f"<tr><td>{_('serviceStatus')}</td><td>{_('serviceStatusProblem')}</td></tr>"
+        except requests.exceptions.RequestException as e:
+            html += f"<tr><td>{_('serviceStatus')}</td><td>{_('Error')}</td></tr>"
+    else:
+        html += f"<tr><td colspan='2'>{_('wmcQualityText')}</td></tr>"
+    # TODO
+    #non_working_urls = check_all_upload_urls(request)
+    #take only first 20 non working urls
+    #non_working_urls = non_working_urls[:20]
+
+    # html += f"<tr><td colspan='2'>{_('nonWorkingUrls')}</td></tr>"
+    # for url in non_working_urls:
+    #     html += f"<tr><td colspan='2'>{url}</td></tr>"
+
+
+    # html += "</table>"
+
+    return render(request, 'test.html', {'html': html})
+
+def check_all_upload_urls(request):
+    all_services = WfsAvailability.objects.all()
+    #take 100-200 services
+    all_services = all_services[400:500]
+    non_working_urls = []
+
+    for service in all_services:
+        try:
+            response = requests.get(service.upload_url)
+            if response.status_code !=200:
+                non_working_urls.append(service.upload_url)
+        except requests.exceptions.RequestException:
+            non_working_urls.append(service.upload_url)
+    return non_working_urls
+
+   
+from useroperations.models import Wms, Layer, LayerKeyword
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.db.models import Q, Exists, OuterRef, F, Case, When, BooleanField, Value, IntegerField
+from django.db.models.functions import Length
+import logging
+
+# Configure logging
+#logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger('my_custom_logger') 
+
+def get_layer_statistics(layers):
+    # Count layers without abstracts
+    layers_without_abstract = layers.filter(Q(layer_abstract__isnull=True) | Q(layer_abstract=''))
+    layers_without_abstract_count = layers_without_abstract.count()
+    layers_without_abstract_names = list(layers_without_abstract.values_list('layer_name', flat=True))
+
+    # Annotate layers with a boolean indicating if they have keywords
+    layers_with_keyword_annotation = layers.annotate(
+        has_keyword=Exists(
+            LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
+        )
+    )
+
+
+    # Filter layers to get only those without keywords
+    layers_without_keywords = layers_with_keyword_annotation.filter(has_keyword=False)
+    layers_without_keyword_count = layers_without_keywords.count()
+    layers_without_keyword_names = list(layers_without_keywords.values_list('layer_name', flat=True))
+
+    # Count layers where abstract matches the title (case-sensitive and trimmed)
+    layers_abstract_matches_title = layers.annotate(
+        abstract_matches_title=Case(
+            When(
+                Q(layer_abstract=F('layer_title')),
+                then=Value(True)
+            ),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    ).filter(abstract_matches_title=True)
+    layers_abstract_matches_title_count = layers_abstract_matches_title.count()
+    layers_abstract_matches_title_names = list(layers_abstract_matches_title.values_list('layer_title', flat=True))
+
+    # Count layers with short abstracts (less than 50 characters)
+    layers_with_short_abstract = layers.annotate(
+        abstract_length=Length('layer_abstract', output_field=IntegerField())
+    ).filter(abstract_length__lt=50)
+    layers_with_short_abstract_count = layers_with_short_abstract.count()
+    layers_with_short_abstract_info = list(layers_with_short_abstract.values_list('layer_title', 'layer_abstract'))
+
+    # Get the total layer count directly from the database
+    total_layers = layers.count()
+
+    # Check if all layers have abstracts and keywords
+    all_layers_have_abstract = layers_without_abstract_count == 0
+    all_layers_have_keywords = layers_without_keyword_count == 0
+
+    # Collect keywords
+    keywords_present = list(
+        LayerKeyword.objects.filter(fkey_layer__in=layers).values_list('fkey_keyword__keyword', flat=True)
+    )
+    logger.debug(f"Keywords Present: {keywords_present}")
+    
+
+    layers_with_abstract = layers.exclude(Q(layer_abstract__isnull=True) | Q(layer_abstract=''))
+
+    abstracts_present = list(layers_with_abstract.values_list('layer_abstract', flat=True))
+
+    # Determine if each layer's abstract matches its title
+    layers_abstract_match = layers.annotate(
+        abstract_matches_title=Case(
+            When(
+                Q(layer_abstract=F('layer_title')),
+                then=Value(True)
+            ),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    ).values_list('abstract_matches_title', flat=True)
+
+    # Get all layer names
+    layer_names = list(layers.values_list('layer_title', flat=True))
+
+    return {
+        'total_layers': total_layers,
+        'layers_without_abstract_count': layers_without_abstract_count,
+        'layers_without_abstract_names': layers_without_abstract_names,
+        'layers_without_keyword_count': layers_without_keyword_count,
+        'layers_without_keyword_names': layers_without_keyword_names,
+        'layers_abstract_matches_title_count': layers_abstract_matches_title_count,
+        'layers_abstract_matches_title_names': layers_abstract_matches_title_names,
+        'layers_with_short_abstract_count': layers_with_short_abstract_count,
+        'layers_with_short_abstract_info': layers_with_short_abstract_info,
+        'all_layers_have_abstract': all_layers_have_abstract,
+        'all_layers_have_keywords': all_layers_have_keywords,
+        'keywords_present': keywords_present,
+        'abstracts_present': abstracts_present,
+        'layers_abstract_match': ['Y' if match else 'N' for match in layers_abstract_match],
+        'layer_names': layer_names
+    }
+
+def check_layer_abstracts_and_keywords(request):
+    search_query = request.GET.get('search', '')
+
+    # Filter WMS services based on the search query
+    if search_query:
+        wms_services = Wms.objects.filter(
+            Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query)
+        ).order_by('wms_id')
+    else:
+        wms_services = Wms.objects.all().order_by('wms_id')
+
+    # Aggregate data across all pages
+    all_layers = Layer.objects.filter(fkey_wms_id__in=wms_services).distinct()
+
+    total_layers_without_abstract = all_layers.filter(Q(layer_abstract__isnull=True) | Q(layer_abstract='')).count()
+    total_layers_without_keyword = all_layers.annotate(
+        has_keyword=Exists(
+            LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
+        )
+    ).filter(has_keyword=False).count()
+    total_layers_abstract_matches_title = all_layers.annotate(
+        abstract_matches_title=Case(
+            When(
+                Q(layer_abstract=F('layer_title')),
+                then=Value(True)
+            ),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    ).filter(abstract_matches_title=True).count()
+    total_layers_with_short_abstract = all_layers.annotate(
+        abstract_length=Length('layer_abstract', output_field=IntegerField())
+    ).filter(abstract_length__lt=50).count()
+
+    # Paginate the WMS services
+    paginator = Paginator(wms_services, 10)  # Show 10 WMS services per page
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    results = []
+
+    for wms in page_obj:
+        # Get all unique layers for this WMS
+        layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
+        layer_stats = get_layer_statistics(layers)
+
+        results.append({
+            'wms_id': wms.wms_id,
+            'wms_title': wms.wms_title,
+            'total_layers': layer_stats['total_layers'],
+            'layers_without_abstract': layer_stats['layers_without_abstract_count'],
+            'layers_without_keywords': layer_stats['layers_without_keyword_count'],
+            'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
+            'all_layers_have_keywords': layer_stats['all_layers_have_keywords'],
+            'keywords_present': layer_stats['keywords_present'],
+            'abstracts_present': layer_stats['abstracts_present'],
+            'layers_without_abstract_names': layer_stats['layers_without_abstract_names'],
+            'layers_without_keyword_names': layer_stats['layers_without_keyword_names'],
+            'layers_abstract_matches_title_count': layer_stats['layers_abstract_matches_title_count'],
+            'layers_abstract_matches_title_names': layer_stats['layers_abstract_matches_title_names'],
+            'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
+            'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
+            'layers_abstract_match': layer_stats['layers_abstract_match'],
+            'layer_names': layer_stats['layer_names']
+        })
+
+    context = {
+        'results': results,
+        'page_obj': page_obj,
+        'total_layers_without_abstract': total_layers_without_abstract,
+        'total_layers_without_keyword': total_layers_without_keyword,
+        'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
+        'total_layers_with_short_abstract': total_layers_with_short_abstract
+    }
+
+    return render(request, 'check_abstract.html', context)
+
+def load_more_data(request):
+    page_number = request.GET.get('page', 1)
+    search_query = request.GET.get('search', '')
+
+    # Filter WMS services based on the search query
+    if search_query:
+        wms_services = Wms.objects.filter(
+            Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query)
+        ).order_by('wms_id')
+    else:
+        wms_services = Wms.objects.all().order_by('wms_id')
+
+    paginator = Paginator(wms_services, 10)  # Show 10 WMS services per page
+    page_obj = paginator.get_page(page_number)
+
+    results = []
+
+    for wms in page_obj:
+        # Get all unique layers for this WMS
+        layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
+        layer_stats = get_layer_statistics(layers)
+
+        results.append({
+            'wms_id': wms.wms_id,
+            'wms_title': wms.wms_title,
+            'total_layers': layer_stats['total_layers'],
+            'layers_without_abstract': layer_stats['layers_without_abstract_count'],
+            'layers_without_keywords': layer_stats['layers_without_keyword_count'],
+            'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
+            'all_layers_have_keywords': layer_stats['all_layers_have_keywords'],
+            'keywords_present': layer_stats['keywords_present'],
+            'abstracts_present': layer_stats['abstracts_present'],
+            'layers_without_abstract_names': layer_stats['layers_without_abstract_names'],
+            'layers_without_keyword_names': layer_stats['layers_without_keyword_names'],
+            'layers_abstract_matches_title_count': layer_stats['layers_abstract_matches_title_count'],
+            'layers_abstract_matches_title_names': layer_stats['layers_abstract_matches_title_names'],
+            'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
+            'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
+            'layers_abstract_match': layer_stats['layers_abstract_match'],
+            'layer_names': layer_stats['layer_names']
+        })
+
+    return JsonResponse({
+        'results': results,
+        'has_next': page_obj.has_next()
+    })
+
+def search_data(request):
+    search_query = request.GET.get('query', '')
+
+    # Filter WMS services based on the search query
+    wms_services = Wms.objects.filter(
+        Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query)
+    ).order_by('wms_id')
+
+    results = []
+
+    for wms in wms_services:
+        # Get all unique layers for this WMS
+        layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
+        layer_stats = get_layer_statistics(layers)
+
+        results.append({
+            'wms_id': wms.wms_id,
+            'wms_title': wms.wms_title,
+            'total_layers': layer_stats['total_layers'],
+            'layers_without_abstract': layer_stats['layers_without_abstract_count'],
+            'layers_without_keywords': layer_stats['layers_without_keyword_count'],
+            'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
+            'all_layers_have_keywords': layer_stats['all_layers_have_keywords'],
+            'keywords_present': layer_stats['keywords_present'],
+            'abstracts_present': layer_stats['abstracts_present'],
+            'layers_without_abstract_names': layer_stats['layers_without_abstract_names'],
+            'layers_without_keyword_names': layer_stats['layers_without_keyword_names'],
+            'layers_abstract_matches_title_count': layer_stats['layers_abstract_matches_title_count'],
+            'layers_abstract_matches_title_names': layer_stats['layers_abstract_matches_title_names'],
+            'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
+            'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
+            'layers_abstract_match': layer_stats['layers_abstract_match'],
+            'layer_names': layer_stats['layer_names']
+        })
+
+    return JsonResponse({'results': results})
+# from useroperations.models import Keyword, Layer    
+# def get_layer_keywords(request, layer_id):
+#     try:
+#         layer = Layer.objects.get(layer_id=layer_id)
+#         keywords = Keyword.objects.filter(layerkeyword__fkey_layer=layer)
+        
+#         context = {
+#             'layer': layer,
+#             'keywords': keywords,
+#         }
+#         return render(request, 'layer_keywords.html', context)
+#     except Layer.DoesNotExist:
+#         return render(request, 'layer_not_found.html')

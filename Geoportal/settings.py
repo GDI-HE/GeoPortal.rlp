@@ -189,12 +189,13 @@ CORS_ALLOW_METHODS = [
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
+#the problem of taking data from django instead of mapbender is that the django is in fromnt of mapbender in search_path
+# solved by adding mapbender at first position in search_path
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'OPTIONS' : {
-                    'options': '-c search_path=django,mapbender,public'
+                    'options': '-c search_path=mapbender,public,django'
                     },
         'NAME':'mapbender',
         'USER':'mapbenderdbuser',
@@ -203,7 +204,6 @@ DATABASES = {
         'PORT':''
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
