@@ -125,11 +125,11 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
 
             // hide download button for 3 modal
             const downloadLink = document.getElementById('downloadWmsCsvLink');
-    if (contentType === 'fig_html' ||  contentType === 'session_data'||  contentType === 'fig_html_report') {
-        downloadLink.style.display = 'none';
-    } else {
-        downloadLink.style.display = 'block';
-    }
+            if (contentType === 'session_data') {
+                downloadLink.style.display = 'none';
+            } else {
+                downloadLink.style.display = 'block';
+            }
     
             let dropdownValue = "";
             if (contentType !== 'fig_html_report') {

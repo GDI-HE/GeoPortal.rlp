@@ -115,17 +115,43 @@ def get_session_data(sessions, start_date=None, end_date=None):
     fig_html_session = fig_session.to_html(full_html=False, include_plotlyjs='cdn')
     return fig_html_session, image_path_session
 
-
+def convert_to_datetime(date):
+    if isinstance(date, str):
+        try:
+            # Try parsing with date and time
+            date_obj = datetime.strptime(date, '%Y-%m-%d %H:%M:%S.%f')
+        except ValueError:
+            # Fallback to date only
+            date_obj = datetime.strptime(date, '%Y-%m-%d')
+    elif isinstance(date, datetime):
+        date_obj = date
+    else:
+        raise TypeError("Date must be a string or datetime object")
+    
+    return date_obj
 
 def get_data_counts(model, timestamp_field, start_date, end_date):
-    start_date_unix = int(time.mktime(start_date.timetuple()))
-    end_date_unix = int(time.mktime(end_date.timetuple()))
-    users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_unix}).count()
-    data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_unix, end_date_unix]})
+
+    if model == MbUser:
+        start_date_obj = convert_to_datetime(start_date)
+        end_date_obj = convert_to_datetime(end_date)
+        
+        users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_obj}).count()
+        data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_obj, end_date_obj]})
+    else:
+        start_date_unix = int(time.mktime(convert_to_datetime(start_date).timetuple()))
+        end_date_unix = int(time.mktime(convert_to_datetime(end_date).timetuple()))
+        
+        users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_unix}).count()
+        data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_unix, end_date_unix]})
+    
     data_counts = defaultdict(int)
 
     for data in data_all:
-        data_datetime = datetime.fromtimestamp(getattr(data, timestamp_field))
+        if model==MbUser:
+            data_datetime = getattr(data, timestamp_field)
+        else:
+            data_datetime = datetime.fromtimestamp(getattr(data, timestamp_field))
         month_year_data = data_datetime.strftime('%Y-%m')
         data_counts[month_year_data] += 1
 
@@ -166,8 +192,11 @@ def process_request(request):
     # Get WMC data counts
     sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc = get_data_counts(Wmc, 'wmc_timestamp', start_date, end_date)
 
+    # Get the registered user counts
+    sorted_months, sorted_counts, cumulative_counts = get_data_counts(MbUser, 'timestamp_create', start_date, end_date)
+
     # Now you can use sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, and cumulative_counts_wfs as needed
-    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc
+    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs,sorted_months, sorted_counts, cumulative_counts, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc
 
 def render_template(request, template_name):
      # Default date range: last one year
@@ -410,19 +439,19 @@ def download_csv(request):
     keyword = request.GET.get('keyword', 'default')
 
     if keyword == 'fig_wms':
-        sorted_months, sorted_counts, cumulative_counts, _, _, _, _, _, _ = process_request(request)
+        sorted_months, sorted_counts, cumulative_counts, _, _, _, _, _, _, _, _, _ = process_request(request)
     elif keyword == 'fig_wfs':
-        _, _, _, sorted_months, sorted_counts, cumulative_counts, _, _, _ = process_request(request)
+        _, _, _, sorted_months, sorted_counts, cumulative_counts, _, _, _,_,_,_ = process_request(request)
     elif keyword == "fig_html":
-        #TODO
-        pass
+        _, _, _, _, _, _, sorted_months, sorted_counts, cumulative_counts, _,_,_ = process_request(request)
+        
     elif keyword == "session_data":
         pass
         #TODO
     elif keyword == 'fig_html_report':
         pass
     elif keyword == 'fig_wmc':
-        _, _, _, _, _, _, sorted_months, sorted_counts, cumulative_counts = process_request(request)
+        _, _, _, _, _, _,_,_,_, sorted_months, sorted_counts, cumulative_counts = process_request(request)
     else:
         return HttpResponse(status=400, content="Invalid keyword")
     
@@ -451,7 +480,7 @@ def download_csv(request):
 #TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
 def generate_wms_plot(request, start_date, end_date):
         
-        sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_ = process_request(request)
+        sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_ = process_request(request)
         fig_wms = go.Figure()
         fig_wms.add_trace(go.Bar(x=sorted_months_wms, y=sorted_counts_wms, name='WMS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wms, textposition='outside'))
         fig_wms.add_trace(go.Scatter(x=sorted_months_wms, y=cumulative_counts_wms, mode='lines+markers+text', name='Cumulative WMS', line=dict(color='rgba(54, 162, 235, 1)')))
@@ -490,7 +519,7 @@ def generate_wms_plot(request, start_date, end_date):
 
 def generate_wfs_plot(request, start_date, end_date):
         
-        _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _ = process_request(request)
+        _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _,_,_,_ = process_request(request)
         fig_wfs = go.Figure()
         fig_wfs.add_trace(go.Bar(x=sorted_months_wfs, y=sorted_counts_wfs, name='WFS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wfs, textposition='outside'))
         fig_wfs.add_trace(go.Scatter(x=sorted_months_wfs, y=cumulative_counts_wfs, mode='lines+markers+text', name='Cumulative WFS', line=dict(color='rgba(54, 162, 235, 1)')))
@@ -529,7 +558,7 @@ def generate_wfs_plot(request, start_date, end_date):
 
 def generate_wmc_plot(request, start_date, end_date):
         
-        _, _, _,_, _, _, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc = process_request(request)
+        _, _, _,_, _, _, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc,_,_,_ = process_request(request)
         fig_wmc = go.Figure()
         fig_wmc.add_trace(go.Bar(x=sorted_months_wmc, y=sorted_counts_wmc, name='wmc per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wmc, textposition='outside'))
         fig_wmc.add_trace(go.Scatter(x=sorted_months_wmc, y=cumulative_counts_wmc, mode='lines+markers+text', name='Cumulative wmc', line=dict(color='rgba(54, 162, 235, 1)')))
