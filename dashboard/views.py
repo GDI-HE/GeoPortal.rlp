@@ -130,8 +130,7 @@ def convert_to_datetime(date):
     
     return date_obj
 
-def get_data_counts(model, timestamp_field, start_date, end_date):
-
+def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value):
     if model == MbUser:
         start_date_obj = convert_to_datetime(start_date)
         end_date_obj = convert_to_datetime(end_date)
@@ -148,24 +147,38 @@ def get_data_counts(model, timestamp_field, start_date, end_date):
     data_counts = defaultdict(int)
 
     for data in data_all:
-        if model==MbUser:
+        if model == MbUser:
             data_datetime = getattr(data, timestamp_field)
         else:
             data_datetime = datetime.fromtimestamp(getattr(data, timestamp_field))
-        month_year_data = data_datetime.strftime('%Y-%m')
-        data_counts[month_year_data] += 1
+        
+        if dropdown_value == 'daily':
+            time_period = data_datetime.strftime('%Y-%m-%d')
+        elif dropdown_value == 'weekly':
+            time_period = f"{data_datetime.isocalendar()[0]}-W{data_datetime.isocalendar()[1]:02d}"
+        elif dropdown_value == 'biyearly' or dropdown_value == '6months':
+            if data_datetime.month <= 6:
+                time_period = f"{data_datetime.year}-H1"
+            else:
+                time_period = f"{data_datetime.year}-H2"
+        elif dropdown_value == 'yearly':
+            time_period = data_datetime.strftime('%Y')
+        else:  # default to monthly
+            time_period = data_datetime.strftime('%Y-%m')
+        
+        data_counts[time_period] += 1
 
-    sorted_months_data = sorted(data_counts.keys())
-    sorted_counts_data = [data_counts[month] for month in sorted_months_data]
+    sorted_periods = sorted(data_counts.keys())
+    sorted_counts = [data_counts[period] for period in sorted_periods]
 
     # Calculate cumulative counts
     cumulative_counts_data = []
     cumulative_sum_data = users_before_start_date_count
-    for count in sorted_counts_data:
+    for count in sorted_counts:
         cumulative_sum_data += count
         cumulative_counts_data.append(cumulative_sum_data)
 
-    return sorted_months_data, sorted_counts_data, cumulative_counts_data
+    return sorted_periods, sorted_counts, cumulative_counts_data
 
 def process_request(request):
     # Initialize start_date and end_date with default values
@@ -179,24 +192,29 @@ def process_request(request):
             end_date = request.GET.get('end_date')
             start_date = datetime.strptime(start_date, '%Y-%m-%d')
             end_date = datetime.strptime(end_date, '%Y-%m-%d')
+            dropdown_value = request.GET.get('dropdown')
+        else:
+            dropdown_value = 'monthly'
+    else:
+        dropdown_value = 'monthly'
 
     start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
     end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
 
     # Get WMS data counts
-    sorted_months_wms, sorted_counts_wms, cumulative_counts_wms = get_data_counts(Wms, 'wms_timestamp_create', start_date, end_date)
+    sorted_months_wms, sorted_counts_wms, cumulative_counts_wms = get_data_counts(Wms, 'wms_timestamp_create', start_date, end_date, dropdown_value)
 
     # Get WFS data counts
-    sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = get_data_counts(Wfs, 'wfs_timestamp_create', start_date, end_date)
+    sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = get_data_counts(Wfs, 'wfs_timestamp_create', start_date, end_date, dropdown_value)
 
     # Get WMC data counts
-    sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc = get_data_counts(Wmc, 'wmc_timestamp', start_date, end_date)
+    sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc = get_data_counts(Wmc, 'wmc_timestamp', start_date, end_date, dropdown_value)
 
     # Get the registered user counts
-    sorted_months, sorted_counts, cumulative_counts = get_data_counts(MbUser, 'timestamp_create', start_date, end_date)
+    sorted_months, sorted_counts, cumulative_counts = get_data_counts(MbUser, 'timestamp_create', start_date, end_date, dropdown_value)
 
     # Now you can use sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, and cumulative_counts_wfs as needed
-    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs,sorted_months, sorted_counts, cumulative_counts, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc
+    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc, sorted_months, sorted_counts, cumulative_counts
 
 def render_template(request, template_name):
      # Default date range: last one year
@@ -437,12 +455,13 @@ def generate_user_plot(start_date, end_date, dropdown_value = 'monthly'):
 def download_csv(request):
     is_ajax = request.GET.get('is_ajax')
     keyword = request.GET.get('keyword', 'default')
+    dropdown = request.GET.get('dropdown')  # Extract the dropdown parameter
 
     if keyword == 'fig_wms':
         sorted_months, sorted_counts, cumulative_counts, _, _, _, _, _, _, _, _, _ = process_request(request)
     elif keyword == 'fig_wfs':
         _, _, _, sorted_months, sorted_counts, cumulative_counts, _, _, _,_,_,_ = process_request(request)
-    elif keyword == "fig_html":
+    elif keyword == "fig_wmc":
         _, _, _, _, _, _, sorted_months, sorted_counts, cumulative_counts, _,_,_ = process_request(request)
         
     elif keyword == "session_data":
@@ -450,7 +469,7 @@ def download_csv(request):
         #TODO
     elif keyword == 'fig_html_report':
         pass
-    elif keyword == 'fig_wmc':
+    elif keyword == 'fig_html':
         _, _, _, _, _, _,_,_,_, sorted_months, sorted_counts, cumulative_counts = process_request(request)
     else:
         return HttpResponse(status=400, content="Invalid keyword")
@@ -458,9 +477,21 @@ def download_csv(request):
     clean_keyword = keyword.replace('fig_', '').upper()
     # Create the CSV data
     csv_data = []
-    csv_data.append(['Month', f'{clean_keyword} per Month', f'Cumulative {clean_keyword}'])
-    for month, count, cumulative in zip(sorted_months, sorted_counts, cumulative_counts):
-        csv_data.append([month, count, cumulative])
+    if dropdown == 'yearly':
+        period_label = 'Year'
+    elif dropdown == 'monthly':
+        period_label = 'Month'
+    elif dropdown == 'weekly':
+        period_label = 'Week'
+    elif dropdown == 'daily':
+        period_label = 'Day'
+    elif dropdown == '6-monthly':
+        period_label = '6-Month Period'
+    else:
+        period_label = 'Period'
+    csv_data.append([period_label, f'{clean_keyword} per {period_label}', f'Cumulative {clean_keyword}'])
+    for period, count, cumulative in zip(sorted_months, sorted_counts, cumulative_counts):
+        csv_data.append([period, count, cumulative])
 
     if is_ajax:
         # Return the CSV data as a string for AJAX requests

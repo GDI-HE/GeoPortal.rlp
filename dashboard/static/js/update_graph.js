@@ -101,7 +101,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                     <input type="date" id="end_date" name="end_date" value="${endDate}">
                     <button id="update_graph_btn" data-url="${filterUrl}" data-keyword="${contentType}">Filter</button>
                 `;
-                if (contentType === 'fig_html') {
+                if (contentType === 'fig_html' || contentType === 'session_data' || contentType === 'fig_wms' || contentType === 'fig_wfs'|| contentType === 'fig_wmc') {
                     htmlContent += `
                         <label for="dropdown">Select Option:</label>
                         <select id="dropdown" name="dropdown">
@@ -136,7 +136,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                 document.getElementById('update_graph_btn').addEventListener('click', function() {
                     const startDate = document.getElementById('start_date').value;
                     const endDate = document.getElementById('end_date').value;
-                    if (contentType === 'fig_html') {
+                    if (contentType === 'fig_html'|| contentType === 'fig_wms' || contentType === 'fig_wfs'|| contentType === 'fig_wmc') {
                     dropdownValue = document.getElementById('dropdown').value;
                     } 
                     const url = this.getAttribute('data-url');
@@ -352,7 +352,8 @@ spinnerContainer.style.display = 'block';
                 data: {
                     start_date: startDate,
                     end_date: endDate,
-                    keyword: currentKeyword
+                    keyword: currentKeyword,
+                    dropdown: document.getElementById('dropdown') ? document.getElementById('dropdown').value : null
                 },
                 success: function(data) {
                     const blob = new Blob([data], { type: 'text/csv' });
