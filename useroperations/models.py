@@ -362,3 +362,41 @@ class LayerKeyword(models.Model):
 
     def __str__(self):
         return f'{self.fkey_layer} - {self.fkey_keyword}'
+    
+class MbUserDeletion(models.Model):
+    id = models.AutoField(primary_key=True)
+    mb_user_id = models.IntegerField()
+    mb_user_name = models.CharField(max_length=255)
+    mb_user_email = models.CharField(max_length=255)
+    deleted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'mb_user_deletions'
+
+class WmsDeletion(models.Model):
+    wms_id = models.IntegerField()
+    wms_title = models.CharField(max_length=255)
+    contactelectronicmailaddress = models.CharField(max_length=255)
+    deleted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'wms_deletions'
+
+    def __str__(self):
+        return f"{self.wms_title} ({self.contactelectronicmailaddress})"
+
+class WfsDeletion(models.Model):
+    wfs_id = models.IntegerField()
+    wfs_title = models.CharField(max_length=255)
+    deleted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'wfs_deletions'
+
+class WmcDeletion(models.Model):
+    wmc_id = models.IntegerField()
+    wmc_title = models.CharField(max_length=255)
+    deleted_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'wmc_deletions'

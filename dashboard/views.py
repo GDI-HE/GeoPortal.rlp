@@ -129,17 +129,18 @@ def convert_to_datetime(date):
         raise TypeError("Date must be a string or datetime object")
     
     return date_obj
+from useroperations.models import MbUserDeletion
 
-def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value):
+def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value, fetch_deleted_data_func=None):
+    start_date_obj = convert_to_datetime(start_date)
+    end_date_obj = convert_to_datetime(end_date)
+    
     if model == MbUser:
-        start_date_obj = convert_to_datetime(start_date)
-        end_date_obj = convert_to_datetime(end_date)
-        
         users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_obj}).count()
         data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_obj, end_date_obj]})
     else:
-        start_date_unix = int(time.mktime(convert_to_datetime(start_date).timetuple()))
-        end_date_unix = int(time.mktime(convert_to_datetime(end_date).timetuple()))
+        start_date_unix = int(time.mktime(start_date_obj.timetuple()))
+        end_date_unix = int(time.mktime(end_date_obj.timetuple()))
         
         users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_unix}).count()
         data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_unix, end_date_unix]})
@@ -152,20 +153,7 @@ def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value
         else:
             data_datetime = datetime.fromtimestamp(getattr(data, timestamp_field))
         
-        if dropdown_value == 'daily':
-            time_period = data_datetime.strftime('%Y-%m-%d')
-        elif dropdown_value == 'weekly':
-            time_period = f"{data_datetime.isocalendar()[0]}-W{data_datetime.isocalendar()[1]:02d}"
-        elif dropdown_value == 'biyearly' or dropdown_value == '6months':
-            if data_datetime.month <= 6:
-                time_period = f"{data_datetime.year}-H1"
-            else:
-                time_period = f"{data_datetime.year}-H2"
-        elif dropdown_value == 'yearly':
-            time_period = data_datetime.strftime('%Y')
-        else:  # default to monthly
-            time_period = data_datetime.strftime('%Y-%m')
-        
+        time_period = get_time_period(data_datetime, dropdown_value)
         data_counts[time_period] += 1
 
     sorted_periods = sorted(data_counts.keys())
@@ -178,7 +166,19 @@ def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value
         cumulative_sum_data += count
         cumulative_counts_data.append(cumulative_sum_data)
 
-    return sorted_periods, sorted_counts, cumulative_counts_data
+    # Handle deletions if a fetch_deleted_data_func is provided
+    sorted_deleted_counts = []
+    if fetch_deleted_data_func:
+        deleted_dates, deleted_counts = fetch_deleted_data_func()
+        deleted_data_counts = defaultdict(int)
+
+        for date, count in zip(deleted_dates, deleted_counts):
+            time_period = get_time_period(date, dropdown_value)
+            deleted_data_counts[time_period] += count
+
+        sorted_deleted_counts = [-deleted_data_counts[period] for period in sorted_periods]  # Make deleted counts negative
+
+    return sorted_periods, sorted_counts, cumulative_counts_data, sorted_deleted_counts
 
 def process_request(request):
     # Initialize start_date and end_date with default values
@@ -202,19 +202,19 @@ def process_request(request):
     end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
 
     # Get WMS data counts
-    sorted_months_wms, sorted_counts_wms, cumulative_counts_wms = get_data_counts(Wms, 'wms_timestamp_create', start_date, end_date, dropdown_value)
+    sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_deleted_counts_wms = get_data_counts(Wms, 'wms_timestamp_create', start_date, end_date, dropdown_value, fetch_deleted_wms_data)
 
     # Get WFS data counts
-    sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs = get_data_counts(Wfs, 'wfs_timestamp_create', start_date, end_date, dropdown_value)
+    sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, sorted_deleted_counts_wfs = get_data_counts(Wfs, 'wfs_timestamp_create', start_date, end_date, dropdown_value, fetch_deleted_wfs_data) 
 
     # Get WMC data counts
-    sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc = get_data_counts(Wmc, 'wmc_timestamp', start_date, end_date, dropdown_value)
+    sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc, sorted_deleted_counts_wmc = get_data_counts(Wmc, 'wmc_timestamp', start_date, end_date, dropdown_value, fetch_deleted_wmc_data)
 
     # Get the registered user counts
-    sorted_months, sorted_counts, cumulative_counts = get_data_counts(MbUser, 'timestamp_create', start_date, end_date, dropdown_value)
+    sorted_months, sorted_counts, cumulative_counts, _ = get_data_counts(MbUser, 'timestamp_create', start_date, end_date, dropdown_value)
 
     # Now you can use sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, and cumulative_counts_wfs as needed
-    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc, sorted_months, sorted_counts, cumulative_counts
+    return sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc, sorted_months, sorted_counts, cumulative_counts, sorted_deleted_counts_wms, sorted_deleted_counts_wfs, sorted_deleted_counts_wmc
 
 def render_template(request, template_name):
      # Default date range: last one year
@@ -380,49 +380,56 @@ def dashboard(request):
 def filter(request):
     return render_template(request, 'filter.html')
 
+def get_time_period(date, dropdown_value):
+    if dropdown_value == 'daily':
+        return date.strftime('%Y-%m-%d')
+    elif dropdown_value == 'weekly':
+        return f"{date.isocalendar()[0]}-W{date.isocalendar()[1]:02d}"
+    elif dropdown_value in ['biyearly', '6months']:
+        if date.month <= 6:
+            return f"{date.year}-H1"
+        else:
+            return f"{date.year}-H2"
+    elif dropdown_value == 'yearly':
+        return date.strftime('%Y')
+    else:  # default to monthly
+        return date.strftime('%Y-%m')
 
-def generate_user_plot(start_date, end_date, dropdown_value = 'monthly'):
+def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
     users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
     users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
     user_creation_counts = defaultdict(int)
 
+    # Calculate user creation counts
     for user in users:
-        if dropdown_value == 'daily':
-            time_period = user.timestamp_create.strftime('%Y-%m-%d')
-        elif dropdown_value == 'weekly':
-            time_period = f"{user.timestamp_create.isocalendar()[0]}-W{user.timestamp_create.isocalendar()[1]:02d}"
-        elif dropdown_value == 'biyearly':
-            if user.timestamp_create.month <= 6:
-                time_period = f"{user.timestamp_create.year}-H1"
-            else:
-                time_period = f"{user.timestamp_create.year}-H2"
-        elif dropdown_value == '6months':
-            if user.timestamp_create.month <= 6:
-                time_period = f"{user.timestamp_create.year}-H1"
-            else:
-                time_period = f"{user.timestamp_create.year}-H2"
-        elif dropdown_value == 'yearly':
-            time_period = user.timestamp_create.strftime('%Y')
-        else:  # default to monthly
-            time_period = user.timestamp_create.strftime('%Y-%m')
-    
+        time_period = get_time_period(user.timestamp_create, dropdown_value)
         user_creation_counts[time_period] += 1
-
+    
     sorted_periods = sorted(user_creation_counts.keys())
     sorted_counts = [user_creation_counts[period] for period in sorted_periods]
-
+    
     cumulative_counts = []
     cumulative_sum = users_before_start_date_count
     for count in sorted_counts:
         cumulative_sum += count
         cumulative_counts.append(cumulative_sum)
-
+    
+    # Fetch deleted user data
+    deleted_dates, deleted_counts = fetch_deleted_users_data()
+    deleted_user_counts = defaultdict(int)
+    
+    for date, count in zip(deleted_dates, deleted_counts):
+        time_period = get_time_period(date, dropdown_value)
+        deleted_user_counts[time_period] += count
+    
+    sorted_deleted_counts = [-deleted_user_counts[period] for period in sorted_periods]  # Make deleted counts negative
     fig = go.Figure()
     fig.add_trace(go.Bar(x=sorted_periods, y=sorted_counts, name=f'New Users per {dropdown_value.capitalize()}', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)')))
     fig.add_trace(go.Scatter(x=sorted_periods, y=cumulative_counts, mode='lines+markers', name=f'Cumulative New Users', line=dict(color='rgba(54, 162, 235, 1)')))
+    fig.add_trace(go.Bar(x=sorted_periods, y=sorted_deleted_counts, name=f'Deleted Users per {dropdown_value.capitalize()}', yaxis='y2', marker=dict(color='rgba(255, 159, 64, 1)')))
 
     fig.update_layout(
-        title_text=f'New and Cumulative New Users per {dropdown_value.capitalize()}',
+        title_text=f'New, Deleted (Downward) and Cumulative New Users per {dropdown_value.capitalize()}',
         xaxis_title=dropdown_value.capitalize(),
         yaxis=dict(
             title='Cumulative Number of Users',
@@ -430,7 +437,7 @@ def generate_user_plot(start_date, end_date, dropdown_value = 'monthly'):
             tickfont=dict(color='rgba(54, 162, 235, 1)')
         ),
         yaxis2=dict(
-            title=f'New Users per {dropdown_value.capitalize()}',
+            title=f'New and Deleted Users per {dropdown_value.capitalize()}',
             titlefont=dict(color='rgba(255, 99, 132, 1)'),
             tickfont=dict(color='rgba(255, 99, 132, 1)'),
             overlaying='y',
@@ -451,18 +458,17 @@ def generate_user_plot(start_date, end_date, dropdown_value = 'monthly'):
     return fig_html, image_path
 
 
-
 def download_csv(request):
     is_ajax = request.GET.get('is_ajax')
     keyword = request.GET.get('keyword', 'default')
     dropdown = request.GET.get('dropdown')  # Extract the dropdown parameter
 
     if keyword == 'fig_wms':
-        sorted_months, sorted_counts, cumulative_counts, _, _, _, _, _, _, _, _, _ = process_request(request)
+        sorted_months, sorted_counts, cumulative_counts, _, _, _, _, _, _, _, _, _, _,_,_= process_request(request)
     elif keyword == 'fig_wfs':
-        _, _, _, sorted_months, sorted_counts, cumulative_counts, _, _, _,_,_,_ = process_request(request)
+        _, _, _, sorted_months, sorted_counts, cumulative_counts, _, _, _,_,_,_, _,_,_ = process_request(request)
     elif keyword == "fig_wmc":
-        _, _, _, _, _, _, sorted_months, sorted_counts, cumulative_counts, _,_,_ = process_request(request)
+        _, _, _, _, _, _, sorted_months, sorted_counts, cumulative_counts, _,_,_,_,_,_= process_request(request)
         
     elif keyword == "session_data":
         pass
@@ -511,10 +517,11 @@ def download_csv(request):
 #TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
 def generate_wms_plot(request, start_date, end_date):
         
-        sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_ = process_request(request)
+        sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_,deleted_wms_count, _,_ = process_request(request)
         fig_wms = go.Figure()
         fig_wms.add_trace(go.Bar(x=sorted_months_wms, y=sorted_counts_wms, name='WMS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wms, textposition='outside'))
         fig_wms.add_trace(go.Scatter(x=sorted_months_wms, y=cumulative_counts_wms, mode='lines+markers+text', name='Cumulative WMS', line=dict(color='rgba(54, 162, 235, 1)')))
+        fig_wms.add_trace(go.Bar(x=sorted_months_wms, y=deleted_wms_count, name='Deleted WMS per Month', yaxis='y2', marker=dict(color='rgba(255, 159, 64, 1)'),  textposition='outside'))
         fig_wms.update_layout(
             title_text='WMS per Month',
             xaxis_title='Month',
@@ -550,10 +557,11 @@ def generate_wms_plot(request, start_date, end_date):
 
 def generate_wfs_plot(request, start_date, end_date):
         
-        _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _,_,_,_ = process_request(request)
+        _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _,_,_,_,_,deleted_wfs_count,_ = process_request(request)
         fig_wfs = go.Figure()
         fig_wfs.add_trace(go.Bar(x=sorted_months_wfs, y=sorted_counts_wfs, name='WFS per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wfs, textposition='outside'))
         fig_wfs.add_trace(go.Scatter(x=sorted_months_wfs, y=cumulative_counts_wfs, mode='lines+markers+text', name='Cumulative WFS', line=dict(color='rgba(54, 162, 235, 1)')))
+        fig_wfs.add_trace(go.Bar(x=sorted_months_wfs, y=deleted_wfs_count, name='Deleted WFS per Month', yaxis='y2', marker=dict(color='rgba(255, 159, 64, 1)'),  textposition='outside'))
         fig_wfs.update_layout(
             title_text='WFS per Month',
             xaxis_title='Month',
@@ -589,10 +597,11 @@ def generate_wfs_plot(request, start_date, end_date):
 
 def generate_wmc_plot(request, start_date, end_date):
         
-        _, _, _,_, _, _, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc,_,_,_ = process_request(request)
+        _, _, _,_, _, _, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc,_,_,_,_,_,deleted_wmc_count = process_request(request)
         fig_wmc = go.Figure()
         fig_wmc.add_trace(go.Bar(x=sorted_months_wmc, y=sorted_counts_wmc, name='wmc per Month', yaxis='y2', marker=dict(color='rgba(255, 99, 132, 1)'), text=sorted_counts_wmc, textposition='outside'))
         fig_wmc.add_trace(go.Scatter(x=sorted_months_wmc, y=cumulative_counts_wmc, mode='lines+markers+text', name='Cumulative wmc', line=dict(color='rgba(54, 162, 235, 1)')))
+        fig_wmc.add_trace(go.Bar(x=sorted_months_wmc, y=deleted_wmc_count, name='Deleted wmc per Month', yaxis='y2', marker=dict(color='rgba(255, 159, 64, 1)'),  textposition='outside'))
         fig_wmc.update_layout(
             title_text='wmc per Month',
             xaxis_title='Month',
@@ -626,6 +635,31 @@ def generate_wmc_plot(request, start_date, end_date):
         fig_wmc_html = fig_wmc.to_html(full_html=False, include_plotlyjs='cdn')
         return fig_wmc_html, image_path_wmc
 
+
+from useroperations.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
+
+from django.db.models.functions import TruncDay
+from django.db.models import Count
+
+def fetch_deleted_data(deletion_model):
+    deletions = deletion_model.objects.annotate(day=TruncDay('deleted_at')).values('day').annotate(count=Count('id')).order_by('day')
+    
+    dates = [deletion['day'] for deletion in deletions]
+    counts = [deletion['count'] for deletion in deletions]
+    
+    return dates, counts
+
+def fetch_deleted_users_data():
+    return fetch_deleted_data(MbUserDeletion)
+
+def fetch_deleted_wms_data():
+    return fetch_deleted_data(WmsDeletion)
+
+def fetch_deleted_wfs_data():
+    return fetch_deleted_data(WfsDeletion)
+
+def fetch_deleted_wmc_data():
+    return fetch_deleted_data(WmcDeletion)
 
 def generate_user_report(request, start_date_report, end_date_report):
     users_report = MbUser.objects.filter(timestamp_create__range=[start_date_report, end_date_report])
