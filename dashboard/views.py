@@ -11,7 +11,9 @@ import datetime as tm
 import csv
 from .forms import UploadFileForm
 import os
+import io
 import json
+import base64
 from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 import requests
@@ -68,59 +70,64 @@ def render_template(request, template_name):
     #once call the generate_wms_plot function on loading the page
     #generate_wms_plot(request, start_date, end_date) 
     if not request.is_ajax():
-        fig_html, image_path = generate_user_plot(start_date, end_date)
-        fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
-        fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
-        fig_wmc_html, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
+        fig_html, image_base64, image_path = generate_user_plot(start_date, end_date)
+        fig_wms_html, image_base64_wms, image_path_wms = generate_wms_plot(request, start_date, end_date)
+        fig_wfs_html, image_base64_wfs, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+        fig_wmc_html, image_base64_wmc, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
         if content_type == 'fig_html_report':
             fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
         elif content_type == 'fig_wms_report':
             fig_report_html, image_path_report = generate_wms_report(request, start_date_report, end_date_report)
-        session_data, image_path_session = get_filtered_session_data(request)
+        session_data, image_base64_session, image_path_session = get_filtered_session_data(request)
     else:
         if keyword == 'fig_html':
-            fig_html, image_path = generate_user_plot(start_date, end_date, dropdown_value)
+            fig_html, image_base64, image_path = generate_user_plot(start_date, end_date, dropdown_value)
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
+            image_base64_wms, image_base64_wfs, image_base64_wmc, image_base64_session = None, None, None, None
         elif keyword == 'fig_wms':
             fig_html, image_path = None, None
-            fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
+            fig_wms_html, image_base64_wms, image_path_wms = generate_wms_plot(request, start_date, end_date)
             fig_wfs_html, image_path_wfs = None, None
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
+            image_base64, image_base64_wfs, image_base64_wmc, image_base64_session = None, None, None, None
         elif keyword == 'fig_wfs':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
-            fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_wfs_html, image_base64_wfs, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
+            image_base64, image_base64_wms, image_base64_wmc, image_base64_session = None, None, None, None
         elif keyword == 'fig_wmc':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
-            fig_wmc_html, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
+            fig_wmc_html, image_base64_wmc, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
+            image_base64, image_base64_wfs, image_base64_wms, image_base64_session = None, None, None, None
         elif keyword == 'session_data':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
-            session_data, image_path_session = get_filtered_session_data(request)
+            image_base64, image_base64_wfs, image_base64_wms, image_base64_wmc = None, None, None, None
+            session_data, image_base64_session, image_path_session = get_filtered_session_data(request)
         else:
             #here is some problem
             #do something so that all the function will not be created when clicked on specific card
-            fig_html, image_path = generate_user_plot(start_date, end_date)
-            fig_wms_html, image_path_wms = generate_wms_plot(request, start_date, end_date)
-            fig_wfs_html, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
-            fig_wmc_html, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
-            session_data, image_path_session = get_filtered_session_data(request)
+            fig_html, image_base64, image_path = generate_user_plot(start_date, end_date)
+            fig_wms_html, image_base64_wms, image_path_wms = generate_wms_plot(request, start_date, end_date)
+            fig_wfs_html,image_base64_wfs, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_wmc_html,image_base64_wmc, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
+            session_data, image_base64_session, image_path_session = get_filtered_session_data(request)
             if content_type == 'fig_html_report':
                 fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
             elif content_type == 'fig_wms_report':
@@ -143,7 +150,7 @@ def render_template(request, template_name):
                     user = MbUser.objects.get(mb_user_id=userid)
                 except MbUser.DoesNotExist:
                     # Handle the case where the user does not exist in the database
-                    messages.add_message(request, messages.ERROR, ("The page is unavailable!"))
+                    messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
                     return redirect('useroperations:index')
 
                 # Check if the user belongs to the allowed group(s)
@@ -152,16 +159,16 @@ def render_template(request, template_name):
                     mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
                 ).values_list('mb_group_name', flat=True)
                 if not any(group in allowed_groups for group in user_groups):
-                    messages.add_message(request, messages.ERROR, ("You do not have the necessary permissions to access this page."))
+                    messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page."))
                     return redirect('useroperations:index')
 
             else:
-                messages.add_message(request, messages.ERROR, ("The page is unavailable!"))
+                messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
                 return redirect('useroperations:index')
 
             if user is None:
                 # We expect it to be read out of the session data until this point!!
-                messages.add_message(request, messages.ERROR, ("The user could not be found. Please contact an administrator!"))
+                messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page.!"))
                 return redirect('useroperations:index')
 
     #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
@@ -195,6 +202,11 @@ def render_template(request, template_name):
         'session_data': session_data,
         'fig_wmc': fig_wmc_html,
         'csrf_token': csrf_token,
+        'image_base64_wms': image_base64_wms,
+        'image_base64_wfs': image_base64_wfs,
+        'image_base64_wmc': image_base64_wmc,
+        'image_base64': image_base64,
+        'image_base64_session': image_base64_session,
 
         'start_date': start_date.strftime('%Y-%m-%d'),
         'end_date': end_date.strftime('%Y-%m-%d'),
@@ -289,7 +301,7 @@ def download_csv(request):
 def generate_wms_plot(request, start_date, end_date):
         
         sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_,deleted_wms_count, _,_ = process_request(request)
-        fig_wms_html, image_path_wms = create_plotly_figure(
+        fig_wms_html, image_base64, image_path_wms = create_plotly_figure(
         sorted_months_wms, 
         sorted_counts_wms, 
         cumulative_counts_wms, 
@@ -301,20 +313,20 @@ def generate_wms_plot(request, start_date, end_date):
         'Deleted WMS per Month', 
         'plotly_image_wms'
           )
-        return fig_wms_html, image_path_wms
+        return fig_wms_html, image_base64, image_path_wms
 
 def generate_wfs_plot(request, start_date, end_date):
         
         _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _,_,_,_,_,deleted_wfs_count,_ = process_request(request)
-        fig_wfs_html, image_path_wfs = create_plotly_figure(
+        fig_wfs_html, image_base64, image_path_wfs = create_plotly_figure(
             sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, deleted_wfs_count, 'WFS per Month', 'Month', 'Cumulative Number of WFS', 'WFS per Month', 'Deleted WFS per Month', 'plotly_image_wfs'
         )
-        return fig_wfs_html, image_path_wfs
+        return fig_wfs_html, image_base64, image_path_wfs
 
 def generate_wmc_plot(request, start_date, end_date):
         
         _, _, _,_, _, _, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc,_,_,_,_,_,deleted_wmc_count = process_request(request)
-        fig_wmc_html, image_path_wmc = create_plotly_figure(
+        fig_wmc_html, image_base64, image_path_wmc = create_plotly_figure(
         sorted_months_wmc, 
         sorted_counts_wmc, 
         cumulative_counts_wmc, 
@@ -326,7 +338,7 @@ def generate_wmc_plot(request, start_date, end_date):
         'Deleted WMC per Month', 
         'plotly_image_wmc'
         )
-        return fig_wmc_html, image_path_wmc
+        return fig_wmc_html, image_base64, image_path_wmc
 
 def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorted_deleted_counts, title, xaxis_title, yaxis_title, yaxis2_title, yaxis3_title, image_filename):
     fig = go.Figure()
@@ -357,6 +369,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         name=f'Deleted Users per {title}', 
         yaxis='y3', 
         marker=dict(color='rgba(255, 159, 64, 1)'),
+        visible='legendonly',
     ))
 
     # Update layout
@@ -393,13 +406,20 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         ),
         barmode='group',
     )
-
+    fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
     # Save the figure as an image
+    buffer = io.BytesIO()
+    fig.write_image(buffer, format='png')
+    buffer.seek(0)
+
+    # Save the figure as an image file in static/images/
     image_path = f'static/images/{image_filename}.png'
     full_image_path = os.path.join(os.path.dirname(__file__), image_path)
     fig.write_image(full_image_path)
-    fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
-    return fig_html, image_path
+    # Convert the in-memory image to base64
+    image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+
+    return fig_html, image_base64, image_path
 
 
 

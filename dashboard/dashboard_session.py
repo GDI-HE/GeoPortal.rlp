@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 from .models import SessionData
 import os
 from django.utils import timezone
+import io
+import base64
 
 def get_session_data(sessions, start_date=None, end_date=None):
     if not start_date:
@@ -56,11 +58,22 @@ def get_session_data(sessions, start_date=None, end_date=None):
         ),
         title='User Sessions Report'
     )
-    image_path_session = 'static/images/plotly_image_session.png'
-    full_image_path_session = os.path.join(os.path.dirname(__file__), image_path_session)
-    fig_session.write_image(full_image_path_session)
+
     fig_html_session = fig_session.to_html(full_html=False, include_plotlyjs='cdn')
-    return fig_html_session, image_path_session
+
+    # Save the figure as an image
+    buffer = io.BytesIO()
+    fig_session.write_image(buffer, format='png')
+    buffer.seek(0)
+
+    # Save the figure as an image file in static/images/
+    image_path_session = 'static/images/plotly_image.png'
+    full_image_path = os.path.join(os.path.dirname(__file__), image_path_session)
+    fig_session.write_image(full_image_path)
+    # Convert the in-memory image to base64
+    image_base64_session = base64.b64encode(buffer.read()).decode('utf-8')
+
+    return fig_html_session, image_base64_session, image_path_session
 
 def get_filtered_session_data(request):
     latest_timestamp = timezone.now()
@@ -88,6 +101,6 @@ def get_filtered_session_data(request):
     sessions = sessions.filter(timestamp_create__range=[start_date, end_date])
     sessions = sessions.order_by('timestamp_create')
 
-    session_data, image_path_session = get_session_data(sessions, start_date=start_date, end_date=end_date)
+    session_data, image_base64_session,   image_path_session = get_session_data(sessions, start_date=start_date, end_date=end_date)
     
-    return session_data, image_path_session
+    return session_data,  image_base64_session, image_path_session

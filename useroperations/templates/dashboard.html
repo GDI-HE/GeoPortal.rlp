@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
 {% load static %}
 {% block body %}
 {% csrf_token %}
@@ -6,7 +7,7 @@
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script src="{% static 'js/update_graph.js' %}"></script>
 
       <!-- Modal -->
@@ -86,7 +87,7 @@
                 <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card" data-content-type="fig_html">
                         <div class="iframe-container">
-                            <iframe id="graph1" src="{{ image_path }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <iframe id="graph1" src="data:image/png;base64,{{ image_base64}}" width="100%" height="400px" alt="Plotly Image"></iframe>
                             <div class="overlay" onclick="showGraphInModal('fig_html')"></div>
                         </div>
                     </div>
@@ -94,15 +95,17 @@
                 <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card" data-content-type="fig_wms">
                         <div class="iframe-container">
-                            <iframe id="graph2" src="{{ image_path_wms }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <!-- Replace the iframe with an img tag and use the base64 encoded image -->
+                            <img id="graph2" src="data:image/png;base64,{{ image_base64_wms}}" width="100%" height="400px" alt="Plotly Image">
                             <div class="overlay" onclick="showGraphInModal('fig_wms')"></div>
                         </div>
                     </div>
                 </div>
+                
                 <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card" data-content-type="session_data">
                         <div class="iframe-container">
-                            <iframe id="graph3" src="{{ image_path_session }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <iframe id="graph3" src="data:image/png;base64,{{ image_base64_session}}" width="100%" height="400px" alt="Plotly Image"></iframe>
                             <div class="overlay" onclick="showGraphInModal('session_data')"></div>
                         </div>
                     </div>
@@ -118,7 +121,7 @@
                 <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card" data-content-type="fig_wfs">
                         <div class="iframe-container">
-                            <iframe id="graph4" src="{{ image_path_wfs }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <img id="graph4" src="data:image/png;base64,{{ image_base64_wfs}}" width="100%" height="400px" alt="Plotly Image">
                             <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>
                             
                         </div>
@@ -127,7 +130,7 @@
                 <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card" data-content-type="fig_wmc">
                         <div class="iframe-container">
-                            <iframe id="graph4" src="{{ image_path_wmc }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <img id="graph5" src="data:image/png;base64,{{ image_base64_wmc}}" width="100%" height="400px" alt="Plotly Image">
                             <div class="overlay" onclick="showGraphInModal('fig_wmc')"></div>
                         </div>
                     </div>

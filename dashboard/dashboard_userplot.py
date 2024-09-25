@@ -1,7 +1,9 @@
 from useroperations.models import MbUser
 import plotly.graph_objs as go
 from collections import defaultdict
-import os
+import os 
+import io
+import base64
 from dashboard.dashboard_utils import get_time_period
 from dashboard.dashboard_request import  fetch_deleted_users_data
 
@@ -63,6 +65,8 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         name=f'Deleted Users per {dropdown_value.capitalize()}', 
         yaxis='y3', 
         marker=dict(color='rgba(255, 159, 64, 1)'),
+        #visible='legendonly',
+        
         # offsetgroup=1
     ))
     
@@ -89,7 +93,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
             anchor='free',
             overlaying='y',
             side='right',
-            position=1
+            position=1,
         ),
         legend=dict(
             orientation="h",
@@ -101,8 +105,18 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         barmode='group',
     )
 
+    fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
+
+    # Save the figure as an image
+    buffer = io.BytesIO()
+    fig.write_image(buffer, format='png')
+    buffer.seek(0)
+
+    # Save the figure as an image file in static/images/
     image_path = 'static/images/plotly_image.png'
     full_image_path = os.path.join(os.path.dirname(__file__), image_path)
     fig.write_image(full_image_path)
-    fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
-    return fig_html, image_path
+    # Convert the in-memory image to base64
+    image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
+
+    return fig_html, image_base64, image_path
