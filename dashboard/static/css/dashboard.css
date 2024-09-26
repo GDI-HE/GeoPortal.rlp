@@ -60,8 +60,8 @@ overflow:hidden !important;
 }
 
 .modal-body {
-    max-height: 70vh; /* Set a maximum height for the modal body */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: fit-content; /* Set a maximum height for the modal body */
+    /* overflow-y: auto;  */
 }
  .modal-dialog-centered {
 display: flex;
@@ -73,3 +73,12 @@ min-height: 100vh; /* Ensure the modal takes up the full height of the viewport 
 width: 100%;
 max-width: 800px; /* Adjust the max-width as needed */
 }
+
+@media (max-width: 767px) {
+    .plot-container .svg-container .main-svg .gtitle {
+        display: none !important;
+    }
+}
+/* #graphModal{
+    width: 120%
+}  */

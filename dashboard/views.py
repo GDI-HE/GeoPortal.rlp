@@ -386,7 +386,8 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
             titlefont=dict(color='rgba(255, 99, 132, 1)'),
             tickfont=dict(color='rgba(255, 99, 132, 1)'),
             overlaying='y',
-            side='right'
+            side='right',
+            position=0.97
         ),
         yaxis3=dict(
             title=yaxis3_title,
@@ -404,7 +405,11 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
             xanchor="center",
             x=0.5
         ),
-        barmode='group',
+        #barmode='group',
+        #autosize=True,
+        #margin=dict(l=50, r=100, t=50, b=50),  # Adjust margins for better fit on mobile
+        #font = dict(size=9)
+
     )
     fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
     # Save the figure as an image
@@ -549,27 +554,47 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
         cumulative_counts.append(cumulative_sum)
     
     fig_report = go.Figure()
-    fig_report.add_trace(go.Scatter(
+    
+    # Add bar graph for monthly data
+    fig_report.add_trace(go.Bar(
         x=sorted_months,
         y=sorted_counts,
-        mode='lines+markers+text',
         name=f'{title} per interval',
         text=sorted_counts,
-        textposition='top center'
+        textposition='outside',
+        marker=dict(color='rgba(255, 99, 132, 1)'),
+        yaxis='y2'  # Assign to y2 axis
     ))
+    
+    # Add scatter (line) graph for cumulative data
     fig_report.add_trace(go.Scatter(
         x=sorted_months,
         y=cumulative_counts,
         mode='lines+markers+text',
         name=f'Total {title}',
         text=cumulative_counts,
-        textposition='top center'
+        textposition='top center',
+        line=dict(color='rgba(54, 162, 235, 1)')
     ))
     
+    # Update layout
     fig_report.update_layout(
         xaxis=dict(
             title='Reporting Date',
             tickformat='%Y-%m-%d',
+        ),
+        yaxis=dict(
+            title='Cumulative Total',
+            titlefont=dict(color='rgba(54, 162, 235, 1)'),
+            tickfont=dict(color='rgba(54, 162, 235, 1)')
+        ),
+        yaxis2=dict(
+            title=f'{title} per Interval',
+            titlefont=dict(color='rgba(255, 99, 132, 1)'),
+            tickfont=dict(color='rgba(255, 99, 132, 1)'),
+            overlaying='y',
+            side='right',
+            position=1  # Adjust position to avoid overlap
         ),
         legend=dict(
             orientation="h",
@@ -578,11 +603,10 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
             xanchor="center",
             x=0.5
         ),
-        yaxis=dict(
-            title=yaxis_title
-        ),
-        title=f'{title} Creation Report'
+        title=f'{title} Creation Report',
+        barmode='group'  # Ensure bars are grouped
     )
+    
     
     image_path_report = f'static/images/{image_filename}.png'
     full_image_path_report = os.path.join(os.path.dirname(__file__), image_path_report)
@@ -591,6 +615,7 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
     fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
     
     return fig_html_report, image_path_report
+
 
 def generate_user_report(request, start_date_report, end_date_report):
     return generate_report(request, start_date_report, end_date_report, MbUser, 'User', 'Number of Users', 'plotly_image_user_report')
