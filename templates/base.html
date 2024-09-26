@@ -123,6 +123,7 @@
 					<li><div class="logged_username">{% trans 'Hello' %}, {{ user }}!</div></li>
 						<li ><a href="{% url 'useroperations:change_profile' %}"><span class="sidebar-list-element {% if request.session.current_page == 'change_profile' %}current-page{% endif %}">{% trans 'Change Profile' %}</span></a></li>
 						<li  ><a href="{% url 'useroperations:service_abo' %}"><span class="sidebar-list-element {% if request.session.current_page == 'service_abo' %}current-page{% endif %}">{% trans 'Show subscription' %}</span></a></li>
+						<li  ><a href="{% url 'dashboard:dashboard' %}"><span class="sidebar-list-element {% if request.session.current_page == 'dashboard' %}current-page{% endif %}">{% trans 'Admin Dashboard' %}</span></a></li>
 						<li  ><a href="{% url 'useroperations:logout' %}"><span class="sidebar-list-element {% if request.session.current_page == 'logout' %}current-page{% endif %}">{% trans 'Logout' %}</span></a></li>
 					{% else %}
 					<li><div class="logged_username">{% trans 'Not signed in' %}</div></li>
@@ -137,15 +138,6 @@
 				   <i class="sidebar-area-title-icon far fa-newspaper" title="{% trans 'News' %}" aria-hidden="true"></i>
 					<span class="sidebar-area-title-text menuMeldungen">{% trans 'News' %}</span>
 				</a>
-			</li>
-
-			<li class="sidebar-area" id="news">
-				{% if loggedin %}
-				<a class="sidebar-area-title {% if request.session.current_page == 'dashboard:dashboard' %}current-page{% endif %}" href="{% url 'dashboard:dashboard' %}">
-				   <i class="sidebar-area-title-icon far fa-newspaper" title="{% trans 'Dashboard' %}" aria-hidden="true"></i>
-					<span class="sidebar-area-title-text menuMeldungen">{% trans 'Dashboard' %}</span>
-				</a>
-			    {% endif %}	
 			</li>
 
 			<li class="mapviewer_menu"><a href="#" class="sidebar-area" id="mapviewer-sidebar" onclick="toggleMapviewer()">
