@@ -52,7 +52,7 @@ overflow:hidden !important;
     opacity: 0.5 !important;
 }
 .modal {
-    pointer-events: auto !important;
+    pointer-events: auto !important
 }
         
 .modal-dialog {
@@ -74,11 +74,25 @@ width: 100%;
 max-width: 800px; /* Adjust the max-width as needed */
 }
 
-@media (max-width: 767px) {
-    .plot-container .svg-container .main-svg .gtitle {
+/* @media (max-width: 767px) {
+    .plot-container .svg-container .main-svg .infolayer .g-gtitle .gtitle {
         display: none !important;
     }
+} */
+@media (max-width: 600px) {
+    .plotly-titles {
+        display: none !important;
+    }
+    .modal{
+        width: 120% !important
+    } 
 }
-/* #graphModal{
-    width: 120%
+/* .plotly-titles {
+    display: none !important;
+} */
+/* .g-gtitle gtitle{
+    display: none !important;
 }  */
+#graphModal{
+    background-color: rgba(255, 255, 255, 0.8) !important;
+}  

@@ -45,6 +45,14 @@ $(document).ready(function() {
     //         }
     //     });
     // });
+    // const titleElement = document.querySelector('.plot-container .svg-container .main-svg .infolayer .g-gtitle .gtitle');
+    //     if (titleElement) {
+    //         titleElement.classList.remove('gtitle'); // Remove the 'gtitle' class
+    //         titleElement.innerText = ''; // Set the text content to an empty string
+    //         console.log('Class "gtitle" removed and text content set to an empty string.');
+    //     } else {
+    //         console.log('Title element not found.');
+    //     }
 });
 
 $(document).ready(function() {
@@ -86,11 +94,14 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
     };
     
     // Function to update the modal title
-    function updateModalTitle(contentType) {
+       function updateModalTitle(contentType) {
         // Get the title from the mapping, default to 'User Statistics' if not found
         const title = contentTypeToTitle[contentType] || 'User Statistics';
         document.getElementById('graphModalLabel').innerText = title;
+    
+        // Select the element and update its text content
     }
+    
     
     // Example usage
     updateModalTitle(contentType);
@@ -261,11 +272,29 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                     },
                     success: function(data) {
                         console.log('AJAX success response:', data); // Log AJAX success response
-                        if (data[contentType]) {
-                            $('#modalGraphContent').attr('srcdoc', data[contentType]);
-                        } else {
-                            $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
-                        }
+                        const titleElement = document.querySelector('.plot-container .svg-container .main-svg .infolayer .g-gtitle .gtitle');
+        if (titleElement) {
+            titleElement.classList.remove('gtitle'); // Remove the 'gtitle' class
+            titleElement.classList.add('plotly-titles'); // Set the text content to an empty string
+            titleElement.textContent = ' '; // Set the text content to 'User Statistics'
+            console.log('titleElement:', titleElement);
+        } else {
+            console.log('Title element not found.');
+        }
+          // Remove the title from the AJAX response
+          let modifiedData = data[contentType];
+          if (modifiedData) {
+              // Use a regular expression to remove the title element
+              modifiedData = modifiedData.replace(/"title":\{"text":"[^"]*"\}/, '"title":{"text":""}');
+              $('#modalGraphContent').attr('srcdoc', modifiedData);
+          } else {
+              $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
+          }
+                        // if (data[contentType]) {
+                        //     $('#modalGraphContent').attr('srcdoc', data[contentType]);
+                        // } else {
+                        //     $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
+                        // }
                         // Hide the spinner after the content is loaded
                         $('#modalGraphContent').show();
                         spinnerContainer.style.display = 'none';
@@ -413,7 +442,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 contentType: contentType
             },
             success: function(data) {
-                $('#modalGraphContent').attr('srcdoc', data[contentType]);
+                let modifiedData = data[contentType];
+          if (modifiedData) {
+              // Use a regular expression to remove the title element
+              modifiedData = modifiedData.replace(/"title":\{"text":"[^"]*"\}/, '"title":{"text":""}');
+              $('#modalGraphContent').attr('srcdoc', modifiedData);
+          } else {
+              $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
+          }
+                // $('#modalGraphContent').attr('srcdoc', data[contentType]);
 
                 // Hide the spinner after the content is loaded
                 spinnerContainer.style.display = 'none';

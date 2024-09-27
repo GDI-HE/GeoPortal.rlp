@@ -405,7 +405,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
             xanchor="center",
             x=0.5
         ),
-        #barmode='group',
+        barmode='group',
         #autosize=True,
         #margin=dict(l=50, r=100, t=50, b=50),  # Adjust margins for better fit on mobile
         #font = dict(size=9)
