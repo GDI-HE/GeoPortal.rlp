@@ -96,3 +96,51 @@ max-width: 800px; /* Adjust the max-width as needed */
 #graphModal{
     background-color: rgba(255, 255, 255, 0.8) !important;
 }  
+.custom-tooltip {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 300px;
+}
+
+.custom-tooltip img {
+    max-width: 100%;
+    height: auto;
+}
+
+.custom-tooltip .close-tooltip {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+/* make a durchsuchen better look */
+#id_file{
+
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+} 
+
+/* make button btn-primary a bit gap with id_file in mobile view */
+@media (max-width: 600px) {
+    .btn-primary.upload-btn{
+        margin-top: 10px;
+        /* also make it smaller */
+        padding: 0.25rem 0.5rem;
+    }
+}
+

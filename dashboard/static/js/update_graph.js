@@ -119,12 +119,14 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                 '<input type="file" name="file" required id="id_file" accept=".csv">'
             );
             htmlContent = `
-                <h1>Generate Reporting Date</h1>
+                <p>Upload a CSV file to generate a report. 
+                    <i class="fa fa-info-circle" id="infoIcon" data-html="true" style="cursor: pointer;"></i>
+                </p>
                 <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
                     ${modifiedFormHtml}
                        <input type="hidden" name="contentType" id="contentType" value="${contentType}"> <!-- Dynamically set contentType -->
-                    <button type="submit">Upload</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
                 </form>
             `;
         } else {
@@ -277,7 +279,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
             titleElement.classList.remove('gtitle'); // Remove the 'gtitle' class
             titleElement.classList.add('plotly-titles'); // Set the text content to an empty string
             titleElement.textContent = ' '; // Set the text content to 'User Statistics'
-            console.log('titleElement:', titleElement);
+            //console.log('titleElement:', titleElement);
         } else {
             console.log('Title element not found.');
         }
@@ -346,7 +348,14 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                             dropdown: dropdownValue ? dropdownValue : null
                         },
                         success: function(data) {
-                            $('#modalGraphContent').attr('srcdoc', data[contentType]);
+                            if (titleElement) {
+                                titleElement.classList.remove('gtitle'); // Remove the 'gtitle' class
+                                titleElement.classList.add('plotly-titles'); // Set the text content to an empty string
+                                titleElement.textContent = ' '; // Set the text content to 'User Statistics'
+                                //console.log('titleElement:', titleElement);
+                            } else {
+                                console.log('Title element not found.');
+                            }
                             // hide the spinner after the content is loaded
                             $('#modalGraphContent').show();
                             spinnerContainer.style.display = 'none';
@@ -503,12 +512,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     const modifiedFormHtml = '<input type="file" name="file" required id="id_file" accept=".csv">'; // Example form HTML
 
                     let htmlContent = `
-                        <h1>Generate Reporting Date</h1>
+                           <p>Upload a CSV file to generate a report. 
+                            <i class="fa fa-info-circle" data-toggle="tooltip" title="Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed."></i>
+                            </p>
+                        
                         <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
                             <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
                             ${modifiedFormHtml}
                             <input type="hidden" name="contenttype" id="contentType" value="${reportContentType}"> <!-- Use the report contentType -->
-                            <button type="submit">Upload</button>
+                            <button type="submit" class="btn btn-primary upload-btn">Upload</button>
                         </form>
                     `;
 
@@ -601,7 +613,10 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Element with ID userCreationReportButton not found.');
     }
 });
-
+// Initialize tooltips (requires jQuery and Bootstrap)
+$(document).ready(function(){
+    $('[data-toggle="tooltip"]').tooltip(); 
+});
 function generate_report(data) {
     // Example implementation of the generate_report function
     console.log('Generating report with data:', data);
