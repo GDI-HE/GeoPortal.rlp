@@ -67,13 +67,13 @@ def get_session_data(sessions, start_date=None, end_date=None):
     buffer.seek(0)
 
     # Save the figure as an image file in static/images/
-    image_path_session = 'static/images/plotly_image.png'
-    full_image_path = os.path.join(os.path.dirname(__file__), image_path_session)
-    fig_session.write_image(full_image_path)
+    #image_path_session = 'static/images/plotly_image.png'
+    #full_image_path = os.path.join(os.path.dirname(__file__), image_path_session)
+    #fig_session.write_image(full_image_path)
     # Convert the in-memory image to base64
     image_base64_session = base64.b64encode(buffer.read()).decode('utf-8')
 
-    return fig_html_session, image_base64_session, image_path_session
+    return fig_html_session, image_base64_session
 
 def get_filtered_session_data(request):
     latest_timestamp = timezone.now()
@@ -101,6 +101,6 @@ def get_filtered_session_data(request):
     sessions = sessions.filter(timestamp_create__range=[start_date, end_date])
     sessions = sessions.order_by('timestamp_create')
 
-    session_data, image_base64_session,   image_path_session = get_session_data(sessions, start_date=start_date, end_date=end_date)
+    session_data, image_base64_session = get_session_data(sessions, start_date=start_date, end_date=end_date)
     
-    return session_data,  image_base64_session, image_path_session
+    return session_data,  image_base64_session

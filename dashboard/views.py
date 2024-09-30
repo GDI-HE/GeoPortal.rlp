@@ -70,18 +70,18 @@ def render_template(request, template_name):
     #once call the generate_wms_plot function on loading the page
     #generate_wms_plot(request, start_date, end_date) 
     if not request.is_ajax():
-        fig_html, image_base64, image_path = generate_user_plot(start_date, end_date)
-        fig_wms_html, image_base64_wms, image_path_wms = generate_wms_plot(request, start_date, end_date)
-        fig_wfs_html, image_base64_wfs, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
-        fig_wmc_html, image_base64_wmc, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
+        fig_html, image_base64 = generate_user_plot(start_date, end_date)
+        fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date)
+        fig_wfs_html, image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
+        fig_wmc_html, image_base64_wmc= generate_wmc_plot(request, start_date, end_date)
         if content_type == 'fig_html_report':
             fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
         elif content_type == 'fig_wms_report':
             fig_report_html, image_path_report = generate_wms_report(request, start_date_report, end_date_report)
-        session_data, image_base64_session, image_path_session = get_filtered_session_data(request)
+        session_data, image_base64_session = get_filtered_session_data(request)
     else:
         if keyword == 'fig_html':
-            fig_html, image_base64, image_path = generate_user_plot(start_date, end_date, dropdown_value)
+            fig_html, image_base64 = generate_user_plot(start_date, end_date, dropdown_value)
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
             fig_wmc_html, image_path_wmc = None, None
@@ -90,7 +90,7 @@ def render_template(request, template_name):
             image_base64_wms, image_base64_wfs, image_base64_wmc, image_base64_session = None, None, None, None
         elif keyword == 'fig_wms':
             fig_html, image_path = None, None
-            fig_wms_html, image_base64_wms, image_path_wms = generate_wms_plot(request, start_date, end_date)
+            fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date)
             fig_wfs_html, image_path_wfs = None, None
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
@@ -99,7 +99,7 @@ def render_template(request, template_name):
         elif keyword == 'fig_wfs':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
-            fig_wfs_html, image_base64_wfs, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_wfs_html, image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
@@ -108,26 +108,26 @@ def render_template(request, template_name):
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
             fig_wfs_html, image_path_wfs = None, None
-            fig_wmc_html, image_base64_wmc, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
+            fig_wmc_html, image_base64_wmc = generate_wmc_plot(request, start_date, end_date)
             fig_report_html, image_path_report = None, None
-            session_data, image_path_session = None, None
+            session_data = None
             image_base64, image_base64_wfs, image_base64_wms, image_base64_session = None, None, None, None
         elif keyword == 'session_data':
             fig_html, image_path = None, None
-            fig_wms_html, image_path_wms = None, None
-            fig_wfs_html, image_path_wfs = None, None
-            fig_wmc_html, image_path_wmc = None, None
+            fig_wms_html = None
+            fig_wfs_html = None
+            fig_wmc_html = None
             fig_report_html, image_path_report = None, None
             image_base64, image_base64_wfs, image_base64_wms, image_base64_wmc = None, None, None, None
-            session_data, image_base64_session, image_path_session = get_filtered_session_data(request)
+            session_data, image_base64_session = get_filtered_session_data(request)
         else:
             #here is some problem
             #do something so that all the function will not be created when clicked on specific card
-            fig_html, image_base64, image_path = generate_user_plot(start_date, end_date)
-            fig_wms_html, image_base64_wms, image_path_wms = generate_wms_plot(request, start_date, end_date)
-            fig_wfs_html,image_base64_wfs, image_path_wfs = generate_wfs_plot(request, start_date, end_date)
-            fig_wmc_html,image_base64_wmc, image_path_wmc = generate_wmc_plot(request, start_date, end_date)
-            session_data, image_base64_session, image_path_session = get_filtered_session_data(request)
+            fig_html, image_base64 = generate_user_plot(start_date, end_date)
+            fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date)
+            fig_wfs_html,image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_wmc_html,image_base64_wmc = generate_wmc_plot(request, start_date, end_date)
+            session_data, image_base64_session = get_filtered_session_data(request)
             if content_type == 'fig_html_report':
                 fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
             elif content_type == 'fig_wms_report':
@@ -221,7 +221,6 @@ def render_template(request, template_name):
         'image_path_wms': '/' + image_path_wms if image_path_wms else '',
         'image_path_wfs': '/' + image_path_wfs if image_path_wfs else '',
         'image_path_report': '/' + image_path_report if image_path_report else '',
-        'image_path_session': '/' + image_path_session if image_path_session else '',
         'image_path_wmc': '/' + image_path_wmc if image_path_wmc else '',
     }
     if context is None:
@@ -301,7 +300,7 @@ def download_csv(request):
 def generate_wms_plot(request, start_date, end_date):
         
         sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_,deleted_wms_count, _,_ = process_request(request)
-        fig_wms_html, image_base64, image_path_wms = create_plotly_figure(
+        fig_wms_html, image_base64 = create_plotly_figure(
         sorted_months_wms, 
         sorted_counts_wms, 
         cumulative_counts_wms, 
@@ -313,20 +312,20 @@ def generate_wms_plot(request, start_date, end_date):
         'Deleted WMS per Month', 
         'plotly_image_wms'
           )
-        return fig_wms_html, image_base64, image_path_wms
+        return fig_wms_html, image_base64
 
 def generate_wfs_plot(request, start_date, end_date):
         
         _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _,_,_,_,_,deleted_wfs_count,_ = process_request(request)
-        fig_wfs_html, image_base64, image_path_wfs = create_plotly_figure(
+        fig_wfs_html, image_base64 = create_plotly_figure(
             sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, deleted_wfs_count, 'WFS per Month', 'Month', 'Cumulative Number of WFS', 'WFS per Month', 'Deleted WFS per Month', 'plotly_image_wfs'
         )
-        return fig_wfs_html, image_base64, image_path_wfs
+        return fig_wfs_html, image_base64
 
 def generate_wmc_plot(request, start_date, end_date):
         
         _, _, _,_, _, _, sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc,_,_,_,_,_,deleted_wmc_count = process_request(request)
-        fig_wmc_html, image_base64, image_path_wmc = create_plotly_figure(
+        fig_wmc_html, image_base64= create_plotly_figure(
         sorted_months_wmc, 
         sorted_counts_wmc, 
         cumulative_counts_wmc, 
@@ -338,7 +337,7 @@ def generate_wmc_plot(request, start_date, end_date):
         'Deleted WMC per Month', 
         'plotly_image_wmc'
         )
-        return fig_wmc_html, image_base64, image_path_wmc
+        return fig_wmc_html, image_base64
 
 def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorted_deleted_counts, title, xaxis_title, yaxis_title, yaxis2_title, yaxis3_title, image_filename):
     fig = go.Figure()
@@ -387,7 +386,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
             tickfont=dict(color='rgba(255, 99, 132, 1)'),
             overlaying='y',
             side='right',
-            position=0.97
+            position=0.97,
         ),
         yaxis3=dict(
             title=yaxis3_title,
@@ -418,13 +417,13 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     buffer.seek(0)
 
     # Save the figure as an image file in static/images/
-    image_path = f'static/images/{image_filename}.png'
-    full_image_path = os.path.join(os.path.dirname(__file__), image_path)
-    fig.write_image(full_image_path)
+    #image_path = f'static/images/{image_filename}.png'
+    #full_image_path = os.path.join(os.path.dirname(__file__), image_path)
+    #fig.write_image(full_image_path)
     # Convert the in-memory image to base64
     image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
 
-    return fig_html, image_base64, image_path
+    return fig_html, image_base64
 
 
 
