@@ -348,7 +348,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         y=sorted_counts, 
         name=f'New Users per {title}', 
         yaxis='y2', 
-        marker=dict(color='rgba(255, 99, 132, 1)'),
+        marker=dict(color='rgba(54, 162, 235, 1)'),
         offset=1 
     ))
 
@@ -358,7 +358,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         y=cumulative_counts, 
         mode='lines+markers', 
         name=f'Cumulative New Users', 
-        line=dict(color='rgba(54, 162, 235, 1)'),
+        line=dict(color='rgba(255, 0, 0, 1)'),
     ))
 
     # Add deleted users bar graph
@@ -377,13 +377,13 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         xaxis=dict(title=xaxis_title),
         yaxis=dict(
             title=yaxis_title,
-            titlefont=dict(color='rgba(54, 162, 235, 1)'),
-            tickfont=dict(color='rgba(54, 162, 235, 1)')
+            titlefont=dict(color='rgba(255, 0, 0, 1)'),
+            tickfont=dict(color='rgba(255, 0, 0, 1)')
         ),
         yaxis2=dict(
             title=yaxis2_title,
-            titlefont=dict(color='rgba(255, 99, 132, 1)'),
-            tickfont=dict(color='rgba(255, 99, 132, 1)'),
+            titlefont=dict(color='rgba(54, 162, 235, 1)'),
+            tickfont=dict(color='rgba(54, 162, 235, 1)'),
             overlaying='y',
             side='right',
             position=0.97,
@@ -768,9 +768,11 @@ def get_layer_statistics(layers):
     layers_abstract_matches_title_names = list(layers_abstract_matches_title.values_list('layer_title', flat=True))
 
     # Count layers with short abstracts (less than 50 characters)
+    # when the abstract is null or empty string, it is not counted as short_abstract.
+    #If needs to be counted, remove the ~Q(layer_abstract__exact='') condition
     layers_with_short_abstract = layers.annotate(
         abstract_length=Length('layer_abstract', output_field=IntegerField())
-    ).filter(abstract_length__lt=50)
+    ).filter(Q(abstract_length__lt=50) & ~Q(layer_abstract__isnull=True) & ~Q(layer_abstract__exact=''))
     layers_with_short_abstract_count = layers_with_short_abstract.count()
     layers_with_short_abstract_info = list(layers_with_short_abstract.values_list('layer_title', 'layer_abstract'))
 
@@ -807,6 +809,12 @@ def get_layer_statistics(layers):
     # Get all layer names
     layer_names = list(layers.values_list('layer_title', flat=True))
 
+    #also get the wms's fees and accessconstraints
+    wms_ids = layers.values_list('fkey_wms_id', flat=True)
+    wms_fees = Wms.objects.filter(wms_id__in=wms_ids).values_list('fees', flat=True)
+    wms_accessconstraints = Wms.objects.filter(wms_id__in=wms_ids).values_list('accessconstraints', flat=True)
+
+
     return {
         'total_layers': total_layers,
         'layers_without_abstract_count': layers_without_abstract_count,
@@ -822,7 +830,9 @@ def get_layer_statistics(layers):
         'keywords_present': keywords_present,
         'abstracts_present': abstracts_present,
         'layers_abstract_match': ['Y' if match else 'N' for match in layers_abstract_match],
-        'layer_names': layer_names
+        'layer_names': layer_names,
+        'wms_fees': wms_fees,
+        'wms_accessconstraints': wms_accessconstraints
     }
 
 def check_layer_abstracts_and_keywords(request):
@@ -888,7 +898,9 @@ def check_layer_abstracts_and_keywords(request):
             'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
             'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
             'layers_abstract_match': layer_stats['layers_abstract_match'],
-            'layer_names': layer_stats['layer_names']
+            'layer_names': layer_stats['layer_names'],
+            'wms_fees': wms.fees,
+            'wms_accessconstraints': wms.accessconstraints
         })
 
     context = {
@@ -941,7 +953,10 @@ def load_more_data(request):
             'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
             'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
             'layers_abstract_match': layer_stats['layers_abstract_match'],
-            'layer_names': layer_stats['layer_names']
+            'layer_names': layer_stats['layer_names'],
+            'wms_fees': wms.fees,
+            'wms_accessconstraints': wms.accessconstraints
+
         })
 
     return JsonResponse({
@@ -981,7 +996,10 @@ def search_data(request):
             'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
             'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
             'layers_abstract_match': layer_stats['layers_abstract_match'],
-            'layer_names': layer_stats['layer_names']
+            'layer_names': layer_stats['layer_names'],
+            'wms_fees': wms.fees,
+            'wms_accessconstraints': wms.accessconstraints
+
         })
 
     return JsonResponse({'results': results})

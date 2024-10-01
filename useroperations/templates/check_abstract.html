@@ -28,7 +28,7 @@
             font-size: 16px;
             font-weight: bold;
             color: white;
-            background-color: #3498db;
+            background-color: #137673;
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -37,11 +37,11 @@
             display: block;
         }
         .load-more-btn:hover {
-            background-color: #1582cc;
+            background-color: #1d938f;
             transform: translateY(-2px);
         }
         .load-more-btn:active {
-            background-color: #1f6391;
+            background-color: #137673;
             transform: translateY(0);
         }
         .card {
@@ -59,7 +59,7 @@
         .number {
             font-size: 48px;
             font-weight: bold;
-            color: #e74c3c;
+            color: #137673;
             margin: 0;
         }
         .label {
@@ -96,14 +96,14 @@
             border-bottom: 1px solid #ddd;
         }
         th {
-            background-color: #3498db;
+            background-color: #137673;
             color: white;
         }
         tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #ffffff;
         }
         tr:hover {
-            background-color: #e6f3ff;
+            background-color: #ffffff;
         }
         .status {
             font-weight: bold;
@@ -115,7 +115,7 @@
             color: #c0392b;
         }
         .dropdown-btn {
-            background-color: #3498db;
+            background-color: #137673;
             color: white;
             padding: 5px 10px;
             border: none;
@@ -132,7 +132,7 @@
             margin-top: 20px;
         }
         .pagination a {
-            color: #3498db;
+            color: #137673;
             padding: 8px 16px;
             text-decoration: none;
             border: 1px solid #ddd;
@@ -143,9 +143,9 @@
             background-color: #ddd;
         }
         .pagination .active {
-            background-color: #3498db;
+            background-color: #137673;
             color: white;
-            border: 1px solid #3498db;
+            border: 1px solid #137673;
         }
         .short-abstract {
             color: red;
@@ -268,6 +268,10 @@
                         <li class="short-abstract">{{ layer_name }}: {{ layer_abstract }}</li>
                         {% endfor %}
                     </ul>
+                    <h3>Angaben zu Kosten/Gebühren/Lizenzen: </h3>
+                    <ul>{{ result.wms_fees }}</ul>
+                    <h3>Beschränkungen des öffentlichen Zugangs</h3>
+                    <ul>{{ result.wms_accessconstraints }}</ul>
                 </td>
             </tr>
             {% endfor %}
@@ -321,6 +325,7 @@
                                 ${result.layers_abstract_match.map(match => `<span>${match}</span><br>`).join('')}
                             </td>
                             <td>${result.layers_with_short_abstract_count}</td>
+                           
                             <td>
                                 <button class="dropdown-btn" onclick="toggleDropdown(this)">Show Details</button>
                             </td>
@@ -358,6 +363,15 @@
                                 <ul>
                                     ${result.layers_with_short_abstract_info.map(info => `<li class="short-abstract">${info[0]}: ${info[1]}</li>`).join('')}
                                 </ul>
+                                <h3> Angaben zu Kosten/Gebühren/Lizenzen </h3>
+                                <ul>
+                                    ${result.wms_fees}
+                                </ul>
+                                <h3> Beschränkungen des öffentlichen Zugangs </h3>
+                                <ul>
+                                    ${result.wms_accessconstraints}
+                                </ul>
+                                
                             </td>
                         `;
         
@@ -438,6 +452,15 @@
                                         <ul>
                                             ${result.layers_with_short_abstract_info.map(info => `<li class="short-abstract">${info[0]}: ${info[1]}</li>`).join('')}
                                         </ul>
+                                        <h3> Angaben zu Kosten/Gebühren/Lizenzen </h3>
+                                        <ul>
+                                            ${result.wms_fees}
+                                        </ul>
+                                        <h3> Beschränkungen des öffentlichen Zugangs </h3>
+                                        <ul>
+                                            ${result.wms_accessconstraints}
+                                        </ul>
+
                                     </td>
                                 `;
 
