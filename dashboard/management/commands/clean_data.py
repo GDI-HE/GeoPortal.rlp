@@ -2,43 +2,65 @@ from django.core.management.base import BaseCommand
 import pandas as pd
 from django.conf import settings
 from pathlib import Path
+from statsmodels.tsa.arima.model import ARIMA
+import numpy as np
 
 class Command(BaseCommand):
     help = 'Clean and read a CSV file'
 
     def calculate_actual_load(self, df):
-        # Initialize a variable to keep track of the previous day's load for each wmc_id
         previous_loads = {} 
-
-        # Convert the 'date' column to datetime
         df['date'] = pd.to_datetime(df['date'])
-
-        # Sort the DataFrame by 'date' in ascending order
         df.sort_values(by=['date'], inplace=True)
-
-        # Remove duplicates based on 'wmc_id' and 'date'
         df.drop_duplicates(subset=['wmc_serial_id', 'date'], keep='first', inplace=True)
 
-        # Iterate over rows in the DataFrame
+        start_problem_date = pd.to_datetime('2020-10-02')
+        end_problem_date = pd.to_datetime('2020-11-09')
+        problem_data = df[(df['date'] >= start_problem_date) & (df['date'] <= end_problem_date)]
+        df = df[~((df['date'] >= start_problem_date) & (df['date'] <= end_problem_date))]
+
+        for wmc_id in problem_data['wmc_serial_id'].unique():
+            previous_month_data = df[(df['wmc_serial_id'] == wmc_id) & (df['date'] < start_problem_date)]
+            previous_month_data = previous_month_data.tail(30)
+
+            if len(previous_month_data) < 30:
+                continue
+
+            previous_month_data.set_index('date', inplace=True)
+            model = ARIMA(previous_month_data['load_count'], order=(5, 1, 0))
+            model_fit = model.fit()
+            forecast = model_fit.forecast(steps=len(problem_data[problem_data['wmc_serial_id'] == wmc_id]))
+            problem_data.loc[problem_data['wmc_serial_id'] == wmc_id, 'load_count'] = forecast.astype(int).values
+
+        df = pd.concat([df, problem_data])
+        df.sort_values(by=['date'], inplace=True)
+
         for index, row in df.iterrows():
             date = row['date']
             wmc_id = row['wmc_serial_id']
             load = row['load_count']
 
-            # Check if the date is a Monday (weekday() == 0)
-            if date.weekday() != 0:
-                # Not a Monday, calculate actual load as the difference between
-                # today's load and the previous day's load
-                if wmc_id in previous_loads:
-                    actual_load = load - previous_loads[wmc_id]
-                    df.at[index, 'actual_load'] = int(actual_load)
-                else:
+            if date < start_problem_date:
+                if date.weekday() == 1:  # Tuesday
                     df.at[index, 'actual_load'] = int(load)
+                else:
+                    if wmc_id in previous_loads:
+                        actual_load = load - previous_loads[wmc_id]
+                        actual_load = max(actual_load, 0)
+                        df.at[index, 'actual_load'] = int(actual_load)
+                    else:
+                        df.at[index, 'actual_load'] = int(load)
             else:
-                # On Mondays, the actual load is the same as the load count
-                df.at[index, 'actual_load'] = int(load)
+                if date.weekday() == 0:  # Monday
+                    df.at[index, 'actual_load'] = int(load)
+                else:
+                    if wmc_id in previous_loads:
+                        actual_load = load - previous_loads[wmc_id]
+                        actual_load = max(actual_load, 0)
+                        df.at[index, 'actual_load'] = int(actual_load)
+                    else:
+                        df.at[index, 'actual_load'] = int(load)
 
-            # Update the previous load for the current wmc_id
             previous_loads[wmc_id] = load
 
         return df
