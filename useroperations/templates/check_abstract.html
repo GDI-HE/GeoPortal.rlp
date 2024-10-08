@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Service Layer Abstract and Keyword Check</title>
     <style>
         body {
@@ -73,18 +74,33 @@
             margin-bottom: 30px;
         }
         .search-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
         .search-container input {
             padding: 10px;
             font-size: 16px;
             width: 300px;
             border: 1px solid #ddd;
-            border-radius: 25px;
+            border-radius: 10px;
             margin: inherit;
         }
-        table {
+         
+        #clear-input {
+            position: absolute;
+cursor: pointer;
+background-color: transparent;
+color: var(--hesse-grey);
+border: none;
+z-index: 1;
+margin-left: 290px;
+margin-bottom: inherit;
+        }
+                table {
             width: 100%;
             border-collapse: collapse;
             background-color: white;
@@ -177,7 +193,10 @@
         </div>
     </div>
     <div class="search-container">
-        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for Service Title (Min: 5 Char)">
+        <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for Service Title (Min: 5 Char)" oninput="toggleClearButton()">
+        <button id="clear-input" aria-label="Clear search input" onclick="clearSearchInput()" style="display: none;">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
     <table id="serviceTable">
         <thead>
@@ -291,10 +310,10 @@
                 function searchTable() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toLowerCase();
-            if (filter.length == 0) {
-                location.reload();
-                return;
-            } 
+            // if (filter.length == 0) {
+            //     location.reload();
+            //     return;
+            // } 
             if (filter.length < 5) {
                 return; // Do not search until at least 5 characters are entered
             }
@@ -383,6 +402,21 @@
                         tableBody.appendChild(detailRow);
                     });
                 });
+        }
+        function toggleClearButton(){
+            const input = document.getElementById('searchInput');
+            const clearButton = document.getElementById('clear-input');
+            if (input.value.length > 0) {
+                clearButton.style.display = 'block';
+            } else {
+                clearButton.style.display = 'none';
+            }
+        } 
+        function clearSearchInput() {
+            const input = document.getElementById('searchInput');
+            input.value = '';
+            toggleClearButton();
+            location.reload();
         }
         document.addEventListener('DOMContentLoaded', function() {
             let page = 1;
