@@ -1,16 +1,22 @@
 {% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
 {% load static %}
 {% block body %}
 {% csrf_token %}
-
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script src="{% static 'js/update_graph.js' %}"></script>
+<<<<<<< HEAD
    
 
      
+=======
+
+      <!-- Modal -->
+>>>>>>> 100_dashboard_deepak
     <div class="modal fade" id="graphModal" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -25,14 +31,22 @@
                     <div id="dynamicContent">
                         <!-- Dynamic content will be loaded here -->
                     </div>
+                    <div id="reportContainer">
+                        <!-- Report content will be injected here by the generate_report function -->
+                    </div>
                         <div id="spinnerContainer" style="display: none;">
                         <div id="spinner" class="spinner-border" role="status">
                             <span class="sr-only">Loading...</span>
                         </div>
                     </div>
-                    <iframe id="modalGraphContent" width="100%" height="400px" frameborder="0"></iframe>
+                    <iframe id="modalGraphContent" width="100%" height="470px" frameborder="0"></iframe>
                 </div>
                 <div class="modal-footer">
+<<<<<<< HEAD
+=======
+                        <a id="downloadWmsCsvLink" href="#" class="btn btn-primary">Download CSV</a>
+                    <button type="button" class="btn btn-info" id="userCreationReportButton">User Defined Report</button>
+>>>>>>> 100_dashboard_deepak
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -40,7 +54,7 @@
     </div>
     
 
-    <div class="landing-page-box1">
+    <div class="landing-page-box1"><!--landing-page-box-Begin -->
         <div class="landing-page-headline">
             <h2>Statistik</h2>
         </div>
@@ -96,42 +110,56 @@
         <div class="container mt-4">
             <div class="row">
                 <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card">
+                    <div class="card" data-content-type="fig_html">
                         <div class="iframe-container">
-                            <iframe id="graph1" src="{{ image_path }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <iframe id="graph1" src="data:image/png;base64,{{ image_base64}}" width="100%" height="400px" alt="Plotly Image"></iframe>
                             <div class="overlay" onclick="showGraphInModal('fig_html')"></div>
                         </div>
                     </div>
                 </div>
                 <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card">
+                    <div class="card" data-content-type="fig_wms">
                         <div class="iframe-container">
-                            <iframe id="graph2" src="{{ image_path_wms }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <!-- Replace the iframe with an img tag and use the base64 encoded image -->
+                            <iframe id="graph2" src="data:image/png;base64,{{ image_base64_wms}}" width="100%" height="400px" alt="Plotly Image"></iframe>
                             <div class="overlay" onclick="showGraphInModal('fig_wms')"></div>
                         </div>
                     </div>
                 </div>
+                
                 <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card">
+                    <div class="card" data-content-type="session_data">
                         <div class="iframe-container">
-                            <iframe id="graph3" src="{{ image_path_session }}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <iframe id="graph3" src="data:image/png;base64,{{ image_base64_session}}" width="100%" height="400px" alt="Plotly Image"></iframe>
                             <div class="overlay" onclick="showGraphInModal('session_data')"></div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-sm-12 mb-4">
+                <!-- <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card">
                         <div class="iframe-container">
                             <iframe id="graph4" src="{{ image_path_report }}" width="100%" height="400px" alt="Plotly Image"></iframe>
                             <div class="overlay" onclick="showGraphInModal('fig_html_report')"></div>
                         </div>
                     </div>
+                </div> -->
+                <div class="col-md-6 col-sm-12 mb-4">
+                    <div class="card" data-content-type="fig_wfs">
+                        <div class="iframe-container">
+                            <iframe id="graph4" src="data:image/png;base64,{{ image_base64_wfs}}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>
+<<<<<<< HEAD
+=======
+                            
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card">
+                    <div class="card" data-content-type="fig_wmc">
                         <div class="iframe-container">
-                            <iframe id="graph4" src="{{ image_path_wfs }}" width="100%" height="400px" alt="Plotly Image"></iframe>
-                            <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>
+                            <iframe id="graph5" src="data:image/png;base64,{{ image_base64_wmc}}" width="100%" height="400px" alt="Plotly Image"></iframe>
+                            <div class="overlay" onclick="showGraphInModal('fig_wmc')"></div>
+>>>>>>> 100_dashboard_deepak
                         </div>
                     </div>
                 </div>
@@ -139,6 +167,7 @@
         </div>
   
     
+<<<<<<< HEAD
     <script>
       
         $(document).ready(function() {
@@ -368,5 +397,17 @@
         max-width: 800px; /* Adjust the max-width as needed */
     }
     </style>
+=======
+        <script>
+            const filterUrl = "{% url 'dashboard:filter' %}";
+            const downloadCsvUrl = "{% url 'dashboard:download_csv' %}";
+            const startDate = "{{ start_date }}";
+            const endDate = "{{ end_date }}";
+            const csrfToken = "{{ csrf_token }}";
+            const formHtml = `{{ form.as_p|safe }}`;
+        </script>
+          
+ 
+>>>>>>> 100_dashboard_deepak
 </body>
 {% endblock %}

@@ -33,6 +33,9 @@ NO_OF_DAYS=15
 #helps to add more results and helps in searching all the data rather than only 99 results.
 MAX_API_RESULTS = 3000
 
+#add allowed groups to allow the user to access the dashboard
+ALLOWED_GROUPS = ['testgruppe1', 'Bereichsadmin']
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '#m+rso_^a!ii6fg97kd7woxa$ttr&jn^!=_(!wgrukal81q(9+'
 
@@ -186,12 +189,13 @@ CORS_ALLOW_METHODS = [
 
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
+#the problem of taking data from django instead of mapbender is that the django is in fromnt of mapbender in search_path
+# solved by adding mapbender at first position in search_path
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'OPTIONS' : {
-                    'options': '-c search_path=django,mapbender,public'
+                    'options': '-c search_path=mapbender,public,django'
                     },
         'NAME':'mapbender',
         'USER':'mapbenderdbuser',
@@ -200,7 +204,6 @@ DATABASES = {
         'PORT':''
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

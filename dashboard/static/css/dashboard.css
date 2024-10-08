@@ -21,8 +21,10 @@ overflow:hidden !important;
 } 
 .iframe-container {
     position: relative;
-    width: 590px;
-    height: 400px;
+    width: 100%;
+    padding-bottom: 70%; /*it changes the aspect ratio according to the width */
+    height: 0;
+    overflow: hidden;
 }
 .container{
     max-width: 1100px;
@@ -50,7 +52,7 @@ overflow:hidden !important;
     opacity: 0.5 !important;
 }
 .modal {
-    pointer-events: auto !important;
+    pointer-events: auto !important
 }
         
 .modal-dialog {
@@ -58,8 +60,8 @@ overflow:hidden !important;
 }
 
 .modal-body {
-    max-height: 70vh; /* Set a maximum height for the modal body */
-    overflow-y: auto; /* Enable vertical scrolling */
+    max-height: fit-content; /* Set a maximum height for the modal body */
+    /* overflow-y: auto;  */
 }
  .modal-dialog-centered {
 display: flex;
@@ -71,3 +73,74 @@ min-height: 100vh; /* Ensure the modal takes up the full height of the viewport 
 width: 100%;
 max-width: 800px; /* Adjust the max-width as needed */
 }
+
+/* @media (max-width: 767px) {
+    .plot-container .svg-container .main-svg .infolayer .g-gtitle .gtitle {
+        display: none !important;
+    }
+} */
+@media (max-width: 600px) {
+    .plotly-titles {
+        display: none !important;
+    }
+    .modal{
+        width: 120% !important
+    } 
+}
+/* .plotly-titles {
+    display: none !important;
+} */
+/* .g-gtitle gtitle{
+    display: none !important;
+}  */
+#graphModal{
+    background-color: rgba(255, 255, 255, 0.8) !important;
+}  
+.custom-tooltip {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    width: 300px;
+}
+
+.custom-tooltip img {
+    max-width: 100%;
+    height: auto;
+}
+
+.custom-tooltip .close-tooltip {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+/* make a durchsuchen better look */
+#id_file{
+
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    background-color: #fff;
+    background-clip: padding-box;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+} 
+
+/* make button btn-primary a bit gap with id_file in mobile view */
+@media (max-width: 600px) {
+    .btn-primary.upload-btn{
+        margin-top: 10px;
+        /* also make it smaller */
+        padding: 0.25rem 0.5rem;
+    }
+}
+
