@@ -291,10 +291,14 @@
                 function searchTable() {
             const input = document.getElementById('searchInput');
             const filter = input.value.toLowerCase();
-        
+            if (filter.length == 0) {
+                location.reload();
+                return;
+            } 
             if (filter.length < 5) {
                 return; // Do not search until at least 5 characters are entered
             }
+           
         
             fetch(`/search-data?query=${filter}`)
                 .then(response => response.json())
@@ -371,7 +375,7 @@
                                 <ul>
                                     ${result.wms_accessconstraints}
                                 </ul>
-                                
+
                             </td>
                         `;
         
