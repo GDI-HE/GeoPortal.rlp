@@ -29,3 +29,4 @@ user-agents
 django-user-agents
 kaleido
 django-cors-headers
+pandas
