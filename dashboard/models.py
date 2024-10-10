@@ -21,6 +21,12 @@ class WMC(models.Model):
     load_count = models.IntegerField()
     actual_load = models.IntegerField(default=0) # New column for actual load
     
-
     class Meta:
         ordering = ('date',)  # Sort by date
+		
+class SESSION_USER(models.Model):
+    datetime = models.DateTimeField()
+    session_number = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.datetime} - {self.session_number}"
