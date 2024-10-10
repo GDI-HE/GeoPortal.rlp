@@ -1,7 +1,7 @@
-from django.shortcuts import render, redirect
-from useroperations.models import MbUser, Wms, Wfs, Wmc
-from Geoportal.utils import utils, php_session_data, mbConfReader
-from Geoportal.settings import SESSION_NAME
+from django.shortcuts import render, redirect, get_object_or_404
+from useroperations.models import MbUser, Wms, Wfs, Wmc, WfsAvailability, MbGroup, MbUserMbGroup, MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
+from Geoportal.utils import php_session_data
+from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS
 from django.contrib import messages
 import plotly.graph_objs as go
 from datetime import datetime, timedelta
@@ -924,16 +924,95 @@ def load_more_data(request):
             Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query)
         ).order_by('wms_id')
     else:
-        start_date = start_time
-        end_date = latest_timestamp
- 
-    # Get all session data
-    sessions = SessionData.objects.all()
+        wms_services = Wms.objects.all().order_by('wms_id')
 
-    # Filter sessions within the date range
-    sessions = sessions.filter(timestamp_create__range=[start_date, end_date])
-    sessions = sessions.order_by('timestamp_create')
+    paginator = Paginator(wms_services, 10)  # Show 10 WMS services per page
+    page_obj = paginator.get_page(page_number)
 
-    session_data, image_path_session = get_session_data(sessions, start_date=start_date, end_date=end_date)
-    
-    return session_data, image_path_session
+    results = []
+
+    for wms in page_obj:
+        # Get all unique layers for this WMS
+        layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
+        layer_stats = get_layer_statistics(layers)
+
+        results.append({
+            'wms_id': wms.wms_id,
+            'wms_title': wms.wms_title,
+            'total_layers': layer_stats['total_layers'],
+            'layers_without_abstract': layer_stats['layers_without_abstract_count'],
+            'layers_without_keywords': layer_stats['layers_without_keyword_count'],
+            'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
+            'all_layers_have_keywords': layer_stats['all_layers_have_keywords'],
+            'keywords_present': layer_stats['keywords_present'],
+            'abstracts_present': layer_stats['abstracts_present'],
+            'layers_without_abstract_names': layer_stats['layers_without_abstract_names'],
+            'layers_without_keyword_names': layer_stats['layers_without_keyword_names'],
+            'layers_abstract_matches_title_count': layer_stats['layers_abstract_matches_title_count'],
+            'layers_abstract_matches_title_names': layer_stats['layers_abstract_matches_title_names'],
+            'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
+            'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
+            'layers_abstract_match': layer_stats['layers_abstract_match'],
+            'layer_names': layer_stats['layer_names'],
+            'wms_fees': wms.fees,
+            'wms_accessconstraints': wms.accessconstraints
+
+        })
+
+    return JsonResponse({
+        'results': results,
+        'has_next': page_obj.has_next()
+    })
+
+def search_data(request):
+    search_query = request.GET.get('query', '')
+
+    # Filter WMS services based on the search query
+    wms_services = Wms.objects.filter(
+        Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query)
+    ).order_by('wms_id')
+
+    results = []
+
+    for wms in wms_services:
+        # Get all unique layers for this WMS
+        layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
+        layer_stats = get_layer_statistics(layers)
+
+        results.append({
+            'wms_id': wms.wms_id,
+            'wms_title': wms.wms_title,
+            'total_layers': layer_stats['total_layers'],
+            'layers_without_abstract': layer_stats['layers_without_abstract_count'],
+            'layers_without_keywords': layer_stats['layers_without_keyword_count'],
+            'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
+            'all_layers_have_keywords': layer_stats['all_layers_have_keywords'],
+            'keywords_present': layer_stats['keywords_present'],
+            'abstracts_present': layer_stats['abstracts_present'],
+            'layers_without_abstract_names': layer_stats['layers_without_abstract_names'],
+            'layers_without_keyword_names': layer_stats['layers_without_keyword_names'],
+            'layers_abstract_matches_title_count': layer_stats['layers_abstract_matches_title_count'],
+            'layers_abstract_matches_title_names': layer_stats['layers_abstract_matches_title_names'],
+            'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
+            'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
+            'layers_abstract_match': layer_stats['layers_abstract_match'],
+            'layer_names': layer_stats['layer_names'],
+            'wms_fees': wms.fees,
+            'wms_accessconstraints': wms.accessconstraints
+
+        })
+
+    return JsonResponse({'results': results})
+from useroperations.models import Keyword, Layer    
+def get_layer_keywords(request, layer_id):
+    try:
+        layer = Layer.objects.get(layer_id=layer_id)
+        keywords = Keyword.objects.filter(layerkeyword__fkey_layer=layer)
+        
+        context = {
+            'layer': layer,
+            'keywords': keywords,
+        }
+        return render(request, 'layer_keywords.html', context)
+    except Layer.DoesNotExist:
+        return render(request, 'layer_not_found.html')
