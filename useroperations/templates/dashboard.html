@@ -9,6 +9,8 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script src="{% static 'js/update_graph.js' %}"></script>
+
+      <!-- Modal -->
     <div class="modal fade" id="graphModal" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -70,29 +72,13 @@
               
                 <span class="quickstart-body"> {{ wfs_count|safe }}</span>
             </a>
-        </div>
-        <!-- New section for WMC load count and unique number -->
-        <div class="quickstart-container">
-            <a class="quickstart search" href="#" title="WMC Load Count">
+            <a class="quickstart search" href="#" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
-                    <i class="fas fa-user-check" title="WMC Load Count" aria-hidden="true"></i>
-                    <span>WMC Owner:</span>
+                    <i class="fas fa-globe" title="Datensätze" aria-hidden="true"></i>
+                    <span>Number of WMC:</span>
                 </div>
-                <span class="quickstart-body">{{ distinct_wmc_owner }}</span>
-            </a>
-            <a class="quickstart search" href="#" title="WMC Unique Number">
-                <div class="quickstart-header">
-                    <i class="fas fa-chart-line" title="WMC Unique Number" aria-hidden="true"></i>
-                    <span>WMC Unique Number:</span>
-                </div>
-                <span class="quickstart-body">{{ distinct_wmc_id }}</span>
-            </a>
-            <a class="quickstart search" href="#" title="WMC Unique Number">
-                <div class="quickstart-header">
-                    <i class="fas fa-chart-line" title="WMC Unique Number" aria-hidden="true"></i>
-                    <span>WMC Actual Load Count(Last Day):</span>
-                </div>
-                <span class="quickstart-body">{{ yesterday_load }}</span>
+              
+                <span class="quickstart-body"> {{ wmc_count|safe }}</span>
             </a>
         </div>
     </div>
@@ -136,7 +122,8 @@
                     <div class="card" data-content-type="fig_wfs">
                         <div class="iframe-container">
                             <iframe id="graph4" src="data:image/png;base64,{{ image_base64_wfs}}" width="100%" height="400px" alt="Plotly Image"></iframe>
-                            <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>                         
+                            <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>
+                            
                         </div>
                     </div>
                 </div>
@@ -149,236 +136,9 @@
                     </div>
                 </div>
             </div>
-        </div>    
-    <script>
-      
-        $(document).ready(function() {
-        $(".modal-header, .modal-footer").addClass("draggable-handle");
-        $("#graphModal").draggable({
-            handle: ".draggable-handle",
-            containment: "window",
-            cursor: "move",
-            start: function(event, ui) {
-                $(".draggable-handle").addClass("dragging");
-            },
-            stop: function(event, ui) {
-                $(".draggable-handle").removeClass("dragging");
-            }
-        })
-
-    });
-        function getBaseUrl() {
-        const { protocol, hostname, port } = window.location;
-        return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
-}
-        function showGraphInModal(contentType) {
-            const baseUrl = getBaseUrl();
-            const filterUrl = `${baseUrl}/filter/`;
-            const spinnerContainer = document.getElementById('spinnerContainer');
-
-            // Show the spinner
-            spinnerContainer.style.display = 'block';
-    
-            $.get(filterUrl, function(data) {
-                let htmlContent = '';
-    
-                if (contentType === 'fig_html_report') {
-                    htmlContent = `
-                        <h1>Generate Reporting Date</h1>
-                        <form id="reportForm" method="post" enctype="multipart/form-data" data-url="{% url 'dashboard:filter' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="hidden" name="contenttype" value="user_report">
-        <button type="submit">Upload</button>
-    </form>
-                    `;
-                } else {
-                    htmlContent = `
-                        <label for="start_date">Start Date:</label>
-                        <input type="date" id="start_date" name="start_date" value="{{start_date}}">
-                        <label for="end_date">End Date:</label>
-                        <input type="date" id="end_date" name="end_date" value="{{end_date}}">
-                        <button id="update_graph_btn" data-url="{% url 'dashboard:filter' %}" data-keyword="${contentType}">Filter</button>
-                    `;
-                }
-    
-                $('#dynamicContent').html(htmlContent);
-                $('#modalGraphContent').attr('srcdoc', data[contentType]);
-    
-                $('#graphModal').modal({
-                    backdrop: false
-                });
-                spinnerContainer.style.display = 'none';
-        
-    
-                if (contentType !== 'fig_html_report') {
-                    document.getElementById('update_graph_btn').addEventListener('click', function() {
-                        const startDate = document.getElementById('start_date').value;
-                        const endDate = document.getElementById('end_date').value;
-                        const url = this.getAttribute('data-url');
-                        const keyword = this.getAttribute('data-keyword');
-
-                        // Show the spinner before making the AJAX request
-                        $('#modalGraphContent').hide();
-                        spinnerContainer.style.display = 'flex';
-    
-                        $.ajax({
-                            url: url,
-                            type: 'GET',
-                            data: {
-                                start_date: startDate,
-                                end_date: endDate,
-                                keyword: keyword
-                            },
-                            success: function(data) {
-                                $('#modalGraphContent').attr('srcdoc', data[contentType]);
-                                // hide the spinner after the content is loaded
-                                $('#modalGraphContent').show();
-                                spinnerContainer.style.display = 'none';
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Failed to fetch the content from ' + url);
-                                // Hide the spinner if there is an error
-                                spinnerContainer.style.display = 'none';
-                            }
-                        });
-                    });
-                } else {
-                                    
-                        document.getElementById('reportForm').addEventListener('submit', function(event) {
-                            event.preventDefault(); // Prevent the default form submission
-                    
-                            const formData = new FormData(this);
-                            //const url = '/dashboard/';
-                            const url = this.getAttribute('data-url');
-                                                        
-                                if (!url) {
-                                    console.error('Form action URL is not set.');
-                                    return;
-                                }
-
-                                function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    const csrftoken = getCookie('csrftoken');
-    spinnerContainer.style.display = 'block';
-   
-                            
-                            $.ajax({
-                                url: url,
-                                type: 'POST',
-                                data: formData,
-                                processData: false,
-                                contentType: false,
-                                headers: {
-                                    'X-CSRFToken': '{{ csrftoken }}' // Include CSRF token in the headers
-                                },
-                                success: function(data) {
-                                    try {
-                                        
-                                        $('#modalGraphContent').attr('srcdoc', data[contentType]);
-                                    } catch (e) {
-                                        
-                                        console.error('Response data:', data);
-                                    }
-                                    spinnerContainer.style.display = 'none';
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error('Failed to fetch the content from ' + url);
-                                    console.error('Status:', status);
-                                    console.error('Error:', error);
-                                    console.error('Response:', xhr.responseText);
-                                }
-                            });
-                        });
-                    }
-            });
-        }
-
-    </script>
+        </div>
   
-    <style>
-            #spinnerContainer {
-            display: block;
-            justify-content: center;
-            align-items: center;
-            height: 100%; 
-            width: 100%; 
-            position: absolute; 
-            top: 0;
-            left: 0;
-            background-color: rgba(255, 255, 255, 0.8); 
-            z-index: 1000; 
-        }
-        .dragging{
-            cursor: move !important;
-        } 
-        .iframe-container {
-            position: relative;
-            width: 590px;
-            height: 400px;
-        }
-        .container{
-            max-width: 1100px;
-        } 
-        .overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-        #graph1, #graph2, #graph3, #graph4, #graph5 {
-            border: none;
-        }
-        /* .row{
-            justify-content: center;
-            margin-left: -90px;
-        }  */
-        .cookie-container{
-            display: none;
-        } 
-        .modal-backdrop {
-            background-color: transparent !important;
-            opacity: 0.5 !important;
-        }
-        .modal {
-            pointer-events: auto !important;
-        }
-                
-        .modal-dialog {
-            max-width: 80%; 
-        }
-        
-        .modal-body {
-            max-height: 70vh; /* Set a maximum height for the modal body */
-            overflow-y: auto; /* Enable vertical scrolling */
-        }
-         .modal-dialog-centered {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh; /* Ensure the modal takes up the full height of the viewport */
-    }
-    .modal-content {
-        width: 100%;
-        max-width: 800px; /* Adjust the max-width as needed */
-    }
-    </style>
+    
         <script>
             const filterUrl = "{% url 'dashboard:filter' %}";
             const downloadCsvUrl = "{% url 'dashboard:download_csv' %}";
@@ -387,5 +147,7 @@
             const csrfToken = "{{ csrf_token }}";
             const formHtml = `{{ form.as_p|safe }}`;
         </script>
+          
+ 
 </body>
 {% endblock %}
