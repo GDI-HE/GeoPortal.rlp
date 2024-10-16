@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from useroperations.models import MbUser, Wms, Wfs, Wmc, WfsAvailability, MbGroup, MbUserMbGroup, MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
+from useroperations.models import MbUser, Wms, Wfs, Wmc, WfsAvailability, MbGroup, MbUserMbGroup 
+from dashboard.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
 from Geoportal.utils import php_session_data
 from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS
 from django.contrib import messages
@@ -297,6 +298,7 @@ def download_csv(request):
             writer.writerow(row)
         return response
 #TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
+
 def generate_wms_plot(request, start_date, end_date):
         
         sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_,deleted_wms_count, _,_ = process_request(request)
@@ -787,8 +789,12 @@ def get_layer_statistics(layers):
     keywords_present = list(
         LayerKeyword.objects.filter(fkey_layer__in=layers).values_list('fkey_keyword__keyword', flat=True)
     )
-    logger.debug(f"Keywords Present: {keywords_present}")
-    
+
+    # Check if any keyword contains a comma and log it
+    layers_with_comma_keywords = [
+        layer.layer_title for layer in layers
+        if any(',' in keyword or ';' in keyword for keyword in LayerKeyword.objects.filter(fkey_layer=layer).values_list('fkey_keyword__keyword', flat=True))
+    ]
 
     layers_with_abstract = layers.exclude(Q(layer_abstract__isnull=True) | Q(layer_abstract=''))
 
@@ -813,8 +819,36 @@ def get_layer_statistics(layers):
     wms_ids = layers.values_list('fkey_wms_id', flat=True)
     wms_fees = Wms.objects.filter(wms_id__in=wms_ids).values_list('fees', flat=True)
     wms_accessconstraints = Wms.objects.filter(wms_id__in=wms_ids).values_list('accessconstraints', flat=True)
+    # Retrieve the WMS IDs from the layers
+    wms_ids = layers.values_list('fkey_wms_id', flat=True)
 
+    # Get the WMS objects connected by the IDs
+    wms_objects = Wms.objects.filter(wms_id__in=wms_ids)
 
+    # Check if the WMS IDs are connected to the WMC or layer
+    connected_wms = []
+    for wms in wms_objects:
+        layer = Layer.objects.filter(fkey_wms_id=wms.wms_id).first()
+        if layer:
+            connected_wms.append({
+                'wms_id': wms.wms_id,
+                'service_title': wms.wms_title,
+                'layer_id': layer.layer_id,
+                'layer_title': layer.layer_title,
+                'connected': True
+            })
+        else:
+            connected_wms.append({
+                'wms_id': wms.wms_id,
+                'service_title': wms.wms_title,
+                'layer_id': None,
+                'layer_title': None,
+                'connected': False
+            })
+    
+    # Print the connected WMS IDs along with the service title names and layer details
+    for wms in connected_wms:
+        print(f"WMS ID: {wms['wms_id']}, Service Title: {wms['service_title']}, Layer ID: {wms['layer_id']}, Layer Title: {wms['layer_title']}, Connected: {wms['connected']}")
     return {
         'total_layers': total_layers,
         'layers_without_abstract_count': layers_without_abstract_count,
@@ -832,7 +866,9 @@ def get_layer_statistics(layers):
         'layers_abstract_match': ['Y' if match else 'N' for match in layers_abstract_match],
         'layer_names': layer_names,
         'wms_fees': wms_fees,
-        'wms_accessconstraints': wms_accessconstraints
+        'wms_accessconstraints': wms_accessconstraints,
+        'layers_with_comma_keywords': layers_with_comma_keywords,
+        'connected_wms': wms['connected'] 
     }
 
 def check_layer_abstracts_and_keywords(request):
@@ -900,7 +936,9 @@ def check_layer_abstracts_and_keywords(request):
             'layers_abstract_match': layer_stats['layers_abstract_match'],
             'layer_names': layer_stats['layer_names'],
             'wms_fees': wms.fees,
-            'wms_accessconstraints': wms.accessconstraints
+            'wms_accessconstraints': wms.accessconstraints,
+            'layers_with_comma_keywords': layer_stats['layers_with_comma_keywords'],
+            'connected_wms': layer_stats['connected_wms']
         })
 
     context = {
@@ -955,8 +993,9 @@ def load_more_data(request):
             'layers_abstract_match': layer_stats['layers_abstract_match'],
             'layer_names': layer_stats['layer_names'],
             'wms_fees': wms.fees,
-            'wms_accessconstraints': wms.accessconstraints
-
+            'wms_accessconstraints': wms.accessconstraints,
+            'layers_with_comma_keywords': layer_stats['layers_with_comma_keywords'],
+            'connected_wms': layer_stats['connected_wms']
         })
 
     return JsonResponse({
@@ -998,7 +1037,9 @@ def search_data(request):
             'layers_abstract_match': layer_stats['layers_abstract_match'],
             'layer_names': layer_stats['layer_names'],
             'wms_fees': wms.fees,
-            'wms_accessconstraints': wms.accessconstraints
+            'wms_accessconstraints': wms.accessconstraints,
+            'layers_with_comma_keywords': layer_stats['layers_with_comma_keywords'],
+            'connected_wms': layer_stats['connected_wms']
 
         })
 

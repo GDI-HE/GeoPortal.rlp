@@ -273,7 +273,8 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                         dropdown: dropdownValue ? dropdownValue : null
                     },
                     success: function(data) {
-                        console.log('AJAX success response:', data); // Log AJAX success response
+                        
+                        //console.log('AJAX success response:', data); // Log AJAX success response
                         const titleElement = document.querySelector('.plot-container .svg-container .main-svg .infolayer .g-gtitle .gtitle');
         if (titleElement) {
             titleElement.classList.remove('gtitle'); // Remove the 'gtitle' class
@@ -348,6 +349,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                             dropdown: dropdownValue ? dropdownValue : null
                         },
                         success: function(data) {
+                            const titleElement = document.querySelector('.plot-container .svg-container .main-svg .infolayer .g-gtitle .gtitle');
                             if (titleElement) {
                                 titleElement.classList.remove('gtitle'); // Remove the 'gtitle' class
                                 titleElement.classList.add('plotly-titles'); // Set the text content to an empty string
@@ -451,7 +453,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 contentType: contentType
             },
             success: function(data) {
+                //console.log('Databefore:', data);
                 let modifiedData = data[contentType];
+                //console.log('Dataafter:', modifiedData);
           if (modifiedData) {
               // Use a regular expression to remove the title element
               modifiedData = modifiedData.replace(/"title":\{"text":"[^"]*"\}/, '"title":{"text":""}');
@@ -582,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function() {
                                     // Update the graph container with the returned HTM
                                     const reportContainer = document.getElementById('modalGraphContent');
                                     reportContainer.srcdoc = '';
-                                    console.log('Report container:', reportContainer);
+                                    // console.log('Report container:', reportContainer);
                                     reportContainer.srcdoc = data.fig_upload_report;
                                 } catch (e) {
                                     console.error('Error updating report container:', e);

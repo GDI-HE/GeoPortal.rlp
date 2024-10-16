@@ -40,6 +40,7 @@
             <i class="fas fa-times"></i>
         </button>
     </div>
+    
     <table id="serviceTable">
         <thead>
             <tr>
@@ -49,38 +50,42 @@
                 <th>Total Layers</th>
                 <th>Layers Without Abstract</th>
                 <th>Layers Without Keywords</th>
-                <th>All Layers Have Abstract</th>
-                <th>All Layers Have Keywords</th>
+                <!-- <th>All Layers Have Abstract</th>
+                <th>All Layers Have Keywords</th> -->
                 <th>Keywords Present</th>
                 <th>Abstracts Present</th>
                 <th>Abstract Matches Title</th>
                 <th>Layers With Short Abstract</th>
+                <th>Data-Service connection</th>
                 <th>Actions</th>
             </tr>
         </thead>
+     
         <tbody>
             {% for result in results %}
-            <tr class="main-row">
+               <div class="spinner" id="spinner"></div>
+            <tr class="main-row {% if result.layers_with_comma_keywords %}highlight-red{% endif %}">
                 <td>{{ forloop.counter }}</td>
                 <td>{{ result.wms_id }}</td>
                 <td>{{ result.wms_title }}</td>
                 <td>{{ result.total_layers }}</td>
                 <td>{{ result.layers_without_abstract }}</td>
                 <td>{{ result.layers_without_keywords }}</td>
-                <td class="status {% if result.all_layers_have_abstract %}status-yes{% else %}status-no{% endif %}">
+                <!-- <td class="status {% if result.all_layers_have_abstract %}status-yes{% else %}status-no{% endif %}">
                     {% if result.all_layers_have_abstract %}Yes{% else %}No{% endif %}
                 </td>
                 <td class="status {% if result.all_layers_have_keywords %}status-yes{% else %}status-no{% endif %}">
                     {% if result.all_layers_have_keywords %}Yes{% else %}No{% endif %}
-                </td>
-                <td>{{ result.keywords_present|length }} keywords</td>
-                <td>{{ result.abstracts_present|length }} abstracts</td>
+                </td> -->
+                <td>{{ result.keywords_present|length }}</td>
+                <td>{{ result.abstracts_present|length }}</td>
                 <td>
                     {% for match in result.layers_abstract_match %}
                         <span>{{ match }}</span><br>
                     {% endfor %}
                 </td>
                 <td>{{ result.layers_with_short_abstract_count }}</td>
+                <td>{{ result.connected_wms}} </td>
                 <td>
                     <button class="dropdown-btn" onclick="toggleDropdown(this)">Show Details</button>
                 </td>
