@@ -37,6 +37,13 @@
 <label for="start_date">End Date:</label>
 <input type="date" id="end_date" name="end_date" value="{{end_date}}">
 <button id="update_graph_btn" data-url="{% url 'dashboard:filter' %}">Filter</button>
+<!-- <label for="dropdown">Select Option:</label>
+                        <select id="dropdown" name="dropdown">
+                            <option value="monthly">Monthly</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                        </select> -->
+
 
 <div id="graph_container">
     {{ fig_html|safe }}

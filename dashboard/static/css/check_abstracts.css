@@ -129,9 +129,31 @@ tr:hover {
     border: none;
     cursor: pointer;
 }
-.dropdown-content {
+/* .dropdown-content {
+    display: none;
+} */
+.dropdown-title {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+/* .dropdown-title::after {
+    content: "➔";
+    margin-left: 10px;
+    transition: transform 0.3s;
+} */
+/* .dropdown-title.active::after {
+    transform: rotate(90deg);
+} */
+.details-section {
     display: none;
 }
+.details-section.show {
+    display: table-row;
+}
+/* .highlight-red {
+    background-color: red;
+} */
 .show {
     display: table-row;
 }

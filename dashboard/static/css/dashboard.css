@@ -93,9 +93,10 @@ max-width: 800px; /* Adjust the max-width as needed */
 /* .g-gtitle gtitle{
     display: none !important;
 }  */
-#graphModal{
+#graphModal, #graphModalWMC{
     background-color: rgba(255, 255, 255, 0.8) !important;
 }  
+
 .custom-tooltip {
     display: none;
     position: absolute;

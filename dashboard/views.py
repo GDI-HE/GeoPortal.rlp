@@ -15,7 +15,7 @@ import os
 import io
 import json
 import base64
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.middleware.csrf import get_token
 import requests
 from django.db.models.functions import TruncDay
@@ -26,6 +26,7 @@ from dashboard.dashboard_utils import convert_to_datetime
 from dashboard.dashboard_request import process_request
 from dashboard.dashboard_userplot import generate_user_plot
 from dashboard.dashboard_session import get_filtered_session_data
+from django.core.serializers.json import DjangoJSONEncoder
 
 
 def render_template(request, template_name):
@@ -140,7 +141,7 @@ def render_template(request, template_name):
             #haven't worked for the session report download and report creation TODO
     
     user = None
-
+    
     session_cookie = request.COOKIES.get(SESSION_NAME)
     if session_cookie is not None:
         session_data_mapbender = php_session_data.get_mapbender_session_by_memcache(session_cookie)
@@ -174,6 +175,9 @@ def render_template(request, template_name):
 
     #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
 
+    gauge_graph = get_gauge_graph()
+    highest_loads, top_ten_wmc = get_highest_loads()
+    loadcount_chart = get_wmc_loadcount(request)
   
     user_count = MbUser.objects.count()
     wms_count = Wms.objects.count()
@@ -223,6 +227,10 @@ def render_template(request, template_name):
         'image_path_wfs': '/' + image_path_wfs if image_path_wfs else '',
         'image_path_report': '/' + image_path_report if image_path_report else '',
         'image_path_wmc': '/' + image_path_wmc if image_path_wmc else '',
+        'gauge_graph': gauge_graph,
+        'highest_loads': highest_loads,
+        'loadcount_chart': loadcount_chart,
+        'top_ten_wmc': top_ten_wmc
     }
     if context is None:
         context = {}
@@ -230,8 +238,12 @@ def render_template(request, template_name):
     if image_path is None:
         context['image_path'] = ''
     if request.is_ajax():
-        return JsonResponse({'fig_html_report': fig_report_html, 'fig_wms_report': fig_report_html, 'fig_upload_report': fig_report_html, 'fig_wfs_report': fig_report_html, 'fig_wmc_report': fig_report_html, 'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'session_data':session_data, 'fig_wmc': fig_wmc_html})
-
+        return JsonResponse({'fig_html_report': fig_report_html, 'fig_wms_report': fig_report_html, 'fig_upload_report': fig_report_html, 'fig_wfs_report': fig_report_html, 'fig_wmc_report': fig_report_html, 'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'session_data':session_data, 'fig_wmc': fig_wmc_html,    'gauge_graph': gauge_graph,
+        'highest_loads': highest_loads,
+        'loadcount_chart': loadcount_chart,
+        'top_ten_wmc': top_ten_wmc,
+        'start_date': start_date,
+        'end_date': end_date,})
     return render(request, template_name, context)
 
 def dashboard(request):
@@ -240,6 +252,158 @@ def dashboard(request):
 def filter(request):
     return render_template(request, 'filter.html')
 
+from dashboard.models import WMC
+def get_gauge_graph():
+    wmc_data_current_year = WMC.objects.filter(date__year=datetime.now().year)
+    highest_week_number, highest_week_actual_load, highest_month, highest_month_actual_load = calculate_highest_loads(wmc_data_current_year)
+    last_week_load = 4500  # Replace with your actual data
+
+    highest_week_actual_load_in_k = highest_week_actual_load / 1000
+    highest_week_actual_load_in_k_formatted = "{:.1f}K".format(highest_week_actual_load_in_k)
+
+    fig_gauge = go.Figure(go.Indicator(
+        mode="gauge+number+delta",
+        value=last_week_load,
+        delta={'reference': highest_week_actual_load},
+        gauge={
+            'axis': {
+                'range': [0, highest_week_actual_load],
+                'dtick': highest_week_actual_load / 5,
+                'tickvals': [0, highest_week_actual_load],
+                'ticktext': [0, f'Week {highest_week_number}\n({highest_week_actual_load_in_k_formatted})'],
+                'showticklabels': True,
+                'tickfont': {'size': 16}
+            },
+            'steps': [
+                {'range': [0, highest_week_actual_load / 4], 'color': "rgba(173, 255, 47, 0.1)"},
+                {'range': [highest_week_actual_load / 4, highest_week_actual_load / 2], 'color': "rgba(173, 255, 47, 0.4)"},
+                {'range': [highest_week_actual_load / 2, (3 * highest_week_actual_load) / 4], 'color': "rgba(173, 255, 47, 0.7)"},
+                {'range': [(3 * highest_week_actual_load) / 4, highest_week_actual_load], 'color': "rgba(173, 255, 47, 1)"}
+            ],
+            'threshold': {
+                'line': {'color': "black", 'width': 4},
+                'thickness': 0.75,
+                'value': last_week_load
+            },
+            'bar': {'color': "rgba(0, 0, 0, 0)"}
+        }
+    ))
+
+    fig_gauge.update_layout(
+        
+        title_text="Suitable Description here :)",
+        height=330,
+       
+    )
+
+    chart_gauge = fig_gauge.to_html()
+    return chart_gauge
+
+def get_highest_loads():
+    today = datetime.now()
+    first_day_of_current_month = today.replace(day=1)
+    last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
+    first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
+    last_day_of_second_last_month = first_day_of_previous_month - timedelta(days=1)
+    first_day_of_second_last_month = last_day_of_second_last_month.replace(day=1)
+
+    # Query the database for data within the previous month
+    last_month_data = WMC.objects.filter(date__range=[first_day_of_previous_month, last_day_of_previous_month])
+
+    # Retrieve data for the second last month
+    second_last_month_data = WMC.objects.filter(
+        date__range=[first_day_of_second_last_month, last_day_of_second_last_month])
+
+    load_counts = {}
+    second_last_month_loads = {}
+    
+    for wmc_record in last_month_data:
+        if wmc_record.wmc_id not in load_counts:
+            load_counts[wmc_record.wmc_id] = {'total_load': 0, 'wmc_title': wmc_record.wmc_title}
+        load_counts[wmc_record.wmc_id]['total_load'] += wmc_record.actual_load
+
+    for wmc_record in second_last_month_data:
+        if wmc_record.wmc_id not in second_last_month_loads:
+            second_last_month_loads[wmc_record.wmc_id] = {'total_load': 0, 'wmc_title': wmc_record.wmc_title}
+        second_last_month_loads[wmc_record.wmc_id]['total_load'] += wmc_record.actual_load
+
+    # Create a list of dictionaries with wmc_id, wmc_title, total load, and month name for the previous month
+    load_counts_list = [{'wmc_id': wmc_id, 'wmc_title': data['wmc_title'], 'total_actual_load': data['total_load'],
+                         'month_name': last_day_of_previous_month.strftime('%B')}
+                        for wmc_id, data in load_counts.items()]
+
+    # Create a list of dictionaries with wmc_id, wmc_title, total load, and month name for the second last month
+    load_counts_list_second_last_month = [{'wmc_id': wmc_id, 'wmc_title': data['wmc_title'], 'total_actual_load': data['total_load'],
+                         'month_name': last_day_of_second_last_month.strftime('%B')}
+                        for wmc_id, data in second_last_month_loads.items()]
+
+    # Sort the list by total_actual_load count in descending order for the previous month
+    load_counts_list.sort(key=lambda x: x['total_actual_load'], reverse=True)
+
+    # Sort the list by total_actual_load count in descending order for the second last month
+    load_counts_list_second_last_month.sort(key=lambda x: x['total_actual_load'], reverse=True)
+
+    # Get the top four highest total_actual_load counts for the previous month
+    top_four_loads = load_counts_list[:4]
+    
+    # Retrieve data for the top 10 highest total_actual_load counts for the last month
+    top_10_loads_last_month = load_counts_list[:5]
+    
+    labels = [data['wmc_title'] for data in top_10_loads_last_month]
+    values = [data['total_actual_load'] for data in top_10_loads_last_month]
+
+    fig = go.Figure(data=[go.Pie(labels=labels, values=values, hole=.6, opacity=0.9)])
+    fig.update_layout(
+        title_text="Top 10 Highest Total Actual Load Counts for the Last Month",
+    )
+    highest_load_html = fig.to_html()
+    return highest_load_html, top_10_loads_last_month
+
+def get_wmc_loadcount(request):
+    # start of line graph
+    start = request.GET.get('start')
+    if start == None:
+        start = datetime.now() - timedelta(days=50)
+    end = request.GET.get('end')
+    if end == None:
+        end = datetime.now()
+    wmc_id = request.GET.get('wmc_id')
+    if wmc_id == None:
+        wmc_id = 7107 #Boris Hessen 2024
+   
+
+    wmc_data = WMC.objects.all()
+    
+    if start:
+        wmc_data = wmc_data.filter(date__gte=start)
+    if end:
+        wmc_data = wmc_data.filter(date__lte=end)
+    if wmc_id:
+        wmc_data = wmc_data.filter(wmc_id=wmc_id)
+
+    x_data = [c.date for c in wmc_data]
+    y_data = [int(c.actual_load) for c in wmc_data]
+   
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers'))
+
+    fig.update_layout(
+        title={
+            'text': 'WMC Load Count',
+            'font_size': 24,
+            'xanchor': 'center',
+            'x': 0.5
+        })
+    loadcount_chart = fig.to_html()
+    response_data = {
+        'loadcount_chart' : loadcount_chart,
+        'start': start,
+        'end': end,
+        'wmc_id': wmc_id
+    }  
+    # if request.is_ajax():
+    #     return JsonResponse(response_data)
+    return loadcount_chart
 
 def download_csv(request):
     is_ajax = request.GET.get('is_ajax')
@@ -723,7 +887,45 @@ def check_all_upload_urls(request):
             non_working_urls.append(service.upload_url)
     return non_working_urls
 
-   
+def calculate_highest_loads(wmc_data):
+    highest_week_actual_load = 0
+    highest_month_actual_load = 0
+    highest_week_number = ""
+    highest_month = ""
+    current_week = ""
+    current_month = ""
+
+    for wmc_record in wmc_data:
+        week_number = wmc_record.date.strftime('%V')
+        month = wmc_record.date.strftime('%B')
+        actual_load = wmc_record.actual_load
+
+        # Check if a new week has begun
+        if week_number != current_week:
+            current_week = week_number
+            week_load = 0
+
+        week_load += actual_load
+
+        # Check if the week's actual load is higher than the previous highest week
+        if week_load > highest_week_actual_load:
+            highest_week_actual_load = week_load
+            highest_week_number = current_week
+
+        # Check if a new month has begun
+        if month != current_month:
+            current_month = month
+            month_load = 0
+
+        month_load += actual_load
+
+        # Check if the month's actual load is higher than the previous highest month
+        if month_load > highest_month_actual_load:
+            highest_month_actual_load = month_load
+            highest_month = current_month
+
+    return highest_week_number, highest_week_actual_load, highest_month, highest_month_actual_load
+
 from useroperations.models import Wms, Layer, LayerKeyword
 from django.core.paginator import Paginator
 from django.http import JsonResponse
@@ -734,9 +936,11 @@ import logging
 
 # Configure logging
 #logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger('my_custom_logger') 
+#logger = logging.getLogger('my_custom_logger') 
 
 def get_layer_statistics(layers):
+    # print current time
+    print(f"Current time: {tm.datetime.now()}")
     # Count layers without abstracts
     layers_without_abstract = layers.filter(Q(layer_abstract__isnull=True) | Q(layer_abstract=''))
     layers_without_abstract_count = layers_without_abstract.count()
@@ -863,7 +1067,7 @@ def get_layer_statistics(layers):
         'all_layers_have_keywords': all_layers_have_keywords,
         'keywords_present': keywords_present,
         'abstracts_present': abstracts_present,
-        'layers_abstract_match': ['Y' if match else 'N' for match in layers_abstract_match],
+        'layers_abstract_match': 'Y' if any(match for match in layers_abstract_match) else 'N',
         'layer_names': layer_names,
         'wms_fees': wms_fees,
         'wms_accessconstraints': wms_accessconstraints,
@@ -871,86 +1075,140 @@ def get_layer_statistics(layers):
         'connected_wms': wms['connected'] 
     }
 
-def check_layer_abstracts_and_keywords(request):
-    search_query = request.GET.get('search', '')
+def check_user(request):
+    session_cookie = request.COOKIES.get(SESSION_NAME)
+    if session_cookie is not None:
+        session_data_mapbender = php_session_data.get_mapbender_session_by_memcache(session_cookie)
+        if session_data_mapbender is not None:
+            if b'mb_user_id' in session_data_mapbender and session_data_mapbender[b'mb_user_name'] != b'guest':
+                userid = session_data_mapbender[b'mb_user_id']
+                try:
+                    user = MbUser.objects.get(mb_user_id=userid)
+                except MbUser.DoesNotExist:
+                    messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
+                    return redirect('useroperations:index')
 
-    # Filter WMS services based on the search query
-    if search_query:
-        wms_services = Wms.objects.filter(
-            Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query)
-        ).order_by('wms_id')
+                # Check if the user belongs to the allowed group(s)
+                allowed_groups = ALLOWED_GROUPS
+                user_groups = MbGroup.objects.filter(
+                    mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
+                ).values_list('mb_group_name', flat=True)
+                if not any(group in allowed_groups for group in user_groups):
+                    messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page."))
+                    return redirect('useroperations:index')
+                return user
+            else:
+                messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
+                return redirect('useroperations:index')
+            
+            # if user is None:
+            #     messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page.!"))
+            #     return redirect('useroperations:index')
+        else:
+            messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
+            return redirect('useroperations:index')
     else:
-        wms_services = Wms.objects.all().order_by('wms_id')
+        messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
+        return redirect('useroperations:index')
+            
 
-    # Aggregate data across all pages
-    all_layers = Layer.objects.filter(fkey_wms_id__in=wms_services).distinct()
+def check_layer_abstracts_and_keywords(request):
 
-    total_layers_without_abstract = all_layers.filter(Q(layer_abstract__isnull=True) | Q(layer_abstract='')).count()
-    total_layers_without_keyword = all_layers.annotate(
-        has_keyword=Exists(
-            LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
-        )
-    ).filter(has_keyword=False).count()
-    total_layers_abstract_matches_title = all_layers.annotate(
-        abstract_matches_title=Case(
-            When(
-                Q(layer_abstract=F('layer_title')),
-                then=Value(True)
-            ),
-            default=Value(False),
-            output_field=BooleanField()
-        )
-    ).filter(abstract_matches_title=True).count()
-    total_layers_with_short_abstract = all_layers.annotate(
-        abstract_length=Length('layer_abstract', output_field=IntegerField())
-    ).filter(abstract_length__lt=50).count()
+            search_query = request.GET.get('search', '')
+            user = check_user(request)
+            if isinstance(user, HttpResponseRedirect):
+                return user  # Redirect if the user is not authenticated or does not have permissions
 
-    # Paginate the WMS services
-    paginator = Paginator(wms_services, 10)  # Show 10 WMS services per page
-    page_number = request.GET.get('page', 1)
-    page_obj = paginator.get_page(page_number)
+            userid = user.mb_user_id
+            user_group_ids = MbGroup.objects.filter(
+                mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
+            ).values_list('mb_group_id', flat=True)
 
-    results = []
+            # Filter WMS services based on the search query
+            if search_query:
+                wms_services = Wms.objects.filter(
+                    Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query),
+                    fkey_mb_group_id = user_group_ids
+                ).order_by('wms_id')
+            else:
+                user_group_ids = MbGroup.objects.filter(
+                    mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
+                ).values_list('mb_group_id', flat=True)
+                wms_services = Wms.objects.filter(fkey_mb_group_id__in=user_group_ids).order_by('wms_id')
 
-    for wms in page_obj:
-        # Get all unique layers for this WMS
-        layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
-        layer_stats = get_layer_statistics(layers)
+            # Aggregate data across all pages
+            all_layers = Layer.objects.filter(fkey_wms_id__in=wms_services).distinct()
 
-        results.append({
-            'wms_id': wms.wms_id,
-            'wms_title': wms.wms_title,
-            'total_layers': layer_stats['total_layers'],
-            'layers_without_abstract': layer_stats['layers_without_abstract_count'],
-            'layers_without_keywords': layer_stats['layers_without_keyword_count'],
-            'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
-            'all_layers_have_keywords': layer_stats['all_layers_have_keywords'],
-            'keywords_present': layer_stats['keywords_present'],
-            'abstracts_present': layer_stats['abstracts_present'],
-            'layers_without_abstract_names': layer_stats['layers_without_abstract_names'],
-            'layers_without_keyword_names': layer_stats['layers_without_keyword_names'],
-            'layers_abstract_matches_title_count': layer_stats['layers_abstract_matches_title_count'],
-            'layers_abstract_matches_title_names': layer_stats['layers_abstract_matches_title_names'],
-            'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
-            'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
-            'layers_abstract_match': layer_stats['layers_abstract_match'],
-            'layer_names': layer_stats['layer_names'],
-            'wms_fees': wms.fees,
-            'wms_accessconstraints': wms.accessconstraints,
-            'layers_with_comma_keywords': layer_stats['layers_with_comma_keywords'],
-            'connected_wms': layer_stats['connected_wms']
-        })
+            total_layers_without_abstract = all_layers.filter(Q(layer_abstract__isnull=True) | Q(layer_abstract='')).count()
+            total_layers_without_keyword = all_layers.annotate(
+                has_keyword=Exists(
+                    LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
+                )
+            ).filter(has_keyword=False).count()
+            total_layers_abstract_matches_title = all_layers.annotate(
+                abstract_matches_title=Case(
+                    When(
+                        Q(layer_abstract=F('layer_title')),
+                        then=Value(True)
+                    ),
+                    default=Value(False),
+                    output_field=BooleanField()
+                )
+            ).filter(abstract_matches_title=True).count()
+            total_layers_with_short_abstract = all_layers.annotate(
+                abstract_length=Length('layer_abstract', output_field=IntegerField())
+            ).filter(abstract_length__lt=50).count()
 
-    context = {
-        'results': results,
-        'page_obj': page_obj,
-        'total_layers_without_abstract': total_layers_without_abstract,
-        'total_layers_without_keyword': total_layers_without_keyword,
-        'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
-        'total_layers_with_short_abstract': total_layers_with_short_abstract
-    }
+            # Paginate the WMS services
+            paginator = Paginator(wms_services, 1000)  # Show 10 WMS services per page
+            page_number = request.GET.get('page', 1)
+            page_obj = paginator.get_page(page_number)
 
-    return render(request, 'check_abstract.html', context)
+            results = []
+
+            for wms in page_obj:
+                # Get all unique layers for this WMS
+                layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
+                layer_stats = get_layer_statistics(layers)
+
+                results.append({
+                    'wms_id': wms.wms_id,
+                    'wms_title': wms.wms_title,
+                    'total_layers': layer_stats['total_layers'],
+                    'layers_without_abstract': layer_stats['layers_without_abstract_count'],
+                    'layers_without_keywords': layer_stats['layers_without_keyword_count'],
+                    'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
+                    'all_layers_have_keywords': layer_stats['all_layers_have_keywords'],
+                    'keywords_present': layer_stats['keywords_present'],
+                    'abstracts_present': layer_stats['abstracts_present'],
+                    'layers_without_abstract_names': layer_stats['layers_without_abstract_names'],
+                    'layers_without_keyword_names': layer_stats['layers_without_keyword_names'],
+                    'layers_abstract_matches_title_count': layer_stats['layers_abstract_matches_title_count'],
+                    'layers_abstract_matches_title_names': layer_stats['layers_abstract_matches_title_names'],
+                    'layers_with_short_abstract_count': layer_stats['layers_with_short_abstract_count'],
+                    'layers_with_short_abstract_info': layer_stats['layers_with_short_abstract_info'],
+                    'layers_abstract_match': layer_stats['layers_abstract_match'],
+                    'layer_names': layer_stats['layer_names'],
+                    'wms_fees': wms.fees,
+                    'wms_accessconstraints': wms.accessconstraints,
+                    'layers_with_comma_keywords': layer_stats['layers_with_comma_keywords'],
+                    'connected_wms': layer_stats['connected_wms']
+                })
+
+            context = {
+                'results': results,
+                'page_obj': page_obj,
+                'total_layers_without_abstract': total_layers_without_abstract,
+                'total_layers_without_keyword': total_layers_without_keyword,
+                'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
+                'total_layers_with_short_abstract': total_layers_with_short_abstract
+            }
+            print(f"Time at end time: {tm.datetime.now()}")
+
+            return render(request, 'check_abstract.html', context)
+            # messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
+            # return redirect('useroperations:index')
+        
 
 def load_more_data(request):
     page_number = request.GET.get('page', 1)
@@ -1005,11 +1263,20 @@ def load_more_data(request):
 
 def search_data(request):
     search_query = request.GET.get('query', '')
-
-    # Filter WMS services based on the search query
-    wms_services = Wms.objects.filter(
-        Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query)
-    ).order_by('wms_id')
+    user = check_user(request)
+    if isinstance(user, HttpResponseRedirect):
+        return user
+    
+    userid = user.mb_user_id
+    
+    if search_query:
+        user_group_ids = MbGroup.objects.filter(
+            mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
+        ).values_list('mb_group_id', flat=True)
+        wms_services = Wms.objects.filter(
+            Q(wms_id__icontains=search_query) | Q(wms_title__icontains=search_query),
+            fkey_mb_group_id__in=user_group_ids
+        ).order_by('wms_id')
 
     results = []
 

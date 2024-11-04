@@ -135,11 +135,237 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-6 col-sm-12 mb-4">
+                    <div class="card" data-content-type="echarts_wms">
+                        <div class="iframe-container">
+                            <!-- Include ECharts library -->
+                            <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+                            <!-- ECharts container -->
+                            <div id="chart1" style="width: 100%; height: 400px;"></div>
+                            <div class="overlay" onclick="showGraphInModal('echarts_wms')"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-12 col-sm-12 mb-4"> 
+                <div class="col-md-12 col-sm-12 mb-4">
             <a href="{% url 'dashboard:check_abstracts' %}" class="btn btn-primary" role="button">Service Health Monitoring</a>
         </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+ <!-- <div id="chart1" style="width: 100%; height: 400px;"></div>
+       -->
+
+<!-- Existing content -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+
+<div class="container">
+    <div class="row">
+        <!-- Left Column: Gauge Chart and Donut Charts -->
+        <div class="col-md-6">
+            <div id="gaugeChart" style="width: 100%; height: 330px;">
+                {{ gauge_graph|safe }}
+            </div>
+            <div id="highestLoad" style="width: 100%; height: 330px;">
+               {{ highest_loads|safe }} 
+            </div>
+            <div id="donutChart3" style="width: 100%; height: 200px;"></div>
+        </div>
+        <!-- Right Column: Graph Charts -->
+        <div class="col-md-6">
+            <div id="graphChart1" class="graph-chart" style="width: 100%; height: 200px;" data-url ="${filterUrl}">
+                {{ loadcount_chart|safe }}
+            </div>
+            <div id="graphChart2" class="graph-chart" style="width: 100%; height: 200px;"></div>
+            <div id="graphChart3" class="graph-chart" style="width: 100%; height: 200px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="graphModalWMC" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="graphModalLabel">Graph</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+                       <div class="modal-body">
+                <form id="dateForm">
+                    <div class="row">
+                        <div class="col-12 d-flex flex-wrap flex-md-nowrap py-1">
+                            <div class="col-sm-12 col-md-4 py-1">
+                                <small class="text-black">Select WMC</small>
+                                <div class="card shadow-sm">
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="height: 30px;" id="addon-wrapping_wmc">
+                                            <i class="fa fa-list"></i>
+                                        </span>
+                                        <select class="form-control" id="wmc_id" name="wmc_id" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC" aria-describedby="addon-wrapping_wmc">
+                                            {% for wmc in top_ten_wmc %}
+                                                <option value="{{ wmc.wmc_id }}">{{ wmc.wmc_title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4 py-1">
+                                <small class="text-black">Start Date</small>
+                                <div class="card shadow-sm">
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="height: 30px;" id="addon-wrapping_start">
+                                            <i class="fa fa-calendar-day"></i>
+                                        </span>
+                                        <input type="date" id="startDate" value="startDate" name="start" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="Start Date" aria-label="Start Date" aria-describedby="addon-wrapping_start">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-sm-12 col-md-4 py-1">
+                                <small class="text-black">End Date</small>
+                                <div class="card shadow-sm">
+                                    <div class="input-group">
+                                        <span class="input-group-text" style="height: 30px;" id="addon-wrapping_end">
+                                            <i class="fa fa-calendar-day"></i>
+                                        </span>
+                                        <input type="date" id="endDate" value="endDate" name="end" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="End Date" aria-label="End Date" aria-describedby="addon-wrapping_end">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 d-flex justify-content-end py-1">
+                            <button type="submit" class="btn btn-primary" style="height: 38px; padding: 0.375rem 0.75rem;">Submit</button>
+                        </div>
+                    </div>
+                </form>
+                <div id="spinnerContainerWMC" style="display: none;">
+                    <div id="spinner" class="spinner-border" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+                <div id="dynamicContentWMC">
+                    <!-- Dynamic content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+      // Example donut chart options
+      const donutOptions = {
+            series: [
+                {
+                    type: 'pie',
+                    radius: ['50%', '70%'],
+                    data: [
+                        { value: 335, name: 'Direct' },
+                        { value: 310, name: 'Email' },
+                        { value: 234, name: 'Affiliate' },
+                        { value: 135, name: 'Video' },
+                        { value: 1548, name: 'Search' }
+                    ]
+                }
+            ]
+        };
+
+        // Example graph chart options
+        const graphOptions = {
+            xAxis: {
+                type: 'category',
+                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    data: [120, 200, 150, 80, 70, 110, 130],
+                    type: 'bar'
+                }
+            ]
+        };
+
+        // Initialize the donut charts
+        //const donutChart1 = echarts.init(document.getElementById('donutChart1'));
+        //const donutChart2 = echarts.init(document.getElementById('donutChart2'));
+        const donutChart3 = echarts.init(document.getElementById('donutChart3'));
+
+        //donutChart1.setOption(donutOptions);
+        //donutChart2.setOption(donutOptions);
+        donutChart3.setOption(donutOptions);
+
+        // Initialize the graph charts
+        //const graphChart1 = echarts.init(document.getElementById('graphChart1'));
+        //const graphChart2 = echarts.init(document.getElementById('graphChart2'));
+        const graphChart3 = echarts.init(document.getElementById('graphChart3'));
+
+        //graphChart1.setOption(graphOptions);
+        //graphChart2.setOption(graphOptions);
+        graphChart3.setOption(graphOptions);
+
+        document.querySelectorAll('.graph-chart').forEach(chart => {
+        chart.addEventListener('click', () => {
+            $('#spinnerContainerWMC').show(); // Show spinner
+            $.ajax({
+                url: filterUrl,
+                method: 'GET',
+                success: function(data) {
+                    $('#dynamicContentWMC').html(data.loadcount_chart);
+                    $('#startDate').val(data.start);
+                    $('#endDate').val(data.end);
+                    $('#wmc_id').val(data.wmc_id);
+                    $('#graphModalWMC').modal('show');
+                    $('#spinnerContainerWMC').hide(); // Hide spinner
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching data:', error);
+                    $('#spinnerContainerWMC').hide(); // Hide spinner
+                }
+            });
+        });
+    });
+
+    // Handle form submission
+    $('#dateForm').on('submit', function(event) {
+        event.preventDefault();
+        const startDate = $('#startDate').val();
+        const endDate = $('#endDate').val();
+        const wmcId = $('#wmc_id').val();
+        $('#spinnerContainerWMC').show(); // Show spinner
+        $.ajax({
+            url: filterUrl,
+            method: 'GET',
+            data: {
+                start: startDate,
+                end: endDate,
+                wmc_id: wmcId
+            },
+            success: function(data) {
+                $('#dynamicContentWMC').html(data.loadcount_chart);
+                $('#spinnerContainerWMC').hide(); // Hide spinner
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching data:', error);
+                $('#spinnerContainerWMC').hide(); // Hide spinner
+            }
+        });
+    });
+     // Prevent form submission on input field focus
+    $('#startDate, #endDate').on('focus', function(event) {
+        event.stopPropagation();
+    });
+</script>
+
+
+
+
+  
     
         <script>
             const filterUrl = "{% url 'dashboard:filter' %}";
