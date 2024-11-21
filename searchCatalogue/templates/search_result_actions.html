@@ -77,23 +77,34 @@
             {% if feeds is not None and feeds|length > 0 %}
             <div class="resource-list download_{{ result.id }}" style="display:none;">
                 <ul style="overflow: hidden;">
-                    {% for feed in feeds %}
+                    {% for feed in feeds|dictsort:"serviceTitle" %}
                         <li class="resource-element">
-                            <a href="{{ feed.htmlLink }}" target="_blank">
-                                <span class="resource-view-title" title="{% trans 'Metadata' %}">
-                                    {{ feed.serviceTitle }} - ({{ feed.serviceUuid }})
-                                </span><i aria-hidden="true" class="fas fa-external-link-alt"></i></a>
+                            <a title="{% trans 'Open metadata in new window' %}" href="{{ feed.htmlLink }}" target="_blank">
+                                <span class="resource-view-title">
+                                    {% if feed.type != 'ogcapifeatures' %}
+                                        {{ feed.serviceTitle }}
+                                    {% else %}
+                                        OGC API-Features Interface - Objektart: {{ feed.resourceName }}
+                                    {% endif %}
+                                </span><i aria-hidden="true" class="fas fa-external-link-alt"></i>
+                            </a>
                             <div id="download_button_{{ feed.serviceUuid }}" class="feed-download resource-element-data">
                                 <div class="resource-element-info"></div>
                                 <div class="feed-download-wrapper">
-                                    <a class="feed-download-button" href="{{ feed.accessUrl }}" target="_blank" title="{% trans 'Original atom feed' %}">
+                                    {% if feed.type == 'ogcapifeatures' %}
+                                    {% else %} 
+                                    <a class="feed-download-button" href="{{ feed.accessUrl }}" target="_blank" title="{% if feed.type == 'directwfs' %}{% trans 'Show Capabilities' %}{% else %}{% trans 'Original atom feed' %}{% endif %}">
                                         <i class="fas fa-file-alt icn-file" aria-hidden="true"></i>
-                                        <span>{% trans 'Original atom feed' %}</span>
-				    </a>
-                                    <a class="atom-feed-button" href="{{ feed.accessClient }}" target="_blank" title="{% trans 'Open in atom feed viewer' %}">
+                                        <span>{% if feed.type == 'directwfs' %}{% trans 'Show Capabilities' %}{% else %}{% trans 'Original atom feed' %}{% endif %}</span>
+                                    </a>
+                                    {% endif %}
+                                    {% if feed.type == 'directwfs' %}
+                                    {% else %}
+                                    <a class="atom-feed-button" href="{{ feed.accessClient }}" target="_blank" title="{% trans 'Open in html client' %}">
                                         <i class="fas fa-download icn-download" aria-hidden="true"></i>
-                                        <span>{% trans 'Open in atom feed viewer' %}</span>
-				    </a>
+                                        <span>{% trans 'Open in html client' %}</span>
+                                    </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </li>
@@ -120,7 +131,7 @@
             {% endif %}
 
             {% if layers is not None and layers|length > 0 %}
-                <div class="resource-list view_{% if type == 'wms' %}{{ layer.id }}{% elif type == 'dataset' %}{{ result.id }}{% endif %}" style="display:none;">
+            <div class="resource-list view_{% if type == 'wms' %}{{ layer.id }}{% elif type == 'dataset' %}{{ result.id }}{% endif %}" style="display:none;">
                 <ul style="overflow: hidden;">
                     {% if type == 'dataset' %}
                         {% for layer in layers %}
@@ -138,7 +149,7 @@
                         {% endwith %}
                     {% endif %}
                 </ul>
-                </div>
+            </div>
             {% endif %}
         {% endif %}
     </div>
