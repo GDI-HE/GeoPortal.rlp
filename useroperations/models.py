@@ -347,56 +347,29 @@ class Keyword(models.Model):
     class Meta:
         db_table = 'keyword'
         managed = False
-        
 
     def __str__(self):
         return self.keyword
+from django.db import models, connection
 
 class LayerKeyword(models.Model):
     fkey_layer = models.ForeignKey('Layer', on_delete=models.CASCADE, db_column='fkey_layer_id')
-    fkey_keyword = models.ForeignKey(Keyword, on_delete=models.CASCADE, db_column='fkey_keyword_id')
+    fkey_keyword = models.ForeignKey('Keyword', on_delete=models.CASCADE, db_column='fkey_keyword_id')
 
     class Meta:
+        managed = False
         db_table = 'layer_keyword'
         unique_together = ('fkey_layer', 'fkey_keyword')
 
     def __str__(self):
         return f'{self.fkey_layer} - {self.fkey_keyword}'
-    
-class MbUserDeletion(models.Model):
-    id = models.AutoField(primary_key=True)
-    mb_user_id = models.IntegerField()
-    mb_user_name = models.CharField(max_length=255)
-    mb_user_email = models.CharField(max_length=255)
-    deleted_at = models.DateTimeField(auto_now_add=True)
 
-    class Meta:
-        db_table = 'mb_user_deletions'
-
-class WmsDeletion(models.Model):
-    wms_id = models.IntegerField()
-    wms_title = models.CharField(max_length=255)
-    contactelectronicmailaddress = models.CharField(max_length=255)
-    deleted_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'wms_deletions'
-
-    def __str__(self):
-        return f"{self.wms_title} ({self.contactelectronicmailaddress})"
-
-class WfsDeletion(models.Model):
-    wfs_id = models.IntegerField()
-    wfs_title = models.CharField(max_length=255)
-    deleted_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'wfs_deletions'
-
-class WmcDeletion(models.Model):
-    wmc_id = models.IntegerField()
-    wmc_title = models.CharField(max_length=255)
-    deleted_at = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        db_table = 'wmc_deletions'
+    def save(self, *args, **kwargs):  #overriding the default save method
+        if not self.pk:  # Only for new instances
+            cursor = connection.cursor()
+            cursor.execute(
+                "INSERT INTO layer_keyword (fkey_layer_id, fkey_keyword_id) VALUES (%s, %s)",
+                [self.fkey_layer_id, self.fkey_keyword_id]
+            )
+        else:
+            super().save(*args, **kwargs)
