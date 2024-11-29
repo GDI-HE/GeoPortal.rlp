@@ -1,7 +1,7 @@
 from useroperations.models import MbUser, Wms, Wfs, Wmc
 from datetime import datetime, timedelta
 from dashboard.dashboard_utils import get_data_counts
-from useroperations.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
+from dashboard.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
 from django.db.models.functions import TruncDay
 from django.db.models import Count
 
