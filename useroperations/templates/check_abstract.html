@@ -1,14 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% load static %}
+{% block body %}
+{% csrf_token %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'js/update_graph.js' %}"></script>
 <head>
-    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css" integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <script src="{% static 'js/check_abstracts.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/check_abstracts.css' %}">
     <title>Service Layer Abstract and Keyword Check</title>
-  
 </head>
 <body>
     <h1>Service Layer Abstract and Keyword Check</h1>
@@ -22,6 +28,7 @@
             <h2>Layers Without Keywords</h2>
             <p class="number">{{ total_layers_without_keyword }}</p>
             <p class="label">Total across all services</p>
+            <!-- <button class="btn btn-primary" onclick="showLayersWithoutKeywordsModal()">Edit Layers Without Keywords</button> -->
         </div>
         <div class="card">
             <h2>Abstracts Match Titles</h2>
@@ -36,11 +43,600 @@
     </div>
     <div class="search-container">
         <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for Service Title (Min: 5 Char)" oninput="toggleClearButton()">
-        <button id="clear-input" aria-label="Clear search input" onclick="clearSearchInput()" style="display: none;">
+        <button id="clear-input1" aria-label="Clear search input" onclick="clearSearchInput()">
             <i class="fas fa-times"></i>
         </button>
     </div>
+    <style>
+        .column-toggle-container {
+            margin-bottom: 10px;
+            float: right;
+        }
+
+        .column-toggle-button {
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #137673;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+        .column-toggle-list {
+            display: none;
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+        .column-toggle-list li {
+            margin: 5px 0;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 34px;
+            height: 20px;
+        }
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+        }
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+        input:checked + .slider:before {
+            transform: translateX(14px);
+        }
+        .slider.round {
+            border-radius: 34px;
+        }
+        .slider.round:before {
+            border-radius: 50%;
+        }
+        #columnToggleList{
+        position: absolute;
+        right: 44px;
+        background-color: white;
+        padding: 15px;
+        border: 1px solid #137673;
+        margin-top: 10px;
+        z-index: 1000;
+        }
+        
+        .tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fff;
+  color: #333;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 14px;
+  display: none;
+  z-index: 1000;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+}
+
+.custom-tooltip.show-tooltip {
+  display: block;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.tooltip-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tooltip-item:last-child {
+  margin-bottom: 0;
+}
+
+.tooltip-icon {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-right: 8px;
+  flex-shrink: 0; /* Prevent shrinking */
+}
+
+.white-icon {
+  background-color: #f8f9fa; /* Neutral white */
+  border: 1px solid #ccc;
+}
+
+.mild-red-icon {
+  background-color: #ffcccb; /* Mild red */
+}
+
+.dark-red-icon {
+  background-color: #ff6b6b; /* Dark red */
+}
+
+.green-icon {
+  background-color: #28a745; /* Green */
+}
+
+#tooltip-content{
+    font-weight: lighter;
+}  
+
+@media (max-width: 768px) {
+  #serviceTable,
+  #serviceTable thead,
+  #serviceTable tbody,
+  #serviceTable th,
+  #serviceTable td,
+  #serviceTable tr {
+    display: block;
+  }
+
+  #serviceTable thead tr {
+    display: none; /* Hide the header row */
+  }
+
+  #serviceTable tr {
+    margin-bottom: 10px;
+  }
+
+  #serviceTable td {
+    text-align: right;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  #serviceTable td:before {
+    content: attr(data-label); /* Use the header's content */
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 15px;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+
+@media (max-width: 768px) {
+  #serviceTable,
+  #serviceTable thead,
+  #serviceTable tbody,
+  #serviceTable th,
+  #serviceTable td,
+  #serviceTable tr {
+    display: block;
+  }
+
+  #serviceTable thead tr {
+    display: none; /* Hide the header row */
+  }
+
+  #serviceTable tr {
+    margin-bottom: 10px;
+  }
+
+  #serviceTable td {
+    text-align: right;
+    position: relative;
+    padding-left: 50%;
+  }
+
+  #serviceTable td:before {
+    content: attr(data-label); /* Use the header's content */
+    position: absolute;
+    left: 0;
+    width: 45%;
+    padding-left: 15px;
+    font-weight: bold;
+    text-align: left;
+  }
+}
+@media (max-width: 768px) {
+  .details-section {
+    display: none !important; /* Prevents overriding */
+  }
+  .details-section.show  {
+    display: table-row !important;
+   
+  }
+}
+
+/* Responsive styles for mobile view */
+@media (max-width: 768px) {
+  
+  .details-section.active {
+    display: block; /* Shown when toggled */
+  }
+
+  .dropdown-container {
+    display: grid;
+    grid-template-columns: 1fr; /* Stack items vertically */
+    gap: 10px;
+  }
+
+  .dropdown {
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    border-radius: 5px;
     
+  }
+
+  .dropdown-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  .dropdown-content {
+    margin-top: 5px;
+  }
+
+  .dropdown-content ul {
+    list-style-type: none;
+    padding: 0;
+  }
+
+  .dropdown-content ul li {
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+
+  /* Reduce button sizes */
+  .btn.btn-sm {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+}
+@media (max-width: 768px) {
+  .checkbox-list li {
+    flex-direction: column; /* Stack items */
+    align-items: flex-start; /* Align text and switches */
+    font-size: 14px; /* Slightly smaller font size */
+    gap: 5px; /* Add some space between switch and text */
+  }
+
+  .checkbox-list li span {
+    margin-left: 5px;
+  }
+
+  .switch {
+    width: 40px; /* Slightly larger for better touch targets */
+    height: 24px;
+  }
+
+  .slider::before {
+    height: 18px;
+    width: 18px;
+  }
+}
+.column-toggle-container {
+            margin-top: -40px;
+            float: right;
+        }
+        
+    </style>
+   
+    
+   <div class="column-toggle-container">
+    <button class="column-toggle-button" onclick="toggleColumnList()">
+        <i class="fas fa-cog"></i> Columns
+    </button>
+    <ul class="column-toggle-list" id="columnToggleList">
+        <li>
+            <label class="switch">
+                <input type="checkbox" checked data-column="0">
+                <span class="slider round"></span>
+            </label> Serial No.
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" checked data-column="1">
+                <span class="slider round"></span>
+            </label> Service ID
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" checked data-column="2">
+                <span class="slider round"></span>
+            </label> Service Title
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" checked data-column="3">
+                <span class="slider round"></span>
+            </label> Total Layers
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" checked data-column="4">
+                <span class="slider round"></span>
+            </label> Layers Without Abstract
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" checked data-column="5">
+                <span class="slider round"></span>
+            </label> Layers Without Keywords
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" data-column="6">
+                <span class="slider round"></span>
+            </label> Abstract Matches Title
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" data-column="7">
+                <span class="slider round"></span>
+            </label> Layers With Short Abstract
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" data-column="8">
+                <span class="slider round"></span>
+            </label> Data-Service connection
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" data-column="9">
+                <span class="slider round"></span>
+            </label> Inspire Monitoring Status
+        </li>
+        <li>
+            <label class="switch">
+                <input type="checkbox" data-column="10">
+                <span class="slider round"></span>
+            </label> ISO Categorized
+        </li>
+       
+    </ul>
+</div>
+
+
+
+<!-- Layers Without Keywords Modal -->
+<div class="modal fade" id="layersWithoutKeywordsModal" tabindex="-1" role="dialog" aria-labelledby="layersWithoutKeywordsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="layersWithoutKeywordsModalLabel">Layers Without Keywords</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="layersWithoutKeywordsList">
+                    <!-- List of layers without keywords will be dynamically generated here -->
+                </ul>
+                <form id="addKeywordForm">
+                    <div class="form-group">
+                        <label for="layerId">Layer ID</label>
+                        <select class="form-control" id="layerId" name="layer_id">
+                            <!-- Options will be dynamically generated here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="keyword">Keyword</label>
+                        <input type="text" class="form-control" id="keyword" name="keyword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Keyword</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Layers With Short Abstract Model -->
+<div class="modal fade" id="layersWithShortAbstract" tabindex="-1" role="dialog" aria-labelledby="layersWithShortAbstractLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="layersWithoutAbstractsModalLabel">Layers With Short Abstract</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="layersWithoutAbstractsList">
+                    <!-- List of layers without abstracts will be dynamically generated here -->
+                </ul>
+                <form id="addAbstractForm">
+                    <div class="form-group">
+                        <label for="layerIdAbstract">Layer ID</label>
+                        <select class="form-control" id="layerIdAbstract" name="layer_id">
+                            <!-- Options will be dynamically generated here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="abstract">Abstract</label>
+                        <textarea class="form-control" id="abstract" name="abstract" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Abstract</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="layersWithoutAbstractsModal" tabindex="-1" role="dialog" aria-labelledby="layersWithoutAbstractsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="layersWithoutAbstractsModalLabel">Layers Without Abstracts</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="layersWithoutAbstractsList">
+
+                    <!-- List of layers without abstracts will be dynamically generated here -->
+                </ul>
+                <form id="addAbstractForm1">
+                    <div class="form-group">
+                        <label for="layerIdWithoutAbstract">Layer ID</label>
+                        <select class="form-control" id="layerIdWithoutAbstract" name="layer_id">
+                            <!-- Options will be dynamically generated here -->
+                            
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="abstract">Abstract</label>
+                        <textarea class="form-control" id="abstract1" name="abstract1" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Abstract</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="layersWithAbstractMatchesTitleModal" tabindex="-1" role="dialog" aria-labelledby="layersWithoutAbstractsModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="layersWithAbstractMatchesTitleLabel">Title matches Abstracts</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="layersWithoutAbstractsList">
+
+                    <!-- List of layers without abstracts will be dynamically generated here -->
+                </ul>
+                <form id="addAbstractForm2">
+                    <div class="form-group">
+                        <label for="layerIdWithoutAbstract">Layer ID</label>
+                        <select class="form-control" id="layerIdAbstractMatchesTitle" name="layer_id">
+                            <!-- Options will be dynamically generated here -->
+                            
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="abstract">Abstract</label>
+                        <textarea class="form-control" id="abstract2" name="abstract2" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Abstract</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="layerLicenseModal" tabindex="-1" role="dialog" aria-labelledby="layerLicenseModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="layerLicenseLabel">Edit Fees / License</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="layerLicenseList">
+
+                    <!-- List of layers without abstracts will be dynamically generated here -->
+                </ul>
+                <form id="addAbstractForm3">
+                    <div class="form-group">
+                        <label for="layerIdWithoutAbstract">Layer ID</label>
+                        <select class="form-control" id="showLicense" name="layer_id">
+                            <!-- Options will be dynamically generated here -->
+                            
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="abstract">License</label>
+                        <textarea class="form-control" id="layer_license" name="layer_license" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Abstract</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="layerConstraintModal" tabindex="-1" role="dialog" aria-labelledby="layerConstraintModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="layerConstraintLabel">Edit Constraint</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <ul id="layerConstraintList">
+
+                    <!-- List of layers without abstracts will be dynamically generated here -->
+                </ul>
+                <form id="addConstraintForm3">
+                    <div class="form-group">
+                        <label for="layerIdWithoutAbstract">Layer ID</label>
+                        <select class="form-control" id="showConstraint" name="layer_id">
+                            <!-- Options will be dynamically generated here -->
+                            
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="abstract">Constraint</label>
+                        <textarea class="form-control" id="layer_constraint" name="layer_constraint" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Abstract</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script> -->
+<!-- <script src="{% static 'js/jquery-ui.min.js' %}"></script> -->
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<!-- <script src="{% static 'js/check_abstracts.js' %}"></script> -->
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+
+
     <table id="serviceTable">
         <thead>
             <tr>
@@ -50,104 +646,883 @@
                 <th>Total Layers</th>
                 <th>Layers Without Abstract</th>
                 <th>Layers Without Keywords</th>
-                <!-- <th>All Layers Have Abstract</th>
-                <th>All Layers Have Keywords</th> -->
-                <th>Keywords Present</th>
-                <th>Abstracts Present</th>
-                <th>Abstract Matches Title</th>
-                <th>Layers With Short Abstract</th>
-                <th>Data-Service connection</th>
+                <th style="display: none;">Abstract Matches Title</th>
+                <th style="display: none;">Layers With Short Abstract</th>
+                <th style="display: none;">Data-Service connection</th>
+                <th style="display: none;">Inspire Monitoring Status
+                    <div class="tooltip-wrapper">
+                        <button 
+                          id="tooltip-trigger" 
+                          class="btn btn-info" 
+                          aria-describedby="tooltip-content">
+                          <i class="fas fa-info-circle"></i>
+                        </button>
+                        <div id="tooltip-content" class="custom-tooltip" tabindex="-1" role="tooltip">
+                          <div class="tooltip-item">
+                            <span class="tooltip-icon white-icon"></span>
+                            <span>No Inspire Category, nor Inspireidentifiziert</span>
+                          </div>
+                          <div class="tooltip-item">
+                            <span class="tooltip-icon mild-red-icon"></span>
+                            <span>Inspire Category but keyword missing</span>
+                          </div>
+                          <div class="tooltip-item">
+                            <span class="tooltip-icon dark-red-icon"></span>
+                            <span>Keyword as Inspireidentifiziert but Inspire category missing</span>
+                          </div>
+                          <div class="tooltip-item">
+                            <span class="tooltip-icon green-icon"></span>
+                            <span>Both Inspire Category and Inspireidentifiziert</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      
+                </th>
+                <th style="display: none;">ISO Categorized</th>
+
                 <th>Actions</th>
+               
             </tr>
         </thead>
      
         <tbody>
             {% for result in results %}
                <div class="spinner" id="spinner"></div>
-            <tr class="main-row {% if result.layers_with_comma_keywords %}highlight-red{% endif %}">
-                <td>{{ forloop.counter }}</td>
-                <td>{{ result.wms_id }}</td>
-                <td>{{ result.wms_title }}</td>
-                <td>{{ result.total_layers }}</td>
-                <td>{{ result.layers_without_abstract }}</td>
-                <td>{{ result.layers_without_keywords }}</td>
-                <!-- <td class="status {% if result.all_layers_have_abstract %}status-yes{% else %}status-no{% endif %}">
-                    {% if result.all_layers_have_abstract %}Yes{% else %}No{% endif %}
+                <tr class="main-row {% if result.layers_with_comma_keywords %}{% endif %}">
+                <td data-label="Serial No.">{{ forloop.counter }}</td>
+                <td data-label="Service ID">{{ result.wms_id }}</td>
+                <td data-label="Service Title">{{ result.wms_title }}</td>
+                <td data-label="Total Layers">{{ result.total_layers }}</td>
+
+                <td data-label="Layers without Abstract">
+                   {% if result.layers_without_abstract %}
+                    <i class="fas fa-circle red-dot">✖</i>
+                    {% else %}
+                    <i class="fas fa-circle green-dot">✔</i>
+                    {% endif %} 
+                    <!-- {{ result.layers_without_abstract }} -->
+                
                 </td>
-                <td class="status {% if result.all_layers_have_keywords %}status-yes{% else %}status-no{% endif %}">
-                    {% if result.all_layers_have_keywords %}Yes{% else %}No{% endif %}
-                </td> -->
-                <td>{{ result.keywords_present|length }}</td>
-                <td>{{ result.abstracts_present|length }}</td>
-                <td>
+                <td data-label="Layers without Keywords">
+                   {% if result.layers_without_keywords %}
+                   <i class="fas fa-circle red-dot">✖</i>
+                    {% else %}
+                    <i class="fas fa-circle green-dot">✔</i>
+                    {% endif %} 
+                    
+                    <!-- {{ result.layers_without_keywords }} -->
+                </td>
+                <td data-label="Layers title matches Abstract" style="display: none;">
                     {% for match in result.layers_abstract_match %}
-                        <span>{{ match }}</span><br>
+                   {% if match == 'Y' %} 
+                   <i class="fas fa-circle red-dot">✖</i>
+                     {% elif match == 'N' and match != 'Y' %}
+                        <i class="fas fa-circle green-dot">✔</i>
+                    {% endif %} 
                     {% endfor %}
                 </td>
-                <td>{{ result.layers_with_short_abstract_count }}</td>
-                <td>{{ result.connected_wms}} </td>
-                <td>
+                <td data-label="Layers with short Abstract" style="display: none;">
+                   {% if result.layers_with_short_abstract_count > 0 %}
+                    <i class="fas fa-circle red-dot">✖</i>
+                    {% else %} 
+                    <i class="fas fa-circle green-dot">✔</i>
+                    {% endif %}
+                    <!-- {{ result.layers_with_short_abstract_count }} -->
+                </td>
+                <td data-label="Data-Service Connection" style="display: none;">
+                    {% if result.connected_wms %}
+                        <i class="fas fa-circle green-dot">✔</i>
+                    {% else %}
+                        <i class="fas fa-circle red-dot">✖</i>
+                    {% endif %}
+                </td>
+                <td data-label="Inspire Category" style="display: none;">
+                    {% if result.color == 'white' %}
+                        <i class="fas fa-circle white-dot"></i>
+                    {% elif result.color == 'green' %}
+                        <i class="fas fa-circle green-dot">✔</i>
+                    {% elif result.color == 'mildred' %}
+                        <i class="fas fa-circle mildred-dot">✖</i>
+                    {% else %}
+                        <i class="fas fa-circle mildred1-dot">✖</i>
+                    {% endif %}
+                </td>
+                <td data-label="ISO category" style="display: none;">
+                    {% if result.color_iso == 'white-iso' %}
+                    <i class="fas fa-circle white-dot"></i>
+                    {% else %}
+                    <i class="fas fa-circle green-dot">✔</i>
+                    {{ result.category }}
+                   {% endif %} 
+                  
+                </td>
+                <td data-label="Actions">
                     <button class="dropdown-btn" onclick="toggleDropdown(this)">Show Details</button>
                 </td>
+                
+                  
+                
             </tr>
-            <tr class="dropdown-content">
+            <tr class="details-section">
                 <td colspan="12">
-                    <h3>Keywords Present:</h3>
-                    <ul>
-                        {% for keyword in result.keywords_present %}
-                        <li>{{ keyword }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Abstracts Present:</h3>
-                    <ul>
-                        {% for abstract in result.abstracts_present %}
-                        <li>{{ abstract }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Layers Without Abstracts:</h3>
-                    <ul>
-                        {% for layer_name in result.layers_without_abstract_names %}
-                        <li>{{ layer_name }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Layers Without Keywords:</h3>
-                    <ul>
-                        {% for layer_name in result.layers_without_keyword_names %}
-                        <li>{{ layer_name }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Layers Where Abstract Matches Title:</h3>
-                    <ul>
-                        {% for layer_name in result.layers_abstract_matches_title_names %}
-                        <li>{{ layer_name }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Layer Names:</h3>
-                    <ul>
-                        {% for layer_name in result.layer_names %}
-                        <li>{{ layer_name }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Layers With Short Abstracts:</h3>
-                    <ul>
-                        {% for layer_name, layer_abstract in result.layers_with_short_abstract_info %}
-                        <li class="short-abstract">{{ layer_name }}: {{ layer_abstract }}</li>
-                        {% endfor %}
-                    </ul>
-                    <h3>Angaben zu Kosten/Gebühren/Lizenzen: </h3>
-                    <ul>{{ result.wms_fees }}</ul>
-                    <h3>Beschränkungen des öffentlichen Zugangs</h3>
-                    <ul>{{ result.wms_accessconstraints }}</ul>
+                    <div class="dropdown-container">
+                    <div class="dropdown">
+                        <div class="dropdown-title">
+                            Keywords Present 
+                           {% if result.keywords_present %} 
+                            <i class="fas fa-info-circle"></i>
+                           {% else %}
+                            <i class="fas fa-info-circle red-icon"></i>
+                        {% endif %}
+                    </div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for keyword in result.keywords_present %}
+                                <li>{{ keyword }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">Abstracts Present <i class="fas fa-info-circle"></i></div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for abstract in result.abstracts_present %}
+                                <li>{{ abstract }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">Layers Without Abstracts 
+                           {% if result.layers_without_abstract_names %} 
+                            <i class="fas fa-info-circle red-icon"></i>
+                            <button class="btn btn-sm" onclick="showLayersWithoutAbstractsModal({{ result.wms_id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                        </div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for layer_name in result.layers_without_abstract_names %}
+                                <li>{{ layer_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">
+                            Layers Without Keywords 
+                           {% if result.layers_without_keyword_names %} 
+                            <i class="fas fa-info-circle red-icon"></i>
+                            <button class="btn btn-sm" onclick="showLayersWithoutKeywordsModal({{ result.wms_id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                           {% else %}
+                            <i class="fas fa-info-circle"></i> 
+                        {% endif %}
+                        </div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for layer_name in result.layers_without_keyword_names %}
+                                <li>{{ layer_name }}</li>
+                                
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">
+                            Layers Where Abstract Matches Title 
+                           {% if result.layers_abstract_matches_title_names %} 
+                            <i class="fas fa-info-circle red-icon"></i>
+                            <button class="btn btn-sm" onclick="showLayersWithAbstractMatchesTitleModal({{ result.wms_id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                           {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                        </div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for layer_name in result.layers_abstract_matches_title_names %}
+                                <li>{{ layer_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">Layer Names <i class="fas fa-info-circle"></i></div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for layer_name in result.layer_names %}
+                                <li>{{ layer_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">
+                            Layers With Short Abstracts 
+                           {%if result.layers_with_short_abstract_info %} 
+                            <i class="fas fa-info-circle red-icon"></i>
+                            <button class="btn btn-sm" onclick="showLayersWithShortAbstractModal({{ result.wms_id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            {% else %}
+                            <i class="fas fa-info-circle"></i>
+                        {% endif %}
+                        </div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for layer_name, layer_abstract in result.layers_with_short_abstract_info %}
+                                <li class="short-abstract">{{ layer_name }}: {{ layer_abstract }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">
+                            Angaben zu Kosten/Gebühren/Lizenzen 
+                           {% if result.wms_fees|length > 5 %} 
+                            <i class="fas fa-info-circle"></i>
+                           {% else %}
+                            <i class="fas fa-info-circle red-icon"></i> 
+                            <button class="btn btn-sm" onclick="showLicense({{ result.wms_id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        {% endif %}
+                        </div>
+                        <div class="dropdown-content">
+                            <ul>{{ result.wms_fees }}</ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <div class="dropdown-title">
+                            Beschränkungen des öffentlichen Zugangs 
+                            {% if result.wms_accessconstraints|length > 5 %}
+                            <i class="fas fa-info-circle"></i>
+                            {% else %}
+                            <i class="fas fa-info-circle red-icon"></i>
+                            <button class="btn btn-sm" onclick="showConstraint({{ result.wms_id }})">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        {% endif %}
+                        </div>
+                        <div class="dropdown-content">
+                            <ul>{{ result.wms_accessconstraints }}</ul>
+                        </div>
+                    </div>
+                </div>
                 </td>
             </tr>
             {% endfor %}
-        </tbody>
     </table>
-    <button id="load-more" class="load-more-btn">Load More</button>
+    <button id="load-more" class="load-more-btn" style="display: none;">Load More</button>
     
     <script>
+
+document.querySelectorAll('.dropdown-btn').forEach(button => {
+  button.addEventListener('click', () => {
+    const detailsSection = button.closest('tr').nextElementSibling;
+    if (detailsSection.classList.contains('details-section')) {
+      // Toggle between showing and hiding the details section
+      detailsSection.style.display = 
+        detailsSection.style.display === 'none' || detailsSection.style.display === '' 
+        ? 'table-row' 
+        : 'none';
+    }
+  });
+});
+
+
+         function toggleColumnList() {
+    const columnList = document.getElementById('columnToggleList');
+    if (columnList.style.display === 'none') {
+        columnList.style.display = 'block';
+    } else {
+        // Check the number of selected columns
+        const selectedColumns = document.querySelectorAll('#columnToggleList input[type="checkbox"]:checked');
+        columnList.style.display = 'none';
+
+        // if (selectedColumns.length > 3) {
+        //     alert("Selecting more than 3 columns at once is not possible.");
+        //     // Optionally, you can uncheck the last selected checkbox
+        //     selectedColumns[selectedColumns.length - 1].checked = false;
+        // } else {
+        //     
+        // }
+    } 
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+  const tooltipTrigger = document.getElementById("tooltip-trigger");
+  const tooltipContent = document.getElementById("tooltip-content");
+
+  tooltipTrigger.addEventListener("click", function (event) {
+    event.stopPropagation();
+    tooltipContent.classList.toggle("show-tooltip");
+
+    if (tooltipContent.classList.contains("show-tooltip")) {
+      tooltipContent.focus();
+    }
+  });
+
+  tooltipTrigger.addEventListener("keydown", function (event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.stopPropagation();
+      tooltipContent.classList.toggle("show-tooltip");
+
+      if (tooltipContent.classList.contains("show-tooltip")) {
+        tooltipContent.focus();
+      }
+    }
+  });
+
+  document.addEventListener("click", function () {
+    if (tooltipContent.classList.contains("show-tooltip")) {
+      tooltipContent.classList.remove("show-tooltip");
+    }
+  });
+});
+
+
+// Add this function at the beginning of your script
+function resetColumnToggles() {
+    document.querySelectorAll('#columnToggleList input[type="checkbox"]').forEach(checkbox => {
+        const column = parseInt(checkbox.getAttribute('data-column'));
+        const table = document.getElementById('serviceTable');
+        const th = table.querySelector(`thead th:nth-child(${column + 1})`);
+        const tds = table.querySelectorAll(`tbody td:nth-child(${column + 1})`);
+
+        // Check if the checkbox was initially checked in the HTML
+        const initiallyChecked = checkbox.hasAttribute('checked');
+
+        if (initiallyChecked) {
+            // Keep initially checked columns visible and checked
+            checkbox.checked = true;
+            th.style.display = '';
+            tds.forEach(td => td.style.display = '');
+        } else {
+            // Reset only the manually checked checkboxes
+            checkbox.checked = false;
+            th.style.display = 'none';
+            tds.forEach(td => td.style.display = 'none');
+        }
+    });
+}
+
+// Call this function when the page loads
+document.addEventListener('DOMContentLoaded', resetColumnToggles);
+
+// You might also want to add a reset button that calls this function
+// For example:
+// document.getElementById('resetButton').addEventListener('click', resetColumnToggles);
+
+// Function to toggle the column list visibility
+
+
+
+
+        document.querySelectorAll('#columnToggleList input[type="checkbox"]').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const column = this.getAttribute('data-column');
+                const table = document.getElementById('serviceTable');
+                const th = table.querySelector(`thead th:nth-child(${parseInt(column) + 1})`);
+                const tds = table.querySelectorAll(`tbody td:nth-child(${parseInt(column) + 1})`);
+                if (this.checked) {
+                    th.style.display = '';
+                    tds.forEach(td => td.style.display = '');
+                } else {
+                    th.style.display = 'none';
+                    tds.forEach(td => td.style.display = 'none');
+                }
+            });
+        });
+        function edit(button) {
+    const row = button.closest('tr');
+    const serviceId = row.querySelector('td:nth-child(2)').textContent;
+    const serviceTitle = row.querySelector('td:nth-child(3)').textContent;
+    const totalLayers = row.querySelector('td:nth-child(4)').textContent;
+
+    document.getElementById('editServiceId').value = serviceId;
+    document.getElementById('editServiceTitle').value = serviceTitle;
+
+    // Populate other fields if necessary
+
+   
+    document.getElementById('editWmsFees').value = row.querySelector('td:nth-child(5)').textContent;
+    document.getElementById('editWmsAccessconstraints').value = row.querySelector('td:nth-child(6)').textContent;
+
+    $('#editModal').modal('show');
+}
+        document.addEventListener('DOMContentLoaded', function() {
+            var dropdowns = document.querySelectorAll('.dropdown');
+            dropdowns.forEach(function(dropdown) {
+                var title = dropdown.querySelector('.dropdown-title');
+                var content = dropdown.querySelector('.dropdown-content');
+                content.style.display = 'none';
+                title.addEventListener('click', function() {
+                    var isVisible = content.style.display === 'block';
+                    content.style.display = isVisible ? 'none' : 'block';
+                    title.classList.toggle('active', !isVisible);
+                });
+            });
+        });
+
+        function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+     
              let serialNo = {{ results|length }}; // Start serial number from the current number of results
+             
+function showLayersWithoutKeywordsModal(serviceId) {
+    fetch(`/get-layers-without-keywords/?service_id=${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            populateLayerIdDropdown(data.layers, 'layerId');
+            $('#layersWithoutKeywordsModal').modal('show'); // Show the modal after fetching the data
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function showLayersWithAbstractMatchesTitleModal(serviceId) {
+    fetch(`/get-abstract-matches-title/?service_id=${serviceId}`)
+        .then(response=> response.json())
+        .then(data=> {
+            populateLayerIdDropdown(data.layers, 'layerIdAbstractMatchesTitle');
+            $('#layersWithAbstractMatchesTitleModal').modal('show');
+        })
+        .catch(error => console.error('Error:', error));
+} 
+
+function showLayersWithShortAbstractModal(serviceId) {
+    fetch(`/get-layers-with-short-abstract/?service_id=${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            populateLayerIdDropdown(data.layers, 'layerIdAbstract');
+            $('#layersWithShortAbstract').modal('show'); // Show the modal after fetching the data
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function showLayersWithoutAbstractsModal(serviceId) {
+    fetch(`/get-layers-without-abstracts/?service_id=${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');
+            $('#layersWithoutAbstractsModal').modal('show'); // Show the modal after fetching the data
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function showLicense(serviceId) {
+    fetch(`/get-show-license/?service_id=${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            //populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');  //change here and down
+            //console.log(data)
+            populateLicense(data.wms_id, data.fees, 'showLicense')
+            
+            
+            $('#layerLicenseModal').modal('show'); // Show the modal after fetching the data
+        })
+        .catch(error => console.error('Error:', error));
+}
+function showConstraint(serviceId) {
+    fetch(`/get-show-constraint/?service_id=${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            //populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');  //change here and down
+            //console.log(data)
+            populateConstraint(data.wms_id, data.constraint, 'showConstraint')
+            
+            
+            $('#layerConstraintModal').modal('show'); // Show the modal after fetching the data
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+
+function populateLayerIdDropdown(layers, dropdownId) {
+    const dropdown = document.getElementById(dropdownId);
+    dropdown.innerHTML = ''; // Clear existing options
+    layers.forEach(layer => {
+        const option = document.createElement('option');
+        option.value = layer.layer_id;
+        if ((layer.layer_abstract!==null && layer.layer_abstract!== undefined)){
+         option.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}, Abstract: ${layer.layer_abstract}`;
+    } else{
+        option.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}`;
+    }  
+        dropdown.appendChild(option);
+    });
+}
+
+function populateLicense(wms_id, fees, licenseId){
+    const dropdown = document.getElementById(licenseId);
+    dropdown.innerHTML = ''; // Clear existing options
+    const option = document.createElement('option');
+    option.textContent = `WMS ID: ${wms_id}`;
+    //option.textContent = `WMS ID: ${wms_id}, Fees: ${fees}`;
+    dropdown.appendChild(option);
+    };
+
+function populateConstraint(wms_id, fees, licenseId){
+    const dropdown = document.getElementById(licenseId);
+    dropdown.innerHTML = ''; // Clear existing options
+    const option = document.createElement('option');
+    option.textContent = `WMS ID: ${wms_id}`;
+    //option.textContent = `WMS ID: ${wms_id}, Fees: ${fees}`;
+    dropdown.appendChild(option);
+    };
+
+// this might not be important for us
+// function showLayersWithoutKeywords(layers) {
+//     const list = document.getElementById('layersWithoutKeywordsList');
+//     list.innerHTML = '';
+//     layers.forEach(layer => {
+//         const listItem = document.createElement('li');
+//         listItem.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}`;
+//         listItem.dataset.layerId = layer.layer_id;
+//         listItem.addEventListener('click', function() {
+//             document.getElementById('layerId').value = layer.layer_id;
+//         });
+//         list.appendChild(listItem);
+//     });
+// }
+// this might not be important for us
+// function showLayersWithoutAbstracts(layers) {
+//     const list = document.getElementById('layersWithoutAbstractsList');
+//     list.innerHTML = '';
+//     layers.forEach(layer => {
+//         const listItem = document.createElement('li');
+//         listItem.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}`;
+//         listItem.dataset.layerId = layer.layer_id;
+//         listItem.addEventListener('click', function() {
+//             document.getElementById('layerIdAbstract').value = layer.layer_id;
+//         });
+//         list.appendChild(listItem);
+//     });
+// }
+// this might not be important for us
+// function showLayersWithShortAbstract(layers){
+//     const list = document.getElementById('layersWithShortAbstract');
+//     list.innerHTML = '';
+//     layers.forEach(layer=>{
+//         const listItem = document.createElement('li');
+//         listItem.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}`;
+//         listItem.dataset.layerId = layer.layer_id;
+//         listItem.addEventListener('click', function() {
+//             document.getElementById('layerIdAbstract').value = layer.layer_id;
+//         });
+//         list.appendChild(listItem);
+//     } 
+
+//     )
+// } 
+
+document.getElementById('addKeywordForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('/add-keyword/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Keyword added successfully');
+            $('#layersWithoutKeywordsModal').modal('hide');
+        } else {
+            alert('Failed to add keyword');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+document.getElementById('addAbstractForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('/add-abstract/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Abstract added successfully');
+            $('#layersWithoutAbstractsModal').modal('hide');
+        } else {
+            alert('Failed to add abstract');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+
+
+document.getElementById('addAbstractForm1').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('/add-abstract/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Abstract added successfully');
+            $('#layersWithoutAbstractsModal').modal('hide');
+        } else {
+            alert('Failed to add abstract');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+document.getElementById('addAbstractForm2').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('/add-abstract/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Abstract added successfully');
+            $('#layersWithoutAbstractsModal').modal('hide');
+        } else {
+            alert('Failed to add abstract');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+
+document.getElementById('addAbstractForm3').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('/add-license/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Abstract added successfully');
+            $('#layersWithoutAbstractsModal').modal('hide');
+        } else {
+            alert('Failed to add abstract');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+document.getElementById('addConstraintForm3').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(this);
+
+    fetch('/add-constraint/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': csrftoken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Abstract added successfully');
+            $('#layersWithoutAbstractsModal').modal('hide');
+        } else {
+            alert('Failed to add abstract');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+});
+
+
+
+        
         </script>
+    <style>
+        /* Add hover effect to table rows */
+table tr:hover {
+    background-color: #f1f1f1; /* Light grey on hover */
+    cursor: pointer; /* Show pointer to indicate interactivity */
+}
+.dropdown-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px; /* Space between cards */
+}
+.red-icon{
+    color: red;
+} 
+
+        .dropdown-content {
+  display: none; /* Hidden by default */
+  position: relative; /* Keep it within the flow */
+  background-color: #f9f9f9;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+  max-width: 100%; /* Ensure it doesn't exceed the container width */
+  word-wrap: break-word; /* Break long words */
+}
+.dropdown:hover .dropdown-content {
+  display: block; /* Show on hover */
+}
+        .dropdown-title {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     
+    padding: 20px;
+    background-color: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.green-dot, .red-dot, .white-dot, .mildred-dot, .mildred1-dot {
+    
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            font-size: 16px;
+            color: white;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    
+
+}
+.fa-circle::before{
+    content: none !important;
+} 
+/* .fa-circle::before {
+  content: "\f111";
+} */
+/* #34c759; */
+.green-dot {
+    background:#34c759;;
+   
+}
+
+.red-dot {
+    background: #ff0000
+}
+.white-dot {
+    background: #f1f9fa
+}
+.mildred-dot {
+    background: #f75c5c
+}
+.mildred1-dot {
+    background: #de2424
+}
+
+.dropdown-title:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+        .dropdown-title .fa-info-circle {
+            margin-left: 10px;
+            transition: transform 0.3s;
+        }
+        .dropdown-title.active .fa-info-circle {
+            transform: rotate(90deg);
+        }
+        .details-section {
+            display: none;
+        }
+        .details-section.show {
+            display: table-row;
+        }
+        .info-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: #007bff;
+        }
+
+        @media (max-width: 768px) {
+  .dropdown-container {
+    display: grid;
+    grid-template-columns: 1fr; /* Stack items vertically */
+    gap: 10px;
+  }
+
+  .dropdown {
+    margin-left: -100px;
+  }
+
+  .dropdown-title {
+    font-size: 16px;
+    font-weight: bold;
+  }
+
+  .dropdown-content ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .dropdown-content ul li {
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+}
+.dropdown-content {
+  overflow-x: auto; /* Add horizontal scroll if necessary */
+}
+
+    </style>
 </body>
-</html>
+{% endblock %}

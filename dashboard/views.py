@@ -26,6 +26,7 @@ from dashboard.dashboard_utils import convert_to_datetime
 from dashboard.dashboard_request import process_request
 from dashboard.dashboard_userplot import generate_user_plot
 from dashboard.dashboard_session import get_filtered_session_data
+from dashboard.inspire_identifier import inspire_identifier, iso_categorised
 from django.core.serializers.json import DjangoJSONEncoder
 
 
@@ -146,7 +147,7 @@ def render_template(request, template_name):
     if session_cookie is not None:
         session_data_mapbender = php_session_data.get_mapbender_session_by_memcache(session_cookie)
         if session_data_mapbender is not None:
-            if b'mb_user_id' in session_data_mapbender and session_data_mapbender[b'mb_user_name'] != b'guest':
+            if b'mb_user_id' in session_data_mapbender:
                 userid = session_data_mapbender[b'mb_user_id']
                 try:
                     user = MbUser.objects.get(mb_user_id=userid)
@@ -178,6 +179,7 @@ def render_template(request, template_name):
     gauge_graph = get_gauge_graph()
     highest_loads, top_ten_wmc = get_highest_loads()
     loadcount_chart = get_wmc_loadcount(request)
+    weather_data = [fetch_city_weather(city, station_id) for city, station_id in cities.items()]  
   
     user_count = MbUser.objects.count()
     wms_count = Wms.objects.count()
@@ -230,7 +232,8 @@ def render_template(request, template_name):
         'gauge_graph': gauge_graph,
         'highest_loads': highest_loads,
         'loadcount_chart': loadcount_chart,
-        'top_ten_wmc': top_ten_wmc
+        'top_ten_wmc': top_ten_wmc,
+        'weather_data': weather_data
     }
     if context is None:
         context = {}
@@ -940,7 +943,7 @@ import logging
 
 def get_layer_statistics(layers):
     # print current time
-    print(f"Current time: {tm.datetime.now()}")
+   
     # Count layers without abstracts
     layers_without_abstract = layers.filter(Q(layer_abstract__isnull=True) | Q(layer_abstract=''))
     layers_without_abstract_count = layers_without_abstract.count()
@@ -1052,7 +1055,7 @@ def get_layer_statistics(layers):
     
     # Print the connected WMS IDs along with the service title names and layer details
     for wms in connected_wms:
-        print(f"WMS ID: {wms['wms_id']}, Service Title: {wms['service_title']}, Layer ID: {wms['layer_id']}, Layer Title: {wms['layer_title']}, Connected: {wms['connected']}")
+        pass
     return {
         'total_layers': total_layers,
         'layers_without_abstract_count': layers_without_abstract_count,
@@ -1074,43 +1077,7 @@ def get_layer_statistics(layers):
         'layers_with_comma_keywords': layers_with_comma_keywords,
         'connected_wms': wms['connected'] 
     }
-
-def check_user(request):
-    session_cookie = request.COOKIES.get(SESSION_NAME)
-    if session_cookie is not None:
-        session_data_mapbender = php_session_data.get_mapbender_session_by_memcache(session_cookie)
-        if session_data_mapbender is not None:
-            if b'mb_user_id' in session_data_mapbender and session_data_mapbender[b'mb_user_name'] != b'guest':
-                userid = session_data_mapbender[b'mb_user_id']
-                try:
-                    user = MbUser.objects.get(mb_user_id=userid)
-                except MbUser.DoesNotExist:
-                    messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
-                    return redirect('useroperations:index')
-
-                # Check if the user belongs to the allowed group(s)
-                allowed_groups = ALLOWED_GROUPS
-                user_groups = MbGroup.objects.filter(
-                    mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
-                ).values_list('mb_group_name', flat=True)
-                if not any(group in allowed_groups for group in user_groups):
-                    messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page."))
-                    return redirect('useroperations:index')
-                return user
-            else:
-                messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
-                return redirect('useroperations:index')
-            
-            # if user is None:
-            #     messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page.!"))
-            #     return redirect('useroperations:index')
-        else:
-            messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
-            return redirect('useroperations:index')
-    else:
-        messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
-        return redirect('useroperations:index')
-            
+from dashboard.user_check import check_user
 
 def check_layer_abstracts_and_keywords(request):
 
@@ -1166,10 +1133,16 @@ def check_layer_abstracts_and_keywords(request):
 
             results = []
 
+          
+            get_inspire_identifier = inspire_identifier(request)
+            wms_iso= iso_categorised(request)
+            #print('get_iso_value', get_iso_category)
+
             for wms in page_obj:
                 # Get all unique layers for this WMS
                 layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
                 layer_stats = get_layer_statistics(layers)
+
 
                 results.append({
                     'wms_id': wms.wms_id,
@@ -1195,6 +1168,50 @@ def check_layer_abstracts_and_keywords(request):
                     'connected_wms': layer_stats['connected_wms']
                 })
 
+                                #if the wms id matches, send the status true to false
+                for inspire_info in get_inspire_identifier:
+                        if isinstance(inspire_info, dict) and 'wms' in inspire_info:
+                            # Check if the wms_id matches
+                            if inspire_info['wms'].wms_id == wms.wms_id:
+                                # Find the index of the result to update
+                                wms_index = next((index for index, item in enumerate(results) if item['wms_id'] == wms.wms_id), None)
+                                
+                                if wms_index is not None:
+                                    # If the wms_id exists in the results list, update its status and color
+                                    results[wms_index]['status'] = inspire_info['status']
+                                    results[wms_index]['color'] = inspire_info['color']
+                for iso_info in wms_iso:
+                        if isinstance(iso_info, dict) and 'wms_iso' in iso_info:
+                            # Check if the wms_id matches
+                            if iso_info['wms_iso'].wms_id == wms.wms_id:
+                                # Find the index of the result to update
+                                wms_index = next((index for index, item in enumerate(results) if item['wms_id'] == wms.wms_id), None)
+                                
+                                if wms_index is not None:
+                                    # If the wms_id exists in the results list, update its status and color
+                                    results[wms_index]['status_iso'] = iso_info['status_iso']
+                                    results[wms_index]['color_iso'] = iso_info['color_iso']
+                                    results[wms_index]['category'] = iso_info['category']   
+                #printed_wms_ids = set()  # Create a set to store unique WMS IDs
+                #for iso_info in get_iso_category:
+                    #print(f"Layer ID: {iso_info.fkey_layer_id}")
+                    #print(f"IsoCategory Description: {iso_info.fkey_md_topic_category}")  # Replace fields as needed
+                    #print(wms_iso.wms_id)
+                    #print(iso_info['wms'].wms_id)
+                  
+                    # layer = Layer.objects.filter(layer_id=iso_info.fkey_layer_id).distinct()  # Adjust 'layer_id' to your actual field name
+                    # for layer in layers:
+                    #     wms_id = layer.fkey_wms_id  # Access the WMS ID
+
+                    #     if wms_id not in printed_wms_ids:  # Check if this ID has already been printed
+                    #         print(wms_id)  # Print the unique ID
+                    #         printed_wms_ids.add(wms_id)  # Add the ID to the set
+                    
+
+                    # Append the result to the results list
+                # results.append(results)
+
+
             context = {
                 'results': results,
                 'page_obj': page_obj,
@@ -1203,7 +1220,7 @@ def check_layer_abstracts_and_keywords(request):
                 'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
                 'total_layers_with_short_abstract': total_layers_with_short_abstract
             }
-            print(f"Time at end time: {tm.datetime.now()}")
+           
 
             return render(request, 'check_abstract.html', context)
             # messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
@@ -1324,3 +1341,361 @@ def get_layer_keywords(request, layer_id):
         return render(request, 'layer_keywords.html', context)
     except Layer.DoesNotExist:
         return render(request, 'layer_not_found.html')
+
+#remove this later
+def metadata_quality(request):
+    return render(request, 'metadata_quality.html') 
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from useroperations.models import Layer
+from django.views.decorators.csrf import csrf_exempt
+
+# @csrf_exempt
+# def update_service(request):
+#     if request.method == 'POST':
+#         wms_id = request.POST.get('service_id')
+#         wms_title = request.POST.get('service_title')
+#         wms_version = request.POST.get('total_layers')
+#         keywords_present = request.POST.get('keywords_present')
+#         abstracts_present = request.POST.get('abstracts_present')
+#         layers_without_abstract = request.POST.get('layers_without_abstract')
+#         layers_without_keywords = request.POST.get('layers_without_keywords')
+#         layers_abstract_matches_title = request.POST.get('layers_abstract_matches_title')
+#         layer_names = request.POST.get('layer_names')
+#         layers_with_short_abstract = request.POST.get('layers_with_short_abstract')
+#         wms_fees = request.POST.get('wms_fees')
+#         wms_accessconstraints = request.POST.get('wms_accessconstraints')
+
+#         # Get the Wms object
+#         wms = get_object_or_404(Wms, wms_id=wms_id)
+
+#         # Update the Wms object
+#         wms.wms_title = wms_title
+#         wms.wms_version = wms_version
+#         wms.fees = wms_fees
+#         wms.accessconstraints = wms_accessconstraints
+#         wms.save()
+
+#         # Update the Layer objects
+#         layers = Layer.objects.filter(fkey_wms=wms)
+#         for layer in layers:
+#             if layer.layer_title in layer_names:
+#                 layer.layer_abstract = abstracts_present
+#                 layer.save()
+
+#         return JsonResponse({'success': True, 'service_id': wms_id, 'service_title': wms_title, 'total_layers': wms_version})
+#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+from django.shortcuts import render, get_object_or_404
+from django.http import JsonResponse
+from useroperations.models import Layer, Keyword, LayerKeyword
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+
+def add_keyword(request):
+    user = check_user(request)
+    if isinstance(user, HttpResponseRedirect):
+        return user  # Redirect if the user is not authenticated or does not have permissions
+
+    if request.method == 'POST':
+        layer_id = request.POST.get('layer_id')
+        keyword_text = request.POST.get('keyword')
+
+        # Get the Layer object
+        layer = get_object_or_404(Layer, layer_id=layer_id)
+
+        # Create or get the Keyword object
+        keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
+
+        # Create the LayerKeyword relationship
+        LayerKeyword.objects.create(fkey_layer=layer, fkey_keyword=keyword)
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+@csrf_exempt
+def add_abstract(request):
+    user = check_user(request)
+    if isinstance(user, HttpResponseRedirect):
+        return user  # Redirect if the user is not authenticated or does not have permissions
+    if request.method == 'POST':
+        layer_id = request.POST.get('layer_id')
+        abstract_text = request.POST.get('abstract')
+
+        # Get the Layer object
+        layer = get_object_or_404(Layer, layer_id=layer_id)
+
+        # Update the abstract
+        layer.layer_abstract = abstract_text
+        layer.save()
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def add_abstract(request):
+    user = check_user(request)
+    if isinstance(user, HttpResponseRedirect):
+        return user  # Redirect if the user is not authenticated or does not have permissions
+    if request.method == 'POST':
+        layer_id = request.POST.get('layer_id')
+        abstract_text = request.POST.get('abstract')
+        abstract_text1 = request.POST.get('abstract1')
+        abstract_text2 = request.POST.get('abstract2')
+
+        # Get the Layer object
+        layer = get_object_or_404(Layer, layer_id=layer_id)
+
+        # Update the abstract
+        if abstract_text:
+            layer.layer_abstract = abstract_text
+        if abstract_text1:
+            layer.layer_abstract = abstract_text1
+        if abstract_text2:
+            layer.layer_abstract = abstract_text2
+        
+        layer.save()
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def add_license(request):
+    user = check_user(request)
+    if isinstance(user, HttpResponseRedirect):
+        return user  # Redirect if the user is not authenticated or does not have permissions
+    if request.method == 'POST':
+        #layer_id = request.POST.get('layer_id')
+        # Get the 'layer_id' value from the QueryDict
+        layer_id_value = request.POST.get('layer_id', '')
+
+        # Extract the WMS ID using string manipulation
+        wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
+        
+
+        abstract_text = request.POST.get('layer_license')
+
+        #Get the Wms object
+        wms_object = get_object_or_404(Wms, wms_id= wms_id)
+        wms_object.fees = abstract_text
+        wms_object.save()
+        # Get the Layer object
+        #layer = get_object_or_404(Layer, layer_id=layer_id)
+
+        # Update the abstract
+        #layer.layer_abstract = abstract_text
+        #layer.save()
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def add_constraint(request):
+    user = check_user(request)
+    if isinstance(user, HttpResponseRedirect):
+        return user  # Redirect if the user is not authenticated or does not have permissions
+    if request.method == 'POST':
+        #layer_id = request.POST.get('layer_id')
+        # Get the 'layer_id' value from the QueryDict
+        layer_id_value = request.POST.get('layer_id', '')
+
+        # Extract the WMS ID using string manipulation
+        wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
+        
+
+        abstract_text = request.POST.get('layer_constraint')
+
+        #Get the Wms object
+        wms_object = get_object_or_404(Wms, wms_id= wms_id)
+        wms_object.accessconstraints = abstract_text
+        wms_object.save()
+        # Get the Layer object
+        #layer = get_object_or_404(Layer, layer_id=layer_id)
+
+        # Update the abstract
+        #layer.layer_abstract = abstract_text
+        #layer.save()
+
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def get_layers_without_keywords(request):
+    service_id = request.GET.get('service_id')
+    layers = Layer.objects.filter(fkey_wms_id=service_id).annotate(
+        has_keyword=Exists(
+            LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
+        )
+    ).filter(has_keyword=False)
+
+    layers_data = list(layers.values('layer_id', 'layer_name'))
+
+    return JsonResponse({'layers': layers_data})
+
+def get_layers_without_abstracts(request):
+    service_id = request.GET.get('service_id')
+    layers = Layer.objects.filter(fkey_wms_id=service_id, layer_abstract__isnull=True)
+
+    layers_data = list(layers.values('layer_id', 'layer_name'))
+
+    return JsonResponse({'layers': layers_data})
+
+
+
+def get_layers_with_short_abstract(request):
+    service_id = request.GET.get('service_id')
+    layers = Layer.objects.filter(fkey_wms_id=service_id).distinct()
+    layers_with_short_abstract = layers.annotate(
+        abstract_length=Length('layer_abstract', output_field=IntegerField())
+        ).filter(Q(abstract_length__lt=50) & ~Q(layer_abstract__isnull=True) & ~Q(layer_abstract__exact=''))
+    layers_with_short_abstract_info = list(layers_with_short_abstract.values('layer_id', 'layer_name', 'layer_abstract'))
+    return JsonResponse({'layers':layers_with_short_abstract_info})
+    
+
+def get_abstract_matches_title(request):
+    service_id = request.GET.get('service_id')
+    layers = Layer.objects.filter(fkey_wms_id = service_id).distinct()
+    abstract_matches_title = layers.annotate(
+        abstract_matches_title=Case(
+            When(
+                Q(layer_abstract=F('layer_title')),
+                then=Value(True)
+            ),
+            default=Value(False),
+            output_field=BooleanField()
+        )
+    ).filter(abstract_matches_title=True)
+    abstract_matches_title_info = list(abstract_matches_title.values('layer_id', 'layer_name', 'layer_abstract'))
+    return JsonResponse({'layers':abstract_matches_title_info})
+
+
+
+def get_license(request):
+    service_id = request.GET.get('service_id')
+    wms = Wms.objects.get(wms_id=service_id)
+    
+  
+
+
+    # Prepare the response
+    response_data = {
+        'wms_id': wms.wms_id,
+        'fees': wms.fees,
+    }
+
+
+    return JsonResponse(response_data)
+
+def get_constraint(request):
+    service_id = request.GET.get('service_id')
+    wms = Wms.objects.get(wms_id=service_id)
+    
+  
+
+
+    # Prepare the response
+    response_data = {
+        'wms_id': wms.wms_id,
+        'fees': wms.accessconstraints,
+    }
+
+
+    return JsonResponse(response_data)
+
+
+
+
+from django.shortcuts import render
+
+import requests
+from lxml import html
+import pandas as pd
+import io
+from zipfile import ZipFile
+from datetime import datetime
+
+from django.http import JsonResponse
+cities = {
+        'Gießen': '01639',
+        'Frankfurt': '01420',
+        'Wiesbaden': '05541',
+        'Darmstadt': '00917',
+        'Fulda': '01526',
+        'Geisenheim': '01580',
+        'Marburg': '03164',
+        'Hersfeld': '02171'
+        
+    }
+from zipfile import ZipFile
+import pytz
+def fetch_dwd_data(api_url, station_id, data_column, bins=None, labels=None):
+    url = f"{api_url}{station_id}_now.zip"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        with ZipFile(io.BytesIO(response.content)) as z:
+            file_list = z.namelist()
+            if file_list:
+                with z.open(file_list[0]) as csv_file:
+                    data = pd.read_csv(csv_file, delimiter=';')
+
+                    data['MESS_DATUM'] = pd.to_datetime(data['MESS_DATUM'], format='%Y%m%d%H%M')
+                    data['MESS_DATUM'] = data['MESS_DATUM'].dt.tz_localize('UTC')
+                    local_time_zone = pytz.timezone('Europe/Berlin')
+                    data['MESS_DATUM'] = data['MESS_DATUM'].dt.tz_convert(local_time_zone)
+
+                    latest_timestamp = data['MESS_DATUM'].iloc[-1]
+                    latest_data = data[data_column].iloc[-1]
+                    
+
+                    if bins and labels:
+                        data['Category'] = pd.cut(data[data_column], bins=bins, labels=labels, right=False)
+                        latest_category = data['Category'].iloc[-1]
+                        return latest_data, latest_timestamp, latest_category
+
+                    return latest_data, latest_timestamp
+
+    else:
+        print(f"Error: Unable to fetch data. Status code {response.status_code}")
+        return None, None, None if bins and labels else None
+
+
+def weather(request):
+    # Fetch the weather data for all cities
+    weather_data = {city: fetch_city_weather(city, station_id) for city, station_id in cities.items()}
+    return JsonResponse(weather_data)
+
+def fetch_weather_data(station_id):
+    dwd_api_url = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/now/10minutenwerte_TU_"
+    return fetch_dwd_data(dwd_api_url, station_id, 'TT_10')
+
+def fetch_precipitation_data(station_id):
+    dwd_api_url = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/precipitation/now/10minutenwerte_nieder_"
+    bins=[0, 0.1, 0.5, float('inf')]
+    labels=['No Rain', 'Light Rain', 'Heavy Rain']
+    return fetch_dwd_data(dwd_api_url, station_id, 'RWS_10', bins, labels)
+
+def fetch_precipitation_value(station_id):
+    dwd_api_url = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/precipitation/now/10minutenwerte_nieder_"
+    return fetch_dwd_data(dwd_api_url, station_id, 'RWS_10')
+
+def get_precipitation_image_url(category):
+    image_urls = {
+        'No Rain': 'https://hvbg.hessen.de/sites/hvbg.hessen.de/files/weathermodule_icons/bedeckt.png',
+        'Light Rain': 'https://hessen.de/sites/hessen.hessen.de/files/weathermodule_icons/leichtregen.png',
+        'Heavy Rain': 'https://hessen.de/sites/hessen.hessen.de/files/weathermodule_icons/starkregen.png'
+    }
+    return image_urls.get(category)
+
+def fetch_city_weather(city, station_id):
+    temperature, timestamp = fetch_weather_data(station_id)
+    _, precipitation_timestamp, precipitation_category = fetch_precipitation_data(station_id)
+    precipitation_image_url = get_precipitation_image_url(precipitation_category)
+    precipitation_value = fetch_precipitation_value(station_id)
+    return {
+        'city': city,
+        'temperature': temperature,
+        'timestamp': timestamp,
+        'precipitation_category': precipitation_category,
+        'precipitation_timestamp': precipitation_timestamp,
+        'precipitation_image_url': precipitation_image_url,
+        'precipitation_value': precipitation_value
+    }

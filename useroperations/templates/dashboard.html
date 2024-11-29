@@ -45,26 +45,26 @@
     </div>
     
 
-    <div class="landing-page-box1"><!--landing-page-box-Begin -->
+    <div class="landing-page-bo"><!--landing-page-box-Begin -->
         <div class="landing-page-headline">
             <h2>Statistik</h2>
         </div>
         <div class="quickstart-container">
-            <a class="quickstart search" href="#" title="Suche nach allen Karten starten" data-resource="wmc">
+            <a class="quickstart searc" href="#" title="Suche nach allen Karten starten">
                 <div class="quickstart-header">
                     <i class="fas fa-map" title="Web Map Context" aria-hidden="true"></i>
                     <span>Number of Registered Users:</span>
                 </div>
                 <span class="quickstart-body">{{user_count}}</span>
             </a>
-            <a class="quickstart search" href="#" title="Suche nach allen Kartenebenen">
+            <a class="quickstart searc" href="#" title="Suche nach allen Kartenebenen">
                 <div class="quickstart-header">
                     <i class="fas fa-layer-group" title="Kartenebenen" aria-hidden="true"></i>
                     <span>Number of WMS:</span>
                 </div>
                 <span class="quickstart-body">{{ wms_count|safe }}</span>
             </a>
-            <a class="quickstart search" href="#" title="Suche nach allen Datensätzen">
+            <a class="quickstart searc" href="#" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-globe" title="Datensätze" aria-hidden="true"></i>
                     <span>Number of WFS:</span>
@@ -72,7 +72,7 @@
               
                 <span class="quickstart-body"> {{ wfs_count|safe }}</span>
             </a>
-            <a class="quickstart search" href="#" title="Suche nach allen Datensätzen">
+            <a class="quickstart searc" href="#" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-globe" title="Datensätze" aria-hidden="true"></i>
                     <span>Number of WMC:</span>
@@ -220,7 +220,7 @@
                                         <span class="input-group-text" style="height: 30px;" id="addon-wrapping_start">
                                             <i class="fa fa-calendar-day"></i>
                                         </span>
-                                        <input type="date" id="startDate" value="startDate" name="start" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="Start Date" aria-label="Start Date" aria-describedby="addon-wrapping_start">
+                                        <input type="date" id="startDateWMC" name="start" value="{{ start_date }}" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="Start Date" aria-label="Start Date" aria-describedby="addon-wrapping_start">
                                     </div>
                                 </div>
                             </div>
@@ -231,7 +231,7 @@
                                         <span class="input-group-text" style="height: 30px;" id="addon-wrapping_end">
                                             <i class="fa fa-calendar-day"></i>
                                         </span>
-                                        <input type="date" id="endDate" value="endDate" name="end" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="End Date" aria-label="End Date" aria-describedby="addon-wrapping_end">
+                                        <input type="date" id="endDateWMC" value="{{ end_date }} " name="end" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="End Date" aria-label="End Date" aria-describedby="addon-wrapping_end">
                                     </div>
                                 </div>
                             </div>
@@ -255,59 +255,128 @@
         </div>
     </div>
 </div>
-
+<div id="weather-container">
+    <button id="playPause" class="play-pause-button">&#10074;&#10074;</button>
+{% for city_data in weather_data %}
+<div class="weather-data">
+    <h2 id="cityName" class="city-name">{{ city_data.city }}</h2>
+    <div class="weather-info">
+        <img src="{{ city_data.precipitation_image_url }}" alt="Weather icon">
+        <p><strong>{{ city_data.temperature }} °C</strong></p>
+    </div>
+</div>
+{% endfor %}
+</div>
 <script>
-      // Example donut chart options
-      const donutOptions = {
-            series: [
-                {
-                    type: 'pie',
-                    radius: ['50%', '70%'],
-                    data: [
-                        { value: 335, name: 'Direct' },
-                        { value: 310, name: 'Email' },
-                        { value: 234, name: 'Affiliate' },
-                        { value: 135, name: 'Video' },
-                        { value: 1548, name: 'Search' }
-                    ]
-                }
-            ]
-        };
+	function fetchWeatherData() {
+	 fetch('localhost:8000/weather/')
+		 .then(response => response.json())
+		 .then(data => {
+			 const weatherContainer = document.getElementById('weather-container');
+ 
+			 // Loop over each city's data and add it to the weather container
+			 for (const city in data) {
+				 const cityData = data[city];
+				 const cityDiv = document.createElement('div');
+				 cityDiv.className = 'weather-data';
+ 
+				 const cityTitle = document.createElement('h2');
+				 cityTitle.textContent = city;
+				 cityDiv.appendChild(cityTitle);
+ 
+				 const weatherInfo = document.createElement('div');
+				 weatherInfo.className = 'weather-info';
+ 
+				 const weatherImage = document.createElement('img');
+				 weatherImage.src = cityData.precipitation_image_url;
+				 weatherImage.alt = 'Weather icon';
+				 weatherInfo.appendChild(weatherImage);
+ 
+				 const temperature = document.createElement('p');
+				 temperature.innerHTML = `<strong>${cityData.temperature} °C</strong>`;
+				 weatherInfo.appendChild(temperature);
+ 
+				 cityDiv.appendChild(weatherInfo);
+				 weatherContainer.appendChild(cityDiv);
+			 }
+		 });
+ }
 
-        // Example graph chart options
-        const graphOptions = {
-            xAxis: {
-                type: 'category',
-                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-            },
-            yAxis: {
-                type: 'value'
-            },
-            series: [
-                {
-                    data: [120, 200, 150, 80, 70, 110, 130],
-                    type: 'bar'
-                }
-            ]
-        };
+ // Fetch new weather data every minute
+ setInterval(fetchWeatherData, 120000);
 
+ </script>
+<script>
+        
+	var isPaused = false;
+	
+	document.getElementById('playPause').addEventListener('click', function() {
+		isPaused = !isPaused;
+		updateButtonState();
+	});
+	
+	
+	window.onload = function(){ 
+	var weatherDataElements = document.getElementsByClassName('weather-data');
+	var currentWeatherDataIndex = 0;
+	
+	function showNextWeatherData() {
+		setTimeout(showNextWeatherData, 5000);
+		if (isPaused){
+			return;
+		} 
+		// Hide all weather data
+		for (var i = 0; i < weatherDataElements.length; i++) {
+			weatherDataElements[i].classList.remove('visible'); 
+		}
+
+	
+		// Show the current weather data
+		weatherDataElements[currentWeatherDataIndex].classList.add('visible');
+		
+		// Move to the next weather data
+		currentWeatherDataIndex++;
+		if (currentWeatherDataIndex >= weatherDataElements.length) {
+			currentWeatherDataIndex = 0;
+		}
+	}
+	
+	// Start the cycle
+	showNextWeatherData();
+	}
+
+	function updateButtonState() {
+var playPauseButton = document.getElementById('playPause');
+
+if (isPaused) {
+	playPauseButton.innerHTML = '&#9654;'; // Play symbol
+} else {
+	playPauseButton.innerHTML = '&#10074;&#10074;'; // Pause symbol
+	showNextWeatherData();
+}
+}
+	</script>
+<script>
+      
+
+       
         // Initialize the donut charts
         //const donutChart1 = echarts.init(document.getElementById('donutChart1'));
         //const donutChart2 = echarts.init(document.getElementById('donutChart2'));
-        const donutChart3 = echarts.init(document.getElementById('donutChart3'));
+        // const donutChart3 = echarts.init(document.getElementById('donutChart3'));
 
         //donutChart1.setOption(donutOptions);
         //donutChart2.setOption(donutOptions);
-        donutChart3.setOption(donutOptions);
+        //donutChart3.setOption(donutOptions);
 
         // Initialize the graph charts
         //const graphChart1 = echarts.init(document.getElementById('graphChart1'));
         //const graphChart2 = echarts.init(document.getElementById('graphChart2'));
-        const graphChart3 = echarts.init(document.getElementById('graphChart3'));
+        // const graphChart3 = echarts.init(document.getElementById('graphChart3'));
 
         //graphChart1.setOption(graphOptions);
         //graphChart2.setOption(graphOptions);
-        graphChart3.setOption(graphOptions);
+        // graphChart3.setOption(graphOptions);
 
         document.querySelectorAll('.graph-chart').forEach(chart => {
         chart.addEventListener('click', () => {
@@ -317,8 +386,8 @@
                 method: 'GET',
                 success: function(data) {
                     $('#dynamicContentWMC').html(data.loadcount_chart);
-                    $('#startDate').val(data.start);
-                    $('#endDate').val(data.end);
+                    $('#startDateWMC').val(data.start);
+                    $('#endDateWMC').val(data.end);
                     $('#wmc_id').val(data.wmc_id);
                     $('#graphModalWMC').modal('show');
                     $('#spinnerContainerWMC').hide(); // Hide spinner
@@ -334,16 +403,16 @@
     // Handle form submission
     $('#dateForm').on('submit', function(event) {
         event.preventDefault();
-        const startDate = $('#startDate').val();
-        const endDate = $('#endDate').val();
+        const startDateWMC_get = $('#startDateWMC').val();
+        const endDateWMC_get = $('#endDateWMC').val();
         const wmcId = $('#wmc_id').val();
         $('#spinnerContainerWMC').show(); // Show spinner
         $.ajax({
             url: filterUrl,
             method: 'GET',
             data: {
-                start: startDate,
-                end: endDate,
+                start: startDateWMC_get,
+                end: endDateWMC_get,
                 wmc_id: wmcId
             },
             success: function(data) {
@@ -357,9 +426,9 @@
         });
     });
      // Prevent form submission on input field focus
-    $('#startDate, #endDate').on('focus', function(event) {
-        event.stopPropagation();
-    });
+     $('#startDateWMC, #endDateWMC').off('focus').on('focus', function(event) {
+            event.stopPropagation();
+        });
 </script>
 
 
@@ -376,6 +445,61 @@
             const formHtml = `{{ form.as_p|safe }}`;
         </script>
           
- 
+ <style>
+    .play-pause-button {
+    border: none;
+    color: white;
+    background-color: #000000;
+    border-radius: 50%;
+    width: 35px; /* Fixed width */
+    height: 35px; /* Fixed height */
+    font-size: 12px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+.weather-data {
+    position: absolute;
+    margin-left: 115px;
+    top: 0;
+    left: 0;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-100%);
+    transition: opacity 1s ease-in-out, visibility 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.weather-data.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+#weather-container {
+    position: absolute;
+    top: 10px;
+    right: 0;
+    width: 300px;  /* Adjust as needed */
+    height: 200px; /* Adjust as needed */
+    overflow: hidden; /* Hide any content that goes outside the container */
+}
+
+    /* #weather-data:hover {
+        transform: scale(1.1); 
+    } */
+
+    .weather-info {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+
+    .weather-info img {
+        width: 30px;
+        height: 30px;
+    }
+
+    .weather-info h2, .weather-info p {
+        margin: 0;
+    }
+ </style>
 </body>
 {% endblock %}

@@ -237,7 +237,7 @@ function toggleDropdown(button) {
 }
 function toggleClearButton(){
     const input = document.getElementById('searchInput');
-    const clearButton = document.getElementById('clear-input');
+    const clearButton = document.getElementById('clear-input1');
     if (input.value.length > 0) {
         clearButton.style.display = 'block';
     } else {
