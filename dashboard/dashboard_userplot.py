@@ -45,7 +45,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         y=sorted_counts, 
         name=f'New Users per {dropdown_value.capitalize()}', 
         yaxis='y2', 
-        marker=dict(color='rgba(255, 99, 132, 1)'),
+        marker=dict(color='rgba(54, 162, 235, 1)'),
         offset=1
     ))
     
@@ -55,7 +55,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         y=cumulative_counts, 
         mode='lines+markers', 
         name=f'Cumulative New Users', 
-        line=dict(color='rgba(54, 162, 235, 1)'),
+        line=dict(color='rgba(255, 0, 0, 1)'),
     ))
     
     # Add deleted users bar graph
@@ -76,13 +76,13 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         xaxis=dict(title='Time Period'),
         yaxis=dict(
             title='Cumulative New Users',
-            titlefont=dict(color='rgba(54, 162, 235, 1)'),
-            tickfont=dict(color='rgba(54, 162, 235, 1)')
+            titlefont=dict(color='rgba(255, 0, 0, 1)'),
+            tickfont=dict(color='rgba(255, 0, 0, 1)')
         ),
         yaxis2=dict(
             title=f'New User per {dropdown_value.capitalize()}   ',
-            titlefont=dict(color='rgba(255, 99, 132, 1)'),
-            tickfont=dict(color='rgba(255, 99, 132, 1)'),
+            titlefont=dict(color='rgba(54, 162, 235, 1)'),
+            tickfont=dict(color='rgba(54, 162, 235, 1)'),
             overlaying='y',
             side='right', 
             position=0.97
