@@ -179,7 +179,6 @@ def render_template(request, template_name):
     gauge_graph = get_gauge_graph()
     highest_loads, top_ten_wmc = get_highest_loads()
     loadcount_chart = get_wmc_loadcount(request)
-    weather_data = [fetch_city_weather(city, station_id) for city, station_id in cities.items()]  
   
     user_count = MbUser.objects.count()
     wms_count = Wms.objects.count()
@@ -233,7 +232,6 @@ def render_template(request, template_name):
         'highest_loads': highest_loads,
         'loadcount_chart': loadcount_chart,
         'top_ten_wmc': top_ten_wmc,
-        'weather_data': weather_data
     }
     if context is None:
         context = {}
@@ -1599,103 +1597,3 @@ def get_constraint(request):
 
 
     return JsonResponse(response_data)
-
-
-
-
-from django.shortcuts import render
-
-import requests
-from lxml import html
-import pandas as pd
-import io
-from zipfile import ZipFile
-from datetime import datetime
-
-from django.http import JsonResponse
-cities = {
-        'Gießen': '01639',
-        'Frankfurt': '01420',
-        'Wiesbaden': '05541',
-        'Darmstadt': '00917',
-        'Fulda': '01526',
-        'Geisenheim': '01580',
-        'Marburg': '03164',
-        'Hersfeld': '02171'
-        
-    }
-from zipfile import ZipFile
-import pytz
-def fetch_dwd_data(api_url, station_id, data_column, bins=None, labels=None):
-    url = f"{api_url}{station_id}_now.zip"
-    response = requests.get(url)
-
-    if response.status_code == 200:
-        with ZipFile(io.BytesIO(response.content)) as z:
-            file_list = z.namelist()
-            if file_list:
-                with z.open(file_list[0]) as csv_file:
-                    data = pd.read_csv(csv_file, delimiter=';')
-
-                    data['MESS_DATUM'] = pd.to_datetime(data['MESS_DATUM'], format='%Y%m%d%H%M')
-                    data['MESS_DATUM'] = data['MESS_DATUM'].dt.tz_localize('UTC')
-                    local_time_zone = pytz.timezone('Europe/Berlin')
-                    data['MESS_DATUM'] = data['MESS_DATUM'].dt.tz_convert(local_time_zone)
-
-                    latest_timestamp = data['MESS_DATUM'].iloc[-1]
-                    latest_data = data[data_column].iloc[-1]
-                    
-
-                    if bins and labels:
-                        data['Category'] = pd.cut(data[data_column], bins=bins, labels=labels, right=False)
-                        latest_category = data['Category'].iloc[-1]
-                        return latest_data, latest_timestamp, latest_category
-
-                    return latest_data, latest_timestamp
-
-    else:
-        print(f"Error: Unable to fetch data. Status code {response.status_code}")
-        return None, None, None if bins and labels else None
-
-
-def weather(request):
-    # Fetch the weather data for all cities
-    weather_data = {city: fetch_city_weather(city, station_id) for city, station_id in cities.items()}
-    return JsonResponse(weather_data)
-
-def fetch_weather_data(station_id):
-    dwd_api_url = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/air_temperature/now/10minutenwerte_TU_"
-    return fetch_dwd_data(dwd_api_url, station_id, 'TT_10')
-
-def fetch_precipitation_data(station_id):
-    dwd_api_url = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/precipitation/now/10minutenwerte_nieder_"
-    bins=[0, 0.1, 0.5, float('inf')]
-    labels=['No Rain', 'Light Rain', 'Heavy Rain']
-    return fetch_dwd_data(dwd_api_url, station_id, 'RWS_10', bins, labels)
-
-def fetch_precipitation_value(station_id):
-    dwd_api_url = "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/10_minutes/precipitation/now/10minutenwerte_nieder_"
-    return fetch_dwd_data(dwd_api_url, station_id, 'RWS_10')
-
-def get_precipitation_image_url(category):
-    image_urls = {
-        'No Rain': 'https://hvbg.hessen.de/sites/hvbg.hessen.de/files/weathermodule_icons/bedeckt.png',
-        'Light Rain': 'https://hessen.de/sites/hessen.hessen.de/files/weathermodule_icons/leichtregen.png',
-        'Heavy Rain': 'https://hessen.de/sites/hessen.hessen.de/files/weathermodule_icons/starkregen.png'
-    }
-    return image_urls.get(category)
-
-def fetch_city_weather(city, station_id):
-    temperature, timestamp = fetch_weather_data(station_id)
-    _, precipitation_timestamp, precipitation_category = fetch_precipitation_data(station_id)
-    precipitation_image_url = get_precipitation_image_url(precipitation_category)
-    precipitation_value = fetch_precipitation_value(station_id)
-    return {
-        'city': city,
-        'temperature': temperature,
-        'timestamp': timestamp,
-        'precipitation_category': precipitation_category,
-        'precipitation_timestamp': precipitation_timestamp,
-        'precipitation_image_url': precipitation_image_url,
-        'precipitation_value': precipitation_value
-    }
