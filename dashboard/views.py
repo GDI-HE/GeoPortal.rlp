@@ -774,13 +774,12 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
     )
     
     
-    image_path_report = f'static/images/{image_filename}.png'
-    full_image_path_report = os.path.join(os.path.dirname(__file__), image_path_report)
-    fig_report.write_image(full_image_path_report)
-    
     fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
-    
-    return fig_html_report, image_path_report
+    buffer = io.BytesIO()
+    fig_report.write_image(buffer, format='png')
+    buffer.seek(0)
+    image_base64_report = base64.b64encode(buffer.read()).decode('utf-8')
+    return fig_html_report, image_base64_report
 
 
 def generate_user_report(request, start_date_report, end_date_report):
