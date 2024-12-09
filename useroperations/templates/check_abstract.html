@@ -41,12 +41,13 @@
             <p class="label">Total across all services</p>
         </div>
     </div>
-    <div class="search-container">
+    <!-- remove search-container for now. TODO -->
+    <!-- <div class="search-container">
         <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search for Service Title (Min: 5 Char)" oninput="toggleClearButton()">
         <button id="clear-input1" aria-label="Clear search input" onclick="clearSearchInput()">
             <i class="fas fa-times"></i>
         </button>
-    </div>
+    </div> -->
     <style>
         .column-toggle-container {
             margin-bottom: 10px;
@@ -798,9 +799,9 @@
                         <div class="dropdown-title">Layers Without Abstracts 
                            {% if result.layers_without_abstract_names %} 
                             <i class="fas fa-info-circle red-icon"></i>
-                            <button class="btn btn-sm" onclick="showLayersWithoutAbstractsModal({{ result.wms_id }})">
+                            <!-- <button class="btn btn-sm" onclick="showLayersWithoutAbstractsModal({{ result.wms_id }})">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </button> -->
                             {% else %}
                             <i class="fas fa-info-circle"></i>
                         {% endif %}
@@ -818,9 +819,9 @@
                             Layers Without Keywords 
                            {% if result.layers_without_keyword_names %} 
                             <i class="fas fa-info-circle red-icon"></i>
-                            <button class="btn btn-sm" onclick="showLayersWithoutKeywordsModal({{ result.wms_id }})">
+                            <!-- <button class="btn btn-sm" onclick="showLayersWithoutKeywordsModal({{ result.wms_id }})">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </button> -->
                            {% else %}
                             <i class="fas fa-info-circle"></i> 
                         {% endif %}
@@ -839,9 +840,9 @@
                             Layers Where Abstract Matches Title 
                            {% if result.layers_abstract_matches_title_names %} 
                             <i class="fas fa-info-circle red-icon"></i>
-                            <button class="btn btn-sm" onclick="showLayersWithAbstractMatchesTitleModal({{ result.wms_id }})">
+                            <!-- <button class="btn btn-sm" onclick="showLayersWithAbstractMatchesTitleModal({{ result.wms_id }})">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </button> -->
                            {% else %}
                             <i class="fas fa-info-circle"></i>
                         {% endif %}
@@ -869,9 +870,9 @@
                             Layers With Short Abstracts 
                            {%if result.layers_with_short_abstract_info %} 
                             <i class="fas fa-info-circle red-icon"></i>
-                            <button class="btn btn-sm" onclick="showLayersWithShortAbstractModal({{ result.wms_id }})">
+                            <!-- <button class="btn btn-sm" onclick="showLayersWithShortAbstractModal({{ result.wms_id }})">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </button> -->
                             {% else %}
                             <i class="fas fa-info-circle"></i>
                         {% endif %}
@@ -891,9 +892,9 @@
                             <i class="fas fa-info-circle"></i>
                            {% else %}
                             <i class="fas fa-info-circle red-icon"></i> 
-                            <button class="btn btn-sm" onclick="showLicense({{ result.wms_id }})">
+                            <!-- <button class="btn btn-sm" onclick="showLicense({{ result.wms_id }})">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </button> -->
                         {% endif %}
                         </div>
                         <div class="dropdown-content">
@@ -907,9 +908,9 @@
                             <i class="fas fa-info-circle"></i>
                             {% else %}
                             <i class="fas fa-info-circle red-icon"></i>
-                            <button class="btn btn-sm" onclick="showConstraint({{ result.wms_id }})">
+                            <!-- <button class="btn btn-sm" onclick="showConstraint({{ result.wms_id }})">
                                 <i class="fas fa-edit"></i>
-                            </button>
+                            </button> -->
                         {% endif %}
                         </div>
                         <div class="dropdown-content">
@@ -1094,106 +1095,106 @@ const csrftoken = getCookie('csrftoken');
      
              let serialNo = {{ results|length }}; // Start serial number from the current number of results
              
-function showLayersWithoutKeywordsModal(serviceId) {
-    fetch(`/get-layers-without-keywords/?service_id=${serviceId}`)
-        .then(response => response.json())
-        .then(data => {
-            populateLayerIdDropdown(data.layers, 'layerId');
-            $('#layersWithoutKeywordsModal').modal('show'); // Show the modal after fetching the data
-        })
-        .catch(error => console.error('Error:', error));
-}
+// function showLayersWithoutKeywordsModal(serviceId) {
+//     fetch(`/get-layers-without-keywords/?service_id=${serviceId}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             populateLayerIdDropdown(data.layers, 'layerId');
+//             $('#layersWithoutKeywordsModal').modal('show'); // Show the modal after fetching the data
+//         })
+//         .catch(error => console.error('Error:', error));
+// }
 
-function showLayersWithAbstractMatchesTitleModal(serviceId) {
-    fetch(`/get-abstract-matches-title/?service_id=${serviceId}`)
-        .then(response=> response.json())
-        .then(data=> {
-            populateLayerIdDropdown(data.layers, 'layerIdAbstractMatchesTitle');
-            $('#layersWithAbstractMatchesTitleModal').modal('show');
-        })
-        .catch(error => console.error('Error:', error));
-} 
+// function showLayersWithAbstractMatchesTitleModal(serviceId) {
+//     fetch(`/get-abstract-matches-title/?service_id=${serviceId}`)
+//         .then(response=> response.json())
+//         .then(data=> {
+//             populateLayerIdDropdown(data.layers, 'layerIdAbstractMatchesTitle');
+//             $('#layersWithAbstractMatchesTitleModal').modal('show');
+//         })
+//         .catch(error => console.error('Error:', error));
+// } 
 
-function showLayersWithShortAbstractModal(serviceId) {
-    fetch(`/get-layers-with-short-abstract/?service_id=${serviceId}`)
-        .then(response => response.json())
-        .then(data => {
-            populateLayerIdDropdown(data.layers, 'layerIdAbstract');
-            $('#layersWithShortAbstract').modal('show'); // Show the modal after fetching the data
-        })
-        .catch(error => console.error('Error:', error));
-}
+// function showLayersWithShortAbstractModal(serviceId) {
+//     fetch(`/get-layers-with-short-abstract/?service_id=${serviceId}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             populateLayerIdDropdown(data.layers, 'layerIdAbstract');
+//             $('#layersWithShortAbstract').modal('show'); // Show the modal after fetching the data
+//         })
+//         .catch(error => console.error('Error:', error));
+// }
 
-function showLayersWithoutAbstractsModal(serviceId) {
-    fetch(`/get-layers-without-abstracts/?service_id=${serviceId}`)
-        .then(response => response.json())
-        .then(data => {
-            populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');
-            $('#layersWithoutAbstractsModal').modal('show'); // Show the modal after fetching the data
-        })
-        .catch(error => console.error('Error:', error));
-}
+// function showLayersWithoutAbstractsModal(serviceId) {
+//     fetch(`/get-layers-without-abstracts/?service_id=${serviceId}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');
+//             $('#layersWithoutAbstractsModal').modal('show'); // Show the modal after fetching the data
+//         })
+//         .catch(error => console.error('Error:', error));
+// }
 
-function showLicense(serviceId) {
-    fetch(`/get-show-license/?service_id=${serviceId}`)
-        .then(response => response.json())
-        .then(data => {
-            //populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');  //change here and down
-            //console.log(data)
-            populateLicense(data.wms_id, data.fees, 'showLicense')
+// function showLicense(serviceId) {
+//     fetch(`/get-show-license/?service_id=${serviceId}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             //populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');  //change here and down
+//             //console.log(data)
+//             populateLicense(data.wms_id, data.fees, 'showLicense')
             
             
-            $('#layerLicenseModal').modal('show'); // Show the modal after fetching the data
-        })
-        .catch(error => console.error('Error:', error));
-}
-function showConstraint(serviceId) {
-    fetch(`/get-show-constraint/?service_id=${serviceId}`)
-        .then(response => response.json())
-        .then(data => {
-            //populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');  //change here and down
-            //console.log(data)
-            populateConstraint(data.wms_id, data.constraint, 'showConstraint')
+//             $('#layerLicenseModal').modal('show'); // Show the modal after fetching the data
+//         })
+//         .catch(error => console.error('Error:', error));
+// }
+// function showConstraint(serviceId) {
+//     fetch(`/get-show-constraint/?service_id=${serviceId}`)
+//         .then(response => response.json())
+//         .then(data => {
+//             //populateLayerIdDropdown(data.layers, 'layerIdWithoutAbstract');  //change here and down
+//             //console.log(data)
+//             populateConstraint(data.wms_id, data.constraint, 'showConstraint')
             
             
-            $('#layerConstraintModal').modal('show'); // Show the modal after fetching the data
-        })
-        .catch(error => console.error('Error:', error));
-}
+//             $('#layerConstraintModal').modal('show'); // Show the modal after fetching the data
+//         })
+//         .catch(error => console.error('Error:', error));
+// }
 
 
-function populateLayerIdDropdown(layers, dropdownId) {
-    const dropdown = document.getElementById(dropdownId);
-    dropdown.innerHTML = ''; // Clear existing options
-    layers.forEach(layer => {
-        const option = document.createElement('option');
-        option.value = layer.layer_id;
-        if ((layer.layer_abstract!==null && layer.layer_abstract!== undefined)){
-         option.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}, Abstract: ${layer.layer_abstract}`;
-    } else{
-        option.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}`;
-    }  
-        dropdown.appendChild(option);
-    });
-}
+// function populateLayerIdDropdown(layers, dropdownId) {
+//     const dropdown = document.getElementById(dropdownId);
+//     dropdown.innerHTML = ''; // Clear existing options
+//     layers.forEach(layer => {
+//         const option = document.createElement('option');
+//         option.value = layer.layer_id;
+//         if ((layer.layer_abstract!==null && layer.layer_abstract!== undefined)){
+//          option.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}, Abstract: ${layer.layer_abstract}`;
+//     } else{
+//         option.textContent = `Layer ID: ${layer.layer_id}, Layer Name: ${layer.layer_name}`;
+//     }  
+//         dropdown.appendChild(option);
+//     });
+// }
 
-function populateLicense(wms_id, fees, licenseId){
-    const dropdown = document.getElementById(licenseId);
-    dropdown.innerHTML = ''; // Clear existing options
-    const option = document.createElement('option');
-    option.textContent = `WMS ID: ${wms_id}`;
-    //option.textContent = `WMS ID: ${wms_id}, Fees: ${fees}`;
-    dropdown.appendChild(option);
-    };
+// function populateLicense(wms_id, fees, licenseId){
+//     const dropdown = document.getElementById(licenseId);
+//     dropdown.innerHTML = ''; // Clear existing options
+//     const option = document.createElement('option');
+//     option.textContent = `WMS ID: ${wms_id}`;
+//     //option.textContent = `WMS ID: ${wms_id}, Fees: ${fees}`;
+//     dropdown.appendChild(option);
+//     };
 
-function populateConstraint(wms_id, fees, licenseId){
-    const dropdown = document.getElementById(licenseId);
-    dropdown.innerHTML = ''; // Clear existing options
-    const option = document.createElement('option');
-    option.textContent = `WMS ID: ${wms_id}`;
-    //option.textContent = `WMS ID: ${wms_id}, Fees: ${fees}`;
-    dropdown.appendChild(option);
-    };
+// function populateConstraint(wms_id, fees, licenseId){
+//     const dropdown = document.getElementById(licenseId);
+//     dropdown.innerHTML = ''; // Clear existing options
+//     const option = document.createElement('option');
+//     option.textContent = `WMS ID: ${wms_id}`;
+//     //option.textContent = `WMS ID: ${wms_id}, Fees: ${fees}`;
+//     dropdown.appendChild(option);
+//     };
 
 // this might not be important for us
 // function showLayersWithoutKeywords(layers) {
@@ -1240,146 +1241,147 @@ function populateConstraint(wms_id, fees, licenseId){
 //     )
 // } 
 
-document.getElementById('addKeywordForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
+// add this only if we need to edit using this platform or use openAI
+// document.getElementById('addKeywordForm').addEventListener('submit', function(event) {
+//     event.preventDefault();
+//     const formData = new FormData(this);
 
-    fetch('/add-keyword/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Keyword added successfully');
-            $('#layersWithoutKeywordsModal').modal('hide');
-        } else {
-            alert('Failed to add keyword');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
+//     fetch('/add-keyword/', {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Keyword added successfully');
+//             $('#layersWithoutKeywordsModal').modal('hide');
+//         } else {
+//             alert('Failed to add keyword');
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// });
 
-document.getElementById('addAbstractForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
+// document.getElementById('addAbstractForm').addEventListener('submit', function(event) {
+//     event.preventDefault();
+//     const formData = new FormData(this);
 
-    fetch('/add-abstract/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Abstract added successfully');
-            $('#layersWithoutAbstractsModal').modal('hide');
-        } else {
-            alert('Failed to add abstract');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
-
-
-
-document.getElementById('addAbstractForm1').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-
-    fetch('/add-abstract/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Abstract added successfully');
-            $('#layersWithoutAbstractsModal').modal('hide');
-        } else {
-            alert('Failed to add abstract');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
-
-document.getElementById('addAbstractForm2').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
-
-    fetch('/add-abstract/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Abstract added successfully');
-            $('#layersWithoutAbstractsModal').modal('hide');
-        } else {
-            alert('Failed to add abstract');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
+//     fetch('/add-abstract/', {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Abstract added successfully');
+//             $('#layersWithoutAbstractsModal').modal('hide');
+//         } else {
+//             alert('Failed to add abstract');
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// });
 
 
-document.getElementById('addAbstractForm3').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
 
-    fetch('/add-license/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Abstract added successfully');
-            $('#layersWithoutAbstractsModal').modal('hide');
-        } else {
-            alert('Failed to add abstract');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
+// document.getElementById('addAbstractForm1').addEventListener('submit', function(event) {
+//     event.preventDefault();
+//     const formData = new FormData(this);
 
-document.getElementById('addConstraintForm3').addEventListener('submit', function(event) {
-    event.preventDefault();
-    const formData = new FormData(this);
+//     fetch('/add-abstract/', {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Abstract added successfully');
+//             $('#layersWithoutAbstractsModal').modal('hide');
+//         } else {
+//             alert('Failed to add abstract');
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// });
 
-    fetch('/add-constraint/', {
-        method: 'POST',
-        body: formData,
-        headers: {
-            'X-CSRFToken': csrftoken
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Abstract added successfully');
-            $('#layersWithoutAbstractsModal').modal('hide');
-        } else {
-            alert('Failed to add abstract');
-        }
-    })
-    .catch(error => console.error('Error:', error));
-});
+// document.getElementById('addAbstractForm2').addEventListener('submit', function(event) {
+//     event.preventDefault();
+//     const formData = new FormData(this);
+
+//     fetch('/add-abstract/', {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Abstract added successfully');
+//             $('#layersWithoutAbstractsModal').modal('hide');
+//         } else {
+//             alert('Failed to add abstract');
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// });
+
+
+// document.getElementById('addAbstractForm3').addEventListener('submit', function(event) {
+//     event.preventDefault();
+//     const formData = new FormData(this);
+
+//     fetch('/add-license/', {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Abstract added successfully');
+//             $('#layersWithoutAbstractsModal').modal('hide');
+//         } else {
+//             alert('Failed to add abstract');
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// });
+
+// document.getElementById('addConstraintForm3').addEventListener('submit', function(event) {
+//     event.preventDefault();
+//     const formData = new FormData(this);
+
+//     fetch('/add-constraint/', {
+//         method: 'POST',
+//         body: formData,
+//         headers: {
+//             'X-CSRFToken': csrftoken
+//         }
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             alert('Abstract added successfully');
+//             $('#layersWithoutAbstractsModal').modal('hide');
+//         } else {
+//             alert('Failed to add abstract');
+//         }
+//     })
+//     .catch(error => console.error('Error:', error));
+// });
 
 
 

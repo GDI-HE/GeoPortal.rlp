@@ -142,7 +142,7 @@ def render_template(request, template_name):
             #haven't worked for the session report download and report creation TODO
     
     user = None
-    
+    # replace this with check user function if necessary
     session_cookie = request.COOKIES.get(SESSION_NAME)
     if session_cookie is not None:
         session_data_mapbender = php_session_data.get_mapbender_session_by_memcache(session_cookie)
@@ -1390,210 +1390,210 @@ from django.http import JsonResponse
 from useroperations.models import Layer, Keyword, LayerKeyword
 from django.views.decorators.csrf import csrf_exempt
 
-@csrf_exempt
+# @csrf_exempt
 
-def add_keyword(request):
-    user = check_user(request)
-    if isinstance(user, HttpResponseRedirect):
-        return user  # Redirect if the user is not authenticated or does not have permissions
+# def add_keyword(request):
+#     user = check_user(request)
+#     if isinstance(user, HttpResponseRedirect):
+#         return user  # Redirect if the user is not authenticated or does not have permissions
 
-    if request.method == 'POST':
-        layer_id = request.POST.get('layer_id')
-        keyword_text = request.POST.get('keyword')
+#     if request.method == 'POST':
+#         layer_id = request.POST.get('layer_id')
+#         keyword_text = request.POST.get('keyword')
 
-        # Get the Layer object
-        layer = get_object_or_404(Layer, layer_id=layer_id)
+#         # Get the Layer object
+#         layer = get_object_or_404(Layer, layer_id=layer_id)
 
-        # Create or get the Keyword object
-        keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
+#         # Create or get the Keyword object
+#         keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
 
-        # Create the LayerKeyword relationship
-        LayerKeyword.objects.create(fkey_layer=layer, fkey_keyword=keyword)
+#         # Create the LayerKeyword relationship
+#         LayerKeyword.objects.create(fkey_layer=layer, fkey_keyword=keyword)
 
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+#         return JsonResponse({'success': True})
+#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-@csrf_exempt
-def add_abstract(request):
-    user = check_user(request)
-    if isinstance(user, HttpResponseRedirect):
-        return user  # Redirect if the user is not authenticated or does not have permissions
-    if request.method == 'POST':
-        layer_id = request.POST.get('layer_id')
-        abstract_text = request.POST.get('abstract')
+# @csrf_exempt
+# def add_abstract(request):
+#     user = check_user(request)
+#     if isinstance(user, HttpResponseRedirect):
+#         return user  # Redirect if the user is not authenticated or does not have permissions
+#     if request.method == 'POST':
+#         layer_id = request.POST.get('layer_id')
+#         abstract_text = request.POST.get('abstract')
 
-        # Get the Layer object
-        layer = get_object_or_404(Layer, layer_id=layer_id)
+#         # Get the Layer object
+#         layer = get_object_or_404(Layer, layer_id=layer_id)
 
-        # Update the abstract
-        layer.layer_abstract = abstract_text
-        layer.save()
+#         # Update the abstract
+#         layer.layer_abstract = abstract_text
+#         layer.save()
 
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+#         return JsonResponse({'success': True})
+#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-def add_abstract(request):
-    user = check_user(request)
-    if isinstance(user, HttpResponseRedirect):
-        return user  # Redirect if the user is not authenticated or does not have permissions
-    if request.method == 'POST':
-        layer_id = request.POST.get('layer_id')
-        abstract_text = request.POST.get('abstract')
-        abstract_text1 = request.POST.get('abstract1')
-        abstract_text2 = request.POST.get('abstract2')
+# def add_abstract(request):
+#     user = check_user(request)
+#     if isinstance(user, HttpResponseRedirect):
+#         return user  # Redirect if the user is not authenticated or does not have permissions
+#     if request.method == 'POST':
+#         layer_id = request.POST.get('layer_id')
+#         abstract_text = request.POST.get('abstract')
+#         abstract_text1 = request.POST.get('abstract1')
+#         abstract_text2 = request.POST.get('abstract2')
 
-        # Get the Layer object
-        layer = get_object_or_404(Layer, layer_id=layer_id)
+#         # Get the Layer object
+#         layer = get_object_or_404(Layer, layer_id=layer_id)
 
-        # Update the abstract
-        if abstract_text:
-            layer.layer_abstract = abstract_text
-        if abstract_text1:
-            layer.layer_abstract = abstract_text1
-        if abstract_text2:
-            layer.layer_abstract = abstract_text2
+#         # Update the abstract
+#         if abstract_text:
+#             layer.layer_abstract = abstract_text
+#         if abstract_text1:
+#             layer.layer_abstract = abstract_text1
+#         if abstract_text2:
+#             layer.layer_abstract = abstract_text2
         
-        layer.save()
+#         layer.save()
 
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+#         return JsonResponse({'success': True})
+#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-def add_license(request):
-    user = check_user(request)
-    if isinstance(user, HttpResponseRedirect):
-        return user  # Redirect if the user is not authenticated or does not have permissions
-    if request.method == 'POST':
-        #layer_id = request.POST.get('layer_id')
-        # Get the 'layer_id' value from the QueryDict
-        layer_id_value = request.POST.get('layer_id', '')
+# def add_license(request):
+#     user = check_user(request)
+#     if isinstance(user, HttpResponseRedirect):
+#         return user  # Redirect if the user is not authenticated or does not have permissions
+#     if request.method == 'POST':
+#         #layer_id = request.POST.get('layer_id')
+#         # Get the 'layer_id' value from the QueryDict
+#         layer_id_value = request.POST.get('layer_id', '')
 
-        # Extract the WMS ID using string manipulation
-        wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
-        
-
-        abstract_text = request.POST.get('layer_license')
-
-        #Get the Wms object
-        wms_object = get_object_or_404(Wms, wms_id= wms_id)
-        wms_object.fees = abstract_text
-        wms_object.save()
-        # Get the Layer object
-        #layer = get_object_or_404(Layer, layer_id=layer_id)
-
-        # Update the abstract
-        #layer.layer_abstract = abstract_text
-        #layer.save()
-
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-def add_constraint(request):
-    user = check_user(request)
-    if isinstance(user, HttpResponseRedirect):
-        return user  # Redirect if the user is not authenticated or does not have permissions
-    if request.method == 'POST':
-        #layer_id = request.POST.get('layer_id')
-        # Get the 'layer_id' value from the QueryDict
-        layer_id_value = request.POST.get('layer_id', '')
-
-        # Extract the WMS ID using string manipulation
-        wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
+#         # Extract the WMS ID using string manipulation
+#         wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
         
 
-        abstract_text = request.POST.get('layer_constraint')
+#         abstract_text = request.POST.get('layer_license')
 
-        #Get the Wms object
-        wms_object = get_object_or_404(Wms, wms_id= wms_id)
-        wms_object.accessconstraints = abstract_text
-        wms_object.save()
-        # Get the Layer object
-        #layer = get_object_or_404(Layer, layer_id=layer_id)
+#         #Get the Wms object
+#         wms_object = get_object_or_404(Wms, wms_id= wms_id)
+#         wms_object.fees = abstract_text
+#         wms_object.save()
+#         # Get the Layer object
+#         #layer = get_object_or_404(Layer, layer_id=layer_id)
 
-        # Update the abstract
-        #layer.layer_abstract = abstract_text
-        #layer.save()
+#         # Update the abstract
+#         #layer.layer_abstract = abstract_text
+#         #layer.save()
 
-        return JsonResponse({'success': True})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+#         return JsonResponse({'success': True})
+#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
-def get_layers_without_keywords(request):
-    service_id = request.GET.get('service_id')
-    layers = Layer.objects.filter(fkey_wms_id=service_id).annotate(
-        has_keyword=Exists(
-            LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
-        )
-    ).filter(has_keyword=False)
+# def add_constraint(request):
+#     user = check_user(request)
+#     if isinstance(user, HttpResponseRedirect):
+#         return user  # Redirect if the user is not authenticated or does not have permissions
+#     if request.method == 'POST':
+#         #layer_id = request.POST.get('layer_id')
+#         # Get the 'layer_id' value from the QueryDict
+#         layer_id_value = request.POST.get('layer_id', '')
 
-    layers_data = list(layers.values('layer_id', 'layer_name'))
+#         # Extract the WMS ID using string manipulation
+#         wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
+        
 
-    return JsonResponse({'layers': layers_data})
+#         abstract_text = request.POST.get('layer_constraint')
 
-def get_layers_without_abstracts(request):
-    service_id = request.GET.get('service_id')
-    layers = Layer.objects.filter(fkey_wms_id=service_id, layer_abstract__isnull=True)
+#         #Get the Wms object
+#         wms_object = get_object_or_404(Wms, wms_id= wms_id)
+#         wms_object.accessconstraints = abstract_text
+#         wms_object.save()
+#         # Get the Layer object
+#         #layer = get_object_or_404(Layer, layer_id=layer_id)
 
-    layers_data = list(layers.values('layer_id', 'layer_name'))
+#         # Update the abstract
+#         #layer.layer_abstract = abstract_text
+#         #layer.save()
 
-    return JsonResponse({'layers': layers_data})
+#         return JsonResponse({'success': True})
+#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+# def get_layers_without_keywords(request):
+#     service_id = request.GET.get('service_id')
+#     layers = Layer.objects.filter(fkey_wms_id=service_id).annotate(
+#         has_keyword=Exists(
+#             LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
+#         )
+#     ).filter(has_keyword=False)
+
+#     layers_data = list(layers.values('layer_id', 'layer_name'))
+
+#     return JsonResponse({'layers': layers_data})
+
+# def get_layers_without_abstracts(request):
+#     service_id = request.GET.get('service_id')
+#     layers = Layer.objects.filter(fkey_wms_id=service_id, layer_abstract__isnull=True)
+
+#     layers_data = list(layers.values('layer_id', 'layer_name'))
+
+#     return JsonResponse({'layers': layers_data})
 
 
 
-def get_layers_with_short_abstract(request):
-    service_id = request.GET.get('service_id')
-    layers = Layer.objects.filter(fkey_wms_id=service_id).distinct()
-    layers_with_short_abstract = layers.annotate(
-        abstract_length=Length('layer_abstract', output_field=IntegerField())
-        ).filter(Q(abstract_length__lt=50) & ~Q(layer_abstract__isnull=True) & ~Q(layer_abstract__exact=''))
-    layers_with_short_abstract_info = list(layers_with_short_abstract.values('layer_id', 'layer_name', 'layer_abstract'))
-    return JsonResponse({'layers':layers_with_short_abstract_info})
+# def get_layers_with_short_abstract(request):
+#     service_id = request.GET.get('service_id')
+#     layers = Layer.objects.filter(fkey_wms_id=service_id).distinct()
+#     layers_with_short_abstract = layers.annotate(
+#         abstract_length=Length('layer_abstract', output_field=IntegerField())
+#         ).filter(Q(abstract_length__lt=50) & ~Q(layer_abstract__isnull=True) & ~Q(layer_abstract__exact=''))
+#     layers_with_short_abstract_info = list(layers_with_short_abstract.values('layer_id', 'layer_name', 'layer_abstract'))
+#     return JsonResponse({'layers':layers_with_short_abstract_info})
     
 
-def get_abstract_matches_title(request):
-    service_id = request.GET.get('service_id')
-    layers = Layer.objects.filter(fkey_wms_id = service_id).distinct()
-    abstract_matches_title = layers.annotate(
-        abstract_matches_title=Case(
-            When(
-                Q(layer_abstract=F('layer_title')),
-                then=Value(True)
-            ),
-            default=Value(False),
-            output_field=BooleanField()
-        )
-    ).filter(abstract_matches_title=True)
-    abstract_matches_title_info = list(abstract_matches_title.values('layer_id', 'layer_name', 'layer_abstract'))
-    return JsonResponse({'layers':abstract_matches_title_info})
+# def get_abstract_matches_title(request):
+#     service_id = request.GET.get('service_id')
+#     layers = Layer.objects.filter(fkey_wms_id = service_id).distinct()
+#     abstract_matches_title = layers.annotate(
+#         abstract_matches_title=Case(
+#             When(
+#                 Q(layer_abstract=F('layer_title')),
+#                 then=Value(True)
+#             ),
+#             default=Value(False),
+#             output_field=BooleanField()
+#         )
+#     ).filter(abstract_matches_title=True)
+#     abstract_matches_title_info = list(abstract_matches_title.values('layer_id', 'layer_name', 'layer_abstract'))
+#     return JsonResponse({'layers':abstract_matches_title_info})
 
 
 
-def get_license(request):
-    service_id = request.GET.get('service_id')
-    wms = Wms.objects.get(wms_id=service_id)
-    
-  
-
-
-    # Prepare the response
-    response_data = {
-        'wms_id': wms.wms_id,
-        'fees': wms.fees,
-    }
-
-
-    return JsonResponse(response_data)
-
-def get_constraint(request):
-    service_id = request.GET.get('service_id')
-    wms = Wms.objects.get(wms_id=service_id)
+# def get_license(request):
+#     service_id = request.GET.get('service_id')
+#     wms = Wms.objects.get(wms_id=service_id)
     
   
 
 
-    # Prepare the response
-    response_data = {
-        'wms_id': wms.wms_id,
-        'fees': wms.accessconstraints,
-    }
+#     # Prepare the response
+#     response_data = {
+#         'wms_id': wms.wms_id,
+#         'fees': wms.fees,
+#     }
 
 
-    return JsonResponse(response_data)
+#     return JsonResponse(response_data)
+
+# def get_constraint(request):
+#     service_id = request.GET.get('service_id')
+#     wms = Wms.objects.get(wms_id=service_id)
+    
+  
+
+
+#     # Prepare the response
+#     response_data = {
+#         'wms_id': wms.wms_id,
+#         'fees': wms.accessconstraints,
+#     }
+
+
+#     return JsonResponse(response_data)
