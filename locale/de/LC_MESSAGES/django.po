@@ -2160,3 +2160,66 @@ msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "A magnifying glass icon"
 #~ msgstr "Ein Lupensymbol"
+
+msgid "Layers Without Abstracts"
+msgstr "Ebenen ohne Abstrakte"
+
+msgid "Total across all services"
+msgstr "Gesamtsumme aller Dienste"
+
+msgid "Layers Without Keywords"
+msgstr "Ebenen ohne Stichwort"
+
+msgid "Abstracts Match Titles"
+msgstr "Abstrakte gleich als Titel"
+
+msgid "Layers With Short Abstracts"
+msgstr "Ebenen mit Kurze Abstrakte"
+
+msgid "Columns"
+msgstr "Spalten"
+
+msgid "Serial No."
+msgstr "Seriennr."
+
+msgid "Service ID"
+msgstr "Dienst-ID"
+
+msgid "Service Title"
+msgstr "Diensttitel"
+
+msgid "Total Layers"
+msgstr "Ebenen Summe"
+
+msgid "Layers Without Abstract"
+msgstr "Ebenen ohne Abstrakt"
+
+msgid "Data-Service connection"
+msgstr "Daten-Service-Verbindung"
+
+msgid "Inspire Monitoring Status"
+msgstr "Inspire Überwachungsstatus"
+
+msgid "ISO Categorized"
+msgstr "ISO kategorisiert"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "No Inspire Category, nor Inspireidentifiziert"
+msgstr "Keine Inspire Kategorie, noch Inspireidentifiziert"
+
+msgid "Inspire Category but keyword missing"
+msgstr "Kategorie „Inspire“, aber Schlüsselwort fehlt"
+
+msgid "Keyword as Inspireidentifiziert but Inspire category missing"
+msgstr "Stichwort als Inspireidentifiziert, aber Inspire-Kategorie fehlt"
+
+msgid "Both Inspire Category and Inspireidentifiziert"
+msgstr "Sowohl Inspire Category als auch Inspireidentifiziert"
+
+msgid "Show Details"
+msgstr "Details anzeigen"
+
+msgid "Keywords Present"
+msgstr "Schlagwörter"
