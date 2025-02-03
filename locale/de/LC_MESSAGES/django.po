@@ -2176,8 +2176,8 @@ msgstr "Abstrakte gleich als Titel"
 msgid "Layers With Short Abstracts"
 msgstr "Ebenen mit Kurze Abstrakte"
 
-msgid "Columns"
-msgstr "Spalten"
+msgid " Columns"
+msgstr " Spalten"
 
 msgid "Serial No."
 msgstr "Seriennr."
@@ -2223,3 +2223,18 @@ msgstr "Details anzeigen"
 
 msgid "Keywords Present"
 msgstr "Schlagwörter"
+
+msgid "Abstracts Present"
+msgstr "Abstrakte"
+
+msgid "Layers Where Abstract Matches Title"
+msgstr "Ebenen, deren Abstrakt mit dem Titel übereinstimmt"
+
+msgid "Layer Names"
+msgstr "Ebenennamen"
+
+msgid "Information on costs/fees/licenses"
+msgstr "Angaben zu Kosten/Gebühren/Lizenzen"
+
+msgid "Restrictions on public access"
+msgstr "Beschränkungen des öffentlichen Zugangs"

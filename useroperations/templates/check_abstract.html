@@ -786,7 +786,7 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <div class="dropdown-title">Abstracts Present <i class="fas fa-info-circle"></i></div>
+                        <div class="dropdown-title">{% trans 'Abstracts Present' %} <i class="fas fa-info-circle"></i></div>
                         <div class="dropdown-content">
                             <ul>
                                 {% for abstract in result.abstracts_present %}
@@ -796,7 +796,7 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <div class="dropdown-title">Layers Without Abstracts 
+                        <div class="dropdown-title">{% trans 'Layers Without Abstracts' %} 
                            {% if result.layers_without_abstract_names %} 
                             <i class="fas fa-info-circle red-icon"></i>
                             <!-- <button class="btn btn-sm" onclick="showLayersWithoutAbstractsModal({{ result.wms_id }})">
@@ -816,7 +816,7 @@
                     </div>
                     <div class="dropdown">
                         <div class="dropdown-title">
-                            Layers Without Keywords 
+                            {% trans 'Layers Without Keywords' %} 
                            {% if result.layers_without_keyword_names %} 
                             <i class="fas fa-info-circle red-icon"></i>
                             <!-- <button class="btn btn-sm" onclick="showLayersWithoutKeywordsModal({{ result.wms_id }})">
@@ -837,7 +837,7 @@
                     </div>
                     <div class="dropdown">
                         <div class="dropdown-title">
-                            Layers Where Abstract Matches Title 
+                            {% trans 'Layers Where Abstract Matches Title' %} 
                            {% if result.layers_abstract_matches_title_names %} 
                             <i class="fas fa-info-circle red-icon"></i>
                             <!-- <button class="btn btn-sm" onclick="showLayersWithAbstractMatchesTitleModal({{ result.wms_id }})">
@@ -856,7 +856,7 @@
                         </div>
                     </div>
                     <div class="dropdown">
-                        <div class="dropdown-title">Layer Names <i class="fas fa-info-circle"></i></div>
+                        <div class="dropdown-title">{% trans 'Layer Names' %} <i class="fas fa-info-circle"></i></div>
                         <div class="dropdown-content">
                             <ul>
                                 {% for layer_name in result.layer_names %}
@@ -867,7 +867,7 @@
                     </div>
                     <div class="dropdown">
                         <div class="dropdown-title">
-                            Layers With Short Abstracts 
+                            {% trans 'Layers With Short Abstracts' %}
                            {%if result.layers_with_short_abstract_info %} 
                             <i class="fas fa-info-circle red-icon"></i>
                             <!-- <button class="btn btn-sm" onclick="showLayersWithShortAbstractModal({{ result.wms_id }})">
@@ -887,7 +887,7 @@
                     </div>
                     <div class="dropdown">
                         <div class="dropdown-title">
-                            Angaben zu Kosten/Gebühren/Lizenzen 
+                            {% trans 'Information on costs/fees/licenses' %} 
                            {% if result.wms_fees|length > 5 %} 
                             <i class="fas fa-info-circle"></i>
                            {% else %}
@@ -903,7 +903,7 @@
                     </div>
                     <div class="dropdown">
                         <div class="dropdown-title">
-                            Beschränkungen des öffentlichen Zugangs 
+                            {% trans 'Restrictions on public access' %} 
                             {% if result.wms_accessconstraints|length > 5 %}
                             <i class="fas fa-info-circle"></i>
                             {% else %}
