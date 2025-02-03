@@ -1,18 +1,18 @@
-$(document).ready(function() {
-    $(".modal-header, .modal-footer").addClass("draggable-handle");
-    $("#graphModal").draggable({
-        handle: ".draggable-handle",
-        containment: "window",
-        cursor: "move",
-        start: function(event, ui) {
-            $(".draggable-handle").addClass("dragging");
-        },
-        stop: function(event, ui) {
-            $(".draggable-handle").removeClass("dragging");
-        }
-    })
+// $(document).ready(function() {
+//     $(".modal-header, .modal-footer").addClass("draggable-handle");
+//     $("#graphModal").draggable({
+//         handle: ".draggable-handle",
+//         containment: "window",
+//         cursor: "move",
+//         start: function(event, ui) {
+//             $(".draggable-handle").addClass("dragging");
+//         },
+//         stop: function(event, ui) {
+//             $(".draggable-handle").removeClass("dragging");
+//         }
+//     })
 
-});
+// });
 //need to check its security issue
 function getBaseUrl() {
 const { protocol, hostname, port } = window.location;
@@ -57,6 +57,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
         let htmlContent = '';
 
         if (contentType === 'fig_html_report') {
+
             let modifiedFormHtml = formHtml.replace(
                 /<input type="file" name="file"[^>]*>/,
                 '<input type="file" name="file" required id="id_file" accept=".csv">'

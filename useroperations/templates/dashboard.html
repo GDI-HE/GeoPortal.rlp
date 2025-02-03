@@ -9,6 +9,7 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="{% static 'js/jquery-ui.min.js' %}"></script>
 <script src="{% static 'js/update_graph.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
 
       <!-- Modal -->
     <div class="modal fade" id="graphModal" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
@@ -42,9 +43,7 @@
                 </div>
             </div>
         </div>
-    </div>
-    
-
+    </div>   
     <div class="landing-page-box1"><!--landing-page-box-Begin -->
         <div class="landing-page-headline">
             <h2>Statistik</h2>
@@ -88,7 +87,7 @@
                     <div class="card" data-content-type="fig_html">
                         <div class="iframe-container">
                             <iframe id="graph1" src="data:image/png;base64,{{ image_base64}}" width="100%" height="400px" alt="Plotly Image"></iframe>
-                            <div class="overlay" onclick="showGraphInModal('fig_html')"></div>
+                            <div class="overlay" onclick="showGraphInModal('fig_html')"></div> 
                         </div>
                     </div>
                 </div>
@@ -103,12 +102,15 @@
                 </div>
                 
                 <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card" data-content-type="session_data">
-                        <div class="iframe-container">
-                            <iframe id="graph3" src="data:image/png;base64,{{ image_base64_session}}" width="100%" height="400px" alt="Plotly Image"></iframe>
-                            <div class="overlay" onclick="showGraphInModal('session_data')"></div>
-                        </div>
+                    <!-- Large session count display -->
+                    <div style="text-align: left; color: black; font-family: Arial, sans-serif;">
+                        <div style="font-size: 1rem; opacity: 0.7;">sessions</div>
+                        <div style="font-size: 3rem; font-weight: bold;">{{ total_sessions_7_days }}</div>
+                        <div style="font-size: 1rem; opacity: 0.7;">past 7 Days</div>
                     </div>
+                
+                    <!-- Graph for the last 14 days -->
+                    <div id="sessionsChart" style="width: 100%; height: 300px; margin-top: 20px;"></div>
                 </div>
                 <!-- <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card">
@@ -127,18 +129,529 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-sm-12 mb-4">
-                    <div class="card" data-content-type="fig_wmc">
+            </div>
+            <!-- WMC Statistics Graphs -->
+            <div class="row">
+               <div class="col-md-6 col-sm-12 mb-4">
+                    <div class="card">
                         <div class="iframe-container">
-                            <iframe id="graph5" src="data:image/png;base64,{{ image_base64_wmc}}" width="100%" height="400px" alt="Plotly Image"></iframe>
-                            <div class="overlay" onclick="showGraphInModal('fig_wmc')"></div>
+                            <div id="graphChart1" class="graph-chart" style="width: 100%; height: 100%; padding-bottom: 30px;" data-url="${filterUrl}">
+                                {{ loadcount_chart|safe }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
         </div>
-  
-    
+        <!-- Modal -->
+        <div class="modal fade" id="graphModalWMC" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="graphModalLabel">Graph</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                            <div class="modal-body"> 
+                        <form id="dateForm">
+                            <div class="row">
+                                <div class="col-12 d-flex flex-wrap flex-md-nowrap py-1">
+                                    <div class="col-sm-12 col-md-4 py-1">
+                                        <small class="text-black">Select WMC</small>
+                                        <div class="card shadow-sm">
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="height: 30px;" id="addon-wrapping_wmc">
+                                                    <i class="fa fa-list"></i>
+                                                </span>
+                                                <select class="form-control" id="wmc_id" name="wmc_id" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC" aria-describedby="addon-wrapping_wmc">
+                                                    {% for wmc in top_10_loads_last_month %}
+                                                        <option value="{{ wmc.wmc_id }}">{{ wmc.wmc_title }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 py-1">
+                                        <small class="text-black">Start Date</small>
+                                        <div class="card shadow-sm">
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="height: 30px;" id="addon-wrapping_start">
+                                                    <i class="fa fa-calendar-day"></i>
+                                                </span>
+                                                <input type="date" id="startDate" value="startDate" name="start" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="Start Date" aria-label="Start Date" aria-describedby="addon-wrapping_start">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 py-1">
+                                        <small class="text-black">End Date</small>
+                                        <div class="card shadow-sm">
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="height: 30px;" id="addon-wrapping_end">
+                                                    <i class="fa fa-calendar-day"></i>
+                                                </span>
+                                                <input type="date" id="endDate" value="endDate" name="end" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="End Date" aria-label="End Date" aria-describedby="addon-wrapping_end">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 d-flex justify-content-end py-1">
+                                    <button type="submit" class="btn btn-primary" style="height: 38px; padding: 0.375rem 0.75rem;">Submit</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div id="spinnerContainerWMC" style="display: none;">
+                            <div id="spinner" class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div id="dynamicContentWMC">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                         <!-- WMC comparision -->
+                        <div class="col-md-12 col-sm-12 mb-4">
+                            <div class="card text-black">
+                                <div class="card-body" style="font-size: 14px;">
+                                    <!-- Title of the Card -->
+                                    <h5 class="card-title text-center mb-4">Load Comparison</h5>
+                                    
+                                    <!-- Results Section -->
+                                    <div class="row">
+                                        {% for item in top_four_loads %}
+                                        <div class="col-md-6 mb-3">
+                                            <!-- Single Result Block -->
+                                            <div class="text-center" style="border: 1px solid #ddd; border-radius: 8px; padding: 15px;">
+                                                <h6>{{ item.wmc_title }}</h6>
+                                                <div style="font-size: 25px;">{{ item.total_actual_load }}</div>
+                                                
+                                                <!-- Percentage Change -->
+                                                {% for comparison_item in comparison_data %}
+                                                {% if comparison_item.wmc_id == item.wmc_id %}
+                                                <span class="{% if comparison_item.percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                    {% if comparison_item.percentage_change >= 0 %}
+                                                        <span>&#9650;</span>  <!-- Green up arrow -->
+                                                    {% else %}
+                                                        <span>&#9660;</span>  <!-- Red down arrow -->
+                                                    {% endif %}
+                                                    {{ comparison_item.percentage_change|floatformat:3 }}%
+                                                </span>
+                                                {% endif %}
+                                                {% endfor %}
+                                                
+                                                <!-- Month Comparison -->
+                                                <div>
+                                                    {% for comparison_item in comparison_data %}
+                                                    {% if comparison_item.wmc_id == item.wmc_id and comparison_item.second_last_month_name %}
+                                                        <small class="text-black">{{ item.month_name }} v {{ comparison_item.second_last_month_name }}</small>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+
+                        <!-- Add a div for the donut chart -->
+                        <div id="modal-donut-chart" style="width:100%; height:400px;"></div>
+                        <!-- Add a div for the bar chart -->
+                        <div id="modal-bar-chart" style="width:100%; height:400px;"></div>
+
+                        <!-- Add a div for the gauge chart -->
+                        <div id="modal-gauge-chart" style="width:100%; height:400px;"></div>
+
+                        <!-- Add a div for the line chart -->
+                        <div id="modal-line-chart" style="width:100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            // Retrieve data passed from views.py
+            const chartDates = {{ chart_dates|safe }}; // Dates (5-min intervals) for the last 14 days
+            const data14Days = {{ data_14_days|safe }}; // Session counts for the last 14 days
+        
+            // Initialize the chart
+            const chartDom = document.getElementById('sessionsChart');
+            const myChart = echarts.init(chartDom);
+        
+            // Configure the chart
+            const option = {
+                title: {
+                    text: 'Active Sessions (Last 24 Hours)',
+                    left: 'center',
+                    textStyle: {
+                        color: 'black',
+                        fontSize: 16,
+                    },
+                },
+                tooltip: {
+                    trigger: 'axis',
+                },
+                xAxis: {
+                    type: 'category',
+                    data: chartDates, // Dates (5-min intervals) for the last 14 days
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.5)', // Axis line color
+                        },
+                    },
+                    axisLabel: {
+                        show: false, // Hide X-axis labels
+                    },
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.5)', // Axis line color
+                        },
+                    },
+                    axisLabel: {
+                        color: 'black', // Label color
+                    },
+                },
+                series: [
+                    {
+                        data: data14Days, // Data points for the graph
+                        type: 'line',
+                        smooth: true,
+                        lineStyle: {
+                            color: 'black', // Line color
+                            width: 0.5,
+                        },
+                        areaStyle: {
+                            color: 'rgba(173, 216, 230, 0.45)', // Light blue shading below the line
+                        },
+                    },
+                ],
+                grid: {
+                    left: '5%',
+                    right: '5%',
+                    bottom: '20%',
+                    top: '20%',
+                    containLabel: true,
+                },
+            };
+        
+            // Render the chart
+            myChart.setOption(option);
+        </script>
+        
+        
+        <script>
+            // Data for the bar chart
+            var barChartData = {
+                labels: {{ bar_chart_data.labels|safe }},
+                values: {{ bar_chart_data.values|safe }}
+            };
+        
+            // Data for the gauge chart
+            var gaugeChartData = {
+                value: {{ gauge_chart_data.value }},
+                max: {{ gauge_chart_data.max }}
+            };
+        
+            // Data for the line chart
+            var lineChartData = {
+                dates: {{ line_chart_data.dates|safe }},
+                actual_loads: {{ line_chart_data.actual_loads|safe }}
+            };
+            function initializeBarChart() {
+                var barChart = echarts.init(document.getElementById('modal-bar-chart'));
+
+                var barChartOptions = {
+                    title: {
+                        text: 'Top 5 WMCs by Average Load, 2024',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 14
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function (params) {
+                            return `${params.name}: ${params.value}`;
+                        },
+                        backgroundColor: 'black',
+                        textStyle: {
+                            fontSize: 12,
+                            color: 'white'
+                        },
+                        borderWidth: 0
+                    },
+                    legend: {
+                        data: barChartData.labels, // Ensure this array is not empty
+                        top: '10%', // Adjust top positioning
+                        textStyle: {
+                            fontSize: 14,  // Make text larger if needed
+                            color: 'black' // Ensure it's visible
+                        },
+                        orient: 'horizontal',
+                        align: 'center'
+                    },
+                    backgroundColor: 'transparent',
+                    xAxis: {
+                        type: 'category',
+                        data: barChartData.labels,
+                        axisLabel: {
+                            show: false // Hide x-axis labels
+                        },
+                        axisLine: {
+                            show: false // Hide x-axis line
+                        }
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    grid: {
+                        top: '20%', // Provide space for the title and legend
+                        containLabel: true
+                    },
+                    series: [
+                        {
+                            name: 'Average Load',
+                            type: 'bar',
+                            data: barChartData.values,
+                            itemStyle: {
+                                color: function (params) {
+                                    var colors = ['#5470C6', '#91CC75', '#EE6666', '#FAC858', '#73C0DE'];
+                                    return colors[params.dataIndex % colors.length];
+                                }
+                            }
+                        }
+                    ]
+                };
+
+                barChart.setOption(barChartOptions);
+            }
+
+
+        
+            // Function to initialize the gauge chart
+            function initializeGaugeChart() {
+                var gaugeChart = echarts.init(document.getElementById('modal-gauge-chart'));
+        
+                var gaugeChartOptions = {
+                    title: {
+                        text: 'Current Day\'s Total Load',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 14
+                        }
+                    },
+                    tooltip: {
+                        formatter: '{a} <br/>{b} : {c}',
+                        backgroundColor: 'black',
+                        textStyle: {
+                            fontSize: 12,
+                            color: 'white'
+                        },
+                        borderWidth: 0
+                    },
+                    series: [
+                        {
+                            name: 'Total Load',
+                            type: 'gauge',
+                            detail: { formatter: '{value}' },
+                            data: [{ value: gaugeChartData.value, name: 'Load' }],
+                            max: gaugeChartData.max
+                        }
+                    ]
+                };
+        
+                gaugeChart.setOption(gaugeChartOptions);
+            }
+        
+            // Function to initialize the line chart
+            function initializeLineChart() {
+                var lineChart = echarts.init(document.getElementById('modal-line-chart'));
+        
+                var lineChartOptions = {
+                    title: {
+                        text: 'Yearly Load Trends (Boris Hessen 2024)',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 14
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        formatter: '{b}: {c}',
+                        backgroundColor: 'black',
+                        textStyle: {
+                            fontSize: 12,
+                            color: 'white'
+                        },
+                        borderWidth: 0
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: lineChartData.dates
+                    },
+                    yAxis: {
+                        type: 'value'
+                    },
+                    series: [
+                        {
+                            name: 'Actual Load',
+                            type: 'line',
+                            data: lineChartData.actual_loads
+                        }
+                    ]
+                };
+        
+                lineChart.setOption(lineChartOptions);
+            }
+        
+            // Initialize the charts when the modal is shown
+            $('#graphModalWMC').on('shown.bs.modal', function () {
+                initializeDonutChart();
+                initializeBarChart();
+                initializeGaugeChart();
+                initializeLineChart();
+            });
+        </script>
+        <script>
+            // Data for the donut chart
+            var donutChartData = {
+                labels: {{ donut_chart_data.labels|safe }},
+                values: {{ donut_chart_data.values|safe }}
+            };
+        
+            // Function to initialize the donut chart
+            function initializeDonutChart() {
+                // Initialize the donut chart
+                var donutChart = echarts.init(document.getElementById('modal-donut-chart'));
+        
+                // Specify the chart options
+                var donutChartOptions = {
+                    title: {
+                        text: 'Top 10 WMCs by Actual Load Count (Previous Day)',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 14 // Set a smaller font size for the title
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: '{b}: {c}', // Show WMC title and load
+                        backgroundColor: 'black', // Set background color to black
+                        textStyle: {
+                            fontSize: 12, // Make the tooltip text size smaller
+                            color: 'white' // Set text color to white
+                        },
+                        borderWidth: 0, // Remove the border
+                        position: function (point, params, dom, rect, size) {
+                            // Calculate the position to keep the tooltip within the graph area
+                            var x = point[0];
+                            var y = point[1];
+                            var viewWidth = size.viewSize[0];
+                            var viewHeight = size.viewSize[1];
+                            var boxWidth = size.contentSize[0];
+                            var boxHeight = size.contentSize[1];
+        
+                            var posX = x + 20; // Default position to the right of the mouse pointer
+                            var posY = y;
+        
+                            // Ensure the tooltip stays within the graph area
+                            if (posX + boxWidth > viewWidth) {
+                                posX = x - boxWidth - 20; // Position to the left if it overflows
+                            }
+                            if (posY + boxHeight > viewHeight) {
+                                posY = y - boxHeight; // Adjust vertically if it overflows
+                            }
+        
+                            return [posX, posY];
+                        }
+                    },
+                    legend: {
+                        orient: 'vertical', // Align legend vertically
+                        left: 'left', // Position legend on the left
+                        top: 'center', // Center legend vertically
+                        textStyle: {
+                            fontSize: 10 // Adjust font size for better readability
+                        }
+                    },
+                    series: [
+                        {
+                            name: 'Actual Load',
+                            type: 'pie',
+                            radius: ['40%', '70%'], // Adjust the radius to make the donut thicker
+                            avoidLabelOverlap: false,
+                            label: {
+                                show: false // Hide all labels
+                            },
+                            emphasis: {
+                                label: {
+                                    show: false // Hide emphasis label
+                                }
+                            },
+                            labelLine: {
+                                show: false // Hide label lines
+                            },
+                            data: donutChartData.labels.map(function (label, index) {
+                                return { value: donutChartData.values[index], name: label };
+                            })
+                        }
+                    ]
+                };
+        
+                // Set the chart options
+                donutChart.setOption(donutChartOptions);
+            }
+        
+            // Initialize the donut chart when the modal is shown
+            $('#graphModalWMC').on('shown.bs.modal', function () {
+                initializeDonutChart();
+            });
+        </script>
+        
+        <!-- script you can write it here for now. Later write it in check_abstracts.js -->
+        <script>
+            document.querySelectorAll('.graph-chart').forEach(chart => {
+                chart.addEventListener('click', () => {
+                    $('#spinnerContainerWMC').show();
+                    $.ajax({
+                        url: filterUrl,
+                        method: 'GET',
+                        success: function(data) {
+                            $('#dynamicContentWMC').html(data.loadcount_chart);
+                            $('#startDate').val(data.start);
+                            $('#endDate').val(data.end);
+                            $('#wmc_id').val(data.wmc_id);
+                            $('#graphModalWMC').modal('show');
+                            $('#spinnerContainerWMC').hide();
+                            const chartCanvas = document.getElementById('graphChart1').getContext('2d');
+                            new Chart(chartCanvas, {
+                                type: 'line',
+                                data: data.chartData,
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        x: {
+                                            ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 }
+                                        }
+                                    },
+                                    layout: { padding: { bottom: 30 } }
+                                }
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching data:', error);
+                            $('#spinnerContainerWMC').hide();
+                        }
+                    });
+                });
+            });
+        </script>
         <script>
             const filterUrl = "{% url 'dashboard:filter' %}";
             const downloadCsvUrl = "{% url 'dashboard:download_csv' %}";
@@ -146,8 +659,6 @@
             const endDate = "{{ end_date }}";
             const csrfToken = "{{ csrf_token }}";
             const formHtml = `{{ form.as_p|safe }}`;
-        </script>
-          
- 
-</body>
+        </script>  
+</body
 {% endblock %}

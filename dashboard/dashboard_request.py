@@ -1,4 +1,5 @@
 from useroperations.models import MbUser, Wms, Wfs, Wmc
+from dashboard.models import WMC
 from datetime import datetime, timedelta
 from dashboard.dashboard_utils import get_data_counts
 from useroperations.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
@@ -41,7 +42,7 @@ def process_request(request):
         else:
             dropdown_value = 'monthly'
     else:
-        dropdown_value = 'monthly'
+        dropdown_value = 'monthly' 
 
     start_date = start_date.replace(hour=0, minute=0, second=0, microsecond=0)
     end_date = end_date.replace(hour=23, minute=59, second=59, microsecond=999999)
@@ -53,7 +54,7 @@ def process_request(request):
     sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, sorted_deleted_counts_wfs = get_data_counts(Wfs, 'wfs_timestamp_create', start_date, end_date, dropdown_value, fetch_deleted_wfs_data) 
 
     # Get WMC data counts
-    sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc, sorted_deleted_counts_wmc = get_data_counts(Wmc, 'wmc_timestamp', start_date, end_date, dropdown_value, fetch_deleted_wmc_data)
+    sorted_months_wmc, sorted_counts_wmc, cumulative_counts_wmc, sorted_deleted_counts_wmc = get_data_counts(WMC, 'date', start_date, end_date, dropdown_value, fetch_deleted_wmc_data)
 
     # Get the registered user counts
     sorted_months, sorted_counts, cumulative_counts, _ = get_data_counts(MbUser, 'timestamp_create', start_date, end_date, dropdown_value)

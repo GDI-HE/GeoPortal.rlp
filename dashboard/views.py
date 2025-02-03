@@ -4,7 +4,7 @@ from Geoportal.utils import php_session_data
 from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS
 from django.contrib import messages
 import plotly.graph_objs as go
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import time
 from collections import defaultdict
 import datetime as tm
@@ -18,21 +18,37 @@ from django.http import HttpResponse, JsonResponse
 from django.middleware.csrf import get_token
 import requests
 from django.db.models.functions import TruncDay
-from django.db.models import Count
+from django.db.models import Count, Sum, Avg, Max
 from django.utils.translation import gettext as _
 from dashboard.user_report import upload_file
 from dashboard.dashboard_utils import convert_to_datetime
 from dashboard.dashboard_request import process_request
 from dashboard.dashboard_userplot import generate_user_plot
 from dashboard.dashboard_session import get_filtered_session_data
+from django.utils import timezone
+from .models import WMC, SESSION_USER
+from dateutil.relativedelta import relativedelta
 
 
 def render_template(request, template_name):
+     # Get the current time
+    now = timezone.now()
+
+    # Filter session data to include only entries from the last hour
+    last_hour_sessions = SESSION_USER.objects.filter(datetime__gte=now - timedelta(hours=1)).order_by('datetime')
+
+    # Prepare data for the chart
+    labels = [session.datetime.strftime('%Y-%m-%d %H:%M') for session in last_hour_sessions]  # x-axis labels (time)
+    data = [session.session_number for session in last_hour_sessions]  # y-axis data (session numbers)
+
+    # Pass the labels and data to the template
+    #end of session user applitation plot
+    
      # Default date range: last one year
      #if request.get contains contentType === 'fig_html_report', the return json response separately
      
     end_date_default = datetime.now()
-    start_date_default = end_date_default - timedelta(days=365)
+    start_date_default = end_date_default- timedelta(days=365)
 
     start_date_report = datetime(2011, 1, 1)
     end_date_report = datetime(2028, 12, 31)
@@ -172,6 +188,107 @@ def render_template(request, template_name):
                 return redirect('useroperations:index')
 
     #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
+    # Get yesterday's date
+    yesterday = timezone.now().date() - timezone.timedelta(days=1)
+
+    # Fetch the top 10 WMCs by actual_load from yesterday
+    top_wmcs = WMC.objects.filter(date=yesterday).order_by('-actual_load')[:10]
+
+    # Prepare data for the donut chart
+    donut_chart_data = {
+        'labels': [wmc.wmc_title for wmc in top_wmcs],
+        'values': [wmc.actual_load for wmc in top_wmcs]
+    }
+
+    # Calculate the date range for the previous month
+    today = date.today()
+    first_day_of_current_month = today.replace(day=1)
+    last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
+    first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
+    last_day_of_second_last_month = first_day_of_previous_month - timedelta(days=1)
+    first_day_of_second_last_month = last_day_of_second_last_month.replace(day=1)
+
+    # Query the database for data within the previous month
+    last_month_data = WMC.objects.filter(date__range=[first_day_of_previous_month, last_day_of_previous_month])
+
+    # Retrieve data for the second last month
+    second_last_month_data = WMC.objects.filter(
+        date__range=[first_day_of_second_last_month, last_day_of_second_last_month])
+
+    # Calculate the total load count for each wmc_id and wmc_title for both months
+    load_counts = {}
+    second_last_month_loads = {}
+    
+    for wmc_record in last_month_data:
+        if wmc_record.wmc_id not in load_counts:
+            load_counts[wmc_record.wmc_id] = {'total_load': 0, 'wmc_title': wmc_record.wmc_title}
+        load_counts[wmc_record.wmc_id]['total_load'] += wmc_record.actual_load
+
+    for wmc_record in second_last_month_data:
+        if wmc_record.wmc_id not in second_last_month_loads:
+            second_last_month_loads[wmc_record.wmc_id] = {'total_load': 0, 'wmc_title': wmc_record.wmc_title}
+        second_last_month_loads[wmc_record.wmc_id]['total_load'] += wmc_record.actual_load
+    # Create a list of dictionaries with wmc_id, wmc_title, total load, and month name for the previous month
+    load_counts_list = [{'wmc_id': wmc_id, 'wmc_title': data['wmc_title'], 'total_actual_load': data['total_load'],
+                         'month_name': last_day_of_previous_month.strftime('%B')}
+                        for wmc_id, data in load_counts.items()]
+
+    # Create a list of dictionaries with wmc_id, wmc_title, total load, and month name for the second last month
+    load_counts_list_second_last_month = [{'wmc_id': wmc_id, 'wmc_title': data['wmc_title'], 'total_actual_load': data['total_load'],
+                         'month_name': last_day_of_second_last_month.strftime('%B')}
+                        for wmc_id, data in second_last_month_loads.items()]
+
+    # Sort the list by total_actual_load count in descending order for the previous month
+    load_counts_list.sort(key=lambda x: x['total_actual_load'], reverse=True)
+
+    # Sort the list by total_actual_load count in descending order for the second last month
+    load_counts_list_second_last_month.sort(key=lambda x: x['total_actual_load'], reverse=True)
+    # Get the top four highest total_actual_load counts for the previous month
+    top_four_loads = load_counts_list[:4]
+    top_10_loads_last_month = load_counts_list[:5]
+      # Get the top four highest total_actual_load counts of for the second last month
+    top_four_loads_second_last_month = load_counts_list_second_last_month[:4]
+    # Calculate the comparison percentage and determine the color for each top `wmc_id`
+    top_four_wmc_ids = [item['wmc_id'] for item in top_four_loads]
+
+        # Get the current date
+    current_date = datetime.now()
+
+    # Calculate last month's date
+    last_month_date = current_date - relativedelta(months=1)
+
+    # Calculate second last month's date
+    second_last_month_date = current_date - relativedelta(months=2)
+
+    # Extract the years
+    current_year = current_date.year
+    last_month_year = last_month_date.year
+    second_last_month_year = second_last_month_date.year
+    # Get the name of the second last month
+    second_last_month_name = second_last_month_date.strftime('%B')
+
+    comparison_data = []
+    for wmc_id in top_four_wmc_ids:
+        last_month_load = load_counts.get(wmc_id, {}).get('total_load', 0)
+        second_last_month_load = second_last_month_loads.get(wmc_id, {}).get('total_load', 0)
+        
+        
+        if second_last_month_load != 0:
+            percentage_change = ((last_month_load - second_last_month_load) / second_last_month_load) * 100
+        else:
+            percentage_change = 0
+        
+        # Determine the color for the card
+        card_color = 'green' if percentage_change >= 0 else 'red'
+        
+        # Include the second last month's name in the dictionary
+        comparison_data.append({
+            'wmc_id': wmc_id,
+            'percentage_change': percentage_change,
+            'card_color': card_color,
+            'second_last_month_name': second_last_month_name,
+            
+        })
 
   
     user_count = MbUser.objects.count()
@@ -190,6 +307,83 @@ def render_template(request, template_name):
         fig_html = fig_report_html
     else:
         fig_html = fig_html  # Default case
+
+    loadcount_chart = get_wmc_loadcount(request)
+        # Get yesterday's date
+    #yesterday = timezone.now().date() - timezone.timedelta(days=1)
+
+    # Fetch the top 10 WMCs by actual_load from yesterday
+    #top_wmcs = WMC.objects.filter(date=yesterday).order_by('-actual_load')[:10]
+
+    # Fetch the top 4 WMCs by total actual load for comparison
+    #top_four_loads = WMC.objects.values('wmc_id', 'wmc_title').annotate(total_actual_load=Sum('actual_load')).order_by('-total_actual_load')[:4]
+
+    # Fetch actual_load data for the last three months for wmc_id=7107
+    three_months_ago = timezone.now().date() - timezone.timedelta(days=360)
+    wmc_data = WMC.objects.filter(wmc_id=7107, date__gte=three_months_ago).order_by('date')
+
+    # Prepare data for the line chart
+    line_chart_data = {
+        'dates': [wmc.date.strftime('%Y-%m-%d') for wmc in wmc_data],
+        'actual_loads': [wmc.actual_load for wmc in wmc_data]
+    }
+
+    # Fetch the top 5 WMCs by average load
+    top_5_wmcs_avg_load = WMC.objects.values('wmc_id', 'wmc_title').annotate(avg_load=Avg('actual_load')).order_by('-avg_load')[:5]
+
+    # Prepare data for the bar chart
+    bar_chart_data = {
+        'labels': [wmc['wmc_title'] for wmc in top_5_wmcs_avg_load],
+        'values': [wmc['avg_load'] for wmc in top_5_wmcs_avg_load]
+    }
+
+    # Get today's date
+    today = timezone.now().date()
+
+    # Get the start of the current year
+    start_of_year = timezone.now().replace(month=1, day=1)
+
+    # Get the highest actual load for the current year
+    highest_actual_load_year = WMC.objects.filter(date__gte=start_of_year).aggregate(max_load=Max('actual_load'))['max_load'] or 0
+
+    # Get today's total load
+    current_day_total_load = WMC.objects.filter(date=today).aggregate(total_load=Sum('actual_load'))['total_load'] or 0
+
+    # Determine the max value for the gauge (highest of the year or today's load)
+    gauge_max_value = max(highest_actual_load_year, current_day_total_load)
+
+    # Prepare data for the gauge chart
+    gauge_chart_data = {
+        'value': current_day_total_load,
+        'max': gauge_max_value  # Set max to the higher of the year's max or today's load
+    }
+
+# Current datetime and range definitions
+    now = datetime.now()
+    start_date_7_days = now - timedelta(days=7)
+    start_date_14_days = now - timedelta(days=1)
+
+    # Total session count for the last 7 days
+    total_sessions_7_days = SESSION_USER.objects.filter(datetime__gte=start_date_7_days).aggregate(
+        total=Sum('session_number')
+    )['total'] or 0
+     # Format the total session count with 'K'
+    total_sessions_7_days_k = f"{total_sessions_7_days / 1000:.1f}K" if total_sessions_7_days >= 1000 else str(total_sessions_7_days)
+
+    # Query session data for the last 14 days
+    sessions_last_14_days = (
+        SESSION_USER.objects.filter(datetime__gte=start_date_14_days)
+        .values('datetime')  # Group by datetime (5-minute interval)
+        .annotate(total_sessions=Sum('session_number'))
+        .order_by('datetime')
+    )
+
+    # Prepare data for the graph
+    chart_dates = [entry['datetime'].strftime('%Y-%m-%d %H:%M') for entry in sessions_last_14_days]
+    data_14_days = [entry['total_sessions'] for entry in sessions_last_14_days]
+
+ 
+
     context = {
         'fig_html': fig_html,
         'fig_wms': fig_wms_html,
@@ -222,6 +416,22 @@ def render_template(request, template_name):
         'image_path_wfs': '/' + image_path_wfs if image_path_wfs else '',
         'image_path_report': '/' + image_path_report if image_path_report else '',
         'image_path_wmc': '/' + image_path_wmc if image_path_wmc else '',
+        'donut_chart_data': donut_chart_data,
+        'top_four_loads': top_four_loads,
+        'top_four_loads_second_last_month': top_four_loads_second_last_month,
+        'comparison_data': comparison_data,
+        'loadcount_chart': loadcount_chart,
+        'top_10_loads_last_month': top_10_loads_last_month,
+        'last_month_year': timezone.now().year,
+        'second_last_month_year': timezone.now().year - 1,
+        'line_chart_data': line_chart_data,
+        'bar_chart_data': bar_chart_data,
+        'gauge_chart_data': gauge_chart_data,
+        'labels': labels,
+        'data': data,
+        'total_sessions_7_days': total_sessions_7_days_k,  # Total for the last 7 days
+        'chart_dates': chart_dates,  # 5-minute intervals for the last 14 days
+        'data_14_days': data_14_days,  # Session counts for the graph
     }
     if context is None:
         context = {}
@@ -229,12 +439,19 @@ def render_template(request, template_name):
     if image_path is None:
         context['image_path'] = ''
     if request.is_ajax():
-        return JsonResponse({'fig_html_report': fig_report_html, 'fig_wms_report': fig_report_html, 'fig_upload_report': fig_report_html, 'fig_wfs_report': fig_report_html, 'fig_wmc_report': fig_report_html, 'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'session_data':session_data, 'fig_wmc': fig_wmc_html})
+
+        return JsonResponse({'fig_html_report': fig_report_html, 'loadcount_chart': loadcount_chart,
+                             'fig_wms_report': fig_report_html, 'fig_upload_report': fig_report_html, 
+                             'fig_wfs_report': fig_report_html, 'fig_wmc_report': fig_report_html, 
+                             'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 
+                             'session_data':session_data, 'fig_wmc': fig_wmc_html})
 
     return render(request, template_name, context)
 
 def dashboard(request):
-   return render_template(request, 'dashboard.html')
+   
+
+    return render_template(request, 'dashboard.html')
 
 def filter(request):
     return render_template(request, 'filter.html')
@@ -243,7 +460,7 @@ def filter(request):
 def download_csv(request):
     is_ajax = request.GET.get('is_ajax')
     keyword = request.GET.get('keyword', 'default')
-    dropdown = request.GET.get('dropdown')  # Extract the dropdown parameter
+    dropdown = request.GET.get('dropdown')  # Extract the dropdown parameter  
 
     if keyword == 'fig_wms':
         sorted_months, sorted_counts, cumulative_counts, _, _, _, _, _, _, _, _, _, _,_,_= process_request(request)
@@ -1016,3 +1233,46 @@ def get_layer_keywords(request, layer_id):
         return render(request, 'layer_keywords.html', context)
     except Layer.DoesNotExist:
         return render(request, 'layer_not_found.html')
+
+def get_wmc_loadcount(request):
+    # start of line graph
+    start = request.GET.get('start')
+    if start == None:
+        start = datetime.now() - timedelta(days=50)
+    end = request.GET.get('end')
+    if end == None:
+        end = datetime.now()
+    wmc_id = request.GET.get('wmc_id')
+    if wmc_id == None:
+        wmc_id = 7107 #Boris Hessen 2024
+   
+    wmc_data = WMC.objects.all()
+    
+    if start:
+        wmc_data = wmc_data.filter(date__gte=start)
+    if end:
+        wmc_data = wmc_data.filter(date__lte=end)
+    if wmc_id:
+        wmc_data = wmc_data.filter(wmc_id=wmc_id)
+    x_data = [c.date for c in wmc_data]
+    y_data = [int(c.actual_load) for c in wmc_data]
+   
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers'))
+    fig.update_layout(
+        title={
+            'text': 'WMC Load Count',
+            'font_size': 14,
+            'xanchor': 'center',
+            'x': 0.5
+        })
+    loadcount_chart = fig.to_html()
+    response_data = {
+        'loadcount_chart' : loadcount_chart,
+        'start': start,
+        'end': end,
+        'wmc_id': wmc_id
+    }  
+    # if request.is_ajax():
+    #     return JsonResponse(response_data)
+    return loadcount_chart

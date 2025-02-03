@@ -1,4 +1,5 @@
 from useroperations.models import MbUser
+from dashboard.models import WMC
 from datetime import datetime
 from collections import defaultdict
 import time
@@ -25,6 +26,10 @@ def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value
     if model == MbUser:
         users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_obj}).count()
         data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_obj, end_date_obj]})
+    elif model == WMC:
+        users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_obj}).count()
+        data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_obj, end_date_obj]})
+
     else:
         start_date_unix = int(time.mktime(start_date_obj.timetuple()))
         end_date_unix = int(time.mktime(end_date_obj.timetuple()))
@@ -36,6 +41,8 @@ def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value
 
     for data in data_all:
         if model == MbUser:
+            data_datetime = getattr(data, timestamp_field)
+        elif model == WMC:
             data_datetime = getattr(data, timestamp_field)
         else:
             data_datetime = datetime.fromtimestamp(getattr(data, timestamp_field))

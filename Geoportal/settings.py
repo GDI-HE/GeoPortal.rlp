@@ -195,7 +195,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'OPTIONS' : {
-                    'options': '-c search_path=mapbender,public,django'
+                    'options': '-c search_path=django,mapbender,public'
                     },
         'NAME':'mapbender',
         'USER':'mapbenderdbuser',

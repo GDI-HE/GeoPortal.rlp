@@ -400,3 +400,4 @@ class WmcDeletion(models.Model):
 
     class Meta:
         db_table = 'wmc_deletions'
+

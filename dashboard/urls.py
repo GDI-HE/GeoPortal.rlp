@@ -1,12 +1,4 @@
 from django.urls import path
-<<<<<<< HEAD
-from . import views
-app_name ='dashboard'
-urlpatterns = [
-    path('dashboard/', views.dashboard_view, name='dashboard'),
-    # Add more URL patterns here
-]
-=======
 
 from . import views
 app_name = 'dashboard'
@@ -20,6 +12,4 @@ urlpatterns = [
     path('check-abstracts/', views.check_layer_abstracts_and_keywords, name='check_abstracts'),
     #path('layer-keywords/<int:layer_id>/', views.get_layer_keywords, name='layer_keywords'),
     path('load-more-data/', views.load_more_data, name='load_more_data'),
-    path('search-data/', views.search_data, name='search_data'),
 ]
->>>>>>> 100_dashboard_deepak
