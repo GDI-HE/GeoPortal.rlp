@@ -81,9 +81,34 @@ function toggleMapViewers(target){
         iframe.toggleClass("mobile-viewer");
     }
 }
+function handleProfileClick(event) {
+    event.preventDefault(); // Prevent default link behavior
+
+    // Store submenu open state in sessionStorage
+    sessionStorage.setItem('profileMenuOpen', 'true');
+
+    // Reload the page
+    location.reload();
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    // Check if submenu should be open after reload
+    if (sessionStorage.getItem('profileMenuOpen') === 'true') {
+        let profileMenu = document.querySelector('.sidebar-area.login-status .sidebar-area-title');
+        if (profileMenu) {
+            let submenu = profileMenu.closest('.sidebar-area').querySelector('.sidebar-area-content');
+            if (submenu) {
+                submenu.style.display = 'block'; // Make submenu visible
+            }
+        }
+
+        // Remove the flag so it doesn't keep opening on every reload
+        sessionStorage.removeItem('profileMenuOpen');
+    }
+});
 function toggleSubMenu(elem){
     var submenu = $(elem).closest(".sidebar-area").find(".sidebar-area-content");
-    submenu.slideToggle("slow");
+        submenu.slideToggle("slow");
 }
 
 function toggleMapviewer(servicetype){
