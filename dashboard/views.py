@@ -5,7 +5,7 @@ from Geoportal.utils import php_session_data
 from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS
 from django.contrib import messages
 import plotly.graph_objs as go
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import time
 from collections import defaultdict
 import datetime as tm
@@ -19,7 +19,7 @@ from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.middleware.csrf import get_token
 import requests
 from django.db.models.functions import TruncDay
-from django.db.models import Count
+from django.db.models import Count, Sum, Avg, Max
 from django.utils.translation import gettext as _
 from dashboard.user_report import upload_file
 from dashboard.dashboard_utils import convert_to_datetime
@@ -28,12 +28,23 @@ from dashboard.dashboard_userplot import generate_user_plot
 from dashboard.dashboard_session import get_filtered_session_data
 from dashboard.inspire_identifier import inspire_identifier, iso_categorised
 from django.core.serializers.json import DjangoJSONEncoder
+from django.utils import timezone
+from .models import WMC, SESSION_USER
+from dateutil.relativedelta import relativedelta
 
 
 def render_template(request, template_name):
      # Default date range: last one year
      #if request.get contains contentType === 'fig_html_report', the return json response separately
-     
+    now = timezone.now()
+
+    # Filter session data to include only entries from the last hour
+    last_hour_sessions = SESSION_USER.objects.filter(datetime__gte=now - timedelta(hours=1)).order_by('datetime')
+
+    # Prepare data for the chart
+    labels = [session.datetime.strftime('%Y-%m-%d %H:%M') for session in last_hour_sessions]  # x-axis labels (time)
+    data = [session.session_number for session in last_hour_sessions]  # y-axis data (session numbers)
+ 
     end_date_default = datetime.now()
     start_date_default = end_date_default - timedelta(days=365)
 
@@ -175,7 +186,107 @@ def render_template(request, template_name):
                 return redirect('useroperations:index')
 
     #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
+        # Get yesterday's date
+    yesterday = timezone.now().date() - timezone.timedelta(days=1)
 
+    # Fetch the top 10 WMCs by actual_load from yesterday
+    top_wmcs = WMC.objects.filter(date=yesterday).order_by('-actual_load')[:10]
+
+    # Prepare data for the donut chart
+    donut_chart_data = {
+        'labels': [wmc.wmc_title for wmc in top_wmcs],
+        'values': [wmc.actual_load for wmc in top_wmcs]
+    }
+
+    # Calculate the date range for the previous month
+    today = date.today()
+    first_day_of_current_month = today.replace(day=1)
+    last_day_of_previous_month = first_day_of_current_month - timedelta(days=1)
+    first_day_of_previous_month = last_day_of_previous_month.replace(day=1)
+    last_day_of_second_last_month = first_day_of_previous_month - timedelta(days=1)
+    first_day_of_second_last_month = last_day_of_second_last_month.replace(day=1)
+
+    # Query the database for data within the previous month
+    last_month_data = WMC.objects.filter(date__range=[first_day_of_previous_month, last_day_of_previous_month])
+
+    # Retrieve data for the second last month
+    second_last_month_data = WMC.objects.filter(
+        date__range=[first_day_of_second_last_month, last_day_of_second_last_month])
+
+    # Calculate the total load count for each wmc_id and wmc_title for both months
+    load_counts = {}
+    second_last_month_loads = {}
+
+    for wmc_record in last_month_data:
+        if wmc_record.wmc_id not in load_counts:
+            load_counts[wmc_record.wmc_id] = {'total_load': 0, 'wmc_title': wmc_record.wmc_title}
+        load_counts[wmc_record.wmc_id]['total_load'] += wmc_record.actual_load
+
+    for wmc_record in second_last_month_data:
+        if wmc_record.wmc_id not in second_last_month_loads:
+            second_last_month_loads[wmc_record.wmc_id] = {'total_load': 0, 'wmc_title': wmc_record.wmc_title}
+        second_last_month_loads[wmc_record.wmc_id]['total_load'] += wmc_record.actual_load
+    # Create a list of dictionaries with wmc_id, wmc_title, total load, and month name for the previous month
+    load_counts_list = [{'wmc_id': wmc_id, 'wmc_title': data['wmc_title'], 'total_actual_load': data['total_load'],
+                         'month_name': last_day_of_previous_month.strftime('%B')}
+                        for wmc_id, data in load_counts.items()]
+
+    # Create a list of dictionaries with wmc_id, wmc_title, total load, and month name for the second last month
+    load_counts_list_second_last_month = [{'wmc_id': wmc_id, 'wmc_title': data['wmc_title'], 'total_actual_load': data['total_load'],
+                         'month_name': last_day_of_second_last_month.strftime('%B')}
+                        for wmc_id, data in second_last_month_loads.items()]
+
+    # Sort the list by total_actual_load count in descending order for the previous month
+    load_counts_list.sort(key=lambda x: x['total_actual_load'], reverse=True)
+
+    # Sort the list by total_actual_load count in descending order for the second last month
+    load_counts_list_second_last_month.sort(key=lambda x: x['total_actual_load'], reverse=True)
+    # Get the top four highest total_actual_load counts for the previous month
+    top_four_loads = load_counts_list[:4]
+    top_10_loads_last_month = load_counts_list[:5]
+      # Get the top four highest total_actual_load counts of for the second last month
+    top_four_loads_second_last_month = load_counts_list_second_last_month[:4]
+    # Calculate the comparison percentage and determine the color for each top `wmc_id`
+    top_four_wmc_ids = [item['wmc_id'] for item in top_four_loads]
+
+        # Get the current date
+    current_date = datetime.now()
+
+    # Calculate last month's date
+    last_month_date = current_date - relativedelta(months=1)
+
+    # Calculate second last month's date
+    second_last_month_date = current_date - relativedelta(months=2)
+
+    # Extract the years
+    current_year = current_date.year
+    last_month_year = last_month_date.year
+    second_last_month_year = second_last_month_date.year
+    # Get the name of the second last month
+    second_last_month_name = second_last_month_date.strftime('%B')
+
+    comparison_data = []
+    for wmc_id in top_four_wmc_ids:
+        last_month_load = load_counts.get(wmc_id, {}).get('total_load', 0)
+        second_last_month_load = second_last_month_loads.get(wmc_id, {}).get('total_load', 0)
+
+
+        if second_last_month_load != 0:
+            percentage_change = ((last_month_load - second_last_month_load) / second_last_month_load) * 100
+        else:
+            percentage_change = 0
+
+        # Determine the color for the card
+        card_color = 'green' if percentage_change >= 0 else 'red'
+
+        # Include the second last month's name in the dictionary
+        comparison_data.append({
+            'wmc_id': wmc_id,
+            'percentage_change': percentage_change,
+            'card_color': card_color,
+            'second_last_month_name': second_last_month_name,
+
+        })
     gauge_graph = get_gauge_graph()
     highest_loads, top_ten_wmc = get_highest_loads()
     loadcount_chart = get_wmc_loadcount(request)
@@ -196,6 +307,81 @@ def render_template(request, template_name):
         fig_html = fig_report_html
     else:
         fig_html = fig_html  # Default case
+    
+        loadcount_chart = get_wmc_loadcount(request)
+        # Get yesterday's date
+    #yesterday = timezone.now().date() - timezone.timedelta(days=1)
+
+    # Fetch the top 10 WMCs by actual_load from yesterday
+    #top_wmcs = WMC.objects.filter(date=yesterday).order_by('-actual_load')[:10]
+
+    # Fetch the top 4 WMCs by total actual load for comparison
+    #top_four_loads = WMC.objects.values('wmc_id', 'wmc_title').annotate(total_actual_load=Sum('actual_load')).order_by('-total_actual_load')[:4]
+
+    # Fetch actual_load data for the last three months for wmc_id=7107
+    three_months_ago = timezone.now().date() - timezone.timedelta(days=360)
+    wmc_data = WMC.objects.filter(wmc_id=7107, date__gte=three_months_ago).order_by('date')
+
+    # Prepare data for the line chart
+    line_chart_data = {
+        'dates': [wmc.date.strftime('%Y-%m-%d') for wmc in wmc_data],
+        'actual_loads': [wmc.actual_load for wmc in wmc_data]
+    }
+
+    # Fetch the top 5 WMCs by average load
+    top_5_wmcs_avg_load = WMC.objects.values('wmc_id', 'wmc_title').annotate(avg_load=Avg('actual_load')).order_by('-avg_load')[:5]
+
+    # Prepare data for the bar chart
+    bar_chart_data = {
+        'labels': [wmc['wmc_title'] for wmc in top_5_wmcs_avg_load],
+        'values': [wmc['avg_load'] for wmc in top_5_wmcs_avg_load]
+    }
+
+    # Get today's date
+    today = timezone.now().date()
+
+    # Get the start of the current year
+    start_of_year = timezone.now().replace(month=1, day=1)
+
+    # Get the highest actual load for the current year
+    highest_actual_load_year = WMC.objects.filter(date__gte=start_of_year).aggregate(max_load=Max('actual_load'))['max_load'] or 0
+
+    # Get today's total load
+    current_day_total_load = WMC.objects.filter(date=today).aggregate(total_load=Sum('actual_load'))['total_load'] or 0
+
+    # Determine the max value for the gauge (highest of the year or today's load)
+    gauge_max_value = max(highest_actual_load_year, current_day_total_load)
+
+    # Prepare data for the gauge chart
+    gauge_chart_data = {
+        'value': current_day_total_load,
+        'max': gauge_max_value  # Set max to the higher of the year's max or today's load
+    }
+
+# Current datetime and range definitions
+    now = datetime.now()
+    start_date_7_days = now - timedelta(days=7)
+    start_date_14_days = now - timedelta(days=1)
+
+    # Total session count for the last 7 days
+    total_sessions_7_days = SESSION_USER.objects.filter(datetime__gte=start_date_7_days).aggregate(
+        total=Sum('session_number')
+    )['total'] or 0
+     # Format the total session count with 'K'
+    total_sessions_7_days_k = f"{total_sessions_7_days / 1000:.1f}K" if total_sessions_7_days >= 1000 else str(total_sessions_7_days)
+
+    # Query session data for the last 14 days
+    sessions_last_14_days = (
+        SESSION_USER.objects.filter(datetime__gte=start_date_14_days)
+        .values('datetime')  # Group by datetime (5-minute interval)
+        .annotate(total_sessions=Sum('session_number'))
+        .order_by('datetime')
+    )
+
+    # Prepare data for the graph
+    chart_dates = [entry['datetime'].strftime('%Y-%m-%d %H:%M') for entry in sessions_last_14_days]
+    data_14_days = [entry['total_sessions'] for entry in sessions_last_14_days]
+
     context = {
         'fig_html': fig_html,
         'fig_wms': fig_wms_html,
@@ -232,6 +418,22 @@ def render_template(request, template_name):
         'highest_loads': highest_loads,
         'loadcount_chart': loadcount_chart,
         'top_ten_wmc': top_ten_wmc,
+                'donut_chart_data': donut_chart_data,
+        'top_four_loads': top_four_loads,
+        'top_four_loads_second_last_month': top_four_loads_second_last_month,
+        'comparison_data': comparison_data,
+        'loadcount_chart': loadcount_chart,
+        'top_10_loads_last_month': top_10_loads_last_month,
+        'last_month_year': timezone.now().year,
+        'second_last_month_year': timezone.now().year - 1,
+        'line_chart_data': line_chart_data,
+        'bar_chart_data': bar_chart_data,
+        'gauge_chart_data': gauge_chart_data,
+        'labels': labels,
+        'data': data,
+        'total_sessions_7_days': total_sessions_7_days_k,  # Total for the last 7 days
+        'chart_dates': chart_dates,  # 5-minute intervals for the last 14 days
+        'data_14_days': data_14_days,  # Session counts for the graph
     }
     if context is None:
         context = {}
@@ -1223,7 +1425,7 @@ def check_layer_abstracts_and_keywords(request):
             # messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
             # return redirect('useroperations:index')
         
-
+#add check_user here and make this work too later TODO
 def load_more_data(request):
     page_number = request.GET.get('page', 1)
     search_query = request.GET.get('search', '')
@@ -1339,260 +1541,45 @@ def get_layer_keywords(request, layer_id):
     except Layer.DoesNotExist:
         return render(request, 'layer_not_found.html')
 
-#remove this later
-def metadata_quality(request):
-    return render(request, 'metadata_quality.html') 
+def get_wmc_loadcount(request):
+    # start of line graph
+    start = request.GET.get('start')
+    if start == None:
+        start = datetime.now() - timedelta(days=50)
+    end = request.GET.get('end')
+    if end == None:
+        end = datetime.now()
+    wmc_id = request.GET.get('wmc_id')
+    if wmc_id == None:
+        wmc_id = 7107 #Boris Hessen 2024
 
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from useroperations.models import Layer
-from django.views.decorators.csrf import csrf_exempt
+    wmc_data = WMC.objects.all()
 
-# @csrf_exempt
-# def update_service(request):
-#     if request.method == 'POST':
-#         wms_id = request.POST.get('service_id')
-#         wms_title = request.POST.get('service_title')
-#         wms_version = request.POST.get('total_layers')
-#         keywords_present = request.POST.get('keywords_present')
-#         abstracts_present = request.POST.get('abstracts_present')
-#         layers_without_abstract = request.POST.get('layers_without_abstract')
-#         layers_without_keywords = request.POST.get('layers_without_keywords')
-#         layers_abstract_matches_title = request.POST.get('layers_abstract_matches_title')
-#         layer_names = request.POST.get('layer_names')
-#         layers_with_short_abstract = request.POST.get('layers_with_short_abstract')
-#         wms_fees = request.POST.get('wms_fees')
-#         wms_accessconstraints = request.POST.get('wms_accessconstraints')
+    if start:
+        wmc_data = wmc_data.filter(date__gte=start)
+    if end:
+        wmc_data = wmc_data.filter(date__lte=end)
+    if wmc_id:
+        wmc_data = wmc_data.filter(wmc_id=wmc_id)
+    x_data = [c.date for c in wmc_data]
+    y_data = [int(c.actual_load) for c in wmc_data]
 
-#         # Get the Wms object
-#         wms = get_object_or_404(Wms, wms_id=wms_id)
-
-#         # Update the Wms object
-#         wms.wms_title = wms_title
-#         wms.wms_version = wms_version
-#         wms.fees = wms_fees
-#         wms.accessconstraints = wms_accessconstraints
-#         wms.save()
-
-#         # Update the Layer objects
-#         layers = Layer.objects.filter(fkey_wms=wms)
-#         for layer in layers:
-#             if layer.layer_title in layer_names:
-#                 layer.layer_abstract = abstracts_present
-#                 layer.save()
-
-#         return JsonResponse({'success': True, 'service_id': wms_id, 'service_title': wms_title, 'total_layers': wms_version})
-#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-from django.shortcuts import render, get_object_or_404
-from django.http import JsonResponse
-from useroperations.models import Layer, Keyword, LayerKeyword
-from django.views.decorators.csrf import csrf_exempt
-
-# @csrf_exempt
-
-# def add_keyword(request):
-#     user = check_user(request)
-#     if isinstance(user, HttpResponseRedirect):
-#         return user  # Redirect if the user is not authenticated or does not have permissions
-
-#     if request.method == 'POST':
-#         layer_id = request.POST.get('layer_id')
-#         keyword_text = request.POST.get('keyword')
-
-#         # Get the Layer object
-#         layer = get_object_or_404(Layer, layer_id=layer_id)
-
-#         # Create or get the Keyword object
-#         keyword, created = Keyword.objects.get_or_create(keyword=keyword_text)
-
-#         # Create the LayerKeyword relationship
-#         LayerKeyword.objects.create(fkey_layer=layer, fkey_keyword=keyword)
-
-#         return JsonResponse({'success': True})
-#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-# @csrf_exempt
-# def add_abstract(request):
-#     user = check_user(request)
-#     if isinstance(user, HttpResponseRedirect):
-#         return user  # Redirect if the user is not authenticated or does not have permissions
-#     if request.method == 'POST':
-#         layer_id = request.POST.get('layer_id')
-#         abstract_text = request.POST.get('abstract')
-
-#         # Get the Layer object
-#         layer = get_object_or_404(Layer, layer_id=layer_id)
-
-#         # Update the abstract
-#         layer.layer_abstract = abstract_text
-#         layer.save()
-
-#         return JsonResponse({'success': True})
-#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-# def add_abstract(request):
-#     user = check_user(request)
-#     if isinstance(user, HttpResponseRedirect):
-#         return user  # Redirect if the user is not authenticated or does not have permissions
-#     if request.method == 'POST':
-#         layer_id = request.POST.get('layer_id')
-#         abstract_text = request.POST.get('abstract')
-#         abstract_text1 = request.POST.get('abstract1')
-#         abstract_text2 = request.POST.get('abstract2')
-
-#         # Get the Layer object
-#         layer = get_object_or_404(Layer, layer_id=layer_id)
-
-#         # Update the abstract
-#         if abstract_text:
-#             layer.layer_abstract = abstract_text
-#         if abstract_text1:
-#             layer.layer_abstract = abstract_text1
-#         if abstract_text2:
-#             layer.layer_abstract = abstract_text2
-        
-#         layer.save()
-
-#         return JsonResponse({'success': True})
-#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-# def add_license(request):
-#     user = check_user(request)
-#     if isinstance(user, HttpResponseRedirect):
-#         return user  # Redirect if the user is not authenticated or does not have permissions
-#     if request.method == 'POST':
-#         #layer_id = request.POST.get('layer_id')
-#         # Get the 'layer_id' value from the QueryDict
-#         layer_id_value = request.POST.get('layer_id', '')
-
-#         # Extract the WMS ID using string manipulation
-#         wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
-        
-
-#         abstract_text = request.POST.get('layer_license')
-
-#         #Get the Wms object
-#         wms_object = get_object_or_404(Wms, wms_id= wms_id)
-#         wms_object.fees = abstract_text
-#         wms_object.save()
-#         # Get the Layer object
-#         #layer = get_object_or_404(Layer, layer_id=layer_id)
-
-#         # Update the abstract
-#         #layer.layer_abstract = abstract_text
-#         #layer.save()
-
-#         return JsonResponse({'success': True})
-#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-# def add_constraint(request):
-#     user = check_user(request)
-#     if isinstance(user, HttpResponseRedirect):
-#         return user  # Redirect if the user is not authenticated or does not have permissions
-#     if request.method == 'POST':
-#         #layer_id = request.POST.get('layer_id')
-#         # Get the 'layer_id' value from the QueryDict
-#         layer_id_value = request.POST.get('layer_id', '')
-
-#         # Extract the WMS ID using string manipulation
-#         wms_id = layer_id_value.split(':')[1].strip() if ':' in layer_id_value else ''
-        
-
-#         abstract_text = request.POST.get('layer_constraint')
-
-#         #Get the Wms object
-#         wms_object = get_object_or_404(Wms, wms_id= wms_id)
-#         wms_object.accessconstraints = abstract_text
-#         wms_object.save()
-#         # Get the Layer object
-#         #layer = get_object_or_404(Layer, layer_id=layer_id)
-
-#         # Update the abstract
-#         #layer.layer_abstract = abstract_text
-#         #layer.save()
-
-#         return JsonResponse({'success': True})
-#     return JsonResponse({'success': False, 'error': 'Invalid request method'})
-
-# def get_layers_without_keywords(request):
-#     service_id = request.GET.get('service_id')
-#     layers = Layer.objects.filter(fkey_wms_id=service_id).annotate(
-#         has_keyword=Exists(
-#             LayerKeyword.objects.filter(fkey_layer=OuterRef('pk'))
-#         )
-#     ).filter(has_keyword=False)
-
-#     layers_data = list(layers.values('layer_id', 'layer_name'))
-
-#     return JsonResponse({'layers': layers_data})
-
-# def get_layers_without_abstracts(request):
-#     service_id = request.GET.get('service_id')
-#     layers = Layer.objects.filter(fkey_wms_id=service_id, layer_abstract__isnull=True)
-
-#     layers_data = list(layers.values('layer_id', 'layer_name'))
-
-#     return JsonResponse({'layers': layers_data})
-
-
-
-# def get_layers_with_short_abstract(request):
-#     service_id = request.GET.get('service_id')
-#     layers = Layer.objects.filter(fkey_wms_id=service_id).distinct()
-#     layers_with_short_abstract = layers.annotate(
-#         abstract_length=Length('layer_abstract', output_field=IntegerField())
-#         ).filter(Q(abstract_length__lt=50) & ~Q(layer_abstract__isnull=True) & ~Q(layer_abstract__exact=''))
-#     layers_with_short_abstract_info = list(layers_with_short_abstract.values('layer_id', 'layer_name', 'layer_abstract'))
-#     return JsonResponse({'layers':layers_with_short_abstract_info})
-    
-
-# def get_abstract_matches_title(request):
-#     service_id = request.GET.get('service_id')
-#     layers = Layer.objects.filter(fkey_wms_id = service_id).distinct()
-#     abstract_matches_title = layers.annotate(
-#         abstract_matches_title=Case(
-#             When(
-#                 Q(layer_abstract=F('layer_title')),
-#                 then=Value(True)
-#             ),
-#             default=Value(False),
-#             output_field=BooleanField()
-#         )
-#     ).filter(abstract_matches_title=True)
-#     abstract_matches_title_info = list(abstract_matches_title.values('layer_id', 'layer_name', 'layer_abstract'))
-#     return JsonResponse({'layers':abstract_matches_title_info})
-
-
-
-# def get_license(request):
-#     service_id = request.GET.get('service_id')
-#     wms = Wms.objects.get(wms_id=service_id)
-    
-  
-
-
-#     # Prepare the response
-#     response_data = {
-#         'wms_id': wms.wms_id,
-#         'fees': wms.fees,
-#     }
-
-
-#     return JsonResponse(response_data)
-
-# def get_constraint(request):
-#     service_id = request.GET.get('service_id')
-#     wms = Wms.objects.get(wms_id=service_id)
-    
-  
-
-
-#     # Prepare the response
-#     response_data = {
-#         'wms_id': wms.wms_id,
-#         'fees': wms.accessconstraints,
-#     }
-
-
-#     return JsonResponse(response_data)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers'))
+    fig.update_layout(
+        title={
+            'text': 'WMC Load Count',
+            'font_size': 14,
+            'xanchor': 'center',
+            'x': 0.5
+        })
+    loadcount_chart = fig.to_html()
+    response_data = {
+        'loadcount_chart' : loadcount_chart,
+        'start': start,
+        'end': end,
+        'wmc_id': wmc_id
+    }  
+    # if request.is_ajax():
+    #     return JsonResponse(response_data)
+    return loadcount_chart

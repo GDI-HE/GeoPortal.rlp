@@ -11,6 +11,17 @@ class SessionData(models.Model):
     class Meta:
         db_table = "session_data"
 
+
+class SESSION_USER(models.Model):
+    datetime = models.DateTimeField()
+    session_number = models.IntegerField()
+
+    def __str__(self):
+        return f"{self.datetime} - {self.session_number}"
+    
+    class Meta:
+        db_table = "dashboard_session_user"
+
 class MbUserDeletion(models.Model):
     id = models.AutoField(primary_key=True)
     mb_user_id = models.IntegerField()
