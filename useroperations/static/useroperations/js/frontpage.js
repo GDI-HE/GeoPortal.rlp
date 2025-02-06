@@ -81,10 +81,9 @@ function toggleMapViewers(target){
         iframe.toggleClass("mobile-viewer");
     }
 }
-
 function toggleSubMenu(elem){
-    var elem = $(elem);
-    elem.parents().children(".sidebar-area-content").slideToggle("slow");
+    var submenu = $(elem).closest(".sidebar-area").find(".sidebar-area-content");
+    submenu.slideToggle("slow");
 }
 
 function toggleMapviewer(servicetype){
