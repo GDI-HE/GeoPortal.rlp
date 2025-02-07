@@ -107,8 +107,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 });
 function toggleSubMenu(elem){
-    var submenu = $(elem).closest(".sidebar-area").find(".sidebar-area-content");
-        submenu.slideToggle("slow");
+    var elem = $(elem);
+    elem.parents().children(".sidebar-area-content").slideToggle("slow");
 }
 
 function toggleMapviewer(servicetype){
