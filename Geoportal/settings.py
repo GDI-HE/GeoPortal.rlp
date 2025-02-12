@@ -36,6 +36,9 @@ MAX_API_RESULTS = 3000
 #add allowed groups to allow the user to access the dashboard
 ALLOWED_GROUPS = ['testgruppe1', 'Bereichsadmin']
 
+#Use latest BORIS in settings.py to use it in dashboard.views.py
+BORIS_HESSEN_ID = 7107
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '#m+rso_^a!ii6fg97kd7woxa$ttr&jn^!=_(!wgrukal81q(9+'
 

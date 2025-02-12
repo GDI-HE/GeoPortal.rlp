@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from useroperations.models import MbUser, Wms, Wfs, Wmc, WfsAvailability, MbGroup, MbUserMbGroup 
 from dashboard.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
 from Geoportal.utils import php_session_data
-from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS
+from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS, BORIS_HESSEN_ID
 from django.contrib import messages
 import plotly.graph_objs as go
 from datetime import datetime, timedelta, date
@@ -259,7 +259,6 @@ def render_template(request, template_name):
             'second_last_month_name': second_last_month_name,
 
         })
-    gauge_graph = get_gauge_graph()
     highest_loads, top_ten_wmc = get_highest_loads()
     loadcount_chart = get_wmc_loadcount(request)
   
@@ -281,18 +280,9 @@ def render_template(request, template_name):
         fig_html = fig_html  # Default case
     
         loadcount_chart = get_wmc_loadcount(request)
-        # Get yesterday's date
-    #yesterday = timezone.now().date() - timezone.timedelta(days=1)
 
-    # Fetch the top 10 WMCs by actual_load from yesterday
-    #top_wmcs = WMC.objects.filter(date=yesterday).order_by('-actual_load')[:10]
-
-    # Fetch the top 4 WMCs by total actual load for comparison
-    #top_four_loads = WMC.objects.values('wmc_id', 'wmc_title').annotate(total_actual_load=Sum('actual_load')).order_by('-total_actual_load')[:4]
-
-    # Fetch actual_load data for the last three months for wmc_id=7107
     three_months_ago = timezone.now().date() - timezone.timedelta(days=360)
-    wmc_data = WMC.objects.filter(wmc_id=7107, date__gte=three_months_ago).order_by('date')
+    wmc_data = WMC.objects.filter(wmc_id=BORIS_HESSEN_ID, date__gte=three_months_ago).order_by('date')
 
     # Prepare data for the line chart
     line_chart_data = {
@@ -379,14 +369,12 @@ def render_template(request, template_name):
         'wms_count': wms_count,
         'wfs_count': wfs_count,
         'wmc_count': wmc_count,
-        #'today_date': today_date,
         'form': UploadFileForm(),
         'image_path': '/' + image_path if image_path else '',
         'image_path_wms': '/' + image_path_wms if image_path_wms else '',
         'image_path_wfs': '/' + image_path_wfs if image_path_wfs else '',
         'image_path_report': '/' + image_path_report if image_path_report else '',
         'image_path_wmc': '/' + image_path_wmc if image_path_wmc else '',
-        'gauge_graph': gauge_graph,
         'highest_loads': highest_loads,
         'loadcount_chart': loadcount_chart,
         'top_ten_wmc': top_ten_wmc,
@@ -413,7 +401,7 @@ def render_template(request, template_name):
     if image_path is None:
         context['image_path'] = ''
     if request.is_ajax():
-        return JsonResponse({'fig_html_report': fig_report_html, 'fig_wms_report': fig_report_html, 'fig_upload_report': fig_report_html, 'fig_wfs_report': fig_report_html, 'fig_wmc_report': fig_report_html, 'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'session_data':session_data, 'fig_wmc': fig_wmc_html,    'gauge_graph': gauge_graph,
+        return JsonResponse({'fig_html_report': fig_report_html, 'fig_wms_report': fig_report_html, 'fig_upload_report': fig_report_html, 'fig_wfs_report': fig_report_html, 'fig_wmc_report': fig_report_html, 'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'session_data':session_data, 'fig_wmc': fig_wmc_html,  
         'highest_loads': highest_loads,
         'loadcount_chart': loadcount_chart,
         'top_ten_wmc': top_ten_wmc,
@@ -426,53 +414,6 @@ def dashboard(request):
 
 def filter(request):
     return render_template(request, 'filter.html')
-
-from dashboard.models import WMC
-def get_gauge_graph():
-    wmc_data_current_year = WMC.objects.filter(date__year=datetime.now().year)
-    highest_week_number, highest_week_actual_load, highest_month, highest_month_actual_load = calculate_highest_loads(wmc_data_current_year)
-    last_week_load = 4500  # Replace with your actual data
-
-    highest_week_actual_load_in_k = highest_week_actual_load / 1000
-    highest_week_actual_load_in_k_formatted = "{:.1f}K".format(highest_week_actual_load_in_k)
-
-    fig_gauge = go.Figure(go.Indicator(
-        mode="gauge+number+delta",
-        value=last_week_load,
-        delta={'reference': highest_week_actual_load},
-        gauge={
-            'axis': {
-                'range': [0, highest_week_actual_load],
-                'dtick': highest_week_actual_load / 5,
-                'tickvals': [0, highest_week_actual_load],
-                'ticktext': [0, f'Week {highest_week_number}\n({highest_week_actual_load_in_k_formatted})'],
-                'showticklabels': True,
-                'tickfont': {'size': 16}
-            },
-            'steps': [
-                {'range': [0, highest_week_actual_load / 4], 'color': "rgba(173, 255, 47, 0.1)"},
-                {'range': [highest_week_actual_load / 4, highest_week_actual_load / 2], 'color': "rgba(173, 255, 47, 0.4)"},
-                {'range': [highest_week_actual_load / 2, (3 * highest_week_actual_load) / 4], 'color': "rgba(173, 255, 47, 0.7)"},
-                {'range': [(3 * highest_week_actual_load) / 4, highest_week_actual_load], 'color': "rgba(173, 255, 47, 1)"}
-            ],
-            'threshold': {
-                'line': {'color': "black", 'width': 4},
-                'thickness': 0.75,
-                'value': last_week_load
-            },
-            'bar': {'color': "rgba(0, 0, 0, 0)"}
-        }
-    ))
-
-    fig_gauge.update_layout(
-        
-        title_text="Suitable Description here :)",
-        height=330,
-       
-    )
-
-    chart_gauge = fig_gauge.to_html()
-    return chart_gauge
 
 def get_highest_loads():
     today = datetime.now()
@@ -533,52 +474,6 @@ def get_highest_loads():
     )
     highest_load_html = fig.to_html()
     return highest_load_html, top_10_loads_last_month
-
-def get_wmc_loadcount(request):
-    # start of line graph
-    start = request.GET.get('start')
-    if start == None:
-        start = datetime.now() - timedelta(days=50)
-    end = request.GET.get('end')
-    if end == None:
-        end = datetime.now()
-    wmc_id = request.GET.get('wmc_id')
-    if wmc_id == None:
-        wmc_id = 7107 #Boris Hessen 2024
-   
-
-    wmc_data = WMC.objects.all()
-    
-    if start:
-        wmc_data = wmc_data.filter(date__gte=start)
-    if end:
-        wmc_data = wmc_data.filter(date__lte=end)
-    if wmc_id:
-        wmc_data = wmc_data.filter(wmc_id=wmc_id)
-
-    x_data = [c.date for c in wmc_data]
-    y_data = [int(c.actual_load) for c in wmc_data]
-   
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers'))
-
-    fig.update_layout(
-        title={
-            'text': 'WMC Load Count',
-            'font_size': 24,
-            'xanchor': 'center',
-            'x': 0.5
-        })
-    loadcount_chart = fig.to_html()
-    response_data = {
-        'loadcount_chart' : loadcount_chart,
-        'start': start,
-        'end': end,
-        'wmc_id': wmc_id
-    }  
-    # if request.is_ajax():
-    #     return JsonResponse(response_data)
-    return loadcount_chart
 
 def download_csv(request):
     is_ajax = request.GET.get('is_ajax')
@@ -757,11 +652,6 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     fig.write_image(buffer, format='png')
     buffer.seek(0)
 
-    # Save the figure as an image file in static/images/
-    #image_path = f'static/images/{image_filename}.png'
-    #full_image_path = os.path.join(os.path.dirname(__file__), image_path)
-    #fig.write_image(full_image_path)
-    # Convert the in-memory image to base64
     image_base64 = base64.b64encode(buffer.read()).decode('utf-8')
 
     return fig_html, image_base64
@@ -1013,11 +903,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.db.models import Q, Exists, OuterRef, F, Case, When, BooleanField, Value, IntegerField
 from django.db.models.functions import Length
-import logging
 
-# Configure logging
-#logging.basicConfig(level=logging.DEBUG)
-#logger = logging.getLogger('my_custom_logger') 
 
 def get_layer_statistics(layers):
     # print current time
@@ -1270,24 +1156,6 @@ def check_layer_abstracts_and_keywords(request):
                                     results[wms_index]['status_iso'] = iso_info['status_iso']
                                     results[wms_index]['color_iso'] = iso_info['color_iso']
                                     results[wms_index]['category'] = iso_info['category']   
-                #printed_wms_ids = set()  # Create a set to store unique WMS IDs
-                #for iso_info in get_iso_category:
-                    #print(f"Layer ID: {iso_info.fkey_layer_id}")
-                    #print(f"IsoCategory Description: {iso_info.fkey_md_topic_category}")  # Replace fields as needed
-                    #print(wms_iso.wms_id)
-                    #print(iso_info['wms'].wms_id)
-                  
-                    # layer = Layer.objects.filter(layer_id=iso_info.fkey_layer_id).distinct()  # Adjust 'layer_id' to your actual field name
-                    # for layer in layers:
-                    #     wms_id = layer.fkey_wms_id  # Access the WMS ID
-
-                    #     if wms_id not in printed_wms_ids:  # Check if this ID has already been printed
-                    #         print(wms_id)  # Print the unique ID
-                    #         printed_wms_ids.add(wms_id)  # Add the ID to the set
-                    
-
-                    # Append the result to the results list
-                # results.append(results)
 
 
             context = {
@@ -1430,7 +1298,7 @@ def get_wmc_loadcount(request):
         end = datetime.now()
     wmc_id = request.GET.get('wmc_id')
     if wmc_id == None:
-        wmc_id = 7107 #Boris Hessen 2024
+        wmc_id = BORIS_HESSEN_ID #Boris Hessen 2024
 
     wmc_data = WMC.objects.all()
 
