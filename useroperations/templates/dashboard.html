@@ -166,6 +166,7 @@
                                                     <i class="fa fa-list"></i>
                                                 </span>
                                                 <select class="form-control" id="wmc_id" name="wmc_id" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC" aria-describedby="addon-wrapping_wmc">
+                                                    <option value="" selected disabled>Select WMC (Default: {{default_wmc_id}} )</option> 
                                                     {% for wmc in top_10_loads_last_month %}
                                                         <option value="{{ wmc.wmc_id }}">{{ wmc.wmc_title }}</option>
                                                     {% endfor %}

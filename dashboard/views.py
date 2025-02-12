@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from useroperations.models import MbUser, Wms, Wfs, Wmc, WfsAvailability, MbGroup, MbUserMbGroup 
 from dashboard.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
 from Geoportal.utils import php_session_data
-from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS, BORIS_HESSEN_ID
+from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS, BORIS_HESSEN_ID, BORIS_HESSEN_2024
 from django.contrib import messages
 import plotly.graph_objs as go
 from datetime import datetime, timedelta, date
@@ -394,6 +394,7 @@ def render_template(request, template_name):
         'total_sessions_7_days': total_sessions_7_days_k,  # Total for the last 7 days
         'chart_dates': chart_dates,  # 5-minute intervals for the last 14 days
         'data_14_days': data_14_days,  # Session counts for the graph
+        'default_wmc_id': BORIS_HESSEN_2024,  # Set this to the default option
     }
     if context is None:
         context = {}
@@ -1298,7 +1299,7 @@ def get_wmc_loadcount(request):
         end = datetime.now()
     wmc_id = request.GET.get('wmc_id')
     if wmc_id == None:
-        wmc_id = BORIS_HESSEN_ID #Boris Hessen 2024
+        wmc_id = BORIS_HESSEN_ID #Boris Hessen 2024 #change this in settings.py to change to another default
 
     wmc_data = WMC.objects.all()
 
@@ -1307,6 +1308,9 @@ def get_wmc_loadcount(request):
     if end:
         wmc_data = wmc_data.filter(date__lte=end)
     if wmc_id:
+        wmc_data = wmc_data.filter(wmc_id=wmc_id)
+    else:
+        wmc_id = BORIS_HESSEN_ID
         wmc_data = wmc_data.filter(wmc_id=wmc_id)
     x_data = [c.date for c in wmc_data]
     y_data = [int(c.actual_load) for c in wmc_data]
