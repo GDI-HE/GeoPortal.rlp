@@ -1,10 +1,8 @@
 
 from useroperations.models import  Wms, MbGroup, MbUserMbGroup , Layer, LayerKeyword
 from django.core.paginator import Paginator
-from django.db.models import Q, Exists, OuterRef, F, Case, When, BooleanField, Value, IntegerField
-from django.db.models.functions import Length
+from django.db.models import Q
 from django.http import HttpResponseRedirect
-import requests
 from dashboard.user_check import check_user
 from dashboard.models import InspireCategory, InspireCategories_detail, IsoCategory, IsoTopicCategory
 
@@ -72,10 +70,6 @@ def inspire_identifier(request):
                             # Query the InspireCategories_detail table for a matching entry
                             matching_category = InspireCategories_detail.objects.filter(inspire_category_id=fkey_inspire_category_id).first()
 
-                            #if matching_category:  # Ensure a match exists
-                                # Print the desired field from the matched entry
-                                #print(f"Matched Inspire Category (English): {matching_category.inspire_category_code_en}")
-
                         data_inspire.append({
                             'wms': wms,
                             'status': 'Inspire category exists',  
@@ -98,9 +92,6 @@ def inspire_identifier(request):
                             # Query the InspireCategories_detail table for a matching entry
                             matching_category = InspireCategories_detail.objects.filter(inspire_category_id=fkey_inspire_category_id).first()
 
-                            #if matching_category:  # Ensure a match exists
-                                # Print the desired field from the matched entry
-                                #print(f"Matched Inspire Category (English): {matching_category.inspire_category_code_en}")
 
                     if inspire_categories.exists():
                         data_inspire.append({
@@ -125,8 +116,6 @@ def inspire_identifier(request):
     #if yes check the table layer_inspire_categorey and check if fkey_layer_id and fkey_inspire_category_id are associated
 
     #check if inspire_category table has anything to do if nothing works
-
-# move this code later to another file
 
 from itertools import chain
 def iso_categorised(request):
@@ -173,10 +162,6 @@ def iso_categorised(request):
                         #print(f"  Iso Category: {iso_category.fkey_md_topic_category_id}")
                         for iso_cat in iso_categories:
                             iso_category = iso_cat.fkey_md_topic_category
-                    #for iso_category in iso_categories:
-                        #print(f"  Layer ID: {iso_category.fkey_layer_id}")
-                        #print(f"  Iso Category: {iso_category.fkey_md_topic_category}")
-                        #get the category name from md_topic_category
                         iso_name = IsoTopicCategory.objects.filter(md_topic_category_id=iso_category).values_list('md_topic_category_code_de', flat=True)
                         for keywords in iso_name:
                              category = keywords
@@ -197,11 +182,3 @@ def iso_categorised(request):
                         })
                          
             return data_iso
-
-                     
-            #         data_iso.append(iso_categories)
-
-            #     # Merge all QuerySets into one
-            # merged_iso_categories = list(chain(*data_iso))
-            # return merged_iso_categories, wms
-           
