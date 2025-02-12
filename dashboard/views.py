@@ -996,21 +996,6 @@ def generate_wfs_report(request, start_date_report, end_date_report):
 def generate_wmc_report(request, start_date_report, end_date_report):
     return generate_report(request, start_date_report, end_date_report, Wmc, 'WMC', 'Number of WMC', 'plotly_image_wmc_report')
 
-def check_all_upload_urls(request):
-    all_services = WfsAvailability.objects.all()
-    #take 100-200 services
-    all_services = all_services[400:500]
-    non_working_urls = []
-
-    for service in all_services:
-        try:
-            response = requests.get(service.upload_url)
-            if response.status_code !=200:
-                non_working_urls.append(service.upload_url)
-        except requests.exceptions.RequestException:
-            non_working_urls.append(service.upload_url)
-    return non_working_urls
-
 def calculate_highest_loads(wmc_data):
     highest_week_actual_load = 0
     highest_month_actual_load = 0
