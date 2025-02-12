@@ -2238,3 +2238,9 @@ msgstr "Angaben zu Kosten/Gebühren/Lizenzen"
 
 msgid "Restrictions on public access"
 msgstr "Beschränkungen des öffentlichen Zugangs"
+
+msgid "The page is unavailable!"
+msgstr "Die Seite ist nicht verfügbar!"
+
+msgid "You do not have the necessary permissions to access this page."
+msgstr "Sie verfügen nicht über die erforderlichen Berechtigungen, um auf diese Seite zuzugreifen."
