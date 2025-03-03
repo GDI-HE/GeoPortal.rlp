@@ -106,7 +106,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         barmode='group',
     )
 
-    fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
+    fig_html = fig.to_html(full_html=False, include_plotlyjs=True)
 
     # Save the figure as an image
     buffer = io.BytesIO()
