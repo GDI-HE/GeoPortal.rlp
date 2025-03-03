@@ -44,9 +44,6 @@ overflow:hidden !important;
     justify-content: center;
     margin-left: -190px;
 }  */
-.cookie-container{
-    display: none;
-} 
 .modal-backdrop {
     background-color: transparent !important;
     opacity: 0.5 !important;
