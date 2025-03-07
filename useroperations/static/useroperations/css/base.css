@@ -919,6 +919,7 @@ ul {
     padding: 15px 2px 15px 15px;
     color: var(--hesse-grey);
     font-size: 1.0em;
+    text-decoration: none !important;
 }
 
 .sidebar-area-title-text{
