@@ -49,21 +49,21 @@
             <h2>Statistik</h2>
         </div>
         <div class="quickstart-container">
-            <a class="quickstart search" href="#" title="Suche nach allen Karten starten" data-resource="wmc">
+            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Karten starten" data-resource="wmc">
                 <div class="quickstart-header">
                     <i class="fas fa-map" title="Web Map Context" aria-hidden="true"></i>
                     <span>Number of Registered Users:</span>
                 </div>
                 <span class="quickstart-body">{{user_count}}</span>
             </a>
-            <a class="quickstart search" href="#" title="Suche nach allen Kartenebenen">
+            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Kartenebenen">
                 <div class="quickstart-header">
                     <i class="fas fa-layer-group" title="Kartenebenen" aria-hidden="true"></i>
                     <span>Number of WMS:</span>
                 </div>
                 <span class="quickstart-body">{{ wms_count|safe }}</span>
             </a>
-            <a class="quickstart search" href="#" title="Suche nach allen Datensätzen">
+            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-globe" title="Datensätze" aria-hidden="true"></i>
                     <span>Number of WFS:</span>
@@ -71,7 +71,7 @@
               
                 <span class="quickstart-body"> {{ wfs_count|safe }}</span>
             </a>
-            <a class="quickstart search" href="#" title="Suche nach allen Datensätzen">
+            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-globe" title="Datensätze" aria-hidden="true"></i>
                     <span>Number of WMC:</span>
