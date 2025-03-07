@@ -44,6 +44,10 @@ overflow:hidden !important;
     justify-content: center;
     margin-left: -190px;
 }  */
+.site-name {
+    color: black !important; /* Keeps original text color */
+    text-decoration: none !important; /* Removes underline */
+    }
 .modal-backdrop {
     background-color: transparent !important;
     opacity: 0.5 !important;
