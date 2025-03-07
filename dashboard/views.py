@@ -31,6 +31,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 from .models import WMC, SESSION_USER
 from dateutil.relativedelta import relativedelta
+from Geoportal.utils import utils
 
 
 def render_template(request, template_name):
@@ -343,6 +344,20 @@ def render_template(request, template_name):
     # Prepare data for the graph
     chart_dates = [entry['datetime'].strftime('%Y-%m-%d %H:%M') for entry in sessions_last_14_days]
     data_14_days = [entry['total_sessions'] for entry in sessions_last_14_days]
+    session_data_dashboard = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))
+    #user = session_data_dashboard.get("mb_user_name", "").decode("utf-8") if isinstance(session_data_dashboard.get("mb_user_name", ""), bytes) else session_data_dashboard.get("mb_user_name", "")
+    user = session_data_dashboard.get(b"mb_user_name", b"").decode("utf-8")
+    #print(user)  # Output: bereichsadmin1
+
+    # navigation = {
+    #     "test1": "/test1/",
+    #     "test2": "/test2/",
+    #     "test3": "/test3/"
+    # }
+    from useroperations.models import Navigation
+    #navigation = Navigation.objects.all()
+    #navigation = {nav.name: nav.url for nav in Navigation.objects.all()}
+    navigation = utils.get_navigation_items()
 
     context = {
         'fig_html': fig_html,
@@ -395,6 +410,10 @@ def render_template(request, template_name):
         'chart_dates': chart_dates,  # 5-minute intervals for the last 14 days
         'data_14_days': data_14_days,  # Session counts for the graph
         'default_wmc_id': BORIS_HESSEN_2024,  # Set this to the default option
+        'loggedin': True,
+        'cookie': True,
+        'user': user,
+        'navigation': navigation,
     }
     if context is None:
         context = {}
