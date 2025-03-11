@@ -1165,8 +1165,7 @@ def check_layer_abstracts_and_keywords(request):
                                     results[wms_index]['color_iso'] = iso_info['color_iso']
                                     results[wms_index]['category'] = iso_info['category']   
 
-            session_data_dashboard = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))
-            user = session_data_dashboard.get(b"mb_user_name", b"").decode("utf-8")
+            #session_data_dashboard = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))
             context = {
                 'results': results,
                 'page_obj': page_obj,
@@ -1174,14 +1173,12 @@ def check_layer_abstracts_and_keywords(request):
                 'total_layers_without_keyword': total_layers_without_keyword,
                 'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
                 'total_layers_with_short_abstract': total_layers_with_short_abstract,
-                'loggedin': True,
-                'cookie': True,
-                'user': user,
-                'navigation' : utils.get_navigation_items()
             }
+            geoportal_context = GeoportalContext(request=request)
+            geoportal_context.add_context(context=context)
            
 
-            return render(request, 'check_abstract.html', context)
+            return render(request, 'check_abstract.html', geoportal_context.get_context())
             # messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
             # return redirect('useroperations:index')
         
