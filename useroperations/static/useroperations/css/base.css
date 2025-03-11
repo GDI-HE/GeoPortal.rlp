@@ -281,6 +281,10 @@ label[for=id_identity]{
     align-items: center;
 }
 
+.navbar-brand-and-site-name:hover{
+    text-decoration: none;
+} 
+
 .navbar-brand-and-site-name svg {
     width: 3.75rem;
     height: 3.75rem;
@@ -419,6 +423,7 @@ label[for=id_identity]{
 .spatial-submit-button label{
     display: flex;
     align-items: center;
+    margin-bottom: unset;
 }
 
 .spatial-submit-button label i {

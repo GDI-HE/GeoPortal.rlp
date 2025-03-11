@@ -146,3 +146,8 @@ max-width: 800px; /* Adjust the max-width as needed */
     }
 }
 
+.js-plotly-plot .plotly, .js-plotly-plot .plotly div {
+    margin-bottom: -30px;
+}
+
+
