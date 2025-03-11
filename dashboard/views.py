@@ -32,6 +32,7 @@ from django.utils import timezone
 from .models import WMC, SESSION_USER
 from dateutil.relativedelta import relativedelta
 from Geoportal.utils import utils
+from Geoportal.geoportalObjects import GeoportalContext
 
 
 def render_template(request, template_name):
@@ -346,9 +347,7 @@ def render_template(request, template_name):
     data_14_days = [entry['total_sessions'] for entry in sessions_last_14_days]
 
     # Get the username of the current session and the navigation menu and sub-menus from the django Admin. 
-    session_data_dashboard = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))
-    user = session_data_dashboard.get(b"mb_user_name", b"").decode("utf-8")
-    navigation = utils.get_navigation_items()
+    #session_data_dashboard = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))
 
     context = {
         'fig_html': fig_html,
@@ -401,11 +400,9 @@ def render_template(request, template_name):
         'chart_dates': chart_dates,  # 5-minute intervals for the last 14 days
         'data_14_days': data_14_days,  # Session counts for the graph
         'default_wmc_id': BORIS_HESSEN_2024,  # Set this to the default option
-        'loggedin': True,
-        'cookie': True,
-        'user': user,
-        'navigation': navigation,
     }
+    geoportal_context = GeoportalContext(request=request)
+    geoportal_context.add_context(context=context)
     if context is None:
         context = {}
     image_path = context.get('image_path')
@@ -418,7 +415,7 @@ def render_template(request, template_name):
         'top_ten_wmc': top_ten_wmc,
         'start_date': start_date,
         'end_date': end_date,})
-    return render(request, template_name, context)
+    return render(request, template_name, geoportal_context.get_context())
 
 def dashboard(request):
    return render_template(request, 'dashboard.html')
