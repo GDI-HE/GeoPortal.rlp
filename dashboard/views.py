@@ -106,7 +106,7 @@ def render_template(request, template_name):
             image_base64_wms, image_base64_wfs, image_base64_wmc, image_base64_session = None, None, None, None
         elif keyword == 'fig_wms':
             fig_html, image_path = None, None
-            fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date)
+            fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date, dropdown_value)
             fig_wfs_html, image_path_wfs = None, None
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
@@ -115,7 +115,7 @@ def render_template(request, template_name):
         elif keyword == 'fig_wfs':
             fig_html, image_path = None, None
             fig_wms_html, image_path_wms = None, None
-            fig_wfs_html, image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
+            fig_wfs_html, image_base64_wfs = generate_wfs_plot(request, start_date, end_date, dropdown_value)
             fig_wmc_html, image_path_wmc = None, None
             fig_report_html, image_path_report = None, None
             session_data, image_path_session = None, None
@@ -541,7 +541,7 @@ def download_csv(request):
         return response
 #TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
 
-def generate_wms_plot(request, start_date, end_date):
+def generate_wms_plot(request, start_date, end_date, dropdown_value='monthly'):
         
         sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_,deleted_wms_count, _,_ = process_request(request)
         fig_wms_html, image_base64 = create_plotly_figure(
@@ -549,21 +549,30 @@ def generate_wms_plot(request, start_date, end_date):
         sorted_counts_wms, 
         cumulative_counts_wms, 
         deleted_wms_count, 
-        'WMS per Month', 
-        'Month', 
+        f'WMS per {dropdown_value}', 
+        dropdown_value, 
         'Cumulative Number of WMS', 
-        'WMS per Month', 
-        'Deleted WMS per Month', 
+        f'WMS per {dropdown_value}', 
+        f'Deleted WMS per {dropdown_value}', 
         'plotly_image_wms'
           )
         return fig_wms_html, image_base64
 
-def generate_wfs_plot(request, start_date, end_date):
+def generate_wfs_plot(request, start_date, end_date, dropdown_value='monthly'):
         
         _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _,_,_,_,_,deleted_wfs_count,_ = process_request(request)
         fig_wfs_html, image_base64 = create_plotly_figure(
-            sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, deleted_wfs_count, 'WFS per Month', 'Month', 'Cumulative Number of WFS', 'WFS per Month', 'Deleted WFS per Month', 'plotly_image_wfs'
-        )
+            sorted_months_wfs, 
+            sorted_counts_wfs, 
+            cumulative_counts_wfs, 
+            deleted_wfs_count, 
+            f'WFS per {dropdown_value}', 
+            dropdown_value, 
+            'Cumulative Number of WFS', 
+            f'WFS per {dropdown_value}', 
+            f'Deleted WFS per {dropdown_value}', 
+            'plotly_image_wfs'
+            )
         return fig_wfs_html, image_base64
 
 def generate_wmc_plot(request, start_date, end_date):
@@ -590,7 +599,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_counts, 
-        name=f'New Users per {title}', 
+        name=title, 
         yaxis='y2', 
         marker=dict(color='rgba(54, 162, 235, 1)'),
         offset=1 
@@ -601,7 +610,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         x=sorted_periods, 
         y=cumulative_counts, 
         mode='lines+markers', 
-        name=f'Cumulative New Users', 
+        name=f'Cumulative New Data', 
         line=dict(color='rgba(255, 0, 0, 1)'),
     ))
 
@@ -609,7 +618,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_deleted_counts, 
-        name=f'Deleted Users per {title}', 
+        name=f'Deleted data: {title}', 
         yaxis='y3', 
         marker=dict(color='rgba(255, 159, 64, 1)'),
         visible='legendonly',
@@ -617,7 +626,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
 
     # Update layout
     fig.update_layout(
-        title=f'User Statistics per {title}',
+        title=f' {title}',
         xaxis=dict(title=xaxis_title),
         yaxis=dict(
             title=yaxis_title,
