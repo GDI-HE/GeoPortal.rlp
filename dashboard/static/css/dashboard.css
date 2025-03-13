@@ -150,4 +150,12 @@ max-width: 800px; /* Adjust the max-width as needed */
     margin-bottom: -30px;
 }
 
+button.sidebar-toggler{
+    font-size: 13px;
+} 
+button.map-viewer-toggler{
+    font-size: 13px;
+} 
+
+
 
