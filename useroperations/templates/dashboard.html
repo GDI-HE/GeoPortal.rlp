@@ -281,6 +281,9 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-12 col-sm-12 mb-4">
+            <a href="{% url 'dashboard:check_abstracts' %}" class="btn btn-primary" role="button">Metadata Quality</a>
+        </div>
         <script>
             // Retrieve data passed from views.py
             const chartDates = {{ chart_dates|safe }}; // Dates (5-min intervals) for the last 14 days
