@@ -400,6 +400,7 @@ def render_template(request, template_name):
         'chart_dates': chart_dates,  # 5-minute intervals for the last 14 days
         'data_14_days': data_14_days,  # Session counts for the graph
         'default_wmc_id': BORIS_HESSEN_2024,  # Set this to the default option
+        'sidebar_closed': True, # This will open the sidebar by default while loading dashboard.html
     }
     geoportal_context = GeoportalContext(request=request)
     geoportal_context.add_context(context=context)
