@@ -146,16 +146,20 @@ max-width: 800px; /* Adjust the max-width as needed */
     }
 }
 
-.js-plotly-plot .plotly, .js-plotly-plot .plotly div {
+/* .js-plotly-plot .plotly, .js-plotly-plot .plotly div {
     margin-bottom: -30px;
-}
-
+} */
 button.sidebar-toggler{
-    font-size: 13px;
+    font-size: 13px;  
 } 
+button.sidebar-toggler:focus, button.map-viewer-toggler:focus{
+    outline: none;
+} 
+
 button.map-viewer-toggler{
     font-size: 13px;
 } 
-
-
+.sidebar-content a:hover{
+    text-decoration: none;
+} 
 
