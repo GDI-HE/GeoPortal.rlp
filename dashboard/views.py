@@ -217,6 +217,8 @@ def render_template(request, template_name):
     load_counts_list_second_last_month.sort(key=lambda x: x['total_actual_load'], reverse=True)
     # Get the top four highest total_actual_load counts for the previous month
     top_four_loads = load_counts_list[:4]
+    # get all the list
+    all_list = load_counts_list
     top_10_loads_last_month = load_counts_list[:5]
       # Get the top four highest total_actual_load counts of for the second last month
     top_four_loads_second_last_month = load_counts_list_second_last_month[:4]
@@ -401,6 +403,7 @@ def render_template(request, template_name):
         'data_14_days': data_14_days,  # Session counts for the graph
         'default_wmc_id': BORIS_HESSEN_2024,  # Set this to the default option
         'sidebar_closed': True, # This will open the sidebar by default while loading dashboard.html
+        'all_list': all_list
     }
     geoportal_context = GeoportalContext(request=request)
     geoportal_context.add_context(context=context)
