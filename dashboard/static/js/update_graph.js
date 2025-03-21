@@ -143,7 +143,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
 }
 
   function showGraphInModal(contentType) {
-    //console.log('showGraphInModal called with contentType:', contentType);
+    console.log('showGraphInModal called with contentType:', contentType);
     currentKeyword = contentType;
     const baseUrl = getBaseUrl();
     const filterUrl = `${baseUrl}/filter/`;
@@ -740,3 +740,234 @@ function generate_report(data) {
             });
         });
     });
+    
+    function initializeSessionsChart(chartDates, data14Days) {
+    const chartDom = document.getElementById('sessionsChart');
+    if (!chartDom) {
+        console.error("Element with ID 'sessionsChart' not found.");
+        return;
+    }
+
+    const myChart = echarts.init(chartDom);
+
+    const option = {
+        title: {
+            text: 'Active Sessions (Last 24 Hours)',
+            left: 'center',
+            textStyle: {
+                color: 'black',
+                fontSize: 16,
+            },
+        },
+        tooltip: {
+            trigger: 'axis',
+        },
+        xAxis: {
+            type: 'category',
+            data: chartDates,
+            axisLine: {
+                lineStyle: {
+                    color: 'rgba(255, 255, 255, 0.5)',
+                },
+            },
+            axisLabel: {
+                show: false,
+            },
+        },
+        yAxis: {
+            type: 'value',
+            axisLine: {
+                lineStyle: {
+                    color: 'rgba(255, 255, 255, 0.5)',
+                },
+            },
+            axisLabel: {
+                color: 'black',
+            },
+        },
+        series: [
+            {
+                data: data14Days,
+                type: 'line',
+                smooth: true,
+                lineStyle: {
+                    color: 'black',
+                    width: 0.5,
+                },
+                areaStyle: {
+                    color: 'rgba(173, 216, 230, 0.45)',
+                },
+            },
+        ],
+        grid: {
+            left: '5%',
+            right: '5%',
+            bottom: '20%',
+            top: '20%',
+            containLabel: true,
+        },
+    };
+
+    myChart.setOption(option);
+}
+function initializeBarChart(barChartData) {
+    var barChart = echarts.init(document.getElementById('modal-bar-chart'));
+
+    var barChartOptions = {
+        title: {
+            text: 'Top 5 WMCs by Average Load, 2024',
+            left: 'center',
+            textStyle: { fontSize: 14 }
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: function (params) {
+                return `${params.name}: ${params.value}`;
+            },
+            backgroundColor: 'black',
+            textStyle: { fontSize: 12, color: 'white' },
+            borderWidth: 0
+        },
+        legend: {
+            data: barChartData.labels,
+            top: '10%',
+            textStyle: { fontSize: 14, color: 'black' },
+            orient: 'horizontal',
+            align: 'center'
+        },
+        backgroundColor: 'transparent',
+        xAxis: {
+            type: 'category',
+            data: barChartData.labels,
+            axisLabel: { show: false },
+            axisLine: { show: false }
+        },
+        yAxis: { type: 'value' },
+        grid: { top: '20%', containLabel: true },
+        series: [{
+            name: 'Average Load',
+            type: 'bar',
+            data: barChartData.values,
+            itemStyle: {
+                color: function (params) {
+                    var colors = ['#5470C6', '#91CC75', '#EE6666', '#FAC858', '#73C0DE'];
+                    return colors[params.dataIndex % colors.length];
+                }
+            }
+        }]
+    };
+
+    barChart.setOption(barChartOptions);
+}
+
+function initializeGaugeChart(gaugeChartData) {
+    var gaugeChart = echarts.init(document.getElementById('modal-gauge-chart'));
+
+    var gaugeChartOptions = {
+        title: {
+            text: "Current Day's Total Load",
+            left: 'center',
+            textStyle: { fontSize: 14 }
+        },
+        tooltip: {
+            formatter: '{a} <br/>{b} : {c}',
+            backgroundColor: 'black',
+            textStyle: { fontSize: 12, color: 'white' },
+            borderWidth: 0
+        },
+        series: [{
+            name: 'Total Load',
+            type: 'gauge',
+            detail: { formatter: '{value}' },
+            data: [{ value: gaugeChartData.value, name: 'Load' }],
+            max: gaugeChartData.max
+        }]
+    };
+
+    gaugeChart.setOption(gaugeChartOptions);
+}
+
+function initializeLineChart(lineChartData) {
+    var lineChart = echarts.init(document.getElementById('modal-line-chart'));
+
+    var lineChartOptions = {
+        title: {
+            text: 'Yearly Load Trends (Boris Hessen 2024)',
+            left: 'center',
+            textStyle: { fontSize: 14 }
+        },
+        tooltip: {
+            trigger: 'axis',
+            formatter: '{b}: {c}',
+            backgroundColor: 'black',
+            textStyle: { fontSize: 12, color: 'white' },
+            borderWidth: 0
+        },
+        xAxis: { type: 'category', data: lineChartData.dates },
+        yAxis: { type: 'value' },
+        series: [{ name: 'Actual Load', type: 'line', data: lineChartData.actual_loads }]
+    };
+
+    lineChart.setOption(lineChartOptions);
+}
+
+function initializeCharts(lineChartData) {
+    initializeLineChart(lineChartData);
+}
+function initializeDonutChart(donutChartData) {
+    var donutChart = echarts.init(document.getElementById('modal-donut-chart'));
+
+    var donutChartOptions = {
+        title: {
+            text: 'Top 10 WMCs by Actual Load Count (Previous Day)',
+            left: 'center',
+            textStyle: { fontSize: 14 }
+        },
+        tooltip: {
+            trigger: 'item',
+            formatter: '{b}: {c}',
+            backgroundColor: 'black',
+            textStyle: { fontSize: 12, color: 'white' },
+            borderWidth: 0,
+            position: function (point, params, dom, rect, size) {
+                var x = point[0], y = point[1], viewWidth = size.viewSize[0], viewHeight = size.viewSize[1];
+                var boxWidth = size.contentSize[0], boxHeight = size.contentSize[1];
+
+                var posX = x + 20;
+                var posY = y;
+
+                if (posX + boxWidth > viewWidth) posX = x - boxWidth - 20;
+                if (posY + boxHeight > viewHeight) posY = y - boxHeight;
+
+                return [posX, posY];
+            }
+        },
+        legend: {
+            orient: 'vertical',
+            left: 'left',
+            top: 'center',
+            textStyle: { fontSize: 10 }
+        },
+        series: [{
+            name: 'Actual Load',
+            type: 'pie',
+            radius: ['40%', '70%'],
+            avoidLabelOverlap: false,
+            label: { show: false },
+            emphasis: { label: { show: false } },
+            labelLine: { show: false },
+            data: donutChartData.labels.map((label, index) => ({
+                value: donutChartData.values[index], name: label
+            }))
+        }]
+    };
+
+    donutChart.setOption(donutChartOptions);
+}
+
+function initializeAllCharts(barChartData, gaugeChartData, lineChartData, donutChartData) {
+    initializeBarChart(barChartData);
+    initializeGaugeChart(gaugeChartData);
+    initializeLineChart(lineChartData);
+    initializeDonutChart(donutChartData);
+}

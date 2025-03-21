@@ -285,343 +285,40 @@
             <a href="{% url 'dashboard:check_abstracts' %}" class="btn btn-primary" role="button">Metadata Quality</a>
         </div>
         <script>
-            // Retrieve data passed from views.py
-            const chartDates = {{ chart_dates|safe }}; // Dates (5-min intervals) for the last 14 days
-            const data14Days = {{ data_14_days|safe }}; // Session counts for the last 14 days
+            document.addEventListener("DOMContentLoaded", function () {
+                const chartDates = {{ chart_dates|safe }};  // Dates (5-min intervals)
+                const data14Days = {{ data_14_days|safe }}; // Session counts
         
-            // Initialize the chart
-            const chartDom = document.getElementById('sessionsChart');
-            const myChart = echarts.init(chartDom);
-        
-            // Configure the chart
-            const option = {
-                title: {
-                    text: 'Active Sessions (Last 24 Hours)',
-                    left: 'center',
-                    textStyle: {
-                        color: 'black',
-                        fontSize: 16,
-                    },
-                },
-                tooltip: {
-                    trigger: 'axis',
-                },
-                xAxis: {
-                    type: 'category',
-                    data: chartDates, // Dates (5-min intervals) for the last 14 days
-                    axisLine: {
-                        lineStyle: {
-                            color: 'rgba(255, 255, 255, 0.5)', // Axis line color
-                        },
-                    },
-                    axisLabel: {
-                        show: false, // Hide X-axis labels
-                    },
-                },
-                yAxis: {
-                    type: 'value',
-                    axisLine: {
-                        lineStyle: {
-                            color: 'rgba(255, 255, 255, 0.5)', // Axis line color
-                        },
-                    },
-                    axisLabel: {
-                        color: 'black', // Label color
-                    },
-                },
-                series: [
-                    {
-                        data: data14Days, // Data points for the graph
-                        type: 'line',
-                        smooth: true,
-                        lineStyle: {
-                            color: 'black', // Line color
-                            width: 0.5,
-                        },
-                        areaStyle: {
-                            color: 'rgba(173, 216, 230, 0.45)', // Light blue shading below the line
-                        },
-                    },
-                ],
-                grid: {
-                    left: '5%',
-                    right: '5%',
-                    bottom: '20%',
-                    top: '20%',
-                    containLabel: true,
-                },
-            };
-        
-            // Render the chart
-            myChart.setOption(option);
-        </script>
-        
-        
-        <script>
-            // Data for the bar chart
-            var barChartData = {
-                labels: {{ bar_chart_data.labels|safe }},
-                values: {{ bar_chart_data.values|safe }}
-            };
-        
-            // Data for the gauge chart
-            var gaugeChartData = {
-                value: {{ gauge_chart_data.value }},
-                max: {{ gauge_chart_data.max }}
-            };
-        
-            // Data for the line chart
-            var lineChartData = {
-                dates: {{ line_chart_data.dates|safe }},
-                actual_loads: {{ line_chart_data.actual_loads|safe }}
-            };
-            function initializeBarChart() {
-                var barChart = echarts.init(document.getElementById('modal-bar-chart'));
-
-                var barChartOptions = {
-                    title: {
-                        text: 'Top 5 WMCs by Average Load, 2024',
-                        left: 'center',
-                        textStyle: {
-                            fontSize: 14
-                        }
-                    },
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: function (params) {
-                            return `${params.name}: ${params.value}`;
-                        },
-                        backgroundColor: 'black',
-                        textStyle: {
-                            fontSize: 12,
-                            color: 'white'
-                        },
-                        borderWidth: 0
-                    },
-                    legend: {
-                        data: barChartData.labels, // Ensure this array is not empty
-                        top: '10%', // Adjust top positioning
-                        textStyle: {
-                            fontSize: 14,  // Make text larger if needed
-                            color: 'black' // Ensure it's visible
-                        },
-                        orient: 'horizontal',
-                        align: 'center'
-                    },
-                    backgroundColor: 'transparent',
-                    xAxis: {
-                        type: 'category',
-                        data: barChartData.labels,
-                        axisLabel: {
-                            show: false // Hide x-axis labels
-                        },
-                        axisLine: {
-                            show: false // Hide x-axis line
-                        }
-                    },
-                    yAxis: {
-                        type: 'value'
-                    },
-                    grid: {
-                        top: '20%', // Provide space for the title and legend
-                        containLabel: true
-                    },
-                    series: [
-                        {
-                            name: 'Average Load',
-                            type: 'bar',
-                            data: barChartData.values,
-                            itemStyle: {
-                                color: function (params) {
-                                    var colors = ['#5470C6', '#91CC75', '#EE6666', '#FAC858', '#73C0DE'];
-                                    return colors[params.dataIndex % colors.length];
-                                }
-                            }
-                        }
-                    ]
-                };
-
-                barChart.setOption(barChartOptions);
-            }
-
-
-        
-            // Function to initialize the gauge chart
-            function initializeGaugeChart() {
-                var gaugeChart = echarts.init(document.getElementById('modal-gauge-chart'));
-        
-                var gaugeChartOptions = {
-                    title: {
-                        text: 'Current Day\'s Total Load',
-                        left: 'center',
-                        textStyle: {
-                            fontSize: 14
-                        }
-                    },
-                    tooltip: {
-                        formatter: '{a} <br/>{b} : {c}',
-                        backgroundColor: 'black',
-                        textStyle: {
-                            fontSize: 12,
-                            color: 'white'
-                        },
-                        borderWidth: 0
-                    },
-                    series: [
-                        {
-                            name: 'Total Load',
-                            type: 'gauge',
-                            detail: { formatter: '{value}' },
-                            data: [{ value: gaugeChartData.value, name: 'Load' }],
-                            max: gaugeChartData.max
-                        }
-                    ]
-                };
-        
-                gaugeChart.setOption(gaugeChartOptions);
-            }
-        
-            // Function to initialize the line chart
-            function initializeLineChart() {
-                var lineChart = echarts.init(document.getElementById('modal-line-chart'));
-        
-                var lineChartOptions = {
-                    title: {
-                        text: 'Yearly Load Trends (Boris Hessen 2024)',
-                        left: 'center',
-                        textStyle: {
-                            fontSize: 14
-                        }
-                    },
-                    tooltip: {
-                        trigger: 'axis',
-                        formatter: '{b}: {c}',
-                        backgroundColor: 'black',
-                        textStyle: {
-                            fontSize: 12,
-                            color: 'white'
-                        },
-                        borderWidth: 0
-                    },
-                    xAxis: {
-                        type: 'category',
-                        data: lineChartData.dates
-                    },
-                    yAxis: {
-                        type: 'value'
-                    },
-                    series: [
-                        {
-                            name: 'Actual Load',
-                            type: 'line',
-                            data: lineChartData.actual_loads
-                        }
-                    ]
-                };
-        
-                lineChart.setOption(lineChartOptions);
-            }
-        
-            // Initialize the charts when the modal is shown
-            $('#graphModalWMC').on('shown.bs.modal', function () {
-                initializeDonutChart();
-                initializeBarChart();
-                initializeGaugeChart();
-                initializeLineChart();
+                initializeSessionsChart(chartDates, data14Days);
             });
         </script>
+        
+        
         <script>
-            // Data for the donut chart
-            var donutChartData = {
-                labels: {{ donut_chart_data.labels|safe }},
-                values: {{ donut_chart_data.values|safe }}
-            };
-        
-            // Function to initialize the donut chart
-            function initializeDonutChart() {
-                // Initialize the donut chart
-                var donutChart = echarts.init(document.getElementById('modal-donut-chart'));
-        
-                // Specify the chart options
-                var donutChartOptions = {
-                    title: {
-                        text: 'Top 10 WMCs by Actual Load Count (Previous Day)',
-                        left: 'center',
-                        textStyle: {
-                            fontSize: 14 // Set a smaller font size for the title
-                        }
-                    },
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: '{b}: {c}', // Show WMC title and load
-                        backgroundColor: 'black', // Set background color to black
-                        textStyle: {
-                            fontSize: 12, // Make the tooltip text size smaller
-                            color: 'white' // Set text color to white
-                        },
-                        borderWidth: 0, // Remove the border
-                        position: function (point, params, dom, rect, size) {
-                            // Calculate the position to keep the tooltip within the graph area
-                            var x = point[0];
-                            var y = point[1];
-                            var viewWidth = size.viewSize[0];
-                            var viewHeight = size.viewSize[1];
-                            var boxWidth = size.contentSize[0];
-                            var boxHeight = size.contentSize[1];
-        
-                            var posX = x + 20; // Default position to the right of the mouse pointer
-                            var posY = y;
-        
-                            // Ensure the tooltip stays within the graph area
-                            if (posX + boxWidth > viewWidth) {
-                                posX = x - boxWidth - 20; // Position to the left if it overflows
-                            }
-                            if (posY + boxHeight > viewHeight) {
-                                posY = y - boxHeight; // Adjust vertically if it overflows
-                            }
-        
-                            return [posX, posY];
-                        }
-                    },
-                    legend: {
-                        orient: 'vertical', // Align legend vertically
-                        left: 'left', // Position legend on the left
-                        top: 'center', // Center legend vertically
-                        textStyle: {
-                            fontSize: 10 // Adjust font size for better readability
-                        }
-                    },
-                    series: [
-                        {
-                            name: 'Actual Load',
-                            type: 'pie',
-                            radius: ['40%', '70%'], // Adjust the radius to make the donut thicker
-                            avoidLabelOverlap: false,
-                            label: {
-                                show: false // Hide all labels
-                            },
-                            emphasis: {
-                                label: {
-                                    show: false // Hide emphasis label
-                                }
-                            },
-                            labelLine: {
-                                show: false // Hide label lines
-                            },
-                            data: donutChartData.labels.map(function (label, index) {
-                                return { value: donutChartData.values[index], name: label };
-                            })
-                        }
-                    ]
+            document.addEventListener("DOMContentLoaded", function () {
+                const barChartData = {
+                    labels: {{ bar_chart_data.labels|safe }},
+                    values: {{ bar_chart_data.values|safe }}
                 };
         
-                // Set the chart options
-                donutChart.setOption(donutChartOptions);
-            }
+                const gaugeChartData = {
+                    value: {{ gauge_chart_data.value }},
+                    max: {{ gauge_chart_data.max }}
+                };
         
-            // Initialize the donut chart when the modal is shown
-            $('#graphModalWMC').on('shown.bs.modal', function () {
-                initializeDonutChart();
+                const lineChartData = {
+                    dates: {{ line_chart_data.dates|safe }},
+                    actual_loads: {{ line_chart_data.actual_loads|safe }}
+                };
+        
+                const donutChartData = {
+                    labels: {{ donut_chart_data.labels|safe }},
+                    values: {{ donut_chart_data.values|safe }}
+                };
+        
+                $('#graphModalWMC').on('shown.bs.modal', function () {
+                    initializeAllCharts(barChartData, gaugeChartData, lineChartData, donutChartData);
+                });
             });
         </script>
         
