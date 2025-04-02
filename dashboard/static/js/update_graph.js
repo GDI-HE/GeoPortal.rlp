@@ -865,7 +865,7 @@ function initializeGaugeChart(gaugeChartData) {
 
     var gaugeChartOptions = {
         title: {
-            text: "Current Day's Total Load",
+            text: "Yesterday's Total Load",
             left: 'center',
             textStyle: { fontSize: 14 }
         },
