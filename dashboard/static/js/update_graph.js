@@ -889,10 +889,11 @@ function initializeGaugeChart(gaugeChartData) {
 
 function initializeLineChart(lineChartData) {
     var lineChart = echarts.init(document.getElementById('modal-line-chart'));
+    const defaultWmcId = document.getElementById("default-wmc-id").value;
 
     var lineChartOptions = {
         title: {
-            text: 'Yearly Load Trends (Boris Hessen 2024)',
+            text: 'Load Count Trend (' + defaultWmcId + ')',
             left: 'center',
             textStyle: { fontSize: 14 }
         },
