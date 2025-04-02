@@ -14,7 +14,7 @@ class Command(BaseCommand):
         WMC.objects.all().delete()
         
         datafile = Path(settings.BASE_DIR) / 'dashboard' / 'data' / 'cleaned_loadcountdaily_wmc.csv'
-        batch_size = 20  # Adjust as needed
+        batch_size = 1000  # Adjust as needed
 
         with open(datafile, newline='') as csvfile:
             reader = csv.DictReader(islice(csvfile, 0, None))
