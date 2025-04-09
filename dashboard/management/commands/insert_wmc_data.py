@@ -22,7 +22,7 @@ class Command(BaseCommand):
         Fetches WMC data from the database using a corrected SQL query.
         """
         query = """
-        SELECT (CURRENT_DATE - INTERVAL '1 day') AS current_date,  
+        SELECT (CURRENT_DATE) AS current_date,  
                wmc_load_count.fkey_wmc_serial_id AS wmc_serial_id,
                mb_user_wmc.wmc_title, 
                mb_group.mb_group_name, 
