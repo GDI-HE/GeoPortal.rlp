@@ -118,7 +118,7 @@ class Command(BaseCommand):
                 load_count=row['load_count'],
                 mb_group_name=row['mb_group_name'],
                 actual_load=row['actual_load'],
-                wmc_public=True  # Default value for wmc_public
+                wmc_public=False  # Default value for wmc_public
             )
             wmc_list.append(wmc)
 
