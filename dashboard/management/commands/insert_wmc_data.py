@@ -78,7 +78,7 @@ class Command(BaseCommand):
                 previous_load = previous_loads[wmc_id]
                 
                 # If current load is less than or equal to the previous load, set actual_load = load_count
-                if current_load <= previous_load:
+                if current_load < previous_load:
                     actual_load = current_load
                 else:
                     # Else, calculate the difference (actual_load)
