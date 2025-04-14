@@ -229,11 +229,11 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                                             <i class="fa fa-list"></i>
                                         </span>
                                         <select id="dropdown" name="dropdown" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select Option" aria-describedby="addon-wrapping_select">
-                                            <option value="monthly" data-url="monthly_url">Monthly</option>
-                                            <option value="daily" data-url="daily_url">Daily</option>
-                                            <option value="weekly" data-url="weekly_url">Weekly</option>
-                                            <option value="6months" data-url="6months_url">6 Months</option>
-                                            <option value="yearly" data-url="yearly_url">Yearly</option>
+                                            <option value="monthly" data-url="monthly_url">monthly</option>
+                                            <option value="daily" data-url="daily_url">daily</option>
+                                            <option value="weekly" data-url="weekly_url">weekly</option>
+                                            <option value="6months" data-url="6months_url">6 months</option>
+                                            <option value="yearly" data-url="yearly_url">yearly</option>
                                         </select>
                                     </div>
                                 </div>
