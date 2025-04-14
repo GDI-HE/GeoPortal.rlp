@@ -43,7 +43,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_counts, 
-        name=f'New Users per {dropdown_value.capitalize()}', 
+        name=f'New Users ({dropdown_value})', 
         yaxis='y2', 
         marker=dict(color='rgba(54, 162, 235, 1)'),
         offset=1
@@ -62,7 +62,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_deleted_counts, 
-        name=f'Deleted Users per {dropdown_value.capitalize()}', 
+        name=f'Deleted Users ({dropdown_value})', 
         yaxis='y3', 
         marker=dict(color='rgba(255, 159, 64, 1)'),
         visible='legendonly',
@@ -72,7 +72,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
     
     # Update layout
     fig.update_layout(
-        title=f'User Statistics per {dropdown_value.capitalize()}',
+        title=f'User Statistics ({dropdown_value})',
         xaxis=dict(title='Time Period'),
         yaxis=dict(
             title='Cumulative New Users',
@@ -80,7 +80,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
             tickfont=dict(color='rgba(255, 0, 0, 1)')
         ),
         yaxis2=dict(
-            title=f'New User per {dropdown_value.capitalize()}   ',
+            title=f'New User ({dropdown_value})   ',
             titlefont=dict(color='rgba(54, 162, 235, 1)'),
             tickfont=dict(color='rgba(54, 162, 235, 1)'),
             overlaying='y',
@@ -88,7 +88,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
             position=0.97
         ),
         yaxis3=dict(
-            title=f'Deleted Users per {dropdown_value.capitalize()}',
+            title=f'Deleted Users ({dropdown_value})',
             titlefont=dict(color='rgba(255, 159, 64, 1)'),
             tickfont=dict(color='rgba(255, 159, 64, 1)'),
             anchor='free',
