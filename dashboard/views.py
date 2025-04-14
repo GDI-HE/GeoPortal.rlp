@@ -1297,19 +1297,6 @@ def search_data(request):
         })
 
     return JsonResponse({'results': results})
-from useroperations.models import Keyword, Layer    
-def get_layer_keywords(request, layer_id):
-    try:
-        layer = Layer.objects.get(layer_id=layer_id)
-        keywords = Keyword.objects.filter(layerkeyword__fkey_layer=layer)
-        
-        context = {
-            'layer': layer,
-            'keywords': keywords,
-        }
-        return render(request, 'layer_keywords.html', context)
-    except Layer.DoesNotExist:
-        return render(request, 'layer_not_found.html')
 
 def get_wmc_loadcount(request):
     # start of line graph

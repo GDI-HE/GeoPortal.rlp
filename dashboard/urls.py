@@ -12,7 +12,6 @@ urlpatterns = [
     path('filter/', views.filter, name='filter'),
     path('download_csv/', views.download_csv, name='download_csv'),
     path('dashboard/', include(extra_patterns)),
-    path('layer-keywords/<int:layer_id>/', views.get_layer_keywords, name='layer_keywords'),
     path('load-more-data/', views.load_more_data, name='load_more_data'),
     path('search-data/', views.search_data, name='search_data'),
 ]
