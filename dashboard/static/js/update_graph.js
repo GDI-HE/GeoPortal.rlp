@@ -920,7 +920,7 @@ function initializeDonutChart(donutChartData) {
 
     var donutChartOptions = {
         title: {
-            text: 'Top 10 WMCs by Actual Load Count (Previous Day)',
+            text: 'Yesterday\'s load count',
             left: 'center',
             textStyle: { fontSize: 14 }
         },
