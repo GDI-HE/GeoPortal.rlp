@@ -603,7 +603,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_counts, 
-        name=title, 
+        name=title[:3], 
         yaxis='y2', 
         marker=dict(color='rgba(54, 162, 235, 1)'),
         offset=1 
@@ -622,7 +622,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_deleted_counts, 
-        name=f'Deleted data: {title}', 
+        name=f'Deleted {title[:3]}', 
         yaxis='y3', 
         marker=dict(color='rgba(255, 159, 64, 1)'),
         visible='legendonly',
@@ -630,7 +630,9 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
 
     # Update layout
     fig.update_layout(
-        title=f' {title}',
+        title=dict(
+        text=f'{title}',
+        x=0.5),
         xaxis=dict(title=xaxis_title),
         yaxis=dict(
             title=yaxis_title,
@@ -1328,7 +1330,7 @@ def get_wmc_loadcount(request):
     fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers'))
     fig.update_layout(
         title={
-            'text': 'WMC Load Count',
+            'text': 'WMC load count',
             'font_size': 14,
             'xanchor': 'center',
             'x': 0.5
