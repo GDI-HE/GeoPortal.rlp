@@ -806,8 +806,8 @@ ul {
         font-weight: 500;
         border: 1px solid #e0e0e0;
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease; */
         cursor: pointer;
         flex-grow: 1;
       }
@@ -1576,7 +1576,7 @@ z-index: 1;
     color: white;
 }
 .landing-page-box1-dashboard {
-    background-color: whitesmoke;
+    /* background-color: whitesmoke; */
     color: white;
 }
 .landing-page-box2 {
