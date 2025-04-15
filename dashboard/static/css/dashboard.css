@@ -162,4 +162,7 @@ button.map-viewer-toggler{
 .sidebar-content a:hover{
     text-decoration: none;
 } 
+.remove-and-use-later{
+    display: none;
+} 
 
