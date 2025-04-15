@@ -123,7 +123,6 @@ INSTALLED_APPS = [
     'django_user_agents',
     'resourceManager',
     'dashboard',
-    'corsheaders',
 ]
 
 MIDDLEWARE = [
