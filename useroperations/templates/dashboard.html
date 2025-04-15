@@ -51,26 +51,26 @@
             </div>
         </div>
     </div>   
-    <div class="landing-page-box1"><!--landing-page-box-Begin -->
-        <div class="landing-page-headline">
+    <div class="landing-page-box1-dashboard"><!--landing-page-box-Begin -->
+        <div class="landing-page-headline-dashboard">
             <h2>Statistics</h2>
         </div>
         <div class="quickstart-container">
-            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Karten starten" data-resource="wmc">
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Karten starten" data-resource="wmc">
                 <div class="quickstart-header">
                     <i class="fas fa-user" title="Web Map Context" aria-hidden="true"></i>
                     <span>Number of Registered Users:</span>
                 </div>
                 <span class="quickstart-body">{{user_count}}</span>
             </a>
-            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Kartenebenen">
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Kartenebenen">
                 <div class="quickstart-header">
                     <i class="fas fa-layer-group" title="Kartenebenen" aria-hidden="true"></i>
                     <span>Number of WMS:</span>
                 </div>
                 <span class="quickstart-body">{{ wms_count|safe }}</span>
             </a>
-            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-layer-group" title="Datensätze" aria-hidden="true"></i>
                     <span>Number of WFS:</span>
@@ -78,7 +78,7 @@
               
                 <span class="quickstart-body"> {{ wfs_count|safe }}</span>
             </a>
-            <a class="quickstart search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-map" title="Datensätze" aria-hidden="true"></i>
                     <span>Number of WMC:</span>
@@ -157,7 +157,7 @@
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="graphModalLabel">Graph</h5>
+                        <h5 class="modal-title" id="graphModalLabel">WMC Statistics</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>

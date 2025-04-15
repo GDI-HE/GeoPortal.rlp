@@ -794,6 +794,23 @@ ul {
     flex-grow: 1;
 }
 
+.quickstart-dashboard{
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 20px;
+        margin: 1em;
+        background-color: #ffffff;
+        color: #292d35;
+        font-size: 1.05em;
+        font-weight: 500;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+      }
+
 .quickstart:hover{
     transform: scale(1.05);
     box-shadow: 0 0 10px var(--primary);
@@ -1490,6 +1507,11 @@ z-index: 1;
     text-align: center;
     margin: 0 0 0.5em 0;
 }
+.landing-page-headline-dashboard h2{
+    color:black;
+    text-align: center;
+    padding: 10px;
+}  
 
 .landing-page-body .w3-container p{
     text-align: center;
@@ -1552,7 +1574,10 @@ z-index: 1;
     background-color: var(--hesse-green);
     color: white;
 }
-
+.landing-page-box1-dashboard {
+    background-color: whitesmoke;
+    color: white;
+}
 .landing-page-box2 {
     background-color: var(--hesse-lightblue);
 }
