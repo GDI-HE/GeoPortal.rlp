@@ -143,7 +143,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
 }
 
   function showGraphInModal(contentType) {
-    console.log('showGraphInModal called with contentType:', contentType);
+    //console.log('showGraphInModal called with contentType:', contentType);
     currentKeyword = contentType;
     const baseUrl = getBaseUrl();
     const filterUrl = `${baseUrl}/filter/`;
