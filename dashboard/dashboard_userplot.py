@@ -6,9 +6,13 @@ import io
 import base64
 from dashboard.dashboard_utils import get_time_period
 from dashboard.dashboard_request import  fetch_deleted_users_data
-
+from django.utils import timezone
 
 def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
+    if timezone.is_naive(start_date):
+        start_date = timezone.make_aware(start_date, timezone.get_current_timezone())
+    if timezone.is_naive(end_date):
+        end_date = timezone.make_aware(end_date, timezone.get_current_timezone())
     users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
     users = MbUser.objects.filter(timestamp_create__range=[start_date, end_date])
     user_creation_counts = defaultdict(int)

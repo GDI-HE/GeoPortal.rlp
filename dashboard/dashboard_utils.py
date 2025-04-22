@@ -2,6 +2,7 @@ from useroperations.models import MbUser
 from datetime import datetime
 from collections import defaultdict
 import time
+from django.utils import timezone
 
 def convert_to_datetime(date):
     if isinstance(date, str):
@@ -23,6 +24,10 @@ def get_data_counts(model, timestamp_field, start_date, end_date, dropdown_value
     end_date_obj = convert_to_datetime(end_date)
     
     if model == MbUser:
+        if timezone.is_naive(start_date_obj):
+            start_date_obj = timezone.make_aware(start_date_obj, timezone.get_current_timezone())
+        if timezone.is_naive(end_date_obj):
+            end_date_obj = timezone.make_aware(end_date_obj, timezone.get_current_timezone())
         users_before_start_date_count = model.objects.filter(**{f"{timestamp_field}__lt": start_date_obj}).count()
         data_all = model.objects.filter(**{f"{timestamp_field}__range": [start_date_obj, end_date_obj]})
     else:
