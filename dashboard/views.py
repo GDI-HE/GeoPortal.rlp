@@ -555,7 +555,7 @@ def generate_wms_plot(request, start_date, end_date, dropdown_value='monthly'):
         deleted_wms_count, 
         f'WMS statistics ({dropdown_value})', 
         dropdown_value, 
-        'Cumulative Number of WMS', 
+        'Cumulative number of WMS', 
         f'WMS ({dropdown_value})', 
         f'Deleted WMS ({dropdown_value})', 
         'plotly_image_wms'
@@ -572,7 +572,7 @@ def generate_wfs_plot(request, start_date, end_date, dropdown_value='monthly'):
             deleted_wfs_count, 
             f'WFS statistics ({dropdown_value})', 
             dropdown_value, 
-            'Cumulative Number of WFS', 
+            'Cumulative number of WFS', 
             f'WFS ({dropdown_value})', 
             f'Deleted WFS ({dropdown_value})', 
             'plotly_image_wfs'
@@ -589,7 +589,7 @@ def generate_wmc_plot(request, start_date, end_date):
         deleted_wmc_count, 
         'WMC per Month', 
         'Month', 
-        'Cumulative Number of WMC', 
+        'Cumulative number of WMC', 
         'WMC per Month', 
         'Deleted WMC per Month', 
         'plotly_image_wmc'
@@ -614,7 +614,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         x=sorted_periods, 
         y=cumulative_counts, 
         mode='lines+markers', 
-        name=f'Cumulative New Data', 
+        name=f'Cumulative new data', 
         line=dict(color='rgba(255, 0, 0, 1)'),
     ))
 
