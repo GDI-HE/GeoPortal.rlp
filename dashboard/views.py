@@ -499,11 +499,12 @@ def download_csv(request):
     elif keyword == 'fig_html_report':
         pass
     elif keyword == 'fig_html':
+        keyword = keyword.replace('fig_html','fig_user')
         _, _, _, _, _, _,_,_,_,sorted_months, sorted_counts, cumulative_counts,_,_,_ = process_request(request)
     else:
         return HttpResponse(status=400, content="Invalid keyword")
     
-    clean_keyword = keyword.replace('fig_', '').upper()
+    clean_keyword = keyword.replace('fig_', '').replace('html', '') + "_data"
     # Create the CSV data
     csv_data = []
     if dropdown == 'yearly':
