@@ -348,7 +348,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
             titleElement.textContent = ' '; // Set the text content to 'User Statistics'
             //console.log('titleElement:', titleElement);
         } else {
-            console.log('Title element not found.');
+            //console.log('Title element not found.');
         }
           // Remove the title from the AJAX response
           let modifiedData = data[contentType];
