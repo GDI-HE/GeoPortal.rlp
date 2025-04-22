@@ -1,9 +1,7 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from useroperations.models import MbUser, Wms, Wfs, Wmc, WfsAvailability, MbGroup, MbUserMbGroup 
+from django.shortcuts import render
+from useroperations.models import MbUser, Wms, Wfs, Wmc, MbGroup, MbUserMbGroup 
 from dashboard.models import MbUserDeletion, WmsDeletion, WfsDeletion, WmcDeletion
-from Geoportal.utils import php_session_data
-from Geoportal.settings import SESSION_NAME, ALLOWED_GROUPS, BORIS_HESSEN_ID, BORIS_HESSEN_2024
-from django.contrib import messages
+from Geoportal.settings import BORIS_HESSEN_ID, BORIS_HESSEN_2024
 import plotly.graph_objs as go
 from datetime import datetime, timedelta, date
 import time
@@ -11,13 +9,11 @@ from collections import defaultdict
 import datetime as tm
 import csv
 from .forms import UploadFileForm
-import os
 import io
 import json
 import base64
 from django.http import HttpResponse, HttpResponseRedirect, JsonResponse
 from django.middleware.csrf import get_token
-import requests
 from django.db.models.functions import TruncDay
 from django.db.models import Count, Sum, Avg, Max
 from django.utils.translation import gettext as _
@@ -27,11 +23,9 @@ from dashboard.dashboard_request import process_request
 from dashboard.dashboard_userplot import generate_user_plot
 from dashboard.dashboard_session import get_filtered_session_data
 from dashboard.inspire_identifier import inspire_identifier, iso_categorised
-from django.core.serializers.json import DjangoJSONEncoder
 from django.utils import timezone
 from .models import WMC, SESSION_USER
 from dateutil.relativedelta import relativedelta
-from Geoportal.utils import utils
 from Geoportal.geoportalObjects import GeoportalContext
 
 
