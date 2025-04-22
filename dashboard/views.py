@@ -325,7 +325,7 @@ def render_template(request, template_name):
     }
 
 # Current datetime and range definitions
-    now = datetime.now()
+    now = timezone.now()
     start_date_7_days = now - timedelta(days=7)
     start_date_14_days = now - timedelta(days=1)
 
