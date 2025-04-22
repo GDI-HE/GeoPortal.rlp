@@ -731,7 +731,12 @@ function generate_report(data) {
                     const blob = new Blob([data], { type: 'text/csv' });
                     const link = document.createElement('a');
                     link.href = window.URL.createObjectURL(blob);
-                    link.download = `${currentKeyword}_data.csv`;
+                    if (currentKeyword === 'fig_html') {
+                        currentKeyword_filename = 'user';
+                    } else {
+                        currentKeyword_filename = currentKeyword.replace('fig_', '');  // Remove 'fig_' from the keyword
+                    }
+                    link.download = `${currentKeyword_filename}_data.csv`;
                     link.click();
                 },
                 error: function(xhr, status, error) {
