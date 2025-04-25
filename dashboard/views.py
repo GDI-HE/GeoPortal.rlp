@@ -27,6 +27,13 @@ from django.utils import timezone
 from .models import WMC, SESSION_USER
 from dateutil.relativedelta import relativedelta
 from Geoportal.geoportalObjects import GeoportalContext
+from useroperations.models import Wms, Layer, LayerKeyword
+from django.core.paginator import Paginator
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.db.models import Q, Exists, OuterRef, F, Case, When, BooleanField, Value, IntegerField
+from django.db.models.functions import Length
+from dashboard.user_check import check_user
 
 
 def render_template(request, template_name):
@@ -915,12 +922,6 @@ def calculate_highest_loads(wmc_data):
 
     return highest_week_number, highest_week_actual_load, highest_month, highest_month_actual_load
 
-from useroperations.models import Wms, Layer, LayerKeyword
-from django.core.paginator import Paginator
-from django.http import JsonResponse
-from django.shortcuts import render
-from django.db.models import Q, Exists, OuterRef, F, Case, When, BooleanField, Value, IntegerField
-from django.db.models.functions import Length
 
 
 def get_layer_statistics(layers):
@@ -1059,7 +1060,6 @@ def get_layer_statistics(layers):
         'layers_with_comma_keywords': layers_with_comma_keywords,
         'connected_wms': wms['connected'] 
     }
-from dashboard.user_check import check_user
 
 def check_layer_abstracts_and_keywords(request):
 
