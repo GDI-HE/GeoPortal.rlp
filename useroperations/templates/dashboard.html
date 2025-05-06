@@ -93,7 +93,7 @@
             <div class="col-md-6 col-sm-12 mb-4 custom-margin">
                 <div class="card" data-content-type="fig_html">
                     <div class="iframe-container">
-                        <img id="graph1" src="data:image/png;base64,{{ image_base64}}" width="100%" height="400px" alt="Plotly Image">
+                        <img id="graph1" src="data:image/png;base64,{{ image_base64}}" width="100%" height="100%" alt="Plotly Image">
 
                         <div class="overlay" onclick="showGraphInModal('fig_html')"></div> 
                     </div>
@@ -103,7 +103,7 @@
                 <div class="card" data-content-type="fig_wms">
                     <div class="iframe-container">
                         <!-- Replace the iframe with an img tag and use the base64 encoded image -->
-                        <img id="graph2" src="data:image/png;base64,{{ image_base64_wms}}" width="100%" height="400px" alt="Plotly Image">
+                        <img id="graph2" src="data:image/png;base64,{{ image_base64_wms}}" width="100%" height="100%" alt="Plotly Image">
                         <div class="overlay" onclick="showGraphInModal('fig_wms')"></div>
                     </div>
                 </div>
@@ -118,7 +118,7 @@
             <div class="col-md-6 col-sm-12 mb-4">
                     <div class="card" data-content-type="fig_wfs">
                         <div class="iframe-container">
-                            <img id="graph4" src="data:image/png;base64,{{ image_base64_wfs}}" style="width: 100%; height:400px;" alt="Plotly Image">
+                            <img id="graph4" src="data:image/png;base64,{{ image_base64_wfs}}" width="100%" height="100%" alt="Plotly Image">
                             <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>
                         </div>
                     </div>
