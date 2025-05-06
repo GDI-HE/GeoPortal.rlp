@@ -22,8 +22,6 @@ overflow:hidden !important;
 .iframe-container {
     position: relative;
     width: 100%;
-    padding-bottom: 70%; /*it changes the aspect ratio according to the width */
-    height: 0;
     overflow: hidden;
 }
 .container{
