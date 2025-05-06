@@ -814,6 +814,9 @@ function generate_report(data) {
     };
 
     myChart.setOption(option);
+    window.addEventListener('resize', function () {
+        myChart.resize();
+    });
 }
 function initializeBarChart(barChartData) {
     var barChart = echarts.init(document.getElementById('modal-bar-chart'));
