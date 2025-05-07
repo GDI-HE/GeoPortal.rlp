@@ -448,6 +448,14 @@ def render_template(request, template_name):
     if image_path is None:
         context['image_path'] = ''
     if request.is_ajax():
+        # Check if all the variables are None
+        if any(var is not None for var in [fig_report_html, fig_html, fig_wms_html, fig_wfs_html, session_data, fig_wmc_html]):
+            # If at least one variable has a value reset loadcount_chart to None to reduce calculation
+            loadcount_chart = None  # Reset loadcount_chart to None to reduce calculation
+        else:
+            # If all variables are None
+            loadcount_chart = loadcount_chart  # Do nothing, leave loadcount_chart unchanged
+
         return JsonResponse({'fig_html_report': fig_report_html, 'fig_wms_report': fig_report_html, 'fig_upload_report': fig_report_html, 'fig_wfs_report': fig_report_html, 'fig_wmc_report': fig_report_html, 'fig_html': fig_html, 'fig_wms': fig_wms_html, 'fig_wfs': fig_wfs_html, 'session_data':session_data, 'fig_wmc': fig_wmc_html,  
         'highest_loads': highest_loads,
         'loadcount_chart': loadcount_chart,
@@ -457,10 +465,12 @@ def render_template(request, template_name):
     return render(request, template_name, geoportal_context.get_context())
 
 def dashboard(request):
-   return render_template(request, 'dashboard.html')
+    if not request.is_ajax():
+        return render_template(request, 'dashboard.html')
 
 def filter(request):
-    return render_template(request, 'filter.html')
+    if request.is_ajax():
+        return render_template(request, 'filter.html')
 
 def get_highest_loads():
     today = datetime.now()
