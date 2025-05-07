@@ -138,12 +138,25 @@ def render_template(request, template_name):
             image_base64, image_base64_wfs, image_base64_wms, image_base64_wmc = None, None, None, None
             session_data, image_base64_session = get_filtered_session_data(request)
         else:
-            #here is some problem
-            #do something so that all the function will not be created when clicked on specific card
-            fig_html, image_base64 = generate_user_plot(start_date, end_date)
-            fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date)
-            fig_wfs_html,image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
-            fig_wmc_html,image_base64_wmc = generate_wmc_plot(request, start_date, end_date)
+            #here was some problem:solved
+            #When clicked on specific card, other fucntion willnot be executed now, reducing the workload 
+            # and the size of the output sent in context significantly
+            if content_type == 'fig_html':
+                fig_html, image_base64 = generate_user_plot(start_date, end_date)
+            else: 
+                fig_html, image_base64 = None, None
+            if content_type == 'fig_wms':
+                fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date)
+            else:
+                fig_wms_html, image_base64_wms = None, None
+            if content_type == 'fig_wfs':
+                fig_wfs_html,image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
+            else: 
+                fig_wfs_html,image_base64_wfs = None, None
+            if content_type == 'fig_wmc':
+                fig_wmc_html,image_base64_wmc = generate_wmc_plot(request, start_date, end_date)
+            else:
+                fig_wmc_html,image_base64_wmc = None, None
             session_data, image_base64_session = get_filtered_session_data(request)
             if content_type == 'fig_html_report':
                 fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
@@ -351,6 +364,27 @@ def render_template(request, template_name):
 
     # Get the username of the current session and the navigation menu and sub-menus from the django Admin. 
     #session_data_dashboard = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))
+
+    #before sending the data of the wmc to the context, check if request is ajax. If the request is ajax(), not need to send some
+    #of the data and hence changed to None. TODO Add more in if case of content_type
+    if request.is_ajax():
+        session_data = None
+        image_base64 = None
+        image_base64_session = None
+        highest_loads = None
+        user_count = None
+        wms_count = None
+        wfs_count = None
+        wmc_count = None
+        if content_type not in ('fig_wmc', 'session_data'):
+
+            loadcount_chart = None
+            top_ten_wmc = None
+            donut_chart_data = None
+            top_four_loads = None
+            top_four_loads_second_last_month = None
+            top_10_loads_last_month = None
+            total_sessions_7_days_k = None
 
     context = {
         'fig_html': fig_html,
