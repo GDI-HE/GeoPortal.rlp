@@ -349,37 +349,6 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                     // Show the spinner before making the AJAX request
                     $('#modalGraphContent').hide();
                     spinnerContainer.style.display = 'flex';
-
-                    $.ajax({
-                        url: url,
-                        type: 'GET',
-                        data: {
-                            start_date: startDate,
-                            end_date: endDate,
-                            keyword: keyword,
-                            //if dropdownValue is empty, do nothing
-                            dropdown: dropdownValue ? dropdownValue : null
-                        },
-                        success: function(data) {
-                            const titleElement = document.querySelector('.plot-container .svg-container .main-svg .infolayer .g-gtitle .gtitle');
-                            if (titleElement) {
-                                titleElement.classList.remove('gtitle'); // Remove the 'gtitle' class
-                                titleElement.classList.add('plotly-titles'); // Set the text content to an empty string
-                                titleElement.textContent = ' '; // Set the text content to 'User Statistics'
-                                //console.log('titleElement:', titleElement);
-                            } else {
-                                console.log('Title element not found.');
-                            }
-                            // hide the spinner after the content is loaded
-                            $('#modalGraphContent').show();
-                            spinnerContainer.style.display = 'none';
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Failed to fetch the content from ' + url);
-                            // Hide the spinner if there is an error
-                            spinnerContainer.style.display = 'none';
-                        }
-                    });
                 });
             } else {
                                 
