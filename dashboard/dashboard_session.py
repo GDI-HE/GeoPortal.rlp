@@ -59,7 +59,7 @@ def get_session_data(sessions, start_date=None, end_date=None):
         title='User Sessions Report'
     )
 
-    fig_html_session = fig_session.to_html(full_html=False, include_plotlyjs=True)
+    fig_html_session = fig_session.to_html(full_html=False, include_plotlyjs='cdn')
 
     # Save the figure as an image
     buffer = io.BytesIO()

@@ -715,7 +715,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         #font = dict(size=9)
 
     )
-    fig_html = fig.to_html(full_html=False, include_plotlyjs=True)
+    fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
     # Save the figure as an image
     buffer = io.BytesIO()
     fig.write_image(buffer, format='png')
@@ -907,7 +907,7 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
     )
     
     
-    fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs=True, config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
+    fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
     buffer = io.BytesIO()
     fig_report.write_image(buffer, format='png')
     buffer.seek(0)

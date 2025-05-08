@@ -115,5 +115,5 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     image_path = f'static/images/{image_filename}.png'
     full_image_path = os.path.join(os.path.dirname(__file__), image_path)
     fig.write_image(full_image_path)
-    fig_html = fig.to_html(full_html=False, include_plotlyjs=True)
+    fig_html = fig.to_html(full_html=False, include_plotlyjs='cdn')
     return fig_html, image_path

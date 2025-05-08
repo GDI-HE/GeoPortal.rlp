@@ -192,6 +192,6 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
     full_image_path_report = os.path.join(os.path.dirname(__file__), image_path_report)
     fig_report.write_image(full_image_path_report)
     
-    fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs=True, config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
+    fig_html_report = fig_report.to_html(full_html=False, include_plotlyjs='cdn', config={'modeBarButtonsToRemove': ['zoom2d', 'pan2d', 'select2d', 'lasso2d', 'zoomIn2d', 'zoomOut2d', 'autoScale2d', 'resetScale2d', 'hoverClosestCartesian', 'hoverCompareCartesian'], 'modeBarButtonsToAdd': ['toImage']})
     
     return fig_html_report, image_path_report
