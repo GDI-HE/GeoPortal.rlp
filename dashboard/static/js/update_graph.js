@@ -301,9 +301,9 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
           if (modifiedData) {
               // Use a regular expression to remove the title element
               modifiedData = modifiedData.replace(/"title":\{"text":"[^"]*"\}/, '"title":{"text":""}');
-              $('#modalGraphContent').attr('srcdoc', modifiedData);
+              $('#modalGraphContent').html(data[contentType]);  // Inject Plotly chart HTML directly instead of attr('srcdoc')
           } else {
-              $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
+              $('#modalGraphContent').html('<p>No data available for the selected graph.</p>');
           }
                         // if (data[contentType]) {
                         //     $('#modalGraphContent').attr('srcdoc', data[contentType]);
@@ -396,7 +396,7 @@ spinnerContainer.style.display = 'block';
                             success: function(data) {
                                 try {
                                     
-                                    $('#modalGraphContent').attr('srcdoc', data[contentType]);
+                                    $('#modalGraphContent').html(data[contentType]);
                                 } catch (e) {
                                     
                                     console.error('Response data:', data);
@@ -440,9 +440,9 @@ document.addEventListener('DOMContentLoaded', function() {
           if (modifiedData) {
               // Use a regular expression to remove the title element
               modifiedData = modifiedData.replace(/"title":\{"text":"[^"]*"\}/, '"title":{"text":""}');
-              $('#modalGraphContent').attr('srcdoc', modifiedData);
+              $('#modalGraphContent').html(modifiedData);
           } else {
-              $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
+              $('#modalGraphContent').html('<p>No data available for the selected graph.</p>');
           }
                 // $('#modalGraphContent').attr('srcdoc', data[contentType]);
 
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     `;
 
                     $('#dynamicContent').html(htmlContent);
-                    $('#modalGraphContent').attr('srcdoc', data[reportContentType]);
+                    $('#modalGraphContent').html(data[reportContentType]);
 
                     // Hide the spinner after the content is loaded
                     spinnerContainer.style.display = 'none';
@@ -540,35 +540,10 @@ document.addEventListener('DOMContentLoaded', function() {
                             headers: {
                                 'X-CSRFToken': formData.get('csrfmiddlewaretoken') // Include CSRF token in the headers
                             },
-                            success: function(data) {
-                                //console.log('Server response for form submission:', data); // Debugging: Log the server response
-                                // try {
-                                //     // Determine the correct content type to display
-                                //     let reportContentType = 'fig_html_report'; // Default to fig_html_report
-                                //     if (data.fig_wms_report) {
-                                //         reportContentType = 'fig_wms_report';
-                                //     } else if (data.fig_wfs_report) {
-                                //         reportContentType = 'fig_wfs_report';
-                                //     } else if (data.fig_wmc_report) {
-                                //         reportContentType = 'fig_wmc_report';
-                                //     } else if (data.fig_html) {
-                                //         reportContentType = 'fig_html';
-                                //     }
-                    
-                                //     if (data[reportContentType]) {
-                                //         $('#modalGraphContent').attr('srcdoc', data[reportContentType]);
-                                //     } else {
-                                //         $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
-                                //     }
-                                // } catch (e) {
-                                //     console.error('Response data:', data);
-                                // }
+                            success: function(data) {                               
                                 try {
                                     // Update the graph container with the returned HTM
-                                    const reportContainer = document.getElementById('modalGraphContent');
-                                    reportContainer.srcdoc = '';
-                                    // console.log('Report container:', reportContainer);
-                                    reportContainer.srcdoc = data.fig_upload_report;
+                                    $('#modalGraphContent').html(data[reportContentType]);
                                 } catch (e) {
                                     console.error('Error updating report container:', e);
                                 }
