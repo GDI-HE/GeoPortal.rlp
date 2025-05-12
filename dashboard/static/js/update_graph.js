@@ -788,7 +788,7 @@ function initializeDonutChart(donutChartData) {
 
     var donutChartOptions = {
         title: {
-            text: 'Yesterday\'s load count',
+            text: yesterdayLoadCount,
             left: 'center',
             textStyle: { fontSize: 14 }
         },

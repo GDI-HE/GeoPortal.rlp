@@ -152,7 +152,7 @@
             <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="graphModalLabel">WMC Statistics</h5>
+                        <h5 class="modal-title" id="graphModalLabel">{% trans 'WMC Statistics' %}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -162,14 +162,14 @@
                             <div class="row">
                                 <div class="col-12 d-flex flex-wrap flex-md-nowrap py-1">
                                     <div class="col-sm-12 col-md-4 py-1">
-                                        <small class="text-black">Select WMC</small>
+                                        <small class="text-black">{% trans 'Select WMC' %}</small>
                                         <div class="card shadow-sm">
                                             <div class="input-group">
                                                 <span class="input-group-text" style="height: 30px;" id="addon-wrapping_wmc">
                                                     <i class="fa fa-list"></i>
                                                 </span>
                                                 <select class="form-control" id="wmc_id" name="wmc_id" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC" aria-describedby="addon-wrapping_wmc">
-                                                    <option value="" selected disabled>Select WMC (Default: {{default_wmc_id}} )</option> 
+                                                    <option value="" selected disabled>{% trans 'Select WMC' %} (Default: {{default_wmc_id}} )</option> 
                                                     {% for wmc in all_list %}
                                                         <option value="{{ wmc.wmc_id }}">{{ wmc.wmc_title }}</option>
                                                     {% endfor %}
@@ -178,7 +178,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-4 py-1">
-                                        <small class="text-black">Start Date</small>
+                                        <small class="text-black">{% trans 'Start Date' %}</small>
                                         <div class="card shadow-sm">
                                             <div class="input-group">
                                                 <span class="input-group-text" style="height: 30px;" id="addon-wrapping_start">
@@ -189,7 +189,7 @@
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-4 py-1">
-                                        <small class="text-black">End Date</small>
+                                        <small class="text-black">{% trans 'End Date' %}</small>
                                         <div class="card shadow-sm">
                                             <div class="input-group">
                                                 <span class="input-group-text" style="height: 30px;" id="addon-wrapping_end">
@@ -203,7 +203,7 @@
                             </div>
                             <div class="row">
                                 <div class="col-12 d-flex justify-content-end py-1">
-                                    <button type="submit" class="btn btn-primary" style="height: 38px; padding: 0.375rem 0.75rem;">Submit</button>
+                                    <button type="submit" class="btn btn-primary" style="height: 38px; padding: 0.375rem 0.75rem;">{% trans 'Submit' %}</button>
                                 </div>
                             </div>
                         </form>
@@ -278,7 +278,7 @@
         </div>
         <script>
             document.addEventListener("DOMContentLoaded", function () {
-                const chartDates = {{ chart_dates|safe }};  // Dates (5-min intervals)
+                const chartDates = {{ chart_dates|safe }};  // Dates (5-min intervGals)
                 const data14Days = {{ data_14_days|safe }}; // Session counts
         
                 initializeSessionsChart(chartDates, data14Days);
@@ -329,6 +329,7 @@
         <script type="text/javascript">
             // Pass translated strings into JavaScript
             const activeSessionsText = "{% trans 'Active sessions (last 24 hours)' %}";
+            const yesterdayLoadCount = "{% trans 'Yesterday\'s load count' %}";
         </script>
 </body
 {% endblock %}

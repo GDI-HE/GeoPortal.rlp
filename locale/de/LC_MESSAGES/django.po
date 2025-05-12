@@ -2319,3 +2319,18 @@ msgstr "Aktive Sitzungen (letzte 24 Stunden)"
 
 msgid "WMC load count"
 msgstr "WMC Anzahl der Ladungen"
+
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgid "End Date"
+msgstr "Enddatum"
+
+msgid "WMC Statistics"
+msgstr "WMC Statistik"
+
+msgid "Select WMC"
+msgstr "WMC auswählen"
+
+msgid "Yesterday's load count"
+msgstr "Gesamtauslastung von gestern"
