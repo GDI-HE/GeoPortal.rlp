@@ -143,29 +143,31 @@ def render_template(request, template_name):
             # and the size of the output sent in context significantly
             if content_type == 'fig_html':
                 fig_html, image_base64 = generate_user_plot(start_date, end_date)
-            else: 
-                fig_html, image_base64 = None, None
-            if content_type == 'fig_wms':
+
+            elif content_type == 'fig_wms':
                 fig_wms_html, image_base64_wms = generate_wms_plot(request, start_date, end_date)
-            else:
-                fig_wms_html, image_base64_wms = None, None
-            if content_type == 'fig_wfs':
-                fig_wfs_html,image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
-            else: 
-                fig_wfs_html,image_base64_wfs = None, None
-            if content_type == 'fig_wmc':
-                fig_wmc_html,image_base64_wmc = generate_wmc_plot(request, start_date, end_date)
-            else:
-                fig_wmc_html,image_base64_wmc = None, None
-            session_data, image_base64_session = get_filtered_session_data(request)
-            if content_type == 'fig_html_report':
+
+            elif content_type == 'fig_wfs':
+                fig_wfs_html, image_base64_wfs = generate_wfs_plot(request, start_date, end_date)
+
+            elif content_type == 'fig_wmc':
+                fig_wmc_html, image_base64_wmc = generate_wmc_plot(request, start_date, end_date)
+
+            elif content_type == 'fig_html_report':
                 fig_report_html, image_path_report = generate_user_report(request, start_date_report, end_date_report)
+
             elif content_type == 'fig_wms_report':
                 fig_report_html, image_path_report = generate_wms_report(request, start_date_report, end_date_report)
+
             elif content_type == 'fig_wfs_report':
                 fig_report_html, image_path_report = generate_wfs_report(request, start_date_report, end_date_report)
+
             elif content_type == 'fig_wmc_report':
                 fig_report_html, image_path_report = generate_wmc_report(request, start_date_report, end_date_report)
+
+            # This part remains outside to be called regardless of content_type
+            #session_data, image_base64_session = get_filtered_session_data(request)
+            session_data, image_base64_session = None, None #session_data is used nowhere
             #haven't worked for the session report download and report creation TODO
     
     user = check_user(request)
