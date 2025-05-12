@@ -2316,3 +2316,6 @@ msgstr "gelöschte WFS"
 
 msgid "Active sessions (last 24 hours)"
 msgstr "Aktive Sitzungen (letzte 24 Stunden)"
+
+msgid "WMC load count"
+msgstr "WMC Anzahl der Ladungen"
