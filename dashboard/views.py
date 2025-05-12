@@ -34,6 +34,7 @@ from django.shortcuts import render
 from django.db.models import Q, Exists, OuterRef, F, Case, When, BooleanField, Value, IntegerField
 from django.db.models.functions import Length
 from dashboard.user_check import check_user
+from django.utils.translation import gettext as trans
 
 
 def render_template(request, template_name):
@@ -592,20 +593,31 @@ def download_csv(request):
             writer.writerow(row)
         return response
 #TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
+dropdown_value_translations = {
+            'daily': trans('daily'),
+            'weekly': trans('weekly'),
+            'monthly': trans('monthly'),
+            '6months': trans('6months'),
+            'yearly': trans('yearly')
+            }
 
 def generate_wms_plot(request, start_date, end_date, dropdown_value='monthly'):
-        
+        translated_value = dropdown_value_translations.get(dropdown_value, dropdown_value)
+        title = trans('WMS statistics') + f' ({translated_value})'
+        yaxis_title = trans('Cumulative number of WMS')
+        yaxis2_title = trans('WMS') + f' ({translated_value})'
+        yaxis3_title = trans('Deleted WMS') + f' ({translated_value})'
         sorted_months_wms, sorted_counts_wms, cumulative_counts_wms, _, _, _,_,_,_,_,_,_,deleted_wms_count, _,_ = process_request(request)
         fig_wms_html, image_base64 = create_plotly_figure(
         sorted_months_wms, 
         sorted_counts_wms, 
         cumulative_counts_wms, 
         deleted_wms_count, 
-        f'WMS statistics ({dropdown_value})', 
+        title, 
         dropdown_value, 
-        'Cumulative number of WMS', 
-        f'WMS ({dropdown_value})', 
-        f'Deleted WMS ({dropdown_value})', 
+        yaxis_title, 
+        yaxis2_title, 
+        yaxis3_title, 
         'plotly_image_wms'
           )
         return fig_wms_html, image_base64
@@ -662,7 +674,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         x=sorted_periods, 
         y=cumulative_counts, 
         mode='lines+markers', 
-        name=f'Cumulative new data', 
+        name=trans('Cumulative new data'),  # Translated trace name 
         line=dict(color='rgba(255, 0, 0, 1)'),
         zorder=1
     ))
@@ -671,12 +683,12 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_deleted_counts, 
-        name=f'Deleted {title[:3]}', 
+        name=_('Deleted') + f' {title[:3]}', 
         yaxis='y3', 
         marker=dict(color='rgba(255, 159, 64, 1)'),
         visible='legendonly',
     ))
-
+    xaxis_title = trans(xaxis_title)
     # Update layout
     fig.update_layout(
         title=dict(

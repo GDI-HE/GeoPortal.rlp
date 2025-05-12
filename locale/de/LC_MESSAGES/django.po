@@ -2289,3 +2289,21 @@ msgstr "Neue Nutzer"
 
 msgid "Deleted users"
 msgstr "Gelöschte Nutzer"
+
+msgid "WMS statistics"
+msgstr "WMS-Statistik"
+
+msgid "Cumulative number of WMS"
+msgstr "Kumulierte Anzahl  von WMS"
+
+msgid "WMS"
+msgstr "WMS"
+
+msgid "Deleted WMS"
+msgstr "gelöschte WMS"
+
+msgid "Cumulative new data"
+msgstr "Kumulierte neu Daten"
+
+msgid "Deleted"
+msgstr "gelöschte"
