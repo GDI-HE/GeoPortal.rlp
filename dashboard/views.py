@@ -662,6 +662,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         mode='lines+markers', 
         name=f'Cumulative new data', 
         line=dict(color='rgba(255, 0, 0, 1)'),
+        zorder=1
     ))
 
     # Add deleted users bar graph
@@ -863,6 +864,7 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
         textposition='outside',
         marker=dict(color='rgba(255, 99, 132, 1)'),
         yaxis='y2'  # Assign to y2 axis
+        
     ))
     
     # Add scatter (line) graph for cumulative data

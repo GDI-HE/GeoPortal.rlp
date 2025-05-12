@@ -60,6 +60,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         mode='lines+markers', 
         name=f'Cumulative new users', 
         line=dict(color='rgba(255, 0, 0, 1)'),
+        zorder=1
     ))
     
     # Add deleted users bar graph
