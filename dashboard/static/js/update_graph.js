@@ -190,27 +190,6 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                         </div>
                     </div>
                 `;
-                    // if (contentType === 'fig_html' || contentType === 'session_data' || contentType === 'fig_wms' || contentType === 'fig_wfs' || contentType === 'fig_wmc') {
-                    //     htmlContent += `
-                    //         <div class="col-sm-12 py-1">
-                    //             <small class="text-primary">Select Option</small>
-                    //             <div class="card shadow-sm">
-                    //                 <div class="input-group">
-                    //                     <span class="input-group-text" style="height: 30px;" id="addon-wrapping_select">
-                    //                         <i class="fa fa-list"></i>
-                    //                     </span>
-                    //                     <select id="dropdown" name="dropdown" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select Option" aria-describedby="addon-wrapping_select">
-                    //                         <option value="monthly" data-url="monthly_url">Monthly</option>
-                    //                         <option value="daily" data-url="daily_url">Daily</option>
-                    //                         <option value="weekly" data-url="weekly_url">Weekly</option>
-                    //                         <option value="6months" data-url="6months_url">6 Months</option>
-                    //                         <option value="yearly" data-url="yearly_url">Yearly</option>
-                    //                     </select>
-                    //                 </div>
-                    //             </div>
-                    //         </div>
-                    //     `;
-                    // }
                 }
 
 
@@ -305,11 +284,6 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
           } else {
               $('#modalGraphContent').html('<p>No data available for the selected graph.</p>');
           }
-                        // if (data[contentType]) {
-                        //     $('#modalGraphContent').attr('srcdoc', data[contentType]);
-                        // } else {
-                        //     $('#modalGraphContent').attr('srcdoc', '<p>No data available for the selected graph.</p>');
-                        // }
                         // Hide the spinner after the content is loaded
                         $('#modalGraphContent').show();
                         spinnerContainer.style.display = 'none';
@@ -404,10 +378,6 @@ spinnerContainer.style.display = 'block';
                                 spinnerContainer.style.display = 'none';
                             },
                             error: function(xhr, status, error) {
-                                // console.error('Failed to fetch the content from ' + url);
-                                // console.error('Status:', status);
-                                // console.error('Error:', error);
-                                // console.error('Response:', xhr.responseText);
                             }
                         });
                     });
