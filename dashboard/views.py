@@ -1378,7 +1378,7 @@ def get_wmc_loadcount(request):
             'xanchor': 'center',
             'x': 0.5
         })
-    loadcount_chart = fig.to_html()
+    loadcount_chart = fig.to_html(full_html=False, include_plotlyjs=False)
     response_data = {
         'loadcount_chart' : loadcount_chart,
         'start': start,
