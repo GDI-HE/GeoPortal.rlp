@@ -623,18 +623,22 @@ def generate_wms_plot(request, start_date, end_date, dropdown_value='monthly'):
         return fig_wms_html, image_base64
 
 def generate_wfs_plot(request, start_date, end_date, dropdown_value='monthly'):
-        
+        translated_value = dropdown_value_translations.get(dropdown_value, dropdown_value)
+        title = trans('WFS statistics') + f' ({translated_value})'
+        yaxis_title = trans('Cumulative number of WFS')
+        yaxis2_title = trans('WFS') + f' ({translated_value})'
+        yaxis3_title = trans('Deleted WFS') + f' ({translated_value})'
         _, _, _, sorted_months_wfs, sorted_counts_wfs, cumulative_counts_wfs, _, _, _,_,_,_,_,deleted_wfs_count,_ = process_request(request)
         fig_wfs_html, image_base64 = create_plotly_figure(
             sorted_months_wfs, 
             sorted_counts_wfs, 
             cumulative_counts_wfs, 
             deleted_wfs_count, 
-            f'WFS statistics ({dropdown_value})', 
+            title,  
             dropdown_value, 
-            'Cumulative number of WFS', 
-            f'WFS ({dropdown_value})', 
-            f'Deleted WFS ({dropdown_value})', 
+            yaxis_title, 
+            yaxis2_title, 
+            yaxis3_title,
             'plotly_image_wfs'
             )
         return fig_wfs_html, image_base64

@@ -2307,3 +2307,9 @@ msgstr "Kumulierte neu Daten"
 
 msgid "Deleted"
 msgstr "gelöschte"
+
+msgid "WFS statistics"
+msgstr "WFS Statistik"
+
+msgid "Deleted WFS"
+msgstr "gelöschte WFS"
