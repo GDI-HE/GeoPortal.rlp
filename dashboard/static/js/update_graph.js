@@ -870,3 +870,11 @@ function initializeAllCharts(barChartData, gaugeChartData, lineChartData, donutC
     initializeLineChart(lineChartData);
     initializeDonutChart(donutChartData);
 }
+
+//handle the graph according to screen size/modal size
+$('#graphModal').on('shown.bs.modal', function () {
+    const graphDiv = document.getElementById('modalGraphContent');
+    if (graphDiv) {
+        Plotly.Plots.resize(graphDiv);  // Ensure Plotly chart resizes to fit modal
+    }
+});
