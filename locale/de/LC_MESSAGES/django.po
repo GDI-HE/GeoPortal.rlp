@@ -2313,3 +2313,6 @@ msgstr "WFS Statistik"
 
 msgid "Deleted WFS"
 msgstr "gelöschte WFS"
+
+msgid "Active sessions (last 24 hours)"
+msgstr "Aktive Sitzungen (letzte 24 Stunden)"
