@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
 {% load static %}
+{% load i18n %}
 {% block body %}
 {% csrf_token %}
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
@@ -52,27 +53,27 @@
     </div>   
     <div class="landing-page-box1-dashboard"><!--landing-page-box-Begin -->
         <div class="landing-page-headline-dashboard">
-            <h2>Statistics</h2>
+            <h2>{% trans "Statistics" %}</h2>
         </div>
         <div class="quickstart-container">
             <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Karten starten" data-resource="wmc">
                 <div class="quickstart-header">
                     <i class="fas fa-user" title="Web Map Context" aria-hidden="true"></i>
-                    <span>Number of registered users:</span>
+                    <span>{% trans "Number of registered users:" %}</span>
                 </div>
                 <span class="quickstart-body">{{user_count}}</span>
             </a>
             <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Kartenebenen">
                 <div class="quickstart-header">
                     <i class="fas fa-layer-group" title="Kartenebenen" aria-hidden="true"></i>
-                    <span>Number of WMS:</span>
+                    <span>{% trans "Number of WMS:" %}</span>
                 </div>
                 <span class="quickstart-body">{{ wms_count|safe }}</span>
             </a>
             <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-layer-group" title="Datensätze" aria-hidden="true"></i>
-                    <span>Number of WFS:</span>
+                    <span>{% trans "Number of WFS:" %}</span>
                 </div>
               
                 <span class="quickstart-body"> {{ wfs_count|safe }}</span>
@@ -80,7 +81,7 @@
             <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
                 <div class="quickstart-header">
                     <i class="fas fa-map" title="Datensätze" aria-hidden="true"></i>
-                    <span>Number of WMC:</span>
+                    <span>{% trans "Number of WMC:" %}</span>
                 </div>
               
                 <span class="quickstart-body"> {{ wmc_count|safe }}</span>

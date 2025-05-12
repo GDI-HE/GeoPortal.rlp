@@ -7,6 +7,7 @@ import base64
 from dashboard.dashboard_utils import get_time_period
 from dashboard.dashboard_request import  fetch_deleted_users_data
 from django.utils import timezone
+from django.utils.translation import gettext as _
 
 def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
     if timezone.is_naive(start_date):
@@ -47,7 +48,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_counts, 
-        name=f'New users', 
+        name=_('New user'),
         yaxis='y2', 
         marker=dict(color='rgba(54, 162, 235, 1)'),
         offset=1
@@ -58,7 +59,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         x=sorted_periods, 
         y=cumulative_counts, 
         mode='lines+markers', 
-        name=f'Cumulative new users', 
+         name=_('Cumulative new users'), 
         line=dict(color='rgba(255, 0, 0, 1)'),
         zorder=1
     ))
@@ -67,25 +68,34 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
     fig.add_trace(go.Bar(
         x=sorted_periods, 
         y=sorted_deleted_counts, 
-        name=f'Deleted users', 
+        name=_('Deleted users'),  
         yaxis='y3', 
         marker=dict(color='rgba(255, 159, 64, 1)'),
         visible='legendonly',
         
         # offsetgroup=1
     ))
+
+    dropdown_value_translations = {
+    'daily': _('daily'),
+    'weekly': _('weekly'),
+    'monthly': _('monthly'),
+    '6months': _('6months'),
+    'yearly': _('yearly')
+    }
+    translated_value = dropdown_value_translations.get(dropdown_value, dropdown_value)
     
     # Update layout
     fig.update_layout(
-        title=dict(text=f'User statistics ({dropdown_value})', x=0.5),
-        xaxis=dict(title='Time period'),
+        title=dict(text=_('User statistics') + f' ({translated_value})', x=0.5),
+        xaxis=dict(title=_('Time period')),
         yaxis=dict(
-            title='Cumulative new users',
+            title=_('Cumulative new users'),
             titlefont=dict(color='rgba(255, 0, 0, 1)'),
             tickfont=dict(color='rgba(255, 0, 0, 1)')
         ),
         yaxis2=dict(
-            title=f'New user ({dropdown_value})   ',
+            title=_('New user') + f' ({translated_value})',
             titlefont=dict(color='rgba(54, 162, 235, 1)'),
             tickfont=dict(color='rgba(54, 162, 235, 1)'),
             overlaying='y',
@@ -93,7 +103,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
             position=0.97
         ),
         yaxis3=dict(
-            title=f'Deleted users ({dropdown_value})',
+            title=_('Deleted users') + f' ({translated_value})',
             titlefont=dict(color='rgba(255, 159, 64, 1)'),
             tickfont=dict(color='rgba(255, 159, 64, 1)'),
             anchor='free',

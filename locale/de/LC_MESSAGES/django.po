@@ -2244,3 +2244,48 @@ msgstr "Die Seite ist nicht verfügbar!"
 
 msgid "You do not have the necessary permissions to access this page."
 msgstr "Sie verfügen nicht über die erforderlichen Berechtigungen, um auf diese Seite zuzugreifen."
+
+msgid "Statistics"
+msgstr "Statistiken"
+
+msgid "Number of registered users:"
+msgstr "Anzahl der registierten Nutzer:"
+
+msgid "Number of WMS:"
+msgstr "Anzahl der WMS:"
+
+msgid "Number of WFS:"
+msgstr "Anzahl der WFS:"
+
+msgid "Number of WMC:"
+msgstr "Anzahl der WMC:"
+
+msgid "User statistics"
+msgstr "Nutzer Statistik"
+
+msgid "daily"
+msgstr "täglich"
+
+msgid "weekly"
+msgstr "wöchentlich"
+
+msgid "monthly"
+msgstr "monatlich"
+
+msgid "6months"
+msgstr "6 monat"
+
+msgid "yearly"
+msgstr "jährlich"
+
+msgid "Time period"
+msgstr "Zeitschiene"
+
+msgid "Cumulative new users"
+msgstr "Kumulierte neue Nutzer"
+
+msgid "New user"
+msgstr "Neue Nutzer"
+
+msgid "Deleted users"
+msgstr "Gelöschte Nutzer"
