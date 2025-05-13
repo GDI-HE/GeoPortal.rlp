@@ -173,7 +173,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-2 py-1 d-flex align-items-center justify-content-center">
-                                <button id="update_graph_btn" data-url="${filterUrl}" data-keyword="${contentType}" class="btn btn-primary" style="height: 38px; padding: 0.375rem 0.75rem; margin-right: 60px; margin-top:20px;">Filter</button>
+                                <button id="update_graph_btn" data-url="${filterUrl}" data-keyword="${contentType}" class="btn btn-primary" style="height: 38px; padding: 0.375rem 0.75rem; margin-right: 60px; margin-top:20px;">${TRANSLATIONS.Filter}</button>
                             </div>
                         </div>
                     </div>

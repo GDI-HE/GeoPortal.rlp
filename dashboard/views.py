@@ -142,6 +142,11 @@ def render_template(request, template_name):
             #here was some problem:solved
             #When clicked on specific card, other fucntion willnot be executed now, reducing the workload 
             # and the size of the output sent in context significantly
+            # Initialize all variables to None by default
+            fig_html = fig_wms_html = fig_wfs_html = fig_wmc_html = None
+            image_base64 = image_base64_wms = image_base64_wfs = image_base64_wmc = None
+            fig_report_html = image_path_report = None
+            
             if content_type == 'fig_html':
                 fig_html, image_base64 = generate_user_plot(start_date, end_date)
 
