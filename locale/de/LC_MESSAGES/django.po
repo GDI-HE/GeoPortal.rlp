@@ -2291,7 +2291,7 @@ msgid "Deleted users"
 msgstr "Gelöschte Nutzer"
 
 msgid "WMS statistics"
-msgstr "WMS-Statistik"
+msgstr "WMS Statistik"
 
 msgid "Cumulative number of WMS"
 msgstr "Kumulierte Anzahl  von WMS"
