@@ -95,23 +95,11 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
     const filterUrl = `${baseUrl}/filter/`;
     const spinnerContainer = document.getElementById('spinnerContainer');
         
-      // Define a mapping of content types to titles
-    const contentTypeToTitle = {
-        'fig_html': 'User Statistics',
-        'fig_wms': 'WMS Statistics',
-        'fig_wfs': 'WFS Statistics',
-        'fig_wmc': 'WMC Statistics',
-        'session_data': 'Session Data',
-        'fig_html_report': 'Userdefined Report'
-    };
-    
     // Function to update the modal title
        function updateModalTitle(contentType) {
-        // Get the title from the mapping, default to 'User Statistics' if not found
-        const title = contentTypeToTitle[contentType] || 'User Statistics';
+        // title removed as it is already present just above the graph. 
+        const title = '';
         document.getElementById('graphModalLabel').innerText = title;
-    
-        // Select the element and update its text content
     }
     
     
@@ -146,7 +134,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                     <div class="row">
                         <div class="col-12 d-flex flex-wrap flex-md-nowrap py-1">
                             <div class="col-sm-12 col-md-4 py-1">
-                                <small class="text-black">Start Date</small>
+                                <small class="text-black">${TRANSLATIONS.startDate}</small>
                                 <div class="card shadow-sm">
                                     <div class="input-group">
                                         <span class="input-group-text" style="height: 30px;" id="addon-wrapping_start">
@@ -157,7 +145,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-4 py-1">
-                                <small class="text-black">End Date</small>
+                                <small class="text-black">${TRANSLATIONS.endDate}</small>
                                 <div class="card shadow-sm">
                                     <div class="input-group">
                                         <span class="input-group-text" style="height: 30px;" id="addon-wrapping_end">
@@ -168,18 +156,18 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                                 </div>
                             </div>
                             <div class="col-sm-12 col-md-3 py-1">
-                                <small class="text-black">Select Option</small>
+                                <small class="text-black">${TRANSLATIONS.selectOption}</small>
                                 <div class="card shadow-sm">
                                     <div class="input-group">
                                         <span class="input-group-text" style="height: 30px;" id="addon-wrapping_select">
                                             <i class="fa fa-list"></i>
                                         </span>
                                         <select id="dropdown" name="dropdown" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select Option" aria-describedby="addon-wrapping_select">
-                                            <option value="monthly" data-url="monthly_url">monthly</option>
-                                            <option value="daily" data-url="daily_url">daily</option>
-                                            <option value="weekly" data-url="weekly_url">weekly</option>
-                                            <option value="6months" data-url="6months_url">6 months</option>
-                                            <option value="yearly" data-url="yearly_url">yearly</option>
+                                            <option value="monthly" data-url="monthly_url">${TRANSLATIONS.monthly}</option>
+                                            <option value="daily" data-url="daily_url">${TRANSLATIONS.daily}</option>
+                                            <option value="weekly" data-url="weekly_url">${TRANSLATIONS.weekly}</option>
+                                            <option value="6months" data-url="6months_url">${TRANSLATIONS.month6}</option>
+                                            <option value="yearly" data-url="yearly_url">${TRANSLATIONS.yearly}</option>
                                         </select>
                                     </div>
                                 </div>

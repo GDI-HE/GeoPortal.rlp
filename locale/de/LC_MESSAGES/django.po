@@ -2334,3 +2334,15 @@ msgstr "WMC auswählen"
 
 msgid "Yesterday's load count"
 msgstr "Gesamtauslastung von gestern"
+
+msgid "Select Option"
+msgstr "Option auswählen"
+
+msgid "Download CSV"
+msgstr "CSV herunterladen"
+
+msgid "User defined report"
+msgstr "Benutzerdefinierter Bericht"
+
+msgid "Close"
+msgstr "Schließen"

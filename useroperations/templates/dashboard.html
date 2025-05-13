@@ -44,9 +44,9 @@
                     <div id="modalGraphContent" style="width: 100%; height: 470px; overflow: auto; position: relative;"></div>
                 </div>
                 <div class="modal-footer">
-                        <a id="downloadWmsCsvLink" href="#" class="btn btn-primary">Download CSV</a>
-                    <button type="button" class="btn btn-info" id="userCreationReportButton">User defined report</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <a id="downloadWmsCsvLink" href="#" class="btn btn-primary">{% trans 'Download CSV' %}</a>
+                    <button type="button" class="btn btn-info" id="userCreationReportButton">{% trans 'User defined report' %}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
                 </div>
             </div>
         </div>
@@ -330,6 +330,17 @@
             // Pass translated strings into JavaScript
             const activeSessionsText = "{% trans 'Active sessions (last 24 hours)' %}";
             const yesterdayLoadCount = "{% trans 'Yesterday\'s load count' %}";
+            const TRANSLATIONS = {
+                startDate: "{{ _('Start Date')|escapejs }}",
+                endDate: "{{ _('End Date')|escapejs }}",
+                selectOption: "{{ _('Select Option')|escapejs }}",
+                Filter: "{{ _('Filter')|escapejs }} ",
+                monthly: "{{ _('monthly')|escapejs }} ",
+                daily: "{{ _('daily')|escapejs }} ",
+                weekly: "{{ _('weekly')|escapejs }} ",
+                month6: "{{ _('6months')|escapejs }} ",
+                yearly: "{{ _('yearly')|escapejs }} ",
+            };
         </script>
 </body
 {% endblock %}
