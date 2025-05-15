@@ -376,7 +376,7 @@ def render_template(request, template_name):
     ]
 
     # Prepare data for the graph
-    chart_dates = [entry['datetime'].strftime('%Y-%m-%d %H:%M') for entry in sessions_last_14_days]
+    chart_dates = [entry['datetime'].strftime('%Y-%m-%d %H:%M') for entry in sessions_last_14_days_local]
     data_14_days = [entry['total_sessions'] for entry in sessions_last_14_days]
 
     # Get the username of the current session and the navigation menu and sub-menus from the django Admin. 
