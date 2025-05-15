@@ -35,6 +35,7 @@ from django.db.models import Q, Exists, OuterRef, F, Case, When, BooleanField, V
 from django.db.models.functions import Length
 from dashboard.user_check import check_user
 from django.utils.translation import gettext as trans
+from django.utils.timezone import localtime
 
 
 def render_template(request, template_name):
@@ -146,7 +147,7 @@ def render_template(request, template_name):
             fig_html = fig_wms_html = fig_wfs_html = fig_wmc_html = None
             image_base64 = image_base64_wms = image_base64_wfs = image_base64_wmc = None
             fig_report_html = image_path_report = None
-            
+
             if content_type == 'fig_html':
                 fig_html, image_base64 = generate_user_plot(start_date, end_date)
 
@@ -365,6 +366,14 @@ def render_template(request, template_name):
         .annotate(total_sessions=Sum('session_number'))
         .order_by('datetime')
     )
+
+    sessions_last_14_days_local = [
+    {
+        'datetime': localtime(entry['datetime']),  # Automatically converts UTC → Europe/Berlin
+        'total_sessions': entry['total_sessions']
+    }
+    for entry in sessions_last_14_days
+    ]
 
     # Prepare data for the graph
     chart_dates = [entry['datetime'].strftime('%Y-%m-%d %H:%M') for entry in sessions_last_14_days]
