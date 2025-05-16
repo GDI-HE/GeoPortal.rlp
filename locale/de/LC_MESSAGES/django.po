@@ -2171,13 +2171,13 @@ msgid "Layers Without Keywords"
 msgstr "Ebenen ohne Stichwort"
 
 msgid "Abstracts Match Titles"
-msgstr "Abstrakte gleich als Titel"
+msgstr "Abstrakte die mit dem Titel übereinstimmen"
 
 msgid "Layers With Short Abstracts"
-msgstr "Ebenen mit Kurze Abstrakte"
+msgstr "Ebenen mit Kurzen Abstrakten"
 
-msgid " Columns"
-msgstr " Spalten"
+msgid "Columns"
+msgstr "Spalten"
 
 msgid "Serial No."
 msgstr "Seriennr."
