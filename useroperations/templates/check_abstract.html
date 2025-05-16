@@ -386,7 +386,11 @@
     </table>
     
     <script>
-             let serialNo = {{ results|length }}; // Start serial number from the current number of results
+        let serialNo = {{ results|length }}; // Start serial number from the current number of results
+        const TRANSLATIONS = {
+            show_details: "{% trans 'Show Details' %}",
+            hide_details: "{% trans 'Hide Details' %}"
+        };
     </script>
 </body>
 {% endblock %}

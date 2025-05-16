@@ -3,7 +3,7 @@ function toggleDropdown(button) {
     const row = button.closest('tr');
     const dropdownContent = row.nextElementSibling;
     dropdownContent.classList.toggle('show');
-    button.textContent = dropdownContent.classList.contains('show') ? 'Hide Details' : 'Show Details';
+    button.textContent = dropdownContent.classList.contains('show') ? TRANSLATIONS.hide_details : TRANSLATIONS.show_details;
 }
 
 function toggleClearButton(){

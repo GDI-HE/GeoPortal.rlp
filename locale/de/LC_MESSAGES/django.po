@@ -2221,6 +2221,9 @@ msgstr "Sowohl Inspire Category als auch Inspireidentifiziert"
 msgid "Show Details"
 msgstr "Details anzeigen"
 
+msgid "Hide Details"
+msgstr "Verstecken der Details"
+
 msgid "Keywords Present"
 msgstr "Schlagwörter"
 
