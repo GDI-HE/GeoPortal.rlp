@@ -119,14 +119,14 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
                 '<input type="file" name="file" required id="id_file" accept=".csv">'
             );
             htmlContent = `
-                <p>Upload a CSV file to generate a report. 
+                <p>${TRANSLATIONS.upload_prompt} 
                     <i class="fa fa-info-circle" id="infoIcon" data-html="true" style="cursor: pointer;"></i>
                 </p>
                 <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
                     <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
                     ${modifiedFormHtml}
                        <input type="hidden" name="contentType" id="contentType" value="${contentType}"> <!-- Dynamically set contentType -->
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="submit" class="btn btn-primary">${TRANSLATIONS.upload_button}</button>
                 </form>
             `;
         } else {
@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const modifiedFormHtml = '<input type="file" name="file" required id="id_file" accept=".csv">'; // Example form HTML
 
                     let htmlContent = `
-                           <p>Upload a CSV file to generate a report. 
+                           <p>${TRANSLATIONS.upload_prompt}
                             <i class="fa fa-info-circle" data-toggle="tooltip" title="Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed."></i>
                             </p>
                         
@@ -463,7 +463,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
                             ${modifiedFormHtml}
                             <input type="hidden" name="contenttype" id="contentType" value="${reportContentType}"> <!-- Use the report contentType -->
-                            <button type="submit" class="btn btn-primary upload-btn">Upload</button>
+                            <button type="submit" class="btn btn-primary">${TRANSLATIONS.upload_button}</button>
                         </form>
                     `;
 

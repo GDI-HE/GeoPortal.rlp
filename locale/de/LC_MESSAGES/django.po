@@ -2349,3 +2349,9 @@ msgstr "Benutzerdefinierter Bericht"
 
 msgid "Close"
 msgstr "Schließen"
+
+msgid "Upload a CSV file to generate a report."
+msgstr "Laden Sie eine CSV-Datei hoch, um einen Bericht zu erstellen."
+
+msgid "Upload"
+msgstr "Hochladen"
