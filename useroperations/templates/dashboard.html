@@ -341,7 +341,8 @@
                 month6: "{{ _('6months')|escapejs }} ",
                 yearly: "{{ _('yearly')|escapejs }} ",
                 upload_prompt: "{% trans 'Upload a CSV file to generate a report.' %}",
-                upload_button: "{% trans 'Upload' %}"
+                upload_button: "{% trans 'Upload' %}",
+                tooltip_instruction: `{% blocktrans %}Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed.{% endblocktrans %}`
             };
         </script>
 </body

@@ -456,7 +456,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                     let htmlContent = `
                            <p>${TRANSLATIONS.upload_prompt}
-                            <i class="fa fa-info-circle" data-toggle="tooltip" title="Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed."></i>
+                            <i class="fa fa-info-circle" data-toggle="tooltip" title="${TRANSLATIONS.tooltip_instruction}"></i>
                             </p>
                         
                         <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
