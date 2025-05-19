@@ -616,7 +616,7 @@ dropdown_value_translations = {
             }
 
 def generate_wms_plot(request, start_date, end_date, dropdown_value='monthly'):
-        translated_value = dropdown_value_translations.get(dropdown_value, dropdown_value)
+        translated_value = trans(dropdown_value)
         title = trans('WMS statistics') + f' ({translated_value})'
         yaxis_title = trans('Cumulative number of WMS')
         yaxis2_title = trans('WMS') + f' ({translated_value})'
@@ -637,7 +637,7 @@ def generate_wms_plot(request, start_date, end_date, dropdown_value='monthly'):
         return fig_wms_html, image_base64
 
 def generate_wfs_plot(request, start_date, end_date, dropdown_value='monthly'):
-        translated_value = dropdown_value_translations.get(dropdown_value, dropdown_value)
+        translated_value = trans(dropdown_value)
         title = trans('WFS statistics') + f' ({translated_value})'
         yaxis_title = trans('Cumulative number of WFS')
         yaxis2_title = trans('WFS') + f' ({translated_value})'
@@ -887,24 +887,25 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
     
     fig_report = go.Figure()
     
+    title_user = trans(title)
     # Add bar graph for monthly data
     fig_report.add_trace(go.Bar(
         x=sorted_months,
         y=sorted_counts,
-        name=f'{title} per interval',
+        name=_('%(title)s per interval') % {'title': title_user},
         text=sorted_counts,
         textposition='outside',
         marker=dict(color='rgba(255, 99, 132, 1)'),
         yaxis='y2'  # Assign to y2 axis
         
     ))
-    
+   
     # Add scatter (line) graph for cumulative data
     fig_report.add_trace(go.Scatter(
         x=sorted_months,
         y=cumulative_counts,
         mode='lines+markers+text',
-        name=f'Total {title}',
+        name=_('Total %(title)s') % {'title': title_user},
         text=cumulative_counts,
         textposition='top center',
         line=dict(color='rgba(54, 162, 235, 1)')
@@ -913,16 +914,16 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
     # Update layout
     fig_report.update_layout(
         xaxis=dict(
-            title='Reporting Date',
+            title=_('Reporting Date'),
             tickformat='%Y-%m-%d',
         ),
         yaxis=dict(
-            title='Cumulative Total',
+            title=_('Cumulative Total'),
             titlefont=dict(color='rgba(54, 162, 235, 1)'),
             tickfont=dict(color='rgba(54, 162, 235, 1)')
         ),
         yaxis2=dict(
-            title=f'{title} per Interval',
+            title=_('%(title)s per interval') % {'title': title_user},
             titlefont=dict(color='rgba(255, 99, 132, 1)'),
             tickfont=dict(color='rgba(255, 99, 132, 1)'),
             overlaying='y',
@@ -936,7 +937,7 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
             xanchor="center",
             x=0.5
         ),
-        title=f'{title} Creation Report',
+        title = trans('%(title)s Creation Report') % {'title': title},
         barmode='group'  # Ensure bars are grouped
     )
     

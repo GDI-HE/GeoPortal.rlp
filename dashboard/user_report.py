@@ -12,7 +12,9 @@ import json
 import time
 from django.http import JsonResponse
 from dashboard.dashboard_utils import convert_to_datetime
+from django.utils.translation import gettext as _
 
+#I presume this python file is not used anywhere else. Check once if this is used anywhere else. If not used, delete the file and its dependencies (eg: import in other files)
 def upload_file(request):
     reporting_date_list = []
     if request.method == 'POST':
@@ -157,7 +159,7 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
         x=sorted_months,
         y=sorted_counts,
         mode='lines+markers+text',
-        name=f'{title} per interval',
+        name=_('%(title)s per interval') % {'title': title},
         text=sorted_counts,
         textposition='top center'
     ))
@@ -165,14 +167,14 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
         x=sorted_months,
         y=cumulative_counts,
         mode='lines+markers+text',
-        name=f'Total {title}',
+        name=_('Total %(title)s') % {'title': title},
         text=cumulative_counts,
         textposition='top center'
     ))
     
     fig_report.update_layout(
         xaxis=dict(
-            title='Reporting Date',
+            title=_('Reporting Date'),
             tickformat='%Y-%m-%d',
         ),
         legend=dict(

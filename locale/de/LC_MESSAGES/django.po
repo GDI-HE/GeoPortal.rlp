@@ -2358,3 +2358,21 @@ msgstr "Hochladen"
 
 msgid "Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed."
 msgstr "Stellen Sie sicher, dass die CSV-Datei die richtigen Kopfzeilen und das korrekte Format hat. Es ist nur eine Spalte mit der Kopfzeile 'reporting_date' und dem Datumsformat 'YYYY-MM-DD' (z. B. 2024-01-15) erlaubt."
+
+msgid "%(title)s per interval"
+msgstr "%(title)s pro Intervall"
+
+msgid "Total %(title)s"
+msgstr "Gesamt %(title)s"
+
+msgid "USER"
+msgstr "Benutzer"
+
+msgid "Reporting Date"
+msgstr "Berichtsdatum"
+
+msgid "Cumulative Total"
+msgstr "Kumulativsumme"
+
+msgid "%(title)s Creation Report"
+msgstr "%(title)s Erstellungsbericht"
