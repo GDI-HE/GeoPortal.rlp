@@ -605,7 +605,7 @@ function generate_report(data) {
 
     const option = {
         title: {
-            text: 'Active sessions (last 24 hours)',
+            text: activeSessionsText,
             left: 'center',
             textStyle: {
                 color: 'black',
