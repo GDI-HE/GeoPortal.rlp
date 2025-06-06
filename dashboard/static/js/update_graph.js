@@ -484,6 +484,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                     <img src="${imageUrl}" alt="CSV Format Example" class="img-fluid mt-2 rounded border">
 
                                 </div>
+                                <div class="mt-3">
+                                    <a href="${sampleCSVUrl}" download class="btn btn-outline-success">
+                                    <i class="fa fa-download"></i> ${TRANSLATIONS.download_csv || "Download Sample CSV"}
+                                    </a>
+                                </div>
                                 <div class="modal-footer">
                                 </div>
                                 </div>

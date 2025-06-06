@@ -2379,3 +2379,7 @@ msgstr "%(title)s Erstellungsbericht"
 
 msgid "Information regarding the CSV file"        
 msgstr "Hinweis zur CSV-Datei"
+
+msgid "Download Sample CSV"
+msgstr "Beispiel-CSV herunterladen"
+

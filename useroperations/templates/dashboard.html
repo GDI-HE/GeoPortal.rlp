@@ -320,6 +320,7 @@
         <!-- script you can write it here for now. Later write it in check_abstracts.js -->
         <script>
             const imageUrl = "{% static 'images/reporting_date.jpg' %}";
+            const sampleCSVUrl = "{% static 'images/sample_report.csv' %}";
             const filterUrl = "{% url 'dashboard:filter' %}";
             const downloadCsvUrl = "{% url 'dashboard:download_csv' %}";
             const startDate = "{{ start_date }}";
@@ -344,7 +345,8 @@
                 upload_prompt: "{% trans 'Upload a CSV file to generate a report.' %}",
                 upload_button: "{% trans 'Upload' %}",
                 tooltip_instruction: `{% blocktrans %}Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed.{% endblocktrans %}`,
-                modal_title: "{% trans 'Information regarding the CSV file' %}"
+                modal_title: "{% trans 'Information regarding the CSV file' %}",
+                download_csv: "{% trans 'Download Sample CSV' %}"
             };
         </script>
 </body
