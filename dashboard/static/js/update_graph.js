@@ -455,16 +455,40 @@ document.addEventListener('DOMContentLoaded', function() {
                     const modifiedFormHtml = '<input type="file" name="file" required id="id_file" accept=".csv">'; // Example form HTML
 
                     let htmlContent = `
-                           <p>${TRANSLATIONS.upload_prompt}
-                            <i class="fa fa-info-circle" data-toggle="tooltip" title="${TRANSLATIONS.tooltip_instruction}"></i>
-                            </p>
-                        
-                        <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
-                            <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-                            ${modifiedFormHtml}
-                            <input type="hidden" name="contenttype" id="contentType" value="${reportContentType}"> <!-- Use the report contentType -->
-                            <button type="submit" class="btn btn-primary">${TRANSLATIONS.upload_button}</button>
-                        </form>
+                        <p>
+                                ${TRANSLATIONS.upload_prompt}
+                                <!-- Info button triggers a modal instead of a tooltip -->
+                                <button type="button" class="btn btn-sm btn-outline-info ml-2" data-toggle="modal" data-target="#infoModal">
+                                    <i class="fa fa-info-circle"></i>
+                                </button>
+                        </p>
+
+                            <form id="reportForm" method="post" enctype="multipart/form-data" data-url="${filterUrl}">
+                                <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
+                                ${modifiedFormHtml}
+                                <input type="hidden" name="contenttype" id="contentType" value="${reportContentType}">
+                                <button type="submit" class="btn btn-primary">${TRANSLATIONS.upload_button}</button>
+                            </form>
+
+                            <!-- Modal for information -->
+                            <div class="modal fade" id="infoModal" tabindex="-1" role="dialog" aria-labelledby="infoModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                <div class="modal-content">
+                                <div class="modal-header bg-info text-white">
+                                    <h5 class="modal-title" id="infoModalLabel">${TRANSLATIONS.modal_title || "Hinweis zur CSV-Datei"}</h5>
+
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    ${TRANSLATIONS.tooltip_instruction}
+                                    <img src="${imageUrl}" alt="CSV Format Example" class="img-fluid mt-2 rounded border">
+
+                                </div>
+                                <div class="modal-footer">
+                                </div>
+                                </div>
+                            </div>
+                            </div>
                     `;
 
                     $('#dynamicContent').html(htmlContent);

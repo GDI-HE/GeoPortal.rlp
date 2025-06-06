@@ -2376,3 +2376,6 @@ msgstr "Kumulativsumme"
 
 msgid "%(title)s Creation Report"
 msgstr "%(title)s Erstellungsbericht"
+
+msgid "Information regarding the CSV file"        
+msgstr "Hinweis zur CSV-Datei"
