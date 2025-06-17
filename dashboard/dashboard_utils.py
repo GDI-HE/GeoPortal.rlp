@@ -78,12 +78,12 @@ def get_time_period(date, dropdown_value):
     if dropdown_value == 'daily':
         return date.strftime('%Y-%m-%d')
     elif dropdown_value == 'weekly':
-        return f"{date.isocalendar()[0]}-W{date.isocalendar()[1]:02d}"
+        return f"{date.isocalendar()[0]}-KW{date.isocalendar()[1]:02d}"
     elif dropdown_value in ['biyearly', '6months']:
         if date.month <= 6:
-            return f"{date.year}-H1"
+            return f"{date.year} Jan-Juni"
         else:
-            return f"{date.year}-H2"
+            return f"{date.year} Juli-Dez"
     elif dropdown_value == 'yearly':
         return date.strftime('%Y')
     else:  # default to monthly
