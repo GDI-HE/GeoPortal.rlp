@@ -684,7 +684,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         name=title[:3], 
         yaxis='y2', 
         marker=dict(color='rgba(54, 162, 235, 1)'),
-        offset=1 
+        #offset=1 
     ))
 
     # Add cumulative new users line graph

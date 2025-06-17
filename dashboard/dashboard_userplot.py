@@ -51,7 +51,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         name=_('New user'),
         yaxis='y2', 
         marker=dict(color='rgba(54, 162, 235, 1)'),
-        offset=1
+        #offset=1
     ))
     
     # Add cumulative new users line graph
