@@ -2276,7 +2276,7 @@ msgid "monthly"
 msgstr "monatlich"
 
 msgid "6months"
-msgstr "6 monat"
+msgstr "halbjährlich"
 
 msgid "yearly"
 msgstr "jährlich"
