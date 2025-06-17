@@ -92,7 +92,8 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
         yaxis=dict(
             title=_('Cumulative new users'),
             titlefont=dict(color='rgba(255, 0, 0, 1)'),
-            tickfont=dict(color='rgba(255, 0, 0, 1)')
+            tickfont=dict(color='rgba(255, 0, 0, 1)'),
+            tickformat='d',
         ),
         yaxis2=dict(
             title=_('New user') + f' ({translated_value})',
@@ -100,7 +101,8 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
             tickfont=dict(color='rgba(54, 162, 235, 1)'),
             overlaying='y',
             side='right', 
-            position=0.97
+            position=0.97,
+            tickformat='d',
         ),
         yaxis3=dict(
             title=_('Deleted users') + f' ({translated_value})',
@@ -110,6 +112,7 @@ def generate_user_plot(start_date, end_date, dropdown_value='monthly'):
             overlaying='y',
             side='right',
             position=1,
+            tickformat='d',
         ),
         legend=dict(
             orientation="h",

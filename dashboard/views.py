@@ -716,7 +716,8 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
         yaxis=dict(
             title=yaxis_title,
             titlefont=dict(color='rgba(255, 0, 0, 1)'),
-            tickfont=dict(color='rgba(255, 0, 0, 1)')
+            tickfont=dict(color='rgba(255, 0, 0, 1)'),
+            tickformat='d',
         ),
         yaxis2=dict(
             title=yaxis2_title,
@@ -725,6 +726,7 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
             overlaying='y',
             side='right',
             position=0.97,
+            tickformat='d',
         ),
         yaxis3=dict(
             title=yaxis3_title,
@@ -733,7 +735,8 @@ def create_plotly_figure(sorted_periods, sorted_counts, cumulative_counts, sorte
             anchor='free',
             overlaying='y',
             side='right',
-            position=1
+            position=1,
+            tickformat='d',
         ),
         legend=dict(
             orientation="h",
