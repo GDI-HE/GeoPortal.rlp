@@ -267,11 +267,8 @@ def index_view(request, wiki_keyword=""):
     results = []
 
     user = check_user_login(request)
-    def return_true_false(a):
-        if isinstance(user, HttpResponseRedirect):
-            return True
-        else:
-            return False
+    def return_true_false(user):
+        return not isinstance(user, HttpResponseRedirect)
 
     # In a first run, we check if the mapbender login has worked, which is indicated by a 'status' GET parameter.
     # Since this is not nice to have in your address bar, we exchange the GET parameter with a pretty message for the user
@@ -343,7 +340,7 @@ def index_view(request, wiki_keyword=""):
                "show_search_container": SHOW_SEARCH_CONTAINER,
                "show_paging": SHOW_PAGING,
                "max_results": MAX_RESULTS,
-               "return_true_false": return_true_false,
+               "return_true_false": not isinstance(user, HttpResponseRedirect)
                }
     geoportal_context.add_context(context=context)
 

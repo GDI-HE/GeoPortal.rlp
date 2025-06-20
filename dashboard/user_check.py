@@ -51,7 +51,7 @@ def check_user_login(request):
                 try:
                     user = MbUser.objects.get(mb_user_id=userid)
                 except MbUser.DoesNotExist:
-                    pass
+                    return redirect('useroperations:index')
 
                 # Check if the user belongs to the allowed group(s)
                 allowed_groups = ALLOWED_GROUPS
@@ -59,15 +59,15 @@ def check_user_login(request):
                     mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
                 ).values_list('mb_group_name', flat=True)
                 if not any(group in allowed_groups for group in user_groups):
-                    pass
+                    return redirect('useroperations:index')
                 return user
             else:
-                pass
+                return redirect('useroperations:index')
             
             # if user is None:
             #     messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page.!"))
             #     return redirect('useroperations:index')
         else:
-            pass
+            return redirect('useroperations:index')
     else:
-        pass
+        return redirect('useroperations:index')
