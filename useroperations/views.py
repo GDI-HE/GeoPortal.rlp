@@ -33,6 +33,7 @@ from datetime import date
 # from thefuzz import fuzz     ## also include the fuzz in the requirements.txt if fuzz is needed in WMC search
 from django.core.cache import cache
 from functools import wraps
+from dashboard.user_check import check_user_login
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
@@ -265,6 +266,13 @@ def index_view(request, wiki_keyword=""):
     output = ""
     results = []
 
+    user = check_user_login(request)
+    def return_true_false(a):
+        if isinstance(user, HttpResponseRedirect):
+            return True
+        else:
+            return False
+
     # In a first run, we check if the mapbender login has worked, which is indicated by a 'status' GET parameter.
     # Since this is not nice to have in your address bar, we exchange the GET parameter with a pretty message for the user
     # and reload the same route simply again to get rid of the GET parameter.
@@ -334,7 +342,8 @@ def index_view(request, wiki_keyword=""):
                "top_news": top_news,
                "show_search_container": SHOW_SEARCH_CONTAINER,
                "show_paging": SHOW_PAGING,
-               "max_results": MAX_RESULTS
+               "max_results": MAX_RESULTS,
+               "return_true_false": return_true_false,
                }
     geoportal_context.add_context(context=context)
 
