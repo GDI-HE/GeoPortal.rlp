@@ -64,9 +64,6 @@ def check_user_login(request):
             else:
                 return redirect('useroperations:index')
             
-            # if user is None:
-            #     messages.add_message(request, messages.ERROR, _("You do not have the necessary permissions to access this page.!"))
-            #     return redirect('useroperations:index')
         else:
             return redirect('useroperations:index')
     else:
