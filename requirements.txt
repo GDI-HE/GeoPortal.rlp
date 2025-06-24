@@ -27,6 +27,6 @@ pyyaml
 ua-parser
 user-agents
 django-user-agents
-kaleido
-pandas
-statsmodels
+kaleido==0.2.1
+pandas==2.2.3
+statsmodels==0.14.4
