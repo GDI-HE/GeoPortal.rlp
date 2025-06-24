@@ -44,9 +44,25 @@ def read_reporting_dates_from_csv(file):
     csv_reader = csv.DictReader(file.read().decode('utf-8').splitlines())
     try:
         for row in csv_reader:
-            date = tm.datetime.strptime(row['reporting_date'], '%Y-%m-%d')
-            reporting_date_list.append(date)
-            csv_data.append(row)
+            raw_date = row.get('reporting_date', '').strip()
+            parsed_date = None
+
+            # Try parsing ISO format
+            try:
+                parsed_date = tm.datetime.strptime(raw_date, '%Y-%m-%d')
+            except ValueError:
+                pass
+
+            # Try parsing German format
+            if not parsed_date:
+                try:
+                    parsed_date = tm.datetime.strptime(raw_date, '%d.%m.%Y')
+                except ValueError:
+                    pass
+
+            if parsed_date:
+                reporting_date_list.append(parsed_date)
+                csv_data.append(row)
         return reporting_date_list, csv_data
     except KeyError:
         return JsonResponse({'error': 'reporting_date column not found in the CSV file.'})
