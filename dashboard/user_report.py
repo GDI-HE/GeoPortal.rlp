@@ -61,7 +61,12 @@ def read_reporting_dates_from_csv(file):
                     pass
 
             if parsed_date:
-                reporting_date_list.append(parsed_date)
+                parsed_date_str = parsed_date.strftime('%Y-%m-%d')
+
+                # Update the row's reporting_date to normalized format
+                row['reporting_date'] = parsed_date_str
+
+                reporting_date_list.append(parsed_date_str)
                 csv_data.append(row)
         return reporting_date_list, csv_data
     except KeyError:
