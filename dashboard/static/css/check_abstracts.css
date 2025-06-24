@@ -665,5 +665,4 @@ table tr:hover {
 .sticky-header th {
     position: sticky;      /* Enables sticky positioning */
     top: 0;                /* Sticks to the top of the scroll container */
-    z-index: 2;            /* Ensures it stays above other content */
 }
