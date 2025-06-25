@@ -404,9 +404,9 @@ document.addEventListener('DOMContentLoaded', function() {
               $('#modalGraphContent').html(modifiedData);
           } else {
               $('#modalGraphContent').html('<p>No data available for the selected graph. There might be internet issue or the user has been logged out. The page will be reloaded automatically after 3 seconds.</p>');
-              setTimeout(function() {
-                location.reload();  // Reload the current page
-                }, 3000); 
+            //   setTimeout(function() {
+            //     location.reload();  // Reload the current page
+            //     }, 3000); 
             }
                 // $('#modalGraphContent').attr('srcdoc', data[contentType]);
 
