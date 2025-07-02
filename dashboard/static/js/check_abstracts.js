@@ -34,35 +34,65 @@ function toggleColumnList() {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-    const tooltipTrigger = document.getElementById("tooltip-trigger");
-    const tooltipContent = document.getElementById("tooltip-content");
-  
-    tooltipTrigger.addEventListener("click", function (event) {
+  // Select all buttons with IDs starting with "tooltip-trigger"
+  const tooltipTriggers = document.querySelectorAll("button[id^='tooltip-trigger']");
+
+  // Loop over each tooltip trigger button
+  tooltipTriggers.forEach(function (trigger) {
+    // Get the aria-describedby attribute to find the corresponding tooltip content by ID
+    const tooltipId = trigger.getAttribute("aria-describedby");
+    const tooltipContent = document.getElementById(tooltipId);
+
+    // Handle click event to toggle tooltip visibility
+    trigger.addEventListener("click", function (event) {
       event.stopPropagation();
+
+      // Hide any other open tooltips
+      document.querySelectorAll(".custom-tooltip.show-tooltip").forEach(function (tooltip) {
+        if (tooltip !== tooltipContent) {
+          tooltip.classList.remove("show-tooltip");
+        }
+      });
+
+      // Toggle the tooltip visibility for the clicked button
       tooltipContent.classList.toggle("show-tooltip");
-  
+
+      // Focus the tooltip content if shown for accessibility
       if (tooltipContent.classList.contains("show-tooltip")) {
         tooltipContent.focus();
       }
     });
-  
-    tooltipTrigger.addEventListener("keydown", function (event) {
+
+    // Handle keyboard events (Enter or Space)
+    trigger.addEventListener("keydown", function (event) {
       if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
         event.stopPropagation();
+
+        // Hide other tooltips before toggling current one
+        document.querySelectorAll(".custom-tooltip.show-tooltip").forEach(function (tooltip) {
+          if (tooltip !== tooltipContent) {
+            tooltip.classList.remove("show-tooltip");
+          }
+        });
+
         tooltipContent.classList.toggle("show-tooltip");
-  
+
         if (tooltipContent.classList.contains("show-tooltip")) {
           tooltipContent.focus();
         }
       }
     });
-  
-    document.addEventListener("click", function () {
-      if (tooltipContent.classList.contains("show-tooltip")) {
-        tooltipContent.classList.remove("show-tooltip");
-      }
+  });
+
+  // Clicking outside closes any open tooltip
+  document.addEventListener("click", function () {
+    document.querySelectorAll(".custom-tooltip.show-tooltip").forEach(function (tooltip) {
+      tooltip.classList.remove("show-tooltip");
     });
   });
+});
+
   
   // Add this function at the beginning of your script
 function resetColumnToggles() {
