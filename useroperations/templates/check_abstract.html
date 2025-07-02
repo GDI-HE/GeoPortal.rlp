@@ -116,7 +116,12 @@
 
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
-
+<div class="legend-container" style="margin-bottom: 1rem; font-size: 0.9rem;">
+    <strong>{% trans "Test Criteria" %}:</strong>
+    <span><i class="fas fa-circle green-dot">✔</i> {% trans "All criteria met" %}</span> &nbsp;&nbsp;
+    <span><i class="fas fa-circle red-dot">✖</i> {% trans "One or more criteria missing" %}</span> &nbsp;&nbsp;
+    <span><i class="fas fa-circle white-dot"></i> {% trans "Check individual column's info button" %}</span> &nbsp;&nbsp;
+</div>
 
     <table id="serviceTable">
         <thead class="sticky-header">
@@ -160,7 +165,26 @@
                       
                       
                 </th>
-                <th style="display: none;">{% trans 'ISO Categorized' %}</th>
+                <th style="display: none;">{% trans 'ISO Categorized' %}
+                    <div class="tooltip-wrapper">
+                        <button 
+                        id="tooltip-trigger-iso" 
+                        class="btn btn-info" 
+                        aria-describedby="tooltip-content-iso">
+                        <i class="fas fa-info-circle"></i>
+                        </button>
+                        <div id="tooltip-content-iso" class="custom-tooltip" tabindex="-1" role="tooltip">
+                        <div class="tooltip-item">
+                            <span class="tooltip-icon white-icon"></span>
+                            <span>{% trans 'ISO category does not exist' %}</span>
+                        </div>
+                        <div class="tooltip-item">
+                            <i class="fas fa-circle green-dot">✔</i>
+                            <span> {% trans 'ISO Categorised' %}</span>
+                        </div>
+                        </div>
+                    </div>
+                </th>
 
                 <th>{% trans 'Actions' %}</th>
                

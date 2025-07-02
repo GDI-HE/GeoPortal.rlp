@@ -2383,3 +2383,15 @@ msgstr "Hinweis zur CSV-Datei"
 msgid "Download Sample CSV"
 msgstr "Beispiel-CSV herunterladen"
 
+msgid "Test Criteria"
+msgstr "Prüfkriterien"
+
+msgid "All criteria met"
+msgstr "Alle Kriterien erfüllt"
+
+msgid "One or more criteria missing"
+msgstr "Ein oder mehrere Kriterien fehlen"
+
+msgid "Check individual column's info button"
+msgstr "Info-Button der einzelnen Spalten prüfen"
+
