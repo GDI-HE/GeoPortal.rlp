@@ -2395,3 +2395,9 @@ msgstr "Ein oder mehrere Kriterien fehlen"
 msgid "Check individual column's info button"
 msgstr "Info-Button der einzelnen Spalten prüfen"
 
+msgid "ISO category does not exist"
+msgstr "ISO Kategorie existiert nicht"
+
+msgid "ISO Categorised"
+msgstr "ISO kategorisiert"
+
