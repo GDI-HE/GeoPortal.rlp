@@ -1480,17 +1480,19 @@ def feedback_view(request: HttpRequest):
                 "address": form.cleaned_data["email"],
                 "message": form.cleaned_data["message"],
             }
+            from_email = "noreply@hvbg.hessen.de"
             try:
 
-                send_mail(
+                email = EmailMessage(
                     _("Geoportal Feedback"),
                     _("Feedback from ") + form.cleaned_data["first_name"] + " " + form.cleaned_data["family_name"]
                     + ", \n \n" +
                     form.cleaned_data["message"],
-                    form.cleaned_data["email"],
+                    from_email,
                     [DEFAULT_TO_EMAIL],
-                    fail_silently=False,
+                    reply_to=[form.cleaned_data["email"]],
                 )
+                email.send(fail_silently=False)
             except smtplib.SMTPException:
                 logger.error("Could not send feedback mail!")
                 messages.error(request, _("An error occured during sending. Please inform an administrator."))
