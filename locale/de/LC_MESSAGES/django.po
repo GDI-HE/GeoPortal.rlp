@@ -2401,3 +2401,7 @@ msgstr "ISO Kategorie existiert nicht"
 msgid "ISO Categorised"
 msgstr "ISO kategorisiert"
 
+msgid "No data available for the selected graph. There might be internet issue or the user has been logged out. The page will be reloaded automatically after 3 seconds."
+msgstr "Für das ausgewählte Diagramm sind keine Daten verfügbar. Es könnte ein Internetproblem vorliegen oder Sie wurden abgemeldet. Die Seite wird in 3 Sekunden automatisch neu geladen."
+
+

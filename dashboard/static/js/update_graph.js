@@ -270,7 +270,7 @@ return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
               modifiedData = modifiedData.replace(/"title":\{"text":"[^"]*"\}/, '"title":{"text":""}');
               $('#modalGraphContent').html(data[contentType]);  // Inject Plotly chart HTML directly instead of attr('srcdoc')
           } else {
-              $('#modalGraphContent').html('<p>No data available for the selected graph. There might be internet issue or the user has been logged out. The page will be reloaded automatically after 3 seconds.</p>');
+              $('#modalGraphContent').html('<p>' + TRANSLATIONS.noDataAvailable + '</p>');
               setTimeout(function() {
                 location.reload();  // Reload the current page
                 }, 3000); 
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', function() {
               modifiedData = modifiedData.replace(/"title":\{"text":"[^"]*"\}/, '"title":{"text":""}');
               $('#modalGraphContent').html(modifiedData);
           } else {
-              $('#modalGraphContent').html('<p>No data available for the selected graph. There might be internet issue or the user has been logged out. The page will be reloaded automatically after 3 seconds.</p>');
+              $('#modalGraphContent').html('<p>' + TRANSLATIONS.noDataAvailable + '</p>');
             //   setTimeout(function() {
             //     location.reload();  // Reload the current page
             //     }, 3000); 
