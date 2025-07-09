@@ -36,6 +36,7 @@ from django.db.models.functions import Length
 from dashboard.user_check import check_user
 from django.utils.translation import gettext as trans
 from django.utils.timezone import localtime
+from useroperations.views import check_user_login
 
 
 def render_template(request, template_name):
@@ -180,6 +181,8 @@ def render_template(request, template_name):
     user = check_user(request)
     if isinstance(user, HttpResponseRedirect):
             return user  # Redirect if the user is not authenticated or does not have permissions
+    # use this to show the Admin Dashboard button also in the dashboard page
+    user_login = check_user_login(request)
 
 
     #users_before_start_date_count = MbUser.objects.filter(timestamp_create__lt=start_date).count()
@@ -455,7 +458,8 @@ def render_template(request, template_name):
         'data_14_days': data_14_days,  # Session counts for the graph
         'default_wmc_id': BORIS_HESSEN_2024,  # Set this to the default option
         'sidebar_closed': True, # This will open the sidebar by default while loading dashboard.html
-        'all_list': all_list
+        'all_list': all_list,
+        "return_true_falses": not isinstance(user_login, HttpResponseRedirect)
     }
     geoportal_context = GeoportalContext(request=request)
     geoportal_context.add_context(context=context)
