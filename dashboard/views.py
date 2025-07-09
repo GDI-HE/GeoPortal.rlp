@@ -1148,7 +1148,7 @@ def get_layer_statistics(layers):
     }
 
 def check_layer_abstracts_and_keywords(request):
-
+            user_login = check_user_login(request)
             search_query = request.GET.get('search', '')
             user = check_user(request)
             if isinstance(user, HttpResponseRedirect):
@@ -1269,6 +1269,7 @@ def check_layer_abstracts_and_keywords(request):
                 'total_layers_without_keyword': total_layers_without_keyword,
                 'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
                 'total_layers_with_short_abstract': total_layers_with_short_abstract,
+                'return_true_falses': not isinstance(user_login, HttpResponseRedirect),
             }
             geoportal_context = GeoportalContext(request=request)
             geoportal_context.add_context(context=context)
