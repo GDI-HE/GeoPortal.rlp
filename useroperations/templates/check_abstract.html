@@ -300,6 +300,16 @@
                         </div>
                     </div>
                     <div class="dropdown">
+                        <div class="dropdown-title">{% trans 'Layer Names' %} <i class="fas fa-info-circle"></i></div>
+                        <div class="dropdown-content">
+                            <ul>
+                                {% for layer_name in result.layer_names %}
+                                <li>{{ layer_name }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="dropdown">
                         <div class="dropdown-title">{% trans 'Layers Without Abstracts' %} 
                            {% if result.layers_without_abstract_names %} 
                             <i class="fas fa-info-circle red-icon"></i>
@@ -345,16 +355,6 @@
                         <div class="dropdown-content">
                             <ul>
                                 {% for layer_name in result.layers_abstract_matches_title_names %}
-                                <li>{{ layer_name }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">{% trans 'Layer Names' %} <i class="fas fa-info-circle"></i></div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for layer_name in result.layer_names %}
                                 <li>{{ layer_name }}</li>
                                 {% endfor %}
                             </ul>
