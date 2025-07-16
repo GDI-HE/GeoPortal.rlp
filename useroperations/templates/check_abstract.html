@@ -82,13 +82,13 @@
         </li>
         <li>
             <label class="switch">
-                <input type="checkbox" data-column="6">
+                <input type="checkbox" checked data-column="6">
                 <span class="slider round"></span>
             </label> {% trans 'Abstracts Match Titles' %} 
         </li>
         <li>
             <label class="switch">
-                <input type="checkbox" data-column="7">
+                <input type="checkbox" checked data-column="7">
                 <span class="slider round"></span>
             </label> {% trans 'Layers With Short Abstracts' %} 
         </li>
@@ -191,16 +191,16 @@
             </tr>
         </thead>
      
-        <tbody>
-            {% for result in results %}
-               <div class="spinner" id="spinner"></div>
-                <tr class="main-row {% if result.layers_with_comma_keywords %}{% endif %}">
+  <tbody>
+    {% for result in results %}
+      <tr>
+        
+        <div class="spinner" id="spinner"></div>
                 <td data-label="Serial No.">{{ forloop.counter }}</td>
                 <td data-label="Service ID">{{ result.wms_id }}</td>
                 <td data-label="Service Title">{{ result.wms_title }}</td>
                 <td data-label="Total Layers">{{ result.total_layers }}</td>
-
-                <td data-label="Layers without Abstract">
+        <td data-label="Layers without Abstract">
                    {% if result.layers_without_abstract %}
                     <i class="fas fa-circle red-dot">✖</i>
                     {% else %}
@@ -218,7 +218,7 @@
                     
                     <!-- {{ result.layers_without_keywords }} -->
                 </td>
-                <td data-label="Layers title matches Abstract" style="display: none;">
+                <td data-label="Layers title matches Abstract">
                     {% for match in result.layers_abstract_match %}
                    {% if match == 'Y' %} 
                    <i class="fas fa-circle red-dot">✖</i>
@@ -227,7 +227,7 @@
                     {% endif %} 
                     {% endfor %}
                 </td>
-                <td data-label="Layers with short Abstract" style="display: none;">
+                <td data-label="Layers with short Abstract">
                    {% if result.layers_with_short_abstract_count > 0 %}
                     <i class="fas fa-circle red-dot">✖</i>
                     {% else %} 
@@ -262,159 +262,95 @@
                    {% endif %} 
                   
                 </td>
-                <td data-label="Actions">
-                    <button class="dropdown-btn" onclick="toggleDropdown(this)">{% trans 'Show Details' %} </button>
-                </td>
-                
-                  
-                
-            </tr>
-            <tr class="details-section">
-                <td colspan="12">
-                    <div class="dropdown-container">
-                    <div class="dropdown">
-                        <div class="dropdown-title">
-                            {% trans 'Keywords Present' %}
-                           {% if result.keywords_present %} 
-                            <i class="fas fa-info-circle"></i>
-                           {% else %}
-                            <i class="fas fa-info-circle red-icon"></i>
-                        {% endif %}
-                    </div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for keyword in result.keywords_present %}
-                                <li>{{ keyword }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">{% trans 'Abstracts Present' %} <i class="fas fa-info-circle"></i></div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for abstract in result.abstracts_present %}
-                                <li>{{ abstract }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">{% trans 'Layer Names' %} <i class="fas fa-info-circle"></i></div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for layer_name in result.layer_names %}
-                                <li>{{ layer_name }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">{% trans 'Layers Without Abstracts' %} 
-                           {% if result.layers_without_abstract_names %} 
-                            <i class="fas fa-info-circle red-icon"></i>
-                            {% else %}
-                            <i class="fas fa-info-circle"></i>
-                        {% endif %}
-                        </div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for layer_name in result.layers_without_abstract_names %}
-                                <li>{{ layer_name }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">
-                            {% trans 'Layers Without Keywords' %} 
-                           {% if result.layers_without_keyword_names %} 
-                            <i class="fas fa-info-circle red-icon"></i>
-                           {% else %}
-                            <i class="fas fa-info-circle"></i> 
-                        {% endif %}
-                        </div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for layer_name in result.layers_without_keyword_names %}
-                                <li>{{ layer_name }}</li>
-                                
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">
-                            {% trans 'Layers Where Abstract Matches Title' %} 
-                           {% if result.layers_abstract_matches_title_names %} 
-                            <i class="fas fa-info-circle red-icon"></i>
-                           {% else %}
-                            <i class="fas fa-info-circle"></i>
-                        {% endif %}
-                        </div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for layer_name in result.layers_abstract_matches_title_names %}
-                                <li>{{ layer_name }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">
-                            {% trans 'Layers With Short Abstracts' %}
-                           {%if result.layers_with_short_abstract_info %} 
-                            <i class="fas fa-info-circle red-icon"></i>
-                            {% else %}
-                            <i class="fas fa-info-circle"></i>
-                        {% endif %}
-                        </div>
-                        <div class="dropdown-content">
-                            <ul>
-                                {% for layer_name, layer_abstract in result.layers_with_short_abstract_info %}
-                                <li class="short-abstract">{{ layer_name }}: {{ layer_abstract }}</li>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">
-                            {% trans 'Information on costs/fees/licenses' %} 
-                           {% if result.wms_fees|length > 5 %} 
-                            <i class="fas fa-info-circle"></i>
-                           {% else %}
-                            <i class="fas fa-info-circle red-icon"></i> 
-                        {% endif %}
-                        </div>
-                        <div class="dropdown-content">
-                            <ul>{{ result.wms_fees }}</ul>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <div class="dropdown-title">
-                            {% trans 'Restrictions on public access' %} 
-                            {% if result.wms_accessconstraints|length > 5 %}
-                            <i class="fas fa-info-circle"></i>
-                            {% else %}
-                            <i class="fas fa-info-circle red-icon"></i>
-                        {% endif %}
-                        </div>
-                        <div class="dropdown-content">
-                            <ul>{{ result.wms_accessconstraints }}</ul>
-                        </div>
-                    </div>
-                </div>
-                </td>
-            </tr>
-            {% endfor %}
-    </table>
+        
     
+      
+           <td>
+          <button class="btn btn-sm btn-info" type="button" data-toggle="collapse" data-target="#details-{{ forloop.counter }}">
+            {% trans 'Details' %}
+          </button>
+        </td>
+                
+     
+      </tr>
+      <tr class="collapse" id="details-{{ forloop.counter }}">
+        <td colspan="5">
+          <table class="table table-sm table-bordered mb-0">
+            <thead class="thead-light">
+              <tr>
+                <th>{% trans 'Layer Name' %}</th>
+                <th>{% trans 'Missing Abstract' %}</th>
+                <th>{% trans 'Missing Keywords' %}</th>
+                <th>{% trans 'Abstract = Title' %}</th>
+                <th>{% trans 'Short Abstract' %}</th>
+                <th>{% trans 'Data-Service connection' %}</th>
+                <th>{% trans 'Information on costs/fees/licenses' %}</th>
+                <th>{% trans 'Restrictions on public access' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for layer in result.layers %}
+                <tr>
+                  <td>{{ layer.name }}</td>
+                  <td>
+                    {% if layer.missing_abstract %}
+                      <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Abstract' %}"></i>
+                    {% else %}
+                      <i class="fas fa-check-circle text-success" title="OK"></i>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if layer.missing_keywords %}
+                      <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Keywords. Please add the Keywords in the layer.' %}"></i>
+                    {% else %}
+                      <i class="fas fa-check-circle text-success" title="OK"></i>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if layer.abstract_matches_title %}
+                      <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Abstract matches Title. Change the Abstract.' %}"></i>
+                    {% else %}
+                      <i class="fas fa-check-circle text-success" title="OK"></i>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if layer.short_abstract %}
+                      <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Short Abstract. Please add atleast 50 characters' %}"></i>
+                    {% else %}
+                      <i class="fas fa-check-circle text-success" title="OK"></i>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if layer.data_service_connection %}
+                      <i class="fas fa-check-circle text-success" title="{% trans 'Connected' %}"></i>
+                    {% else %}
+                      <i class="fas fa-times-circle text-danger" title="{% trans 'Not connected' %}"></i>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {{ layer.fees|default:'-' }}
+                  </td>
+                  <td>
+                    {{ layer.accessconstraints|default:'-' }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
     <script>
-        let serialNo = {{ results|length }}; // Start serial number from the current number of results
-        const TRANSLATIONS = {
-            show_details: "{% trans 'Show Details' %}",
-            hide_details: "{% trans 'Hide Details' %}"
-        };
+             let serialNo = {{ results|length }}; // Start serial number from the current number of results
+             const TRANSLATIONS = {
+show_details: "{% trans 'Show Details' %}",
+hide_details: "{% trans 'Hide Details' %}"
+};
+
     </script>
+     
+
 </body>
 {% endblock %}

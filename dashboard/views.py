@@ -1210,6 +1210,56 @@ def check_layer_abstracts_and_keywords(request):
                 # Get all unique layers for this WMS
                 layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
                 layer_stats = get_layer_statistics(layers)
+                wms_title = wms.wms_title or ""
+                wms_abstract = wms.wms_abstract or ""
+                keywords = list(
+                    LayerKeyword.objects.filter(fkey_layer__in=layers).values_list('fkey_keyword__keyword', flat=True)
+                )
+                layer_names = list(layers.values_list('layer_title', flat=True))
+
+                # --- Build per-layer data for frontend ---
+                layers_data = []
+                for layer in layers:
+                    # Check for missing abstract
+                    missing_abstract = not layer.layer_abstract or layer.layer_abstract.strip() == ''
+                    # Check for missing keywords
+                    has_keywords = LayerKeyword.objects.filter(fkey_layer=layer).exists()
+                    missing_keywords = not has_keywords
+                    # Abstract matches title
+                    abstract_matches_title = (layer.layer_abstract or '').strip() == (layer.layer_title or '').strip()
+                    # Short abstract
+                    short_abstract = bool(layer.layer_abstract) and len(layer.layer_abstract.strip()) < 50
+                    # Keywords list
+                    keywords_list = list(LayerKeyword.objects.filter(fkey_layer=layer).values_list('fkey_keyword__keyword', flat=True))
+                    # Comma/semicolon in keywords
+                    has_comma_keywords = any(',' in kw or ';' in kw for kw in keywords_list)
+                    # Fees and accessconstraints from WMS
+                    fees = wms.fees
+                    accessconstraints = wms.accessconstraints
+                    # Data service connection (dummy, adjust as needed)
+                    data_service_connection = layer.fkey_wms_id is not None
+                    # INSPIRE monitoring status (dummy, adjust as needed)
+                    inspire_monitoring_status = None
+                    # ISO categorized (dummy, adjust as needed)
+                    iso_categorized = None
+                    # Add all required fields
+                    layers_data.append({
+                        'name': layer.layer_title,
+                        'missing_abstract': missing_abstract,
+                        'missing_keywords': missing_keywords,
+                        'abstract_matches_title': abstract_matches_title,
+                        'short_abstract': short_abstract,
+                        'keywords': keywords_list,
+                        'has_comma_keywords': has_comma_keywords,
+                        'fees': fees,
+                        'accessconstraints': accessconstraints,
+                        'data_service_connection': data_service_connection,
+                        'inspire_monitoring_status': inspire_monitoring_status,
+                        'iso_categorized': iso_categorized,
+                        'abstract': layer.layer_abstract,
+                        'title': layer.layer_title,
+                    })
+
 
 
                 results.append({
@@ -1233,7 +1283,8 @@ def check_layer_abstracts_and_keywords(request):
                     'wms_fees': wms.fees,
                     'wms_accessconstraints': wms.accessconstraints,
                     'layers_with_comma_keywords': layer_stats['layers_with_comma_keywords'],
-                    'connected_wms': layer_stats['connected_wms']
+                    'connected_wms': layer_stats['connected_wms'],
+                    'layers': layers_data,
                 })
 
                                 #if the wms id matches, send the status true to false
