@@ -2404,4 +2404,47 @@ msgstr "ISO kategorisiert"
 msgid "No data available for the selected graph. There might be internet issue or the user has been logged out. The page will be reloaded automatically after 3 seconds."
 msgstr "Für das ausgewählte Diagramm sind keine Daten verfügbar. Es könnte ein Internetproblem vorliegen oder Sie wurden abgemeldet. Die Seite wird in 3 Sekunden automatisch neu geladen."
 
+msgid "Missing Abstract. Please add the Abstract in the layer."
+msgstr "Abstrakt fehlt. Bitte fügen Sie das Abstrakt in der Ebene hinzu."
 
+msgid "Missing Abstract"
+msgstr "Abstrakt fehlt"
+
+msgid "Missing Keywords. Please add the Keywords in the layer."
+msgstr "Stichwörter fehlen. Bitte fügen Sie die Stichwörter in der Ebene hinzu."
+
+msgid "Abstract matches Title. Change the Abstract."
+msgstr "Abstrakt entspricht dem Titel. Bitte ändern Sie das Abstrakt."
+
+msgid "Short Abstract. Please add atleast 50 characters"
+msgstr "Kurzes Abstrakt. Bitte fügen Sie mindestens 50 Zeichen hinzu."
+
+msgid "Connected"
+msgstr "Verbunden"
+
+msgid "Not connected"
+msgstr "Nicht verbunden"
+
+msgid "Layer Name"
+msgstr "Ebenenname"
+
+msgid "Missing Keywords"
+msgstr "Fehlende Stichwörter"
+
+msgid "Abstract = Title"
+msgstr "Abstrakt = Titel"
+
+msgid "Short Abstract"
+msgstr "Kurzes Abstrakt"
+
+msgid "Layers Without Abstracts. Click on Details button to see the details."
+msgstr "Ebenen ohne Abstrakte. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "The Keywords in the layers are missing. Click on Details button to see the details."
+msgstr "Die Stichwörter in den Ebenen fehlen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "Layer name and abstract matches. Click on Details button to see the details."
+msgstr "Ebenenname und Abstrakt stimmen überein. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "Short Abstracts. Click on Details button to see the details."
+msgstr "Kurze Abstrakte. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."

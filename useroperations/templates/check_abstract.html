@@ -202,18 +202,18 @@
                 <td data-label="Total Layers">{{ result.total_layers }}</td>
         <td data-label="Layers without Abstract">
                    {% if result.layers_without_abstract %}
-                    <i class="fas fa-circle red-dot">✖</i>
+                    <i class="fas fa-circle red-dot" title="{% trans 'Layers Without Abstracts. Click on Details button to see the details'%}">✖</i>
                     {% else %}
-                    <i class="fas fa-circle green-dot">✔</i>
+                    <i class="fas fa-circle green-dot" title="OK">✔</i>
                     {% endif %} 
                     <!-- {{ result.layers_without_abstract }} -->
                 
                 </td>
                 <td data-label="Layers without Keywords">
                    {% if result.layers_without_keywords %}
-                   <i class="fas fa-circle red-dot">✖</i>
+                   <i class="fas fa-circle red-dot" title="{% trans 'The Keywords in the layers are missing. Click on Details button to see the details.'%}">✖</i>
                     {% else %}
-                    <i class="fas fa-circle green-dot">✔</i>
+                    <i class="fas fa-circle green-dot" title="OK">✔</i>
                     {% endif %} 
                     
                     <!-- {{ result.layers_without_keywords }} -->
@@ -221,43 +221,43 @@
                 <td data-label="Layers title matches Abstract">
                     {% for match in result.layers_abstract_match %}
                    {% if match == 'Y' %} 
-                   <i class="fas fa-circle red-dot">✖</i>
+                   <i class="fas fa-circle red-dot" title="{% trans 'Layer name and abstract matches. Click on Details button to see the details.'%}">✖</i>
                      {% elif match == 'N' and match != 'Y' %}
-                        <i class="fas fa-circle green-dot">✔</i>
+                        <i class="fas fa-circle green-dot" title="OK">✔</i>
                     {% endif %} 
                     {% endfor %}
                 </td>
                 <td data-label="Layers with short Abstract">
                    {% if result.layers_with_short_abstract_count > 0 %}
-                    <i class="fas fa-circle red-dot">✖</i>
+                    <i class="fas fa-circle red-dot" title="{% trans 'Short Abstracts. Click on Details button to see the details.'%}">✖</i>
                     {% else %} 
-                    <i class="fas fa-circle green-dot">✔</i>
+                    <i class="fas fa-circle green-dot" title="OK">✔</i>
                     {% endif %}
                     <!-- {{ result.layers_with_short_abstract_count }} -->
                 </td>
                 <td data-label="Data-Service Connection" style="display: none;">
                     {% if result.connected_wms %}
-                        <i class="fas fa-circle green-dot">✔</i>
+                        <i class="fas fa-circle green-dot" title="{% trans 'Connected' %}">✔</i>
                     {% else %}
-                        <i class="fas fa-circle red-dot">✖</i>
+                        <i class="fas fa-circle red-dot" title="{% trans 'Not connected' %}">✖</i>
                     {% endif %}
                 </td>
                 <td data-label="Inspire Category" style="display: none;">
                     {% if result.color == 'white' %}
-                        <i class="fas fa-circle white-dot"></i>
+                        <i class="fas fa-circle white-dot" title="{% trans 'No Inspire Category, nor Inspireidentifiziert' %}"></i>
                     {% elif result.color == 'green' %}
-                        <i class="fas fa-circle green-dot">✔</i>
+                        <i class="fas fa-circle green-dot" title="{% trans 'Both Inspire Category and Inspireidentifiziert' %}">✔</i>
                     {% elif result.color == 'mildred' %}
-                        <i class="fas fa-circle mildred-dot">✖</i>
+                        <i class="fas fa-circle mildred-dot" title="{% trans 'Inspire Category but keyword missing' %}">✖</i>
                     {% else %}
-                        <i class="fas fa-circle mildred1-dot">✖</i>
+                        <i class="fas fa-circle mildred1-dot" title="{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}">✖</i>
                     {% endif %}
                 </td>
                 <td data-label="ISO category" style="display: none;">
                     {% if result.color_iso == 'white-iso' %}
-                    <i class="fas fa-circle white-dot"></i>
+                    <i class="fas fa-circle white-dot" title="{% trans 'ISO category does not exist' %}"></i>
                     {% else %}
-                    <i class="fas fa-circle green-dot">✔</i>
+                    <i class="fas fa-circle green-dot" title="{% trans 'ISO Categorized' %}">✔</i>
                     {{ result.category }}
                    {% endif %} 
                   
@@ -283,7 +283,7 @@
                 <th>{% trans 'Missing Keywords' %}</th>
                 <th>{% trans 'Abstract = Title' %}</th>
                 <th>{% trans 'Short Abstract' %}</th>
-                <th>{% trans 'Data-Service connection' %}</th>
+                <!-- <th>{% trans 'Data-Service connection' %}</th> -->
                 <th>{% trans 'Information on costs/fees/licenses' %}</th>
                 <th>{% trans 'Restrictions on public access' %}</th>
               </tr>
@@ -294,7 +294,7 @@
                   <td>{{ layer.name }}</td>
                   <td>
                     {% if layer.missing_abstract %}
-                      <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Abstract' %}"></i>
+                      <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Abstract. Please add the Abstract in the layer.' %}"></i>
                     {% else %}
                       <i class="fas fa-check-circle text-success" title="OK"></i>
                     {% endif %}
@@ -320,13 +320,13 @@
                       <i class="fas fa-check-circle text-success" title="OK"></i>
                     {% endif %}
                   </td>
-                  <td>
+                  <!-- <td>
                     {% if layer.data_service_connection %}
                       <i class="fas fa-check-circle text-success" title="{% trans 'Connected' %}"></i>
                     {% else %}
                       <i class="fas fa-times-circle text-danger" title="{% trans 'Not connected' %}"></i>
                     {% endif %}
-                  </td>
+                  </td> -->
                   <td>
                     {{ layer.fees|default:'-' }}
                   </td>
