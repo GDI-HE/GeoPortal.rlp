@@ -1493,6 +1493,24 @@ def feedback_view(request: HttpRequest):
                     reply_to=[form.cleaned_data["email"]],
                 )
                 email.send(fail_silently=False)
+                auto_reply = EmailMessage(
+                    _("Vielen Dank für Ihre Rückmeldung"),
+                    _(
+                        "Sehr geehrte/r {last_name},\n\n"
+                        "danke, dass Sie sich die Zeit genommen haben, uns eine Rückmeldung zu geben. "
+                        "Ihr Feedback wurde an das Team vom Geoportal Hessen weitergeleitet.\n\n"
+                        "Hier ist eine Kopie Ihrer Nachricht:\n\n"
+                        "\"{message}\"\n\n"
+                        "Mit freundlichen Grüßen\n"
+                        "Ihr Geoportal-Team"
+                    ).format(
+                        last_name=form.cleaned_data["family_name"],
+                        message=form.cleaned_data["message"]
+                    ),
+                    from_email,
+                    [form.cleaned_data["email"]],
+                )
+                auto_reply.send(fail_silently=False)
             except smtplib.SMTPException:
                 logger.error("Could not send feedback mail!")
                 messages.error(request, _("An error occured during sending. Please inform an administrator."))
