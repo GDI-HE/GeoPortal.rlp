@@ -209,7 +209,7 @@ input:invalid:required, textarea:invalid:required {
 
 .form-wrapper {
     width: 100%;
-    max-width: 600px;
+    max-width: 992px;
 }
 
 #tooltip-content {
