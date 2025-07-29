@@ -18,7 +18,23 @@ function getCookie(cname) {
 }
 
 function resizeIframe(obj) {
-  obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
+  try {
+    const doc = obj.contentDocument || obj.contentWindow.document;
+    if (!doc) return;
+
+    // Höhe initial setzen
+    obj.style.height = doc.body.scrollHeight + 'px';
+
+    // ResizeObserver nur einmal anlegen
+    if (!obj._resizeObserver) {
+      obj._resizeObserver = new ResizeObserver(() => {
+        obj.style.height = doc.body.scrollHeight + 'px';
+      });
+      obj._resizeObserver.observe(doc.body);
+    }
+  } catch (e) {
+    console.warn('resizeIframe error:', e);
+  }
 }
 
 function setCookie(cname, cvalue){
