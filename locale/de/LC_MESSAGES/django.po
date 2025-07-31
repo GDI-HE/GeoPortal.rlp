@@ -2173,19 +2173,19 @@ msgstr "Suchergebnisse werden geladen"
 #~ msgstr "Ein Lupensymbol"
 
 msgid "Layers Without Abstracts"
-msgstr "Ebenen ohne Abstrakte"
+msgstr "Ebenen ohne Kurzbeschreibungen"
 
 msgid "Total across all services"
 msgstr "Gesamtsumme aller Dienste"
 
 msgid "Layers Without Keywords"
-msgstr "Ebenen ohne Stichwort"
+msgstr "Ebenen ohne Schlüsselwort"
 
 msgid "Abstracts Match Titles"
-msgstr "Abstrakte die mit dem Titel übereinstimmen"
+msgstr "Kurzbeschreibungen die mit dem Titel übereinstimmen"
 
 msgid "Layers With Short Abstracts"
-msgstr "Ebenen mit Kurzen Abstrakten"
+msgstr "Ebenen mit kurzen Kurzbeschreibungen"
 
 msgid "Columns"
 msgstr "Spalten"
@@ -2203,7 +2203,7 @@ msgid "Total Layers"
 msgstr "Ebenen Summe"
 
 msgid "Layers Without Abstract"
-msgstr "Ebenen ohne Abstrakt"
+msgstr "Ebenen ohne Kurzbeschreibung"
 
 msgid "Data-Service connection"
 msgstr "Daten-Service-Verbindung"
@@ -2239,10 +2239,10 @@ msgid "Keywords Present"
 msgstr "Schlagwörter"
 
 msgid "Abstracts Present"
-msgstr "Abstrakte"
+msgstr "Kurzbeschreibungen"
 
 msgid "Layers Where Abstract Matches Title"
-msgstr "Ebenen, deren Abstrakt mit dem Titel übereinstimmt"
+msgstr "Ebenen, deren Kurzbeschreibung mit dem Titel übereinstimmt"
 
 msgid "Layer Names"
 msgstr "Ebenennamen"
@@ -2416,19 +2416,19 @@ msgid "No data available for the selected graph. There might be internet issue o
 msgstr "Für das ausgewählte Diagramm sind keine Daten verfügbar. Es könnte ein Internetproblem vorliegen oder Sie wurden abgemeldet. Die Seite wird in 3 Sekunden automatisch neu geladen."
 
 msgid "Missing Abstract. Please add the Abstract in the layer."
-msgstr "Abstrakt fehlt. Bitte fügen Sie das Abstrakt in der Ebene hinzu."
+msgstr "Kurzbeschreibung fehlt. Bitte fügen Sie das Abstrakt in der Ebene hinzu."
 
 msgid "Missing Abstract"
-msgstr "Abstrakt fehlt"
+msgstr "Kurzbeschreibung fehlt"
 
 msgid "Missing Keywords. Please add the Keywords in the layer."
-msgstr "Stichwörter fehlen. Bitte fügen Sie die Stichwörter in der Ebene hinzu."
+msgstr "Schlüsselwörter fehlen. Bitte fügen Sie die Schlüsselwörter in der Ebene hinzu."
 
 msgid "Abstract matches Title. Change the Abstract."
-msgstr "Abstrakt entspricht dem Titel. Bitte ändern Sie das Abstrakt."
+msgstr "Kurzbeschreibung entspricht dem Titel. Bitte ändern Sie das Kurzbeschreibung."
 
 msgid "Short Abstract. Please add atleast 50 characters"
-msgstr "Kurzes Abstrakt. Bitte fügen Sie mindestens 50 Zeichen hinzu."
+msgstr "Kurze Kurzbeschreibung. Bitte fügen Sie mindestens 50 Zeichen hinzu."
 
 msgid "Connected"
 msgstr "Verbunden"
@@ -2440,22 +2440,22 @@ msgid "Layer Name"
 msgstr "Ebenenname"
 
 msgid "Missing Keywords"
-msgstr "Fehlende Stichwörter"
+msgstr "Fehlende Schlüsselwörter"
 
 msgid "Abstract = Title"
-msgstr "Abstrakt = Titel"
+msgstr "Kurzbeschreibung = Titel"
 
 msgid "Short Abstract"
-msgstr "Kurzes Abstrakt"
+msgstr "Kurze Kurzbeschreibung"
 
 msgid "Layers Without Abstracts. Click on Details button to see the details."
-msgstr "Ebenen ohne Abstrakte. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+msgstr "Ebenen ohne Kurzbeschreibungen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
 
 msgid "The Keywords in the layers are missing. Click on Details button to see the details."
-msgstr "Die Stichwörter in den Ebenen fehlen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+msgstr "Die Schlüsselwörter in den Ebenen fehlen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
 
 msgid "Layer name and abstract matches. Click on Details button to see the details."
-msgstr "Ebenenname und Abstrakt stimmen überein. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+msgstr "Ebenenname und Kurzbeschreibung stimmen überein. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
 
 msgid "Short Abstracts. Click on Details button to see the details."
-msgstr "Kurze Abstrakte. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+msgstr "kurze Kurzbeschreibungen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
