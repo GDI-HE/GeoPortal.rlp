@@ -1321,6 +1321,8 @@ def check_layer_abstracts_and_keywords(request):
                 'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
                 'total_layers_with_short_abstract': total_layers_with_short_abstract,
                 'return_true_falses': not isinstance(user_login, HttpResponseRedirect),
+                'sidebar_closed': True, # This will open the sidebar by default while loading metadata-quality page
+
             }
             geoportal_context = GeoportalContext(request=request)
             geoportal_context.add_context(context=context)
