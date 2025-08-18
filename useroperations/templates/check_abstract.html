@@ -44,12 +44,12 @@
         <i class="fas fa-cog"></i>{% trans 'Columns' %}
     </button>
     <ul class="column-toggle-list" id="columnToggleList">
-        <li>
+        <!-- <li>
             <label class="switch">
                 <input type="checkbox" checked data-column="0">
                 <span class="slider round"></span>
             </label>{% trans 'Serial No.' %} 
-        </li>
+        </li> -->
         <li>
             <label class="switch">
                 <input type="checkbox" checked data-column="1">
@@ -116,6 +116,9 @@
 
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<!-- Add colResizable plugin from CDN -->
+<script src="{% static 'js/colResizable-1.6.min.js' %}"></script>
+
 <div class="legend-container" style="margin-bottom: 1rem; font-size: 0.9rem;">
     <strong>{% trans "Test Criteria" %}:</strong>
     <span><i class="fas fa-circle green-dot">✔</i> {% trans "All criteria met" %}</span> &nbsp;&nbsp;
@@ -125,71 +128,67 @@
 
     <table id="serviceTable">
         <thead class="sticky-header">
-            <tr>
-                <th>{% trans 'Serial No.' %} </th>
-                <th>{% trans 'Service ID' %} </th>
-                <th>{% trans 'Service Title' %} </th>
-                <th>{% trans 'Total Layers' %} </th>
-                <th>{% trans 'Layers Without Abstracts'%}</th>
-                <th>{% trans 'Layers Without Keywords' %}</th>
-                <th style="display: none;">{% trans 'Abstracts Match Titles' %}</th>
-                <th style="display: none;">{% trans 'Layers With Short Abstracts' %}</th>
-                <th style="display: none;">{% trans 'Data-Service connection' %}</th>
-                <th style="display: none;">{% trans 'Inspire Monitoring Status' %}
-                    <div class="tooltip-wrapper">
-                        <button 
-                          id="tooltip-trigger" 
-                          class="btn btn-info" 
-                          aria-describedby="tooltip-content">
-                          <i class="fas fa-info-circle"></i>
-                        </button>
-                        <div id="tooltip-content" class="custom-tooltip" tabindex="-1" role="tooltip">
-                          <div class="tooltip-item">
-                            <span class="tooltip-icon white-icon"></span>
-                            <span>{% trans 'No Inspire Category, nor Inspireidentifiziert' %}</span>
-                          </div>
-                          <div class="tooltip-item">
-                            <span class="tooltip-icon mild-red-icon"></span>
-                            <span>{% trans 'Inspire Category but keyword missing' %}</span>
-                          </div>
-                          <div class="tooltip-item">
-                            <span class="tooltip-icon dark-red-icon"></span>
-                            <span>{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}</span>
-                          </div>
-                          <div class="tooltip-item">
-                            <span class="tooltip-icon green-icon"></span>
-                            <span>{% trans 'Both Inspire Category and Inspireidentifiziert' %}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      
-                </th>
-                <th style="display: none;">{% trans 'ISO Categorized' %}
-                    <div class="tooltip-wrapper">
-                        <button 
-                        id="tooltip-trigger-iso" 
-                        class="btn btn-info" 
-                        aria-describedby="tooltip-content-iso">
-                        <i class="fas fa-info-circle"></i>
-                        </button>
-                        <div id="tooltip-content-iso" class="custom-tooltip" tabindex="-1" role="tooltip">
-                        <div class="tooltip-item">
-                            <span class="tooltip-icon white-icon"></span>
-                            <span>{% trans 'ISO category does not exist' %}</span>
-                        </div>
-                        <div class="tooltip-item">
-                            <i class="fas fa-circle green-dot">✔</i>
-                            <span> {% trans 'ISO Categorised' %}</span>
-                        </div>
-                        </div>
-                    </div>
-                </th>
-
-                <th>{% trans 'Actions' %}</th>
-               
-            </tr>
-        </thead>
+  <tr>
+    <th style="width: 5vw; min-width: 4vw;" class="col-serial">{% trans '#' %}<div class="resize-handle"></div></th>
+    <th style="width: 6vw; min-width: 3vw;" class="col-id">{% trans 'ID' %}<div class="resize-handle"></div></th>
+    <th class="col-service-title" style="width: 16vw; min-width: 10vw;"><span id="serviceTitleHeader" tabindex="0" title="{% trans 'Service Title' %}">{% trans 'Service Title' %}</span><div class="resize-handle"></div></th>
+    <th style="width: 6vw; min-width: 3vw;">{% trans 'Total Layers' %}<div class="resize-handle"></div></th>
+    <th style="width: 9vw; min-width: 4vw;"><span class="clickable-header" id="layersWithoutAbstractsHeader" tabindex="0" title="{% trans 'Layers Without Abstracts' %}">{% trans 'Layers Without Abstracts' %}</span><div class="resize-handle"></div></th>
+    <th style="width: 8vw; min-width: 4vw;"><span class="clickable-header" id="layersWithoutKeywordsHeader" tabindex="0" title="{% trans 'Layers Without Keywords' %}">{% trans 'Layers Without Keywords' %}</span><div class="resize-handle"></div></th>
+    <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="abstractsMatchTitlesHeader" tabindex="0" title="{% trans 'Abstracts Match Titles' %}">{% trans 'Abstracts Match Titles' %}</span><div class="resize-handle"></div></th>
+    <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="layersWithShortAbstractsHeader" tabindex="0" title="{% trans 'Layers With Short Abstracts' %}">{% trans 'Layers With Short Abstracts' %}</span><div class="resize-handle"></div></th>
+    <th style="display: none; width: 8vw; min-width: 4vw"><span class="clickable-header" id="dataServiceConnectionHeader" tabindex="0" title="{% trans 'Data-Service connection' %}">{% trans 'Data-Service connection' %}</span><div class="resize-handle"></div></th>
+    <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="inspireMonitoringStatusHeader" tabindex="0" title="{% trans 'Inspire Monitoring Status' %}">{% trans 'Inspire Monitoring Status' %}</span><div class="resize-handle"></div>
+      <div class="tooltip-wrapper">
+        <button 
+          id="tooltip-trigger" 
+          class="btn btn-info" 
+          aria-describedby="tooltip-content">
+          <i class="fas fa-info-circle"></i>
+        </button>
+        <div id="tooltip-content" class="custom-tooltip" tabindex="-1" role="tooltip">
+          <div class="tooltip-item">
+            <span class="tooltip-icon white-icon"></span>
+            <span>{% trans 'No Inspire Category, nor Inspireidentifiziert' %}</span>
+          </div>
+          <div class="tooltip-item">
+            <span class="tooltip-icon mild-red-icon"></span>
+            <span>{% trans 'Inspire Category but keyword missing' %}</span>
+          </div>
+          <div class="tooltip-item">
+            <span class="tooltip-icon dark-red-icon"></span>
+            <span>{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}</span>
+          </div>
+          <div class="tooltip-item">
+            <span class="tooltip-icon green-icon"></span>
+            <span>{% trans 'Both Inspire Category and Inspireidentifiziert' %}</span>
+          </div>
+        </div>
+      </div>
+    </th>
+    <th style="display: none;"><span class="clickable-header" id="isoCategorizedHeader" tabindex="0" title="{% trans 'ISO Categorized' %}">{% trans 'ISO Categorized' %}</span><div class="resize-handle"></div>
+      <div class="tooltip-wrapper">
+        <button 
+          id="tooltip-trigger-iso" 
+          class="btn btn-info" 
+          aria-describedby="tooltip-content-iso">
+          <i class="fas fa-info-circle"></i>
+        </button>
+        <div id="tooltip-content-iso" class="custom-tooltip" tabindex="-1" role="tooltip">
+          <div class="tooltip-item">
+            <span class="tooltip-icon white-icon"></span>
+            <span>{% trans 'ISO category does not exist' %}</span>
+          </div>
+          <div class="tooltip-item">
+            <i class="fas fa-circle green-dot">✔</i>
+            <span> {% trans 'ISO Categorised' %}</span>
+          </div>
+        </div>
+      </div>
+    </th>
+    <th style="width: 9vw; min-width: 4vw;">{% trans 'Actions' %}<div class="resize-handle"></div></th>
+  </tr>
+</thead>
      
   <tbody>
     {% for result in results %}
@@ -198,7 +197,9 @@
         <div class="spinner" id="spinner"></div>
                 <td data-label="Serial No.">{{ forloop.counter }}</td>
                 <td data-label="Service ID">{{ result.wms_id }}</td>
-                <td data-label="Service Title">{{ result.wms_title }}</td>
+                <td data-label="Service Title">
+                  <span class="clickable-cell service-title-cell" id="serviceTitleCell-{{ forloop.counter }}" tabindex="0" title="{{ result.wms_title }}">{{ result.wms_title }}</span>
+                </td>
                 <td data-label="Total Layers">{{ result.total_layers }}</td>
         <td data-label="Layers without Abstract">
                    {% if result.layers_without_abstract %}
@@ -274,75 +275,77 @@
      
       </tr>
       <tr class="collapse" id="details-{{ forloop.counter }}">
-        <td colspan="5">
-          <table class="table table-sm table-bordered mb-0">
-            <thead class="thead-light">
-              <tr>
-                <th>{% trans 'Layer Name' %}</th>
-                <th>{% trans 'Missing Abstract' %}</th>
-                <th>{% trans 'Missing Keywords' %}</th>
-                <th>{% trans 'Abstract = Title' %}</th>
-                <th>{% trans 'Short Abstract' %}</th>
-                <!-- <th>{% trans 'Data-Service connection' %}</th> -->
-                <th>{% trans 'Information on costs/fees/licenses' %}</th>
-                <th>{% trans 'Restrictions on public access' %}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for layer in result.layers %}
+        <td colspan="100">
+          <div style="max-height: 300px; overflow-x: auto; overflow-y: auto;">
+            <table class="table table-sm table-bordered mb-0 details-table-responsive">
+              <thead class="thead-light">
                 <tr>
-                  <td>{{ layer.name }}</td>
-                  <td>
-                    {% if layer.missing_abstract %}
-                      <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Abstract. Please add the Abstract in the layer.' %}"></i>
-                    {% else %}
-                      <i class="fas fa-check-circle text-success" title="OK"></i>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if layer.missing_keywords %}
-                      <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Keywords. Please add the Keywords in the layer.' %}"></i>
-                    {% else %}
-                      <i class="fas fa-check-circle text-success" title="OK"></i>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if layer.abstract_matches_title %}
-                      <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Abstract matches Title. Change the Abstract.' %}"></i>
-                    {% else %}
-                      <i class="fas fa-check-circle text-success" title="OK"></i>
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if layer.short_abstract %}
-                      <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Short Abstract. Please add atleast 50 characters' %}"></i>
-                    {% else %}
-                      <i class="fas fa-check-circle text-success" title="OK"></i>
-                    {% endif %}
-                  </td>
-                  <!-- <td>
-                    {% if layer.data_service_connection %}
-                      <i class="fas fa-check-circle text-success" title="{% trans 'Connected' %}"></i>
-                    {% else %}
-                      <i class="fas fa-times-circle text-danger" title="{% trans 'Not connected' %}"></i>
-                    {% endif %}
-                  </td> -->
-                  <td>
-                    {{ layer.fees|default:'-' }}
-                  </td>
-                  <td>
-                    {{ layer.accessconstraints|default:'-' }}
-                  </td>
+                  <th>{% trans 'Layer Name' %}</th>
+                  <th>{% trans 'Missing Abstract' %}</th>
+                  <th>{% trans 'Missing Keywords' %}</th>
+                  <th>{% trans 'Abstract = Title' %}</th>
+                  <th>{% trans 'Short Abstract' %}</th>
+                  <!-- <th>{% trans 'Data-Service connection' %}</th> -->
+                  <th>{% trans 'Information on costs/fees/licenses' %}</th>
+                  <th>{% trans 'Restrictions on public access' %}</th>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {% for layer in result.layers %}
+                  <tr>
+                    <td data-label="{% trans 'Layer Name' %}">{{ layer.name }}</td>
+                    <td data-label="{% trans 'Missing Abstract' %}">
+                      {% if layer.missing_abstract %}
+                        <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Abstract. Please add the Abstract in the layer.' %}"></i>
+                      {% else %}
+                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                      {% endif %}
+                    </td>
+                    <td data-label="{% trans 'Missing Keywords' %}">
+                      {% if layer.missing_keywords %}
+                        <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Keywords. Please add the Keywords in the layer.' %}"></i>
+                      {% else %}
+                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                      {% endif %}
+                    </td>
+                    <td data-label="{% trans 'Abstract = Title' %}">
+                      {% if layer.abstract_matches_title %}
+                        <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Abstract matches Title. Change the Abstract.' %}"></i>
+                      {% else %}
+                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                      {% endif %}
+                    </td>
+                    <td data-label="{% trans 'Short Abstract' %}">
+                      {% if layer.short_abstract %}
+                        <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Short Abstract. Please add atleast 50 characters' %}"></i>
+                      {% else %}
+                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                      {% endif %}
+                    </td>
+                    <!-- <td data-label="Data-Service connection">
+                      {% if layer.data_service_connection %}
+                        <i class="fas fa-check-circle text-success" title="{% trans 'Connected' %}"></i>
+                      {% else %}
+                        <i class="fas fa-times-circle text-danger" title="{% trans 'Not connected' %}"></i>
+                      {% endif %}
+                    </td> -->
+                    <td data-label="{% trans 'Information on costs/fees/licenses' %}">
+                      {{ layer.fees|default:'-' }}
+                    </td>
+                    <td data-label="{% trans 'Restrictions on public access' %}">
+                      {{ layer.accessconstraints|default:'-' }}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </td>
       </tr>
     {% endfor %}
   </tbody>
 </table>
-    <script>
+ <script>
              let serialNo = {{ results|length }}; // Start serial number from the current number of results
              const TRANSLATIONS = {
 show_details: "{% trans 'Show Details' %}",
@@ -350,7 +353,5 @@ hide_details: "{% trans 'Hide Details' %}"
 };
 
     </script>
-     
-
 </body>
 {% endblock %}

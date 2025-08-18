@@ -168,3 +168,196 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+$(function() {
+        function enableColResizable() {
+            $("#serviceTable").colResizable({liveDrag:true, disable: false});
+        }
+        enableColResizable();
+        function updateDetailColspan() {
+          let visibleCols = $('#serviceTable > thead > tr > th:visible').length;
+          $('#serviceTable tr.collapse td[colspan]').attr('colspan', visibleCols);
+        }
+        // Update colspan after initial setup
+        updateDetailColspan();
+
+
+
+        // Set initial column visibility based on checkboxes
+        $('.column-toggle-list input[type="checkbox"]').each(function() {
+            var colIdx = parseInt($(this).data('column'));
+            var checked = $(this).is(':checked');
+            // Header
+            $('#serviceTable thead th').eq(colIdx).toggle(checked);
+            // Only main table body rows, not details
+            $('#serviceTable > tbody > tr').not('.collapse').each(function() {
+                $(this).find('td').eq(colIdx).toggle(checked);
+            });
+        });
+
+        // Column toggle logic: only affect main table, not details
+        $('.column-toggle-list input[type="checkbox"]').on('change', function() {
+            // Update colspan after initial setup
+            updateDetailColspan();
+
+            var colIdx = parseInt($(this).data('column'));
+            var checked = $(this).is(':checked');
+            // Toggle header
+            var $th = $('#serviceTable thead th').eq(colIdx);
+            $th.toggle(checked);
+            // Toggle only main table body rows, not details
+            $('#serviceTable > tbody > tr').not('.collapse').each(function() {
+                var $td = $(this).find('td').eq(colIdx);
+                $td.toggle(checked);
+            });
+            // Proportionally resize all visible columns
+            var $visibleThs = $('#serviceTable thead th:visible');
+            var percent = 100 / $visibleThs.length;
+            $visibleThs.each(function(i) {
+                $(this).css({width: percent + '%', maxWidth: 'none'});
+            });
+            $('#serviceTable > tbody > tr').not('.collapse').each(function() {
+                $(this).find('td:visible').each(function(i) {
+                    $(this).css({width: percent + '%', maxWidth: 'none'});
+                });
+            });
+            // Re-enable colResizable after DOM changes
+            $("#serviceTable").colResizable({disable: true}); // Remove previous
+            enableColResizable();
+        });
+    });
+
+function isEllipsed(el) {
+  // If element is not visible or not displayed, treat as not ellipsed
+  if (!el.offsetParent || window.getComputedStyle(el).display === 'none') return false;
+  return el.offsetWidth < el.scrollWidth;
+}
+
+// After column resize, update ellipsis and aria attributes for headers and cells
+function updateEllipsisState() {
+  // For headers
+  document.querySelectorAll('.clickable-header').forEach(function(header) {
+    if (isEllipsed(header)) {
+      header.setAttribute('aria-label', header.textContent + ' (truncated)');
+      header.setAttribute('tabindex', '0');
+      header.classList.add('ellipsed');
+    } else {
+      header.setAttribute('aria-label', header.textContent);
+      header.classList.remove('ellipsed');
+    }
+  });
+  // For service title cells
+  document.querySelectorAll('.service-title-cell').forEach(function(cell) {
+    if (isEllipsed(cell)) {
+      cell.setAttribute('aria-label', cell.textContent + ' (truncated)');
+      cell.setAttribute('tabindex', '0');
+      cell.classList.add('ellipsed');
+    } else {
+      cell.setAttribute('aria-label', cell.textContent);
+      cell.classList.remove('ellipsed');
+    }
+  });
+}
+
+// Only run column resizing/ellipsis logic on desktop (not mobile)
+function isMobileView() {
+  return window.matchMedia && window.matchMedia('(max-width: 900px)').matches;
+}
+
+(function() {
+  if (isMobileView()) return; // Don't run on mobile
+  const table = document.getElementById('serviceTable');
+  if (!table) return;
+  const ths = table.querySelectorAll('thead th');
+  let startX, startWidth, colIndex, resizing = false;
+
+  ths.forEach((th, i) => {
+    const handle = th.querySelector('.resize-handle');
+    if (!handle) return;
+    handle.addEventListener('mousedown', function(e) {
+      e.preventDefault();
+      resizing = true;
+      startX = e.pageX;
+      startWidth = th.offsetWidth;
+      colIndex = i;
+      document.body.style.cursor = 'col-resize';
+      document.body.setAttribute('data-resizing-col', colIndex);
+    });
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    if (!resizing) return;
+    const dx = e.pageX - startX;
+    const newWidth = Math.max(40, startWidth + dx);
+    // Set width for header
+    ths[colIndex].style.width = newWidth + 'px';
+    ths[colIndex].style.maxWidth = 'none';
+    // Set width for all cells in this column
+    table.querySelectorAll('tbody tr').forEach(row => {
+      const cell = row.querySelectorAll('td')[colIndex];
+      if (cell) {
+        cell.style.width = newWidth + 'px';
+        cell.style.maxWidth = 'none';
+        cell.style.whiteSpace = 'normal';
+      }
+    });
+    updateEllipsisState();
+  });
+  document.addEventListener('mouseup', function() {
+    if (resizing) {
+      resizing = false;
+      document.body.style.cursor = '';
+      document.body.removeAttribute('data-resizing-col');
+      updateEllipsisState();
+    }
+  });
+  // Initial call
+  updateEllipsisState();
+})();
+
+// Always update ellipsis state on resize (desktop only)
+window.addEventListener('resize', function() {
+  if (!isMobileView()) updateEllipsisState();
+});
+
+            
+
+// Mobile details row toggle logic
+(function() {
+  function isMobile() {
+    return window.matchMedia && window.matchMedia('(max-width: 700px)').matches;
+  }
+  function hideAllDetailsRows() {
+    document.querySelectorAll('tr.collapse').forEach(function(row) {
+      row.style.display = 'none';
+      row.setAttribute('aria-hidden', 'true');
+    });
+  }
+  function showDetailsRow(row) {
+    row.style.display = 'table-row';
+    row.setAttribute('aria-hidden', 'false');
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    if (isMobile()) {
+      hideAllDetailsRows();
+      document.querySelectorAll('button[data-toggle="collapse"]').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+          var targetId = btn.getAttribute('data-target') || btn.getAttribute('data-bs-target');
+          if (!targetId) return;
+          var row = document.querySelector(targetId);
+          if (!row) return;
+          if (row.style.display === 'table-row') {
+            row.style.display = 'none';
+            row.setAttribute('aria-hidden', 'true');
+          } else {
+            hideAllDetailsRows();
+            showDetailsRow(row);
+          }
+        });
+      });
+    }
+  });
+  // On resize, re-hide all details rows if switching to mobile
+  window.addEventListener('resize', function() {
+    if (isMobile()) hideAllDetailsRows();
+  });
+})();
