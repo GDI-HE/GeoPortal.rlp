@@ -666,3 +666,10 @@ table tr:hover {
     position: sticky;      /* Enables sticky positioning */
     top: 0;                /* Sticks to the top of the scroll container */
 }
+
+.details-table-responsive {
+  width: 100%;
+  min-width: 400px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
