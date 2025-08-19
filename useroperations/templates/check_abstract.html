@@ -140,7 +140,7 @@
     <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="layersWithShortAbstractsHeader" tabindex="0" title="{% trans 'Layers With Short Abstracts' %}">{% trans 'Layers With Short Abstracts' %}</span><div class="resize-handle"></div></th>
     <!-- <th style="display: none; width: 8vw; min-width: 4vw"><span class="clickable-header" id="dataServiceConnectionHeader" tabindex="0" title="{% trans 'Data-Service connection' %}">{% trans 'Data-Service connection' %}</span><div class="resize-handle"></div></th> -->
     <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="inspireMonitoringStatusHeader" tabindex="0" title="{% trans 'Inspire Monitoring Status' %}">{% trans 'Inspire Monitoring Status' %}</span><div class="resize-handle"></div>
-      <div class="tooltip-wrapper">
+      <!-- <div class="tooltip-wrapper">
         <button 
           id="tooltip-trigger" 
           class="btn btn-info" 
@@ -165,10 +165,10 @@
             <span>{% trans 'Both Inspire Category and Inspireidentifiziert' %}</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </th>
     <th style="display: none;"><span class="clickable-header" id="isoCategorizedHeader" tabindex="0" title="{% trans 'ISO Categorized' %}">{% trans 'ISO Categorized' %}</span><div class="resize-handle"></div>
-      <div class="tooltip-wrapper">
+      <!-- <div class="tooltip-wrapper">
         <button 
           id="tooltip-trigger-iso" 
           class="btn btn-info" 
@@ -185,7 +185,7 @@
             <span> {% trans 'ISO Categorised' %}</span>
           </div>
         </div>
-      </div>
+      </div> -->
     </th>
     <th style="width: 9vw; min-width: 4vw;">{% trans 'Actions' %}<div class="resize-handle"></div></th>
   </tr>
@@ -206,16 +206,16 @@
                    {% if result.layers_without_abstract %}
                    <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Layers Without Abstracts. Click on Details button to see the details' %}"></i>
                     {% else %}
-                    <i class="fas fa-check-circle text-success" title="OK"></i>
+                    <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                     {% endif %} 
                     <!-- {{ result.layers_without_abstract }} -->
                 
                 </td>
                 <td data-label="Layers without Keywords">
                    {% if result.layers_without_keywords %}
-                   <i class="fas fa-times-circle text-danger" title="{% trans 'The Keywords in the layers are missing. Click on Details button to see the details.'%}"></i>
+                   <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'The Keywords in the layers are missing. Click on Details button to see the details.'%}"></i>
                     {% else %}
-                     <i class="fas fa-check-circle text-success" title="OK"></i>
+                     <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                     {% endif %} 
                     
                     <!-- {{ result.layers_without_keywords }} -->
@@ -223,17 +223,17 @@
                 <td data-label="Layers title matches Abstract">
                     {% for match in result.layers_abstract_match %}
                    {% if match == 'Y' %} 
-                   <i class="fas fa-times-circle text-danger" title="{% trans 'Layer name and abstract matches. Click on Details button to see the details.'%}"></i>
+                   <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Layer name and abstract matches. Click on Details button to see the details.'%}"></i>
                      {% elif match == 'N' and match != 'Y' %}
-                         <i class="fas fa-check-circle text-success" title="OK"></i>
+                         <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                     {% endif %} 
                     {% endfor %}
                 </td>
                 <td data-label="Layers with short Abstract">
                    {% if result.layers_with_short_abstract_count > 0 %}
-                    <i class="fas fa-times-circle text-danger" title="{% trans 'Short Abstracts. Click on Details button to see the details.'%}"></i>
+                    <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Short Abstracts. Click on Details button to see the details.'%}"></i>
                     {% else %} 
-                    <i class="fas fa-check-circle text-success" title="OK"></i>
+                    <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                     {% endif %}
                     <!-- {{ result.layers_with_short_abstract_count }} -->
                 </td>
@@ -246,22 +246,22 @@
                 </td> -->
                 <td data-label="Inspire Category" style="display: none;">
                     {% if result.color == 'white' %}
-                        <i class="fas fa-exclamation-circle text-warning" title="{% trans 'No Inspire Category, nor Inspireidentifiziert' %}"></i>
+                        <i class="fas fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'No Inspire Category, nor Inspireidentifiziert' %}"></i>
                     {% elif result.color == 'green' %}
-                        <i class="fas fa-check-circle text-success" title="{% trans 'Both Inspire Category and Inspireidentifiziert' %}"></i>
+                        <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Both Inspire Category and Inspireidentifiziert' %}"></i>
                     {{ result.inspire_category_code }}
                     {% elif result.color == 'mildred' %}
-                        <i class="fas fa-times-circle text-danger" title="{% trans 'Inspire Category but keyword Inspireidentifiziert missing' %}"></i>
+                        <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Inspire Category but keyword Inspireidentifiziert missing' %}"></i>
                     {{ result.inspire_category_code }}
                         {% else %}
-                        <i class="fas fa-times-circle text-danger" title="{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}"></i>
+                        <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}"></i>
                     {% endif %}
                 </td>
                 <td data-label="ISO category" style="display: none;">
                     {% if result.color_iso == 'white-iso' %}
-                    <i class="fas fa-exclamation-circle text-warning" title="{% trans 'ISO category does not exist' %}"></i>
+                    <i class="fas fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'ISO category does not exist' %}"></i>
                     {% else %}
-                    <i class="fas fa-check-circle text-success" title="{% trans 'ISO Categorized' %}"></i>
+                    <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'ISO Categorized' %}"></i>
                     {{ result.category }}
                    {% endif %} 
                   
@@ -299,30 +299,30 @@
                     <td data-label="{% trans 'Layer Name' %}">{{ layer.name }}</td>
                     <td data-label="{% trans 'Missing Abstract' %}">
                       {% if layer.missing_abstract %}
-                        <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Abstract. Please add the Abstract in the layer.' %}"></i>
+                        <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Missing Abstract. Please add the Abstract in the layer.' %}"></i>
                       {% else %}
-                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                        <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                       {% endif %}
                     </td>
                     <td data-label="{% trans 'Missing Keywords' %}">
                       {% if layer.missing_keywords %}
-                        <i class="fas fa-times-circle text-danger" title="{% trans 'Missing Keywords. Please add the Keywords in the layer.' %}"></i>
+                        <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Missing Keywords. Please add the Keywords in the layer.' %}"></i>
                       {% else %}
-                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                        <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                       {% endif %}
                     </td>
                     <td data-label="{% trans 'Abstract = Title' %}">
                       {% if layer.abstract_matches_title %}
-                        <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Abstract matches Title. Change the Abstract.' %}"></i>
+                        <i class="fas fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Abstract matches Title. Change the Abstract.' %}"></i>
                       {% else %}
-                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                        <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                       {% endif %}
                     </td>
                     <td data-label="{% trans 'Short Abstract' %}">
                       {% if layer.short_abstract %}
-                        <i class="fas fa-exclamation-circle text-warning" title="{% trans 'Short Abstract. Please add atleast 50 characters' %}"></i>
+                        <i class="fas fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Short Abstract. Please add atleast 50 characters' %}"></i>
                       {% else %}
-                        <i class="fas fa-check-circle text-success" title="OK"></i>
+                        <i class="fas fa-check-circle text-success" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="OK"></i>
                       {% endif %}
                     </td>
                     <!-- <td data-label="Data-Service connection">
