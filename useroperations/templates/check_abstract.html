@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 <script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
 <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'js/popper.min.js' %}"></script>
 
 <head>
     <meta charset="UTF-8">
@@ -203,7 +204,7 @@
                 <td data-label="Total Layers">{{ result.total_layers }}</td>
         <td data-label="Layers without Abstract">
                    {% if result.layers_without_abstract %}
-                    <i class="fas fa-times-circle text-danger" title="{% trans 'Layers Without Abstracts. Click on Details button to see the details'%}"></i>
+                   <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Layers Without Abstracts. Click on Details button to see the details' %}"></i>
                     {% else %}
                     <i class="fas fa-check-circle text-success" title="OK"></i>
                     {% endif %} 
