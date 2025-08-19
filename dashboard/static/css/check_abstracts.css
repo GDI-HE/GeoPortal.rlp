@@ -109,7 +109,12 @@ th, td {
 th {
     background-color: #137673;
     color: white;
+    border-right: 0.5px solid #e8e8e8; /* Add this line */
+
 }
+td {
+    border-right: 0.5px solid #e8e8e8;
+} 
 tr:nth-child(even) {
     background-color: #ffffff;
 }

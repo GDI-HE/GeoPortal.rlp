@@ -2220,8 +2220,8 @@ msgstr "Aktionen"
 msgid "No Inspire Category, nor Inspireidentifiziert"
 msgstr "Keine Inspire Kategorie, noch Inspireidentifiziert"
 
-msgid "Inspire Category but keyword missing"
-msgstr "Kategorie „Inspire“, aber Schlüsselwort fehlt"
+msgid "Inspire Category but keyword Inspireidentifiziert missing"
+msgstr "Kategorie „Inspire“, aber Schlüsselwort Inspireidentifiziert fehlt"
 
 msgid "Keyword as Inspireidentifiziert but Inspire category missing"
 msgstr "Stichwort als Inspireidentifiziert, aber Inspire-Kategorie fehlt"
