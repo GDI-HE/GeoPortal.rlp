@@ -137,7 +137,7 @@
     <th style="width: 8vw; min-width: 4vw;"><span class="clickable-header" id="layersWithoutKeywordsHeader" tabindex="0" title="{% trans 'Layers Without Keywords' %}">{% trans 'Layers Without Keywords' %}</span><div class="resize-handle"></div></th>
     <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="abstractsMatchTitlesHeader" tabindex="0" title="{% trans 'Abstracts Match Titles' %}">{% trans 'Abstracts Match Titles' %}</span><div class="resize-handle"></div></th>
     <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="layersWithShortAbstractsHeader" tabindex="0" title="{% trans 'Layers With Short Abstracts' %}">{% trans 'Layers With Short Abstracts' %}</span><div class="resize-handle"></div></th>
-    <th style="display: none; width: 8vw; min-width: 4vw"><span class="clickable-header" id="dataServiceConnectionHeader" tabindex="0" title="{% trans 'Data-Service connection' %}">{% trans 'Data-Service connection' %}</span><div class="resize-handle"></div></th>
+    <!-- <th style="display: none; width: 8vw; min-width: 4vw"><span class="clickable-header" id="dataServiceConnectionHeader" tabindex="0" title="{% trans 'Data-Service connection' %}">{% trans 'Data-Service connection' %}</span><div class="resize-handle"></div></th> -->
     <th style="display: none; width: 8vw; min-width: 4vw;"><span class="clickable-header" id="inspireMonitoringStatusHeader" tabindex="0" title="{% trans 'Inspire Monitoring Status' %}">{% trans 'Inspire Monitoring Status' %}</span><div class="resize-handle"></div>
       <div class="tooltip-wrapper">
         <button 
@@ -212,9 +212,9 @@
                 </td>
                 <td data-label="Layers without Keywords">
                    {% if result.layers_without_keywords %}
-                   <i class="fas fa-circle red-dot" title="{% trans 'The Keywords in the layers are missing. Click on Details button to see the details.'%}">✖</i>
+                   <i class="fas fa-times-circle text-danger" title="{% trans 'The Keywords in the layers are missing. Click on Details button to see the details.'%}"></i>
                     {% else %}
-                    <i class="fas fa-circle green-dot" title="OK">✔</i>
+                     <i class="fas fa-check-circle text-success" title="OK"></i>
                     {% endif %} 
                     
                     <!-- {{ result.layers_without_keywords }} -->
@@ -222,45 +222,45 @@
                 <td data-label="Layers title matches Abstract">
                     {% for match in result.layers_abstract_match %}
                    {% if match == 'Y' %} 
-                   <i class="fas fa-circle red-dot" title="{% trans 'Layer name and abstract matches. Click on Details button to see the details.'%}">✖</i>
+                   <i class="fas fa-times-circle text-danger" title="{% trans 'Layer name and abstract matches. Click on Details button to see the details.'%}"></i>
                      {% elif match == 'N' and match != 'Y' %}
-                        <i class="fas fa-circle green-dot" title="OK">✔</i>
+                         <i class="fas fa-check-circle text-success" title="OK"></i>
                     {% endif %} 
                     {% endfor %}
                 </td>
                 <td data-label="Layers with short Abstract">
                    {% if result.layers_with_short_abstract_count > 0 %}
-                    <i class="fas fa-circle red-dot" title="{% trans 'Short Abstracts. Click on Details button to see the details.'%}">✖</i>
+                    <i class="fas fa-times-circle text-danger" title="{% trans 'Short Abstracts. Click on Details button to see the details.'%}"></i>
                     {% else %} 
-                    <i class="fas fa-circle green-dot" title="OK">✔</i>
+                    <i class="fas fa-check-circle text-success" title="OK"></i>
                     {% endif %}
                     <!-- {{ result.layers_with_short_abstract_count }} -->
                 </td>
-                <td data-label="Data-Service Connection" style="display: none;">
+                <!-- <td data-label="Data-Service Connection" style="display: none;">
                     {% if result.connected_wms %}
                         <i class="fas fa-circle green-dot" title="{% trans 'Connected' %}">✔</i>
                     {% else %}
                         <i class="fas fa-circle red-dot" title="{% trans 'Not connected' %}">✖</i>
                     {% endif %}
-                </td>
+                </td> -->
                 <td data-label="Inspire Category" style="display: none;">
                     {% if result.color == 'white' %}
-                        <i class="fas fa-circle white-dot" title="{% trans 'No Inspire Category, nor Inspireidentifiziert' %}"></i>
+                        <i class="fas fa-exclamation-circle text-warning" title="{% trans 'No Inspire Category, nor Inspireidentifiziert' %}"></i>
                     {% elif result.color == 'green' %}
-                        <i class="fas fa-circle green-dot" title="{% trans 'Both Inspire Category and Inspireidentifiziert' %}">✔</i>
+                        <i class="fas fa-check-circle text-success" title="{% trans 'Both Inspire Category and Inspireidentifiziert' %}"></i>
                     {{ result.inspire_category_code }}
                     {% elif result.color == 'mildred' %}
-                        <i class="fas fa-circle mildred-dot" title="{% trans 'Inspire Category but keyword Inspireidentifiziert missing' %}">✖</i>
+                        <i class="fas fa-times-circle text-danger" title="{% trans 'Inspire Category but keyword Inspireidentifiziert missing' %}"></i>
                     {{ result.inspire_category_code }}
                         {% else %}
-                        <i class="fas fa-circle mildred1-dot" title="{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}">✖</i>
+                        <i class="fas fa-times-circle text-danger" title="{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}"></i>
                     {% endif %}
                 </td>
                 <td data-label="ISO category" style="display: none;">
                     {% if result.color_iso == 'white-iso' %}
-                    <i class="fas fa-circle white-dot" title="{% trans 'ISO category does not exist' %}"></i>
+                    <i class="fas fa-exclamation-circle text-warning" title="{% trans 'ISO category does not exist' %}"></i>
                     {% else %}
-                    <i class="fas fa-circle green-dot" title="{% trans 'ISO Categorized' %}">✔</i>
+                    <i class="fas fa-check-circle text-success" title="{% trans 'ISO Categorized' %}"></i>
                     {{ result.category }}
                    {% endif %} 
                   
