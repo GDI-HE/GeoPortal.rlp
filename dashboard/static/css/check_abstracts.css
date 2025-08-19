@@ -103,7 +103,7 @@ margin-left: 260px;
 }
 th, td {
     padding: 12px;
-    text-align: left;
+    text-align: center !important; /* Center-align header and cell content */
     border-bottom: 1px solid #ddd;
 }
 th {

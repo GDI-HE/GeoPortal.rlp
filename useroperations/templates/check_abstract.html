@@ -288,8 +288,8 @@
                   <th>{% trans 'Abstract = Title' %}</th>
                   <th>{% trans 'Short Abstract' %}</th>
                   <!-- <th>{% trans 'Data-Service connection' %}</th> -->
-                  <th>{% trans 'Information on costs/fees/licenses' %}</th>
-                  <th>{% trans 'Restrictions on public access' %}</th>
+                  <!-- <th>{% trans 'Information on costs/fees/licenses' %}</th>
+                  <th>{% trans 'Restrictions on public access' %}</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -331,12 +331,12 @@
                         <i class="fas fa-times-circle text-danger" title="{% trans 'Not connected' %}"></i>
                       {% endif %}
                     </td> -->
-                    <td data-label="{% trans 'Information on costs/fees/licenses' %}">
+                    <!-- <td data-label="{% trans 'Information on costs/fees/licenses' %}">
                       {{ layer.fees|default:'-' }}
                     </td>
                     <td data-label="{% trans 'Restrictions on public access' %}">
                       {{ layer.accessconstraints|default:'-' }}
-                    </td>
+                    </td> -->
                   </tr>
                 {% endfor %}
               </tbody>
