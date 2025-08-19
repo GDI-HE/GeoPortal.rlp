@@ -203,9 +203,9 @@
                 <td data-label="Total Layers">{{ result.total_layers }}</td>
         <td data-label="Layers without Abstract">
                    {% if result.layers_without_abstract %}
-                    <i class="fas fa-circle red-dot" title="{% trans 'Layers Without Abstracts. Click on Details button to see the details'%}">✖</i>
+                    <i class="fas fa-times-circle text-danger" title="{% trans 'Layers Without Abstracts. Click on Details button to see the details'%}"></i>
                     {% else %}
-                    <i class="fas fa-circle green-dot" title="OK">✔</i>
+                    <i class="fas fa-check-circle text-success" title="OK"></i>
                     {% endif %} 
                     <!-- {{ result.layers_without_abstract }} -->
                 
