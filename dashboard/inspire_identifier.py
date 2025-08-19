@@ -69,17 +69,21 @@ def inspire_identifier(request):
 
                             # Query the InspireCategories_detail table for a matching entry
                             matching_category = InspireCategories_detail.objects.filter(inspire_category_id=fkey_inspire_category_id).first()
+                            if matching_category:
+                                inspire_category_code = matching_category.inspire_category_code_en
 
                         data_inspire.append({
                             'wms': wms,
                             'status': 'Inspire category exists',  
-                            'color': 'green'
+                            'color': 'green',
+                            'inspire_category_code': inspire_category_code
                         })
                     else:
                         data_inspire.append({
                             'wms': wms,
                             'status': 'Keyword as Inspireidentifiziert but Inspire category missing', 
-                            'color': 'red'
+                            'color': 'red',
+                            'inspire_category_code': 'None'
                         })
                 else:
                     inspire_categories = InspireCategory.objects.filter(fkey_layer_id__in=layers)
@@ -91,19 +95,22 @@ def inspire_identifier(request):
 
                             # Query the InspireCategories_detail table for a matching entry
                             matching_category = InspireCategories_detail.objects.filter(inspire_category_id=fkey_inspire_category_id).first()
-
+                            if matching_category:
+                                inspire_category_code = matching_category.inspire_category_code_en
 
                     if inspire_categories.exists():
                         data_inspire.append({
                             'wms': wms,
                             'status': 'Inspire Category but keyword missing',  
-                            'color': 'mildred'
+                            'color': 'mildred',
+                            'inspire_category_code': inspire_category_code 
                         })
                     else:
                         data_inspire.append({
                             'wms': wms,
                             'status': 'No Inspire Category, nor inspireidentifiziert',  
-                            'color': 'white'
+                            'color': 'white',
+                            'inspire_category_code': 'None'
                         })
                 
             return data_inspire

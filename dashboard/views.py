@@ -1299,6 +1299,8 @@ def check_layer_abstracts_and_keywords(request):
                                     # If the wms_id exists in the results list, update its status and color
                                     results[wms_index]['status'] = inspire_info['status']
                                     results[wms_index]['color'] = inspire_info['color']
+                                    results[wms_index]['inspire_category_code'] = inspire_info['inspire_category_code']
+
                 for iso_info in wms_iso:
                         if isinstance(iso_info, dict) and 'wms_iso' in iso_info:
                             # Check if the wms_id matches
