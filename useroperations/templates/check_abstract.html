@@ -196,13 +196,13 @@
       <tr>
         
         <div class="spinner" id="spinner"></div>
-                <td data-label="Serial No.">{{ forloop.counter }}</td>
-                <td data-label="Service ID">{{ result.wms_id }}</td>
-                <td data-label="Service Title">
+                <td data-label="{% trans 'Serial No.' %}">{{ forloop.counter }}</td>
+                <td data-label="{% trans 'Service ID' %}">{{ result.wms_id }}</td>
+                <td data-label="{% trans 'Service Title' %}">
                   <span class="clickable-cell service-title-cell" id="serviceTitleCell-{{ forloop.counter }}" tabindex="0" title="{{ result.wms_title }}">{{ result.wms_title }}</span>
                 </td>
-                <td data-label="Total Layers">{{ result.total_layers }}</td>
-        <td data-label="Layers without Abstract">
+                <td data-label="{% trans 'Total Layers' %}">{{ result.total_layers }}</td>
+        <td data-label="{% trans 'Layers without Abstract' %}">
                    {% if result.layers_without_abstract %}
                    <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Layers Without Abstracts. Click on Details button to see the details' %}"></i>
                     {% else %}
@@ -211,7 +211,7 @@
                     <!-- {{ result.layers_without_abstract }} -->
                 
                 </td>
-                <td data-label="Layers without Keywords">
+                <td data-label="{% trans 'Layers without Keywords' %}">
                    {% if result.layers_without_keywords %}
                    <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'The Keywords in the layers are missing. Click on Details button to see the details.'%}"></i>
                     {% else %}
@@ -220,7 +220,7 @@
                     
                     <!-- {{ result.layers_without_keywords }} -->
                 </td>
-                <td data-label="Layers title matches Abstract">
+                <td data-label="{% trans 'Layers title matches Abstract' %}">
                     {% for match in result.layers_abstract_match %}
                    {% if match == 'Y' %} 
                    <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Layer name and abstract matches. Click on Details button to see the details.'%}"></i>
@@ -229,7 +229,7 @@
                     {% endif %} 
                     {% endfor %}
                 </td>
-                <td data-label="Layers with short Abstract">
+                <td data-label="{% trans 'Layers with short Abstract' %}">
                    {% if result.layers_with_short_abstract_count > 0 %}
                     <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Short Abstracts. Click on Details button to see the details.'%}"></i>
                     {% else %} 
@@ -244,7 +244,7 @@
                         <i class="fas fa-circle red-dot" title="{% trans 'Not connected' %}">✖</i>
                     {% endif %}
                 </td> -->
-                <td data-label="Inspire Category" style="display: none;">
+                <td data-label="{% trans 'Inspire Category' %}" style="display: none;">
                     {% if result.color == 'white' %}
                         <i class="fas fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'No Inspire Category, nor Inspireidentifiziert' %}"></i>
                     {% elif result.color == 'green' %}
@@ -257,7 +257,7 @@
                         <i class="fas fa-times-circle text-danger" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'Keyword as Inspireidentifiziert but Inspire category missing' %}"></i>
                     {% endif %}
                 </td>
-                <td data-label="ISO category" style="display: none;">
+                <td data-label="{% trans 'ISO category' %}" style="display: none;">
                     {% if result.color_iso == 'white-iso' %}
                     <i class="fas fa-exclamation-circle text-warning" data-bs-toggle="tooltip" data-bs-trigger="click" data-bs-placement="top" title="{% trans 'ISO category does not exist' %}"></i>
                     {% else %}
