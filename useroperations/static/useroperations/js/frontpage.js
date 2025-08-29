@@ -18,24 +18,31 @@ function getCookie(cname) {
 }
 
 function resizeIframe(obj) {
-  try {
-    const doc = obj.contentDocument || obj.contentWindow.document;
-    if (!doc) return;
-
-    // Höhe initial setzen
-    obj.style.height = doc.body.scrollHeight + 'px';
-
-    // ResizeObserver nur einmal anlegen
-    if (!obj._resizeObserver) {
-      obj._resizeObserver = new ResizeObserver(() => {
-        obj.style.height = doc.body.scrollHeight + 'px';
-      });
-      obj._resizeObserver.observe(doc.body);
-    }
-  } catch (e) {
-    console.warn('resizeIframe error:', e);
-  }
+  obj.style.height = obj.contentWindow.document.body.scrollHeight + 'px';
 }
+
+// Listen for iframe messages from linkedDataProxy to set iframe height
+window.addEventListener('message', function(event){
+    try{
+        var data = event.data;
+        if(!data || data.type !== 'linkedDataProxyHeight') return;
+        var h = parseInt(data.height, 10);
+        if(isNaN(h) || h <= 0) return;
+        var iframe = document.getElementById('linkedDataProxyIframe');
+        if(!iframe){
+            var iframes = document.getElementsByTagName('iframe');
+            for(var i=0;i<iframes.length;i++){
+                try{ if(iframes[i].contentWindow === event.source){ iframe = iframes[i]; break; } }catch(e){}
+            }
+        }
+        if(!iframe) return;
+        var current = parseInt((iframe.style.height || iframe.offsetHeight + 'px').toString().replace(/[^0-9]/g,''), 10) || 0;
+        if(Math.abs(h - current) < 10) return; // small hysteresis
+        var newHeight = (h + 8) + 'px';
+        try{ iframe.style.setProperty('min-height', '0px', 'important'); iframe.style.setProperty('height', newHeight, 'important'); }
+        catch(e){ try{ iframe.style.minHeight = '0px'; iframe.style.height = newHeight; }catch(e2){} }
+    }catch(e){}
+}, false);
 
 function setCookie(cname, cvalue){
     document.cookie = cname + "=" + cvalue + ";path=/;SameSite=Lax";
@@ -508,7 +515,6 @@ if ($(window).width() < 689) {
 }
 });
 
-
 $(document).on('click', ".sidebar-list-element", function(){
 if ($(window).width() < 689) {
          if(!$(".sidebar-wrapper").hasClass("closed")){
@@ -517,28 +523,6 @@ if ($(window).width() < 689) {
 }
 
 });
-
-
-
-// $(document).on('click', "#change-form-button", function(event){
-
-//   var userLang = navigator.language || navigator.userLanguage;
-//   var PasswordInput = document.getElementById("password");
-//   var PasswordInputConfirm = document.getElementById("id_passwordconfirm");
-
-
-//   if(PasswordInput.value != PasswordInputConfirm.value) {
-//     if(userLang == "de") {
-//       alert("Passwörter stimmen nicht überein");
-//     } else {
-//       alert("Passwords do not match");
-//     }
-//     event.preventDefault();
-
-//   }
-
-
-// });
 
 //captcha refresh
 $(function() {
