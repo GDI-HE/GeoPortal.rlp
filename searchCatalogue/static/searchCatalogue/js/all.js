@@ -531,17 +531,49 @@ function enableSearchInputField(){
 }
 
 function changeMapviewerIframeSrc(srcSuffix){
-    // replace the src from "Geoportal-RLP" on
+    // Safely replace the iframe's query string while preserving the existing `lang` value.
+    // srcSuffix is expected to be the urlencoded parameter string returned by the server
+    // (often starting with '&'). We normalize it and then set the iframe's query
+    // to keep `lang` and append the suffix params.
     var mapviewer = $("#mapviewer");
-    var src = mapviewer.attr("data-resource");
-    if(src != null){
-        var srcArr = src.split("gui_id");
-        var newSrc = srcArr[0] + "gui_id=" + srcSuffix;
-        if(mapviewer.hasClass("mobile-viewer")){
-            toggleMapViewers();
+    var dataResource = mapviewer.attr("data-resource");
+    if (dataResource != null) {
+        try {
+            // Use the URL API to preserve origin/path and existing lang parameter
+            var url = new URL(dataResource);
+            var existingLang = url.searchParams.get('lang') || '';
+
+            // normalize suffix: remove leading ? or & if present
+            var suffix = srcSuffix || '';
+            if (suffix.charAt(0) === '?') suffix = suffix.substring(1);
+            if (suffix.charAt(0) === '&') suffix = suffix.substring(1);
+
+            // Build new search: keep lang if present, otherwise leave as suffix only
+            var newSearch = suffix;
+            if (existingLang.length > 0) {
+                // ensure lang parameter is present first
+                newSearch = 'lang=' + encodeURIComponent(existingLang) + (suffix.length > 0 ? '&' + suffix : '');
+            }
+
+            url.search = newSearch;
+            var newSrc = url.toString();
+
+            if(mapviewer.hasClass("mobile-viewer")){
+                toggleMapViewers();
+            }
+            mapviewer.attr("data-resource", newSrc);
+            mapviewer.attr("src", newSrc);
+        } catch (e) {
+            // Fallback: naive replace if URL API fails
+            var src = dataResource;
+            var idx = src.indexOf('?');
+            var base = idx !== -1 ? src.substring(0, idx) : src;
+            var suffix2 = srcSuffix || '';
+            if (suffix2.charAt(0) === '&' || suffix2.charAt(0) === '?') suffix2 = suffix2.substring(1);
+            var newSrc2 = base + '?' + suffix2;
+            mapviewer.attr("data-resource", newSrc2);
+            mapviewer.attr("src", newSrc2);
         }
-        mapviewer.attr("data-resource", newSrc);
-        mapviewer.attr("src", newSrc);
     }
 }
 
@@ -591,11 +623,10 @@ function startAjaxMapviewerCall(value, mobile){
             if(data["mapviewer_params"] != "" && data["url"] == ""){
             // internal mapviewer call
                 changeMapviewerIframeSrc(data["mapviewer_params"]);
-                window.scrollTo({
-                    top:0,
-                    left:0,
-                    behavior:'smooth'
-                });
+                // run scroll slightly delayed so it happens after DOM/layout changes
+                setTimeout(function(){
+                    window.scrollTo({ top:0, left:0, behavior:'smooth' });
+                }, 50);
 
                 var params = decodeURIComponent(data["mapviewer_params"]);
                 var wms = params.match(/LAYER\[id\]=\d+/);
@@ -635,11 +666,11 @@ function checkForExternalMapviewerCall(){
     window.sessionStorage.removeItem(item);
     if(call != null){
         changeMapviewerIframeSrc(call);
-        window.scrollTo({
-            top:0,
-            left:0,
-            behavior:'smooth'
-        });
+        // ensure the scroll happens after the iframe src is applied and any other UI
+        // changes finished; a small delay improves reliability across browsers.
+        setTimeout(function(){
+            window.scrollTo({ top:0, left:0, behavior:'smooth' });
+        }, 50);
         $(".map-viewer-toggler").click();
     }
 }
