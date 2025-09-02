@@ -30,6 +30,8 @@ from searchCatalogue.utils.viewHelper import check_search_bbox
 from searchCatalogue.settings import DEFAULT_MAX_SEARCH_RESULTS
 from useroperations.models import MbUser
 from Geoportal.utils import utils
+from dashboard.user_check import check_user_login
+from django.http import HttpResponseRedirect
 
 EXEC_TIME_PRINT = "Exec time for %s: %1.5fs"
 
@@ -84,6 +86,7 @@ def index(request: HttpRequest, external_call=False, start_search=False):
         preselected_facets[key_trans] = value
 
     sources = viewHelper.get_source_catalogues(external_call)
+    user_search = check_user_login(request)
 
     params = {
         "title": _("Search"),
@@ -95,6 +98,7 @@ def index(request: HttpRequest, external_call=False, start_search=False):
         "selected_facets": preselected_facets,
         "external_call": external_call,
         "start_search": start_search,
+        "true_false_search": not isinstance(user_search, HttpResponseRedirect),
     }
     geoportal_context = GeoportalContext(request=request)
     geoportal_context.add_context(params)

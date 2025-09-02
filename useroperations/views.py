@@ -1121,6 +1121,7 @@ def change_profile_view(request):
     ]
     btn_label_change = _("Save")
     btn_label_delete = _("Delete Profile")
+    user_change_profile = check_user_login(request)
 
     geoportal_context = GeoportalContext(request=request)
     context = {
@@ -1130,6 +1131,7 @@ def change_profile_view(request):
         'headline': _("Change data"),
         'small_labels': small_labels,
         'dsgvo_flag': dsgvo_flag,
+        'true_false_profile': not isinstance(user_change_profile, HttpResponseRedirect),
         #'is_change_page': True,
     }
     geoportal_context.add_context(context)
@@ -1177,11 +1179,13 @@ def delete_profile_view(request):
                 form = DeleteProfileForm(request.POST)
                 btn_label = _("Delete Profile!")
                 geoportal_context = GeoportalContext(request=request)
+                user_delete = check_user_login(request)
                 context = {
                     'form': form,
                     'headline': _("Delete Profile?"),
                     "btn_label2": btn_label,
                     'is_delete_page': True,
+                    'true_false_delete': not isinstance(user_delete, HttpResponseRedirect),
                 }
                 geoportal_context.add_context(context)
 
@@ -1557,10 +1561,14 @@ def service_abo(request: HttpRequest):
     context_data = geoportal_context.get_context()
     if context_data['dsgvo'] == 'no' and context_data['loggedin'] == True:
         return redirect('useroperations:change_profile')
-
+    user_abo = check_user_login(request)
+    params = {
+        "true_false_abo": not isinstance(user_abo, HttpResponseRedirect),
+    }
     template = "show_abo.html"
 
     geoportal_context = GeoportalContext(request=request)
+    geoportal_context.add_context(params)
     return render(request=request, context=geoportal_context.get_context(), template_name=template)
 
 @check_browser
@@ -1583,6 +1591,11 @@ def open_linked_data(request: HttpRequest):
     template = "open_linked_data.html"
 
     geoportal_context = GeoportalContext(request=request)
+    user_linked_data = check_user_login(request)
+    params = {
+        'true_false_linked_data': not isinstance(user_linked_data, HttpResponseRedirect),
+    }
+    geoportal_context.add_context(params)
     return render(request=request, context=geoportal_context.get_context(), template_name=template)
 
 

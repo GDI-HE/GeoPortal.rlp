@@ -123,7 +123,7 @@
 					<li><div class="logged_username">{% trans 'Hello' %}, {{ user }}!</div></li>
 						<li ><a href="{% url 'useroperations:change_profile' %}"><span class="sidebar-list-element {% if request.session.current_page == 'change_profile' %}current-page{% endif %}">{% trans 'Change Profile' %}</span></a></li>
 						<li  ><a href="{% url 'useroperations:service_abo' %}"><span class="sidebar-list-element {% if request.session.current_page == 'service_abo' %}current-page{% endif %}">{% trans 'Show subscription' %}</span></a></li>
-						{% if return_true_false or return_true_falses %}	
+						{% if return_true_false or return_true_falses or true_false_search or true_false_abo or true_false_profile or true_false_linked_data or true_false_delete %}		
 						<li  ><a href="{% url 'dashboard:dashboard' %}"><span class="sidebar-list-element {% if request.session.current_page == 'dashboard' %}current-page{% endif %}">{% trans 'Admin Dashboard' %}</span></a></li>
 						{% endif %}
 						<li  ><a href="{% url 'useroperations:logout' %}"><span class="sidebar-list-element {% if request.session.current_page == 'logout' %}current-page{% endif %}">{% trans 'Logout' %}</span></a></li>
