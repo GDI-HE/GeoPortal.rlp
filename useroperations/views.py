@@ -14,7 +14,7 @@ import bcrypt
 import requests
 from django.contrib import messages
 from django.core.mail import send_mail
-from django.http import HttpRequest, JsonResponse
+from django.http import HttpRequest, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext as _
 from django.contrib.auth.password_validation import validate_password, UserAttributeSimilarityValidator
@@ -1298,7 +1298,69 @@ def map_viewer_view(request):
 
     # is regular call means the request comes directly from the navigation menu in the page, without selecting a search result
     is_regular_call = len(request_get_params_dict) == 0 or request_get_params_dict.get("searchResultParam", None) is None
-    request_get_params = dict(urllib.parse.parse_qsl(request_get_params_dict.get("searchResultParam"), keep_blank_values=True))
+
+    # Preserve the raw searchResultParam if provided (do not re-encode / parse it into a dict
+    # because that can lose bracketed keys or unknown parameters). We still provide a parsed
+    # dict variant for internal lookups below, but prefer the raw string when constructing
+    # the final mapviewer query string so that unknown params (e.g. `?egalEtwas`) are passed on.
+    raw_search_result_param = request_get_params_dict.get("searchResultParam", None)
+    if raw_search_result_param is not None:
+        # Basic safety: reject CR/LF to avoid header injection and enforce a max length
+        if '\r' in raw_search_result_param or '\n' in raw_search_result_param:
+            return HttpResponseBadRequest('Invalid characters in parameters')
+        if len(raw_search_result_param) > 4096:
+            return HttpResponseBadRequest('Parameters too long')
+
+        # parse into key/value pairs preserving blank values
+        parsed_pairs = urllib.parse.parse_qsl(raw_search_result_param, keep_blank_values=True)
+
+        # Define allowed parameter patterns
+        allowed_fixed = {"WMC", "WMS", "GEORSS", "KML", "FEATURETYPE", "ZOOM", "GEOJSON", "GEOJSONZOOM", "GEOJSONZOOMOFFSET", "gui_id", "DATASETID", "lang"}
+        # allow LAYER[id] or LAYER[n][id|visible|querylayer|zoom] where n is integer
+        # group(1) is the optional numeric index, group(2) is the property
+        layer_key_re = re.compile(r'^LAYER(?:\[(\d+)\])?\[(id|visible|querylayer|zoom)\]$')
+
+        # validate each pair
+        validated_params = {}
+        for k, v in parsed_pairs:
+            # url-decode key and value already done by parse_qsl
+            if k in allowed_fixed:
+                # allow almost any value but restrict control characters
+                if '\r' in v or '\n' in v:
+                    return HttpResponseBadRequest('Invalid characters in parameter values')
+                validated_params[k] = v
+                continue
+
+            m = layer_key_re.match(k)
+            if m:
+                # m.group(1) is the optional layer index; if present must be integer
+                idx = m.group(1)
+                typ = m.group(2)
+                if idx is not None:
+                    try:
+                        int(idx)
+                    except ValueError:
+                        return HttpResponseBadRequest('Invalid layer index')
+
+                # For id and zoom expect integers (or empty), for visible/querylayer expect 0/1 or empty
+                if typ in ('id', 'zoom'):
+                    if v != '':
+                        if not re.match(r'^\d+$', v):
+                            return HttpResponseBadRequest('Invalid numeric value for ' + k)
+                elif typ in ('visible', 'querylayer'):
+                    if v != '' and not re.match(r'^[01]$', v):
+                        return HttpResponseBadRequest('Invalid boolean value for ' + k)
+
+                validated_params[k] = v
+                continue
+
+            # Unknown parameter -> reject
+            return HttpResponseBadRequest('Parameter not allowed: ' + k)
+
+        # Build request_get_params dict from validated_params for internal use
+        request_get_params = validated_params
+    else:
+        request_get_params = {}
     template = "geoportal_external.html"
     gui_id = context_data.get("preferred_gui", DEFAULT_GUI)  # get selected gui from params, use default gui otherwise!
 
@@ -1344,7 +1406,50 @@ def map_viewer_view(request):
         "DATASETID": request_get_params.get("DATASETID", ""),
     }
 
-    mapviewer_params = "&" + urllib.parse.urlencode(mapviewer_params_dict)
+    # Build the mapviewer params string. If a raw searchResultParam was supplied by the
+    # caller, prefer to append that raw string (unchanged) to the constructed parameters so
+    # that arbitrary keys are forwarded as-is. If not, fall back to urlencoding our dict.
+    if raw_search_result_param:
+        # Ensure raw string does not have a leading '?'
+        raw = raw_search_result_param
+        if raw.startswith('?'):
+            raw = raw[1:]
+
+        # Ensure some default parameters are present for internal mapviewer calls.
+        # We operate on the already-validated `request_get_params` to detect presence
+        # of keys and append literal bracketed keys to the raw query string so that
+        # bracket notation is preserved (no re-encoding).
+        additions = []
+
+        # If no LAYER visible field is present (either LAYER[visible] or any LAYER[n][visible])
+        has_visible = any('[visible]' in k for k in request_get_params.keys())
+        if not has_visible:
+            additions.append('LAYER[visible]=1')
+
+        # If no LAYER querylayer field is present
+        has_querylayer = any('[querylayer]' in k for k in request_get_params.keys())
+        if not has_querylayer:
+            additions.append('LAYER[querylayer]=1')
+
+        # Ensure other keys exist (may be empty). These were historically included
+        # so keep that behaviour to be compatible with callers that expect them.
+        for k in ('WMS', 'WMC', 'GEORSS', 'KML', 'FEATURETYPE', 'ZOOM', 'GEOJSON', 'GEOJSONZOOM', 'GEOJSONZOOMOFFSET', 'DATASETID'):
+            if k not in request_get_params:
+                additions.append(f"{k}=")
+
+        if additions:
+            # avoid adding extra '&' if raw is empty
+            if raw:
+                raw = raw + '&' + '&'.join(additions)
+            else:
+                raw = '&'.join(additions)
+
+        # If the raw string already contains a gui_id or lang we don't need to alter it here;
+        # the front-end `changeMapviewerIframeSrc` will preserve lang and the iframe will use
+        # the provided parameters. Prepend a leading '&' for consistency with earlier behaviour.
+        mapviewer_params = '&' + raw
+    else:
+        mapviewer_params = "&" + urllib.parse.urlencode(mapviewer_params_dict)
 
     if is_regular_call:
         # an internal call from our geoportal should lead to the map viewer page without problems
