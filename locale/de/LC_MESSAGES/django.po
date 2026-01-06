@@ -2459,3 +2459,286 @@ msgstr "Ebenenname und Kurzbeschreibung stimmen überein. Klicken Sie auf die Sc
 
 msgid "Short Abstracts. Click on Details button to see the details."
 msgstr "kurze Kurzbeschreibungen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "Abstract"
+msgstr "Kurzbeschreibung"
+
+msgid "Abstract is too short (< 50 chars)"
+msgstr "Kurzbeschreibung ist zu kurz (< 50 Zeichen)"
+
+msgid "Abstract matches title"
+msgstr "Kurzbeschreibung entspricht Titel"
+
+msgid "Access"
+msgstr "Zugriff"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "All Good"
+msgstr "Alles Gut"
+
+msgid "Card View"
+msgstr "Kartenansicht"
+
+msgid "Data-Service Connection"
+msgstr "Datendienst-Verbindung"
+
+msgid "Export to CSV"
+msgstr "Als CSV exportieren"
+
+msgid "Fees"
+msgstr "Gebühren"
+
+msgid "Fees/Licenses"
+msgstr "Gebühren/Lizenzen"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Issues"
+msgstr "Probleme"
+
+msgid "Issues found"
+msgstr "Probleme gefunden"
+
+msgid "Issues Only"
+msgstr "Nur Probleme"
+
+msgid "Keywords"
+msgstr "Schlüsselwörter"
+
+msgid "Layer Details"
+msgstr "Ebenendetails"
+
+msgid "Layer Name"
+msgstr "Ebenenname"
+
+msgid "Layers"
+msgstr "Ebenen"
+
+msgid "Length"
+msgstr "Länge"
+
+msgid "Load More Services"
+msgstr "Weitere Services laden"
+
+msgid "Missing abstract"
+msgstr "Kurzbeschreibung fehlt"
+
+msgid "Missing Abstracts"
+msgstr "Fehlende Kurzbeschreibungen"
+
+msgid "Missing keywords"
+msgstr "Schlüsselwörter fehlen"
+
+msgid "Needs attention"
+msgstr "Benötigt Aufmerksamkeit"
+
+msgid "No Layer Data"
+msgstr "Keine Ebenendaten"
+
+msgid "No layer data available"
+msgstr "Keine Ebenendaten verfügbar"
+
+msgid "No layer information available for this service."
+msgstr "Keine Ebeneninformation für diesen Service verfügbar."
+
+msgid "No Services Found"
+msgstr "Keine Services gefunden"
+
+msgid "No WMS services match your search criteria."
+msgstr "Keine WMS-Dienste entsprechen Ihren Suchkriterien."
+
+msgid "of"
+msgstr "von"
+
+msgid "Quality Score"
+msgstr "Qualitätsscore"
+
+msgid "Search by ID or title..."
+msgstr "Nach ID oder Titel suchen..."
+
+msgid "Short Abstracts"
+msgstr "Kurze Kurzbeschreibungen"
+
+msgid "Sort"
+msgstr "Sortieren"
+
+msgid "Sort by issues count"
+msgstr "Nach Anzahl der Probleme sortieren"
+
+msgid "Sort by layer count"
+msgstr "Nach Ebenenanzahl sortieren"
+
+msgid "Sort by quality score"
+msgstr "Nach Qualitätsscore sortieren"
+
+msgid "Sort by title"
+msgstr "Nach Titel sortieren"
+
+msgid "Status Legend"
+msgstr "Statuslegende"
+
+msgid "Table View"
+msgstr "Tabellenansicht"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Title=Abs"
+msgstr "Titel=Abs"
+
+msgid "Title = Abstract"
+msgstr "Titel = Kurzbeschreibung"
+
+msgid "Toggle details"
+msgstr "Details umschalten"
+
+
+msgid "Metadata Quality Check"
+msgstr "Metadaten-Qualitätsprüfung"
+
+msgid "Analyze and improve the metadata quality of your WMS services and layers"
+msgstr "Analysieren und verbessern Sie die Metadatenqualität Ihrer WMS-Dienste und -Ebenen"
+
+msgid "Abstract Length"
+msgstr "Kurzbeschreibung Länge"
+
+msgid "All layers have abstracts"
+msgstr "Alle Ebenen haben Kurzbeschreibungen"
+
+msgid "All layers have keywords"
+msgstr "Alle Ebenen haben Schlüsselwörter"
+
+msgid "No duplicate title=abstract"
+msgstr "Kein Duplikat Titel=Kurzbeschreibung"
+
+msgid "All abstracts meet minimum length"
+msgstr "Alle Kurzbeschreibungen erfüllen die Mindestlänge"
+
+msgid "Suggestion: Add descriptive abstracts to all layers"
+msgstr "Vorschlag: Fügen Sie beschreibende Kurzbeschreibungen zu allen Ebenen hinzu"
+
+msgid "Suggestion: Add relevant keywords for better discoverability"
+msgstr "Vorschlag: Fügen Sie relevante Schlüsselwörter für bessere Auffindbarkeit hinzu"
+
+msgid "Title matches abstract"
+msgstr "Titel passt zur Kurzbeschreibung"
+
+msgid "Suggestion: Write unique abstracts different from titles"
+msgstr "Vorschlag: Schreiben Sie eindeutige Kurzbeschreibungen, die sich von Titeln unterscheiden"
+
+msgid "Abstract is too short"
+msgstr "Kurzbeschreibung ist zu kurz"
+
+msgid "Suggestion: Expand abstracts to at least 50 characters"
+msgstr "Vorschlag: Erweitern Sie Kurzbeschreibungen auf mindestens 50 Zeichen"
+
+msgid "Abstract present"
+msgstr "Kurzbeschreibung vorhanden"
+
+msgid "Keywords present"
+msgstr "Schlüsselwörter vorhanden"
+
+msgid "Unique abstract"
+msgstr "Eindeutige Kurzbeschreibung"
+
+msgid "Abstract length is adequate"
+msgstr "Kurzbeschreibungslänge ist angemessen"
+
+msgid "Suggestion: Add a detailed description of this layer content and purpose"
+msgstr "Vorschlag: Fügen Sie eine detaillierte Beschreibung des Ebeneninhalts und -zwecks hinzu"
+
+msgid "Suggestion: Add keywords for improved search visibility"
+msgstr "Vorschlag: Fügen Sie Schlüsselwörter für verbesserte Sichtbarkeit der Suche hinzu"
+
+msgid "Suggestion: Create a unique abstract that describes the content"
+msgstr "Vorschlag: Erstellen Sie eine eindeutige Kurzbeschreibung, die den Inhalt beschreibt"
+
+msgid "Suggestion: Expand to at least 50 characters for better description"
+msgstr "Vorschlag: Erweitern Sie auf mindestens 50 Zeichen für bessere Beschreibung"
+
+msgid "Average Quality Score"
+msgstr "Durchschnittliche Qualitätsbewertung"
+
+msgid "Perfect Services"
+msgstr "Perfekte Dienste"
+
+msgid "found"
+msgstr "gefunden"
+
+msgid "Back to Top"
+msgstr "Nach oben"
+
+msgid "Metadata Analysis"
+msgstr "Metadaten-Analyse"
+
+msgid "Abstract Length Statistics"
+msgstr "Statistiken zur Länge der Kurzbeschreibung"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Average"
+msgstr "Durchschnitt"
+
+msgid "Median"
+msgstr "Median"
+
+msgid "chars"
+msgstr "Zeichen"
+
+msgid "Common Issues Detected"
+msgstr "Erkannte häufige Probleme"
+
+msgid "Layers without abstracts"
+msgstr "Ebenen ohne Kurzbeschreibungen"
+
+msgid "Layers where abstract matches title"
+msgstr "Ebenen, bei denen Kurzbeschreibung dem Titel entspricht"
+
+msgid "Layers with short abstracts"
+msgstr "Ebenen mit kurzen Kurzbeschreibungen"
+
+msgid "Layers without keywords"
+msgstr "Ebenen ohne Schlüsselwörter"
+
+msgid "Keyword Analytics"
+msgstr "Schlüsselwort-Analyse"
+
+msgid "Unique Keywords"
+msgstr "Eindeutige Schlüsselwörter"
+
+msgid "Most Used Keywords"
+msgstr "Am häufigsten verwendete Schlüsselwörter"
+
+msgid "Least Used Keywords"
+msgstr "Am wenigsten verwendete Schlüsselwörter"
+
+msgid "Layer Distribution"
+msgstr "Ebenenverteilung"
+
+msgid "Average per Service"
+msgstr "Durchschnitt pro Dienst"
+
+msgid "Most Layers"
+msgstr "Meiste Ebenen"
+
+msgid "Fewest Layers"
+msgstr "Wenigste Ebenen"
+
+msgid "Service"
+msgstr "Dienst"
+
+msgid "Keyword Cloud Visualization"
+msgstr "Schlüsselwort-Wolkenvisualisierung"
+
+msgid "Top Keywords by Frequency"
+msgstr "Top-Schlüsselwörter nach Häufigkeit"
+
+msgid "No keywords found"
+msgstr "Keine Schlüsselwörter gefunden"
