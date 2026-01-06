@@ -1134,7 +1134,7 @@ def get_layer_statistics(layers):
         'wms_fees': wms_fees,
         'wms_accessconstraints': wms_accessconstraints,
         'layers_with_comma_keywords': layers_with_comma_keywords,
-        'connected_wms': wms['connected'] 
+        'connected_wms': connected_wms
     }
 
 def check_layer_abstracts_and_keywords(request):
