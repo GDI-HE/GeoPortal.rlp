@@ -181,7 +181,6 @@ def render_template(request, template_name):
     user = check_user(request)
     if isinstance(user, HttpResponseRedirect):
             return user  # Redirect if the user is not authenticated or does not have permissions
-    # use this to show the Admin Dashboard button also in the dashboard page
     user_login = check_user_login(request)
 
 
@@ -351,7 +350,6 @@ def render_template(request, template_name):
     }
 
 # Current datetime and range definitions
-    now = timezone.now()
     start_date_7_days = now - timedelta(days=7)
     start_date_14_days = now - timedelta(days=1)
 
@@ -369,7 +367,6 @@ def render_template(request, template_name):
         .annotate(total_sessions=Sum('session_number'))
         .order_by('datetime')
     )
-
     sessions_last_14_days_local = [
     {
         'datetime': localtime(entry['datetime']),  # Automatically converts UTC → Europe/Berlin
@@ -405,7 +402,6 @@ def render_template(request, template_name):
             top_four_loads_second_last_month = None
             top_10_loads_last_month = None
             total_sessions_7_days_k = None
-
     context = {
         'fig_html': fig_html,
         'fig_wms': fig_wms_html,
@@ -486,11 +482,9 @@ def render_template(request, template_name):
     return render(request, template_name, geoportal_context.get_context())
 
 def dashboard(request):
-    if not request.is_ajax():
         return render_template(request, 'dashboard.html')
 
 def filter(request):
-    if request.is_ajax():
         return render_template(request, 'filter.html')
 
 def get_highest_loads():
@@ -893,7 +887,6 @@ def generate_report(request, start_date_report, end_date_report, model, title, y
         cumulative_counts.append(cumulative_sum)
     
     fig_report = go.Figure()
-    
     title_user = trans(title)
     # Add bar graph for monthly data
     fig_report.add_trace(go.Bar(
@@ -1122,9 +1115,6 @@ def get_layer_statistics(layers):
                 'connected': False
             })
     
-    # Print the connected WMS IDs along with the service title names and layer details
-    for wms in connected_wms:
-        pass
     return {
         'total_layers': total_layers,
         'layers_without_abstract_count': layers_without_abstract_count,
@@ -1158,6 +1148,14 @@ def check_layer_abstracts_and_keywords(request):
             user_group_ids = MbGroup.objects.filter(
                 mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
             ).values_list('mb_group_id', flat=True)
+            user_group_name = MbGroup.objects.filter(
+                mb_group_id__in=MbUserMbGroup.objects.filter(fkey_mb_user_id=userid).values_list('fkey_mb_group_id', flat=True)
+            ).values_list('mb_group_name', flat=True)
+            # Get list of group names from QuerySet
+            user_group_name_list = list(user_group_name)
+
+            # Extract the first group name that is not 'guest'
+            username = next((name for name in user_group_name_list if name != 'guest'), None)
 
             # Filter WMS services based on the search query
             if search_query:
@@ -1194,6 +1192,10 @@ def check_layer_abstracts_and_keywords(request):
                 abstract_length=Length('layer_abstract', output_field=IntegerField())
             ).filter(abstract_length__lt=50).count()
 
+            # Calculate average quality score and perfect services percentage
+            all_quality_scores = []
+            perfect_services_count = 0
+
             # Paginate the WMS services
             paginator = Paginator(wms_services, 1000)  # Show 10 WMS services per page
             page_number = request.GET.get('page', 1)
@@ -1210,13 +1212,34 @@ def check_layer_abstracts_and_keywords(request):
                 # Get all unique layers for this WMS
                 layers = Layer.objects.filter(fkey_wms_id=wms).distinct()
                 layer_stats = get_layer_statistics(layers)
+                
+                # Calculate quality score (0-100) with weighted issues
+                total_layers = layer_stats['total_layers']
+                if total_layers > 0:
+                    # Weighted issue counts (different severity levels)
+                    # Critical issues (2x weight): no abstract, no keywords
+                    # Important issues (1.5x weight): abstract matches title (copy-paste)
+                    # Minor issues (1x weight): short abstract (< 50 chars)
+                    issues = (layer_stats['layers_without_abstract_count'] * 2.0 +
+                             layer_stats['layers_without_keyword_count'] * 2.0 +
+                             layer_stats['layers_abstract_matches_title_count'] * 1.5 +
+                             layer_stats['layers_with_short_abstract_count'] * 1.0)
+                    max_possible_issues = total_layers * 2.0  # Worst case: all layers missing abstract + keywords
+                    quality_score = max(0, 100 - int((issues / max_possible_issues) * 100))
+                else:
+                    quality_score = 100
+                
+                # Track for average calculation
+                all_quality_scores.append(quality_score)
+                if quality_score == 100:
+                    perfect_services_count += 1
+                # --- New OpenAI evaluation part starts here ---
                 wms_title = wms.wms_title or ""
                 wms_abstract = wms.wms_abstract or ""
                 keywords = list(
                     LayerKeyword.objects.filter(fkey_layer__in=layers).values_list('fkey_keyword__keyword', flat=True)
                 )
                 layer_names = list(layers.values_list('layer_title', flat=True))
-
                 # --- Build per-layer data for frontend ---
                 layers_data = []
                 for layer in layers:
@@ -1260,12 +1283,11 @@ def check_layer_abstracts_and_keywords(request):
                         'title': layer.layer_title,
                     })
 
-
-
                 results.append({
                     'wms_id': wms.wms_id,
                     'wms_title': wms.wms_title,
                     'total_layers': layer_stats['total_layers'],
+                    'quality_score': quality_score,
                     'layers_without_abstract': layer_stats['layers_without_abstract_count'],
                     'layers_without_keywords': layer_stats['layers_without_keyword_count'],
                     'all_layers_have_abstract': layer_stats['all_layers_have_abstract'],
@@ -1284,6 +1306,9 @@ def check_layer_abstracts_and_keywords(request):
                     'wms_accessconstraints': wms.accessconstraints,
                     'layers_with_comma_keywords': layer_stats['layers_with_comma_keywords'],
                     'connected_wms': layer_stats['connected_wms'],
+                    'username': username,
+                    'return_true_falses': not isinstance(user_login, HttpResponseRedirect),
+                    # --- Add the new layers key ---
                     'layers': layers_data,
                 })
 
@@ -1300,7 +1325,6 @@ def check_layer_abstracts_and_keywords(request):
                                     results[wms_index]['status'] = inspire_info['status']
                                     results[wms_index]['color'] = inspire_info['color']
                                     results[wms_index]['inspire_category_code'] = inspire_info['inspire_category_code']
-
                 for iso_info in wms_iso:
                         if isinstance(iso_info, dict) and 'wms_iso' in iso_info:
                             # Check if the wms_id matches
@@ -1315,6 +1339,151 @@ def check_layer_abstracts_and_keywords(request):
                                     results[wms_index]['category'] = iso_info['category']   
 
             #session_data_dashboard = php_session_data.get_mapbender_session_by_memcache(request.COOKIES.get(SESSION_NAME))
+            
+            # Calculate average quality score across all services (not just paginated results)
+            average_quality_score = int(sum(all_quality_scores) / len(all_quality_scores)) if all_quality_scores else 0
+            perfect_services_percentage = int((perfect_services_count / len(all_quality_scores) * 100)) if all_quality_scores else 0
+            
+            # Metadata Analysis (Feature 8): Calculate analytics for insights
+            # Use ALL LAYERS (not just paginated results) for comprehensive analytics
+            all_abstracts = []
+            all_keywords = set()
+            common_issues = {'missing_abstract': 0, 'missing_keywords': 0, 'short_abstract': 0, 'abstract_matches_title': 0}
+            keyword_frequency = {}
+            abstract_lengths = []
+            
+            # Use raw SQL for more reliable keyword retrieval and frequency counting
+            from django.db import connection
+            cursor = connection.cursor()
+            
+            # Get list of WMS IDs with parameterized query to prevent SQL injection
+            wms_ids = [wms.wms_id for wms in wms_services]
+            
+            if wms_ids:
+                # Build placeholders for parameterized query
+                placeholders = ','.join(['%s'] * len(wms_ids))
+                cursor.execute("""
+                    SELECT k.keyword, COUNT(*) as frequency
+                    FROM mapbender.layer_keyword lk
+                    JOIN mapbender.keyword k ON lk.fkey_keyword_id = k.keyword_id
+                    WHERE lk.fkey_layer_id IN (SELECT layer_id FROM mapbender.layer WHERE fkey_wms_id IN (""" + placeholders + """))
+                    GROUP BY k.keyword_id, k.keyword
+                    ORDER BY frequency DESC
+                """, wms_ids)
+            else:
+                # If no WMS services, return empty results
+                cursor.execute("""
+                    SELECT k.keyword, COUNT(*) as frequency
+                    FROM mapbender.layer_keyword lk
+                    JOIN mapbender.keyword k ON lk.fkey_keyword_id = k.keyword_id
+                    WHERE 1=0
+                """)
+            
+            # Build keyword frequency dictionary
+            for kw, freq in cursor.fetchall():
+                if kw:
+                    keyword_frequency[kw] = freq
+                    all_keywords.add(kw)
+            
+            # Now iterate layers to count issues
+            for layer in all_layers:
+                # Collect abstract lengths
+                if layer.layer_abstract:
+                    abstract_lengths.append(len(layer.layer_abstract))
+                    all_abstracts.append(layer.layer_abstract)
+                
+                # Count issues
+                if not layer.layer_abstract or layer.layer_abstract.strip() == '':
+                    common_issues['missing_abstract'] += 1
+                
+                # Check if layer has keywords (using raw SQL)
+                cursor.execute("""
+                    SELECT COUNT(*) FROM mapbender.layer_keyword WHERE fkey_layer_id = %s
+                """, [layer.layer_id])
+                has_keywords = cursor.fetchone()[0] > 0
+                if not has_keywords:
+                    common_issues['missing_keywords'] += 1
+                
+                if (layer.layer_abstract or '').strip() == (layer.layer_title or '').strip():
+                    common_issues['abstract_matches_title'] += 1
+                
+                if layer.layer_abstract and len(layer.layer_abstract.strip()) < 50:
+                    common_issues['short_abstract'] += 1
+            
+            # Calculate abstract length statistics
+            if abstract_lengths:
+                abstract_lengths_sorted = sorted(abstract_lengths)
+                min_abstract_length = min(abstract_lengths)
+                max_abstract_length = max(abstract_lengths)
+                median_abstract_length = abstract_lengths_sorted[len(abstract_lengths) // 2]
+                avg_abstract_length = int(sum(abstract_lengths) / len(abstract_lengths))
+            else:
+                min_abstract_length = max_abstract_length = median_abstract_length = avg_abstract_length = 0
+            
+            # Get top keywords (most used)
+            top_keywords = sorted(keyword_frequency.items(), key=lambda x: x[1], reverse=True)[:10]
+            least_keywords = sorted(keyword_frequency.items(), key=lambda x: x[1])[:5]
+            
+            # Keyword Cloud - Prepare data with size scaling for visualization
+            # Get all keywords sorted by frequency for cloud
+            all_keywords_sorted = sorted(keyword_frequency.items(), key=lambda x: x[1], reverse=True)[:25]  # Top 25 keywords
+            
+            # Calculate size scaling (linear scale from min to max font size)
+            keyword_cloud = []
+            if all_keywords_sorted:
+                frequencies = [freq for _, freq in all_keywords_sorted]
+                min_freq = min(frequencies)
+                max_freq = max(frequencies)
+                min_font_size = 8  # Minimum font size in pixels
+                max_font_size = 18  # Maximum font size in pixels
+                
+                for keyword, frequency in all_keywords_sorted:
+                    # Linear scaling formula: new_value = (value - min) / (max - min) * (new_max - new_min) + new_min
+                    if max_freq > min_freq:
+                        size = ((frequency - min_freq) / (max_freq - min_freq)) * (max_font_size - min_font_size) + min_font_size
+                    else:
+                        size = (max_font_size + min_font_size) / 2
+                    
+                    keyword_cloud.append({
+                        'keyword': keyword,
+                        'frequency': frequency,
+                        'font_size': round(size, 1),
+                        'font_size_int': int(size)
+                    })
+            
+            # Layer Statistics - Calculate useful layer distribution insights
+            layer_stats = {}
+            for result in results:
+                service_id = result['wms_id']
+                layer_count = result.get('total_layers', 0)
+                layer_stats[service_id] = {
+                    'wms_title': result.get('wms_title', ''),
+                    'layer_count': layer_count
+                }
+            
+            total_layers = all_layers.count()
+            avg_layers_per_service = int(total_layers / len(wms_services)) if wms_services.count() > 0 else 0
+            
+            # Find service with most layers
+            max_layers_service = None
+            max_layers_count = 0
+            for service_id, stats in layer_stats.items():
+                if stats['layer_count'] > max_layers_count:
+                    max_layers_count = stats['layer_count']
+                    max_layers_service = stats['wms_title']
+            
+            # Find service with least layers (excluding 0)
+            min_layers_service = None
+            min_layers_count = float('inf')
+            for service_id, stats in layer_stats.items():
+                if stats['layer_count'] > 0 and stats['layer_count'] < min_layers_count:
+                    min_layers_count = stats['layer_count']
+                    min_layers_service = stats['wms_title']
+            
+            if min_layers_count == float('inf'):
+                min_layers_count = 0
+                min_layers_service = None
+            
             context = {
                 'results': results,
                 'page_obj': page_obj,
@@ -1322,15 +1491,40 @@ def check_layer_abstracts_and_keywords(request):
                 'total_layers_without_keyword': total_layers_without_keyword,
                 'total_layers_abstract_matches_title': total_layers_abstract_matches_title,
                 'total_layers_with_short_abstract': total_layers_with_short_abstract,
+                'average_quality_score': average_quality_score,
+                'perfect_services_percentage': perfect_services_percentage,
+                'total_services': len(wms_services),
+                'perfect_services_count': perfect_services_count,
+                # Metadata Analysis (Feature 8)
+                'abstract_stats': {
+                    'min': min_abstract_length,
+                    'max': max_abstract_length,
+                    'median': median_abstract_length,
+                    'average': avg_abstract_length,
+                },
+                'common_issues': common_issues,
+                'top_keywords': top_keywords,
+                'least_keywords': least_keywords,
+                'total_keywords': len(all_keywords),
+                'keyword_cloud': keyword_cloud,
+                'max_keyword_freq': max(keyword_frequency.values()) if keyword_frequency else 0,
+                # Layer Statistics
+                'total_layers': total_layers,
+                'avg_layers_per_service': avg_layers_per_service,
+                'max_layers_service': max_layers_service,
+                'max_layers_count': max_layers_count,
+                'min_layers_service': min_layers_service,
+                'min_layers_count': min_layers_count,
+                'username': username,
                 'return_true_falses': not isinstance(user_login, HttpResponseRedirect),
                 'sidebar_closed': True, # This will open the sidebar by default while loading metadata-quality page
-
             }
             geoportal_context = GeoportalContext(request=request)
             geoportal_context.add_context(context=context)
            
 
-            return render(request, 'check_abstract.html', geoportal_context.get_context())
+            #return render(request, 'check_abstract.html', geoportal_context.get_context())
+            return render(request, 'check_abstract_modern.html', geoportal_context.get_context())
             # messages.add_message(request, messages.ERROR, _("The page is unavailable!"))
             # return redirect('useroperations:index')
         
