@@ -2556,6 +2556,9 @@ msgstr "Nach ID oder Titel suchen..."
 msgid "Short Abstracts"
 msgstr "Kurze Kurzbeschreibungen"
 
+msgid "Short abstracts"
+msgstr "Kurze Kurzbeschreibungen"
+
 msgid "Sort"
 msgstr "Sortieren"
 
