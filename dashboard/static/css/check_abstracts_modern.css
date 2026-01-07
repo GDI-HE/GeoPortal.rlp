@@ -617,40 +617,22 @@
     .mq-page-header { padding: 20px; margin-bottom: 15px; }
     .mq-page-title { font-size: 1.5rem; }
     
-    /* Analysis section - full width, proper spacing */
+    /* Hide analysis section on mobile */
     .mq-analysis-section {
-        padding: 15px;
-        margin-top: 15px;
-        margin-bottom: 20px;
-        border-radius: var(--mq-radius-md);
+        display: none;
     }
-    
-    .mq-analysis-content {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .mq-analysis-card {
-        width: 100%;
-        padding: 15px;
-    }
-    
-    /* Keyword cloud mobile fix */
-    .mq-cloud-container {
-        padding: 10px;
-        min-height: auto;
-    }
-    
-    .mq-tag-cloud {
-        gap: 6px;
-    }
-    
-    .mq-cloud-word {
+
+    .mq-service-id{
         padding: 4px 8px;
-        font-size: 12px !important;
+        font-size: 0.75rem;
+    } 
+    .mq-quality-badge {
+        padding: 6px 8px;
+        min-width: 50px;
     }
-    
+    .mq-quality-label {
+        font-size: 0.6rem;
+    }
     /* Toolbar - separate section */
     .mq-toolbar { 
         flex-direction: column; 
@@ -664,12 +646,16 @@
         margin-bottom: 15px;
     }
     
-    .mq-search-box { max-width: none; }
+    .mq-search-box { 
+        max-width: none;
+        width: 100%;
+    }
     
     .mq-filter-buttons { 
         justify-content: center; 
         flex-wrap: wrap;
         gap: 6px;
+        width: 100%;
     }
     
     .mq-filter-btn {
@@ -679,13 +665,9 @@
         font-size: 0.8rem;
     }
     
-    /* Legend - stack vertically */
+    /* Legend - hide on mobile to save space */
     .mq-legend {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-        padding: 12px;
-        margin-bottom: 15px;
+        display: none;
     }
     
     /* Services container */
@@ -693,7 +675,36 @@
         gap: 12px;
     }
     
-    .mq-stats-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    /* Stats grid - only 2 columns on tablet */
+    .mq-stats-grid { 
+        grid-template-columns: repeat(2, 1fr); 
+        gap: 10px; 
+    }
+    
+    /* Service card adjustments */
+    .mq-service-header h3 {
+        font-size: 0.7rem;
+    }
+    
+    .mq-service-meta {
+        font-size: 0.7rem;
+    }
+    .mq-service-meta-item {
+        display: none;
+    }
+    
+    .mq-quality-badge {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+    }
+    
+    /* Stack layer info vertically */
+    .mq-layer-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
     .mq-quality-summary { grid-template-columns: 1fr; }
     .mq-layer-table-wrapper { overflow-x: auto; }
     .mq-layer-table { min-width: 600px; }
@@ -701,6 +712,7 @@
     /* Sort dropdown - bottom sheet style */
     .mq-sort-dropdown {
         position: static;
+        width: 100%;
     }
     
     .mq-sort-menu {
@@ -715,15 +727,31 @@
         overflow-y: auto;
         z-index: 1000;
     }
+    
+    .mq-export-btn {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
     .mq-dashboard { padding: 8px; }
     .mq-page-title { font-size: 1.3rem; }
-    .mq-stats-grid { grid-template-columns: 1fr; }
+    
+    /* Single column stats on phone */
+    .mq-stats-grid { 
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    
+    /* Hide stat icons on very small screens */
+    .mq-stat-icon {
+        display: none;
+    }
+    
     .mq-quality-indicators { gap: 6px; }
     .mq-quality-badge { padding: 4px 8px; min-width: 40px; font-size: 0.75rem; }
     
+    /* Stack filter buttons vertically */
     .mq-filter-buttons {
         flex-direction: column;
         width: 100%;
@@ -734,13 +762,23 @@
         justify-content: center;
     }
     
-    .mq-analysis-card h3 {
-        font-size: 1rem;
+    /* Reduce service card padding */
+    .mq-service-card {
+        padding: 12px;
     }
     
-    .mq-cloud-word {
-        padding: 3px 6px;
-        font-size: 10px !important;
+    .mq-service-header h3 {
+        font-size: 0.75rem;
+    }
+    
+    .mq-service-meta {
+        font-size: 0.75rem;
+    }
+    
+    /* Make buttons full width */
+    .mq-sort-dropdown,
+    .mq-export-btn {
+        width: 100%;
     }
 }
 
@@ -1572,14 +1610,7 @@
 @media (max-width: 768px) {
     /* Analysis section - ensure proper block display and separation */
     .mq-analysis-section {
-        display: block !important;
-        width: 100% !important;
-        box-sizing: border-box;
-        padding: 15px;
-        margin-top: 15px;
-        margin-bottom: 25px;
-        clear: both;
-        overflow: hidden;
+        display: none;
     }
     
     /* Toolbar - ensure block display and separation from content */
