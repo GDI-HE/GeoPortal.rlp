@@ -2436,9 +2436,6 @@ msgstr "Verbunden"
 msgid "Not connected"
 msgstr "Nicht verbunden"
 
-msgid "Layer Name"
-msgstr "Ebenenname"
-
 msgid "Missing Keywords"
 msgstr "Fehlende Schlüsselwörter"
 
