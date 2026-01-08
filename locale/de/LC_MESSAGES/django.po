@@ -2346,6 +2346,9 @@ msgstr "WMC auswählen"
 msgid "Yesterday's load count"
 msgstr "Gesamtauslastung von gestern"
 
+msgid "Click legend to toggle items"
+msgstr "Klicken Sie auf die Legende, um Elemente ein-/auszublenden"
+
 msgid "Select Option"
 msgstr "Option auswählen"
 

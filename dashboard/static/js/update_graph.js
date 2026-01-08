@@ -812,8 +812,10 @@ function initializeDonutChart(donutChartData) {
     var donutChartOptions = {
         title: {
             text: yesterdayLoadCount,
+            subtext: clickLegendToggle,
             left: 'center',
-            textStyle: { fontSize: 14 }
+            textStyle: { fontSize: 14 },
+            subtextStyle: { fontSize: 11, color: '#666' }
         },
         tooltip: {
             trigger: 'item',
@@ -838,7 +840,7 @@ function initializeDonutChart(donutChartData) {
             orient: 'vertical',
             left: 'left',
             top: 'center',
-            textStyle: { fontSize: 10 }
+            textStyle: { fontSize: 10 },
         },
         series: [{
             name: 'Actual Load',
