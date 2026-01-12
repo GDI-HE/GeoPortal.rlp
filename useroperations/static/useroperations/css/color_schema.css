@@ -2,7 +2,7 @@
 DECLARE FIX COLOR CODES FOR CORPORATE DESIGN
 */
 :root{
-    --primary: #16191f;
+    --primary: #16191f !important;
     --primary-invert: #78e2cc;
     --primary-hover: #888888;
     --primary-light: #868686;

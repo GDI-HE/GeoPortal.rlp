@@ -2139,9 +2139,6 @@ msgstr "Suchergebnisse werden geladen"
 #~ msgstr ""
 #~ "Ein Fingerabdrucksymbol. Die Nutzung dieses Dienstes wird protokolliert"
 
-#~ msgid "Layers"
-#~ msgstr "Ebenen"
-
 #~ msgid "A metadata symbol"
 #~ msgstr "Ein Metadatensymbol"
 
@@ -2171,3 +2168,577 @@ msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "A magnifying glass icon"
 #~ msgstr "Ein Lupensymbol"
+
+msgid "Layers Without Abstracts"
+msgstr "Ebenen ohne Kurzbeschreibungen"
+
+msgid "Total across all services"
+msgstr "Gesamtsumme aller Dienste"
+
+msgid "Layers Without Keywords"
+msgstr "Ebenen ohne Schlüsselwort"
+
+msgid "Abstracts Match Titles"
+msgstr "Kurzbeschreibungen die mit dem Titel übereinstimmen"
+
+msgid "Layers With Short Abstracts"
+msgstr "Ebenen mit kurzen Kurzbeschreibungen"
+
+msgid "Columns"
+msgstr "Spalten"
+
+msgid "Serial No."
+msgstr "Seriennr."
+
+msgid "Service ID"
+msgstr "Dienst-ID"
+
+msgid "Service Title"
+msgstr "Diensttitel"
+
+msgid "Total Layers"
+msgstr "Ebenen Summe"
+
+msgid "Layers Without Abstract"
+msgstr "Ebenen ohne Kurzbeschreibung"
+
+msgid "Data-Service connection"
+msgstr "Daten-Service-Verbindung"
+
+msgid "Inspire Monitoring Status"
+msgstr "Inspire Überwachungsstatus"
+
+msgid "ISO Categorized"
+msgstr "ISO kategorisiert"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "No Inspire Category, nor Inspireidentifiziert"
+msgstr "Keine Inspire Kategorie, noch Inspireidentifiziert"
+
+msgid "Inspire Category but keyword Inspireidentifiziert missing"
+msgstr "Kategorie „Inspire“, aber Schlüsselwort Inspireidentifiziert fehlt"
+
+msgid "Keyword as Inspireidentifiziert but Inspire category missing"
+msgstr "Stichwort als Inspireidentifiziert, aber Inspire-Kategorie fehlt"
+
+msgid "Both Inspire Category and Inspireidentifiziert"
+msgstr "Sowohl Inspire Category als auch Inspireidentifiziert"
+
+msgid "Show Details"
+msgstr "Details anzeigen"
+
+msgid "Hide Details"
+msgstr "Verstecken der Details"
+
+msgid "Keywords Present"
+msgstr "Schlagwörter"
+
+msgid "Abstracts Present"
+msgstr "Kurzbeschreibungen"
+
+msgid "Layers Where Abstract Matches Title"
+msgstr "Ebenen, deren Kurzbeschreibung mit dem Titel übereinstimmt"
+
+msgid "Layer Names"
+msgstr "Ebenennamen"
+
+msgid "Information on costs/fees/licenses"
+msgstr "Angaben zu Kosten/Gebühren/Lizenzen"
+
+msgid "Restrictions on public access"
+msgstr "Beschränkungen des öffentlichen Zugangs"
+
+msgid "The page is unavailable!"
+msgstr "Die Seite ist nicht verfügbar!"
+
+msgid "You do not have the necessary permissions to access this page."
+msgstr "Sie verfügen nicht über die erforderlichen Berechtigungen, um auf diese Seite zuzugreifen."
+
+msgid "Statistics"
+msgstr "Statistiken"
+
+msgid "Number of registered users:"
+msgstr "Anzahl der registierten Nutzer:"
+
+msgid "Number of WMS:"
+msgstr "Anzahl der WMS:"
+
+msgid "Number of WFS:"
+msgstr "Anzahl der WFS:"
+
+msgid "Number of WMC:"
+msgstr "Anzahl der WMC:"
+
+msgid "User statistics"
+msgstr "Nutzer Statistik"
+
+msgid "daily"
+msgstr "täglich"
+
+msgid "weekly"
+msgstr "wöchentlich"
+
+msgid "monthly"
+msgstr "monatlich"
+
+msgid "6months"
+msgstr "halbjährlich"
+
+msgid "yearly"
+msgstr "jährlich"
+
+msgid "Time period"
+msgstr "Zeitschiene"
+
+msgid "Cumulative new users"
+msgstr "Kumulierte neue Nutzer"
+
+msgid "New user"
+msgstr "Neue Nutzer"
+
+msgid "Deleted users"
+msgstr "Gelöschte Nutzer"
+
+msgid "WMS statistics"
+msgstr "WMS Statistik"
+
+msgid "Cumulative number of WMS"
+msgstr "Kumulierte Anzahl  von WMS"
+
+msgid "WMS"
+msgstr "WMS"
+
+msgid "Deleted WMS"
+msgstr "gelöschte WMS"
+
+msgid "Cumulative new data"
+msgstr "Kumulierte neu Daten"
+
+msgid "Deleted"
+msgstr "gelöschte"
+
+msgid "WFS statistics"
+msgstr "WFS Statistik"
+
+msgid "Deleted WFS"
+msgstr "gelöschte WFS"
+
+msgid "Active sessions (last 24 hours)"
+msgstr "Aktive Sitzungen (letzte 24 Stunden)"
+
+msgid "WMC load count"
+msgstr "WMC Anzahl der Ladungen"
+
+msgid "Start Date"
+msgstr "Startdatum"
+
+msgid "End Date"
+msgstr "Enddatum"
+
+msgid "WMC Statistics"
+msgstr "WMC Statistik"
+
+msgid "Select WMC"
+msgstr "WMC auswählen"
+
+msgid "Yesterday's load count"
+msgstr "Gesamtauslastung von gestern"
+
+msgid "Click legend to toggle items"
+msgstr "Klicken Sie auf die Legende, um Elemente ein-/auszublenden"
+
+msgid "Select Option"
+msgstr "Option auswählen"
+
+msgid "Download CSV"
+msgstr "CSV herunterladen"
+
+msgid "User defined report"
+msgstr "Benutzerdefinierter Bericht"
+
+msgid "Close"
+msgstr "Schließen"
+
+msgid "Upload a CSV file to generate a report."
+msgstr "Laden Sie eine CSV-Datei hoch, um einen Bericht zu erstellen."
+
+msgid "Upload"
+msgstr "Hochladen"
+
+msgid "Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed. In german version: date-format 'DD.MM.YYYY' (e.g. 15.01.2024) is allowed"
+msgstr "Stellen Sie sicher, dass die CSV-Datei die richtigen Kopfzeilen und das korrekte Format hat. Es ist nur eine Spalte mit der Kopfzeile 'reporting_date' und dem Datumsformat 'YYYY-MM-DD' (z. B. 2024-01-15) erlaubt. In der deutschen Version ist das Datumsformat 'DD.MM.YYYY' (z. B. 15.01.2024) erlaubt."
+
+msgid "%(title)s per interval"
+msgstr "%(title)s pro Intervall"
+
+msgid "Total %(title)s"
+msgstr "Gesamt %(title)s"
+
+msgid "USER"
+msgstr "Benutzer"
+
+msgid "Reporting Date"
+msgstr "Berichtsdatum"
+
+msgid "Cumulative Total"
+msgstr "Kumulativsumme"
+
+msgid "%(title)s Creation Report"
+msgstr "%(title)s Erstellungsbericht"
+
+msgid "Information regarding the CSV file"        
+msgstr "Hinweis zur CSV-Datei"
+
+msgid "Download Sample CSV"
+msgstr "Beispiel-CSV herunterladen"
+
+msgid "Test Criteria"
+msgstr "Prüfkriterien"
+
+msgid "All criteria met"
+msgstr "Alle Kriterien erfüllt"
+
+msgid "One or more criteria missing"
+msgstr "Ein oder mehrere Kriterien fehlen"
+
+msgid "Check individual column's info button"
+msgstr "Info-Button der einzelnen Spalten prüfen"
+
+msgid "ISO category does not exist"
+msgstr "ISO Kategorie existiert nicht"
+
+msgid "ISO Categorised"
+msgstr "ISO kategorisiert"
+
+msgid "No data available for the selected graph. There might be internet issue or the user has been logged out. The page will be reloaded automatically after 3 seconds."
+msgstr "Für das ausgewählte Diagramm sind keine Daten verfügbar. Es könnte ein Internetproblem vorliegen oder Sie wurden abgemeldet. Die Seite wird in 3 Sekunden automatisch neu geladen."
+
+msgid "Missing Abstract. Please add the Abstract in the layer."
+msgstr "Kurzbeschreibung fehlt. Bitte fügen Sie das Abstrakt in der Ebene hinzu."
+
+msgid "Missing Abstract"
+msgstr "Kurzbeschreibung fehlt"
+
+msgid "Missing Keywords. Please add the Keywords in the layer."
+msgstr "Schlüsselwörter fehlen. Bitte fügen Sie die Schlüsselwörter in der Ebene hinzu."
+
+msgid "Abstract matches Title. Change the Abstract."
+msgstr "Kurzbeschreibung entspricht dem Titel. Bitte ändern Sie das Kurzbeschreibung."
+
+msgid "Short Abstract. Please add atleast 50 characters"
+msgstr "Kurze Kurzbeschreibung. Bitte fügen Sie mindestens 50 Zeichen hinzu."
+
+msgid "Connected"
+msgstr "Verbunden"
+
+msgid "Not connected"
+msgstr "Nicht verbunden"
+
+msgid "Missing Keywords"
+msgstr "Fehlende Schlüsselwörter"
+
+msgid "Abstract = Title"
+msgstr "Kurzbeschreibung = Titel"
+
+msgid "Short Abstract"
+msgstr "Kurze Kurzbeschreibung"
+
+msgid "Layers Without Abstracts. Click on Details button to see the details."
+msgstr "Ebenen ohne Kurzbeschreibungen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "The Keywords in the layers are missing. Click on Details button to see the details."
+msgstr "Die Schlüsselwörter in den Ebenen fehlen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "Layer name and abstract matches. Click on Details button to see the details."
+msgstr "Ebenenname und Kurzbeschreibung stimmen überein. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "Short Abstracts. Click on Details button to see the details."
+msgstr "kurze Kurzbeschreibungen. Klicken Sie auf die Schaltfläche Details, um die Details anzuzeigen."
+
+msgid "Abstract"
+msgstr "Kurzbeschreibung"
+
+msgid "Abstract is too short (< 50 chars)"
+msgstr "Kurzbeschreibung ist zu kurz (< 50 Zeichen)"
+
+msgid "Abstract matches title"
+msgstr "Kurzbeschreibung entspricht Titel"
+
+msgid "Access"
+msgstr "Zugriff"
+
+msgid "All"
+msgstr "Alle"
+
+msgid "All Good"
+msgstr "Alles Gut"
+
+msgid "Card View"
+msgstr "Kartenansicht"
+
+msgid "Data-Service Connection"
+msgstr "Datendienst-Verbindung"
+
+msgid "Export to CSV"
+msgstr "Als CSV exportieren"
+
+msgid "Fees"
+msgstr "Gebühren"
+
+msgid "Fees/Licenses"
+msgstr "Gebühren/Lizenzen"
+
+msgid "ID"
+msgstr "ID"
+
+msgid "Issues"
+msgstr "Probleme"
+
+msgid "Issues found"
+msgstr "Probleme gefunden"
+
+msgid "Issues Only"
+msgstr "Nur Probleme"
+
+msgid "Keywords"
+msgstr "Schlüsselwörter"
+
+msgid "Layer Details"
+msgstr "Ebenendetails"
+
+msgid "Layer Name"
+msgstr "Ebenenname"
+
+msgid "Layers"
+msgstr "Ebenen"
+
+msgid "Length"
+msgstr "Länge"
+
+msgid "Load More Services"
+msgstr "Weitere Services laden"
+
+msgid "Missing abstract"
+msgstr "Kurzbeschreibung fehlt"
+
+msgid "Missing Abstracts"
+msgstr "Fehlende Kurzbeschreibungen"
+
+msgid "Missing keywords"
+msgstr "Schlüsselwörter fehlen"
+
+msgid "Needs attention"
+msgstr "Benötigt Aufmerksamkeit"
+
+msgid "No Layer Data"
+msgstr "Keine Ebenendaten"
+
+msgid "No layer data available"
+msgstr "Keine Ebenendaten verfügbar"
+
+msgid "No layer information available for this service."
+msgstr "Keine Ebeneninformation für diesen Service verfügbar."
+
+msgid "No Services Found"
+msgstr "Keine Services gefunden"
+
+msgid "No WMS services match your search criteria."
+msgstr "Keine WMS-Dienste entsprechen Ihren Suchkriterien."
+
+msgid "of"
+msgstr "von"
+
+msgid "Quality Score"
+msgstr "Qualitätsscore"
+
+msgid "Search by ID or title..."
+msgstr "Nach ID oder Titel suchen..."
+
+msgid "Short Abstracts"
+msgstr "Kurze Kurzbeschreibungen"
+
+msgid "Short abstracts"
+msgstr "Kurze Kurzbeschreibungen"
+
+msgid "Sort"
+msgstr "Sortieren"
+
+msgid "Sort by issues count"
+msgstr "Nach Anzahl der Probleme sortieren"
+
+msgid "Sort by layer count"
+msgstr "Nach Ebenenanzahl sortieren"
+
+msgid "Sort by quality score"
+msgstr "Nach Qualitätsscore sortieren"
+
+msgid "Sort by title"
+msgstr "Nach Titel sortieren"
+
+msgid "Status Legend"
+msgstr "Statuslegende"
+
+msgid "Table View"
+msgstr "Tabellenansicht"
+
+msgid "Title"
+msgstr "Titel"
+
+msgid "Title=Abs"
+msgstr "Titel=Abs"
+
+msgid "Title = Abstract"
+msgstr "Titel = Kurzbeschreibung"
+
+msgid "Toggle details"
+msgstr "Details umschalten"
+
+
+msgid "Metadata Quality Check"
+msgstr "Metadaten-Qualitätsprüfung"
+
+msgid "Analyze and improve the metadata quality of your WMS services and layers"
+msgstr "Analysieren und verbessern Sie die Metadatenqualität Ihrer WMS-Dienste und -Ebenen"
+
+msgid "Abstract Length"
+msgstr "Kurzbeschreibung Länge"
+
+msgid "All layers have abstracts"
+msgstr "Alle Ebenen haben Kurzbeschreibungen"
+
+msgid "All layers have keywords"
+msgstr "Alle Ebenen haben Schlüsselwörter"
+
+msgid "No duplicate title=abstract"
+msgstr "Kein Duplikat Titel=Kurzbeschreibung"
+
+msgid "All abstracts meet minimum length"
+msgstr "Alle Kurzbeschreibungen erfüllen die Mindestlänge"
+
+msgid "Suggestion: Add descriptive abstracts to all layers"
+msgstr "Vorschlag: Fügen Sie beschreibende Kurzbeschreibungen zu allen Ebenen hinzu"
+
+msgid "Suggestion: Add relevant keywords for better discoverability"
+msgstr "Vorschlag: Fügen Sie relevante Schlüsselwörter für bessere Auffindbarkeit hinzu"
+
+msgid "Title matches abstract"
+msgstr "Titel passt zur Kurzbeschreibung"
+
+msgid "Suggestion: Write unique abstracts different from titles"
+msgstr "Vorschlag: Schreiben Sie eindeutige Kurzbeschreibungen, die sich von Titeln unterscheiden"
+
+msgid "Abstract is too short"
+msgstr "Kurzbeschreibung ist zu kurz"
+
+msgid "Suggestion: Expand abstracts to at least 50 characters"
+msgstr "Vorschlag: Erweitern Sie Kurzbeschreibungen auf mindestens 50 Zeichen"
+
+msgid "Abstract present"
+msgstr "Kurzbeschreibung vorhanden"
+
+msgid "Keywords present"
+msgstr "Schlüsselwörter vorhanden"
+
+msgid "Unique abstract"
+msgstr "Eindeutige Kurzbeschreibung"
+
+msgid "Abstract length is adequate"
+msgstr "Kurzbeschreibungslänge ist angemessen"
+
+msgid "Suggestion: Add a detailed description of this layer content and purpose"
+msgstr "Vorschlag: Fügen Sie eine detaillierte Beschreibung des Ebeneninhalts und -zwecks hinzu"
+
+msgid "Suggestion: Add keywords for improved search visibility"
+msgstr "Vorschlag: Fügen Sie Schlüsselwörter für verbesserte Sichtbarkeit der Suche hinzu"
+
+msgid "Suggestion: Create a unique abstract that describes the content"
+msgstr "Vorschlag: Erstellen Sie eine eindeutige Kurzbeschreibung, die den Inhalt beschreibt"
+
+msgid "Suggestion: Expand to at least 50 characters for better description"
+msgstr "Vorschlag: Erweitern Sie auf mindestens 50 Zeichen für bessere Beschreibung"
+
+msgid "Average Quality Score"
+msgstr "Durchschnittliche Qualitätsbewertung"
+
+msgid "Perfect Services"
+msgstr "Perfekte Dienste"
+
+msgid "found"
+msgstr "gefunden"
+
+msgid "Back to Top"
+msgstr "Nach oben"
+
+msgid "Metadata Analysis"
+msgstr "Metadaten-Analyse"
+
+msgid "Abstract Length Statistics"
+msgstr "Statistiken zur Länge der Kurzbeschreibung"
+
+msgid "Minimum"
+msgstr "Minimum"
+
+msgid "Maximum"
+msgstr "Maximum"
+
+msgid "Average"
+msgstr "Durchschnitt"
+
+msgid "Median"
+msgstr "Median"
+
+msgid "chars"
+msgstr "Zeichen"
+
+msgid "Common Issues Detected"
+msgstr "Erkannte häufige Probleme"
+
+msgid "Layers without abstracts"
+msgstr "Ebenen ohne Kurzbeschreibungen"
+
+msgid "Layers where abstract matches title"
+msgstr "Ebenen, bei denen Kurzbeschreibung dem Titel entspricht"
+
+msgid "Layers with short abstracts"
+msgstr "Ebenen mit kurzen Kurzbeschreibungen"
+
+msgid "Layers without keywords"
+msgstr "Ebenen ohne Schlüsselwörter"
+
+msgid "Keyword Analytics"
+msgstr "Schlüsselwort-Analyse"
+
+msgid "Unique Keywords"
+msgstr "Eindeutige Schlüsselwörter"
+
+msgid "Most Used Keywords"
+msgstr "Am häufigsten verwendete Schlüsselwörter"
+
+msgid "Least Used Keywords"
+msgstr "Am wenigsten verwendete Schlüsselwörter"
+
+msgid "Layer Distribution"
+msgstr "Ebenenverteilung"
+
+msgid "Average per Service"
+msgstr "Durchschnitt pro Dienst"
+
+msgid "Most Layers"
+msgstr "Meiste Ebenen"
+
+msgid "Fewest Layers"
+msgstr "Wenigste Ebenen"
+
+msgid "Service"
+msgstr "Dienst"
+
+msgid "Keyword Cloud Visualization"
+msgstr "Schlüsselwort-Wolkenvisualisierung"
+
+msgid "Top Keywords by Frequency"
+msgstr "Top-Schlüsselwörter nach Häufigkeit"
+
+msgid "No keywords found"
+msgstr "Keine Schlüsselwörter gefunden"

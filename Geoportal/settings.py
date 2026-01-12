@@ -33,6 +33,13 @@ NO_OF_DAYS=15
 #helps to add more results and helps in searching all the data rather than only 99 results.
 MAX_API_RESULTS = 3000
 
+#add allowed groups to allow the user to access the dashboard
+ALLOWED_GROUPS = ['testgruppe1', 'Bereichsadmin']
+
+#Use latest BORIS in settings.py to use it in dashboard.views.py and also change the name in the option from here
+BORIS_HESSEN_ID = 7107
+BORIS_HESSEN_2024 = "BORIS Hessen 2024"
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '#m+rso_^a!ii6fg97kd7woxa$ttr&jn^!=_(!wgrukal81q(9+'
 
@@ -115,6 +122,7 @@ INSTALLED_APPS = [
     'captcha',
     'django_user_agents',
     'resourceManager',
+    'dashboard',
 ]
 
 MIDDLEWARE = [
@@ -160,10 +168,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Geoportal.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-
+#the problem of taking data from django instead of mapbender is that the django is in fromnt of mapbender in search_path
+# solved by adding mapbender at first position in search_path
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -177,7 +185,6 @@ DATABASES = {
         'PORT':''
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators

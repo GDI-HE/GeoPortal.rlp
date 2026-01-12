@@ -313,3 +313,63 @@ class WfsFeaturetype(models.Model):
     class Meta:
         managed = False
         db_table = 'wfs_featuretype'
+
+class Wmc(models.Model):
+    wmc_id = models.AutoField(primary_key=True)
+    wmc_title = models.CharField(max_length=255)
+    wmc_timestamp = models.IntegerField(blank=True, null=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'wmc_search_table'
+
+class WfsAvailability(models.Model):
+    fkey_wfs_id = models.IntegerField(primary_key=True)
+    fkey_upload_id = models.CharField(max_length=255)
+    last_status = models.IntegerField()
+    availability = models.FloatField()
+    feature_content = models.CharField(max_length=255)
+    status_comment = models.CharField(max_length=255)
+    average_resp_time = models.FloatField()
+    upload_url = models.CharField(max_length=255)
+    feature_urls = models.CharField(max_length=255)
+    cap_diff = models.TextField(default='')
+    monitor_count = models.IntegerField()
+
+    class Meta:
+        managed = False
+        db_table = 'mb_wfs_availability'
+
+class Keyword(models.Model):
+    keyword_id = models.AutoField(primary_key=True)
+    keyword = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        db_table = 'keyword'
+        managed = False
+
+    def __str__(self):
+        return self.keyword
+from django.db import models, connection
+
+class LayerKeyword(models.Model):
+    fkey_layer = models.ForeignKey('Layer', on_delete=models.CASCADE, db_column='fkey_layer_id')
+    fkey_keyword = models.ForeignKey('Keyword', on_delete=models.CASCADE, db_column='fkey_keyword_id')
+
+    class Meta:
+        managed = False
+        db_table = 'layer_keyword'
+        unique_together = ('fkey_layer', 'fkey_keyword')
+
+    def __str__(self):
+        return f'{self.fkey_layer} - {self.fkey_keyword}'
+
+    def save(self, *args, **kwargs):  #overriding the default save method
+        if not self.pk:  # Only for new instances
+            cursor = connection.cursor()
+            cursor.execute(
+                "INSERT INTO layer_keyword (fkey_layer_id, fkey_keyword_id) VALUES (%s, %s)",
+                [self.fkey_layer_id, self.fkey_keyword_id]
+            )
+        else:
+            super().save(*args, **kwargs)

@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% load static %}
+{% load i18n %}
+{% block body %}
+{% csrf_token %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+<!-- <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet"> -->
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+<script src="{% static 'js/jquery-3.6.0.min.js' %}"></script>
+<script src="{% static 'js/bootstrap.min.js' %}"></script>
+<!-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script> -->
+<script src="{% static 'js/jquery-ui.min.js' %}"></script>
+<script src="{% static 'js/update_graph.js' %}"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script> -->
+<script src="{% static 'js/echarts.min.js' %}"></script>
+<script src="{% static 'js/plotly-2.34.0.min.js' %}"></script>
+
+
+      <!-- Modal -->
+    <div class="modal fade" id="graphModal" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="graphModalLabel">WMC</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    
+                    <div id="dynamicContent">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                    <div id="reportContainer">
+                        <!-- Report content will be injected here by the generate_report function -->
+                    </div>
+                        <div id="spinnerContainer" style="display: none;">
+                        <div id="spinner" class="spinner-border" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                    </div>
+                    <div id="modalGraphContent" style="width: 100%; height: 470px; overflow: auto; position: relative;"></div>
+                </div>
+                <div class="modal-footer">
+                        <a id="downloadWmsCsvLink" href="#" class="btn btn-primary">{% trans 'Download CSV' %}</a>
+                    <button type="button" class="btn btn-info" id="userCreationReportButton">{% trans 'User defined report' %}</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button>
+                </div>
+            </div>
+        </div>
+    </div>   
+    <div class="landing-page-box1-dashboard"><!--landing-page-box-Begin -->
+        <div class="landing-page-headline-dashboard">
+            <h2>{% trans "Statistics" %}</h2>
+        </div>
+        <div class="quickstart-container">
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Karten starten" data-resource="wmc">
+                <div class="quickstart-header">
+                    <i class="fas fa-user" title="Web Map Context" aria-hidden="true"></i>
+                    <span>{% trans "Number of registered users:" %}</span>
+                </div>
+                <span class="quickstart-body">{{user_count}}</span>
+            </a>
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Kartenebenen">
+                <div class="quickstart-header">
+                    <i class="fas fa-layer-group" title="Kartenebenen" aria-hidden="true"></i>
+                    <span>{% trans "Number of WMS:" %}</span>
+                </div>
+                <span class="quickstart-body">{{ wms_count|safe }}</span>
+            </a>
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
+                <div class="quickstart-header">
+                    <i class="fas fa-layer-group" title="Datensätze" aria-hidden="true"></i>
+                    <span>{% trans "Number of WFS:" %}</span>
+                </div>
+              
+                <span class="quickstart-body"> {{ wfs_count|safe }}</span>
+            </a>
+            <a class="quickstart-dashboard search" style="pointer-events: none;" title="Suche nach allen Datensätzen">
+                <div class="quickstart-header">
+                    <i class="fas fa-map" title="Datensätze" aria-hidden="true"></i>
+                    <span>{% trans "Number of WMC:" %}</span>
+                </div>
+              
+                <span class="quickstart-body"> {{ wmc_count|safe }}</span>
+            </a>
+        </div>
+    </div>
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6 col-sm-12 mb-4 custom-margin">
+                <div class="card" data-content-type="fig_html">
+                    <div class="iframe-container">
+                        <img id="graph1" src="data:image/png;base64,{{ image_base64}}" width="100%" height="100%" alt="Plotly Image">
+
+                        <div class="overlay" onclick="showGraphInModal('fig_html')"></div> 
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12 mb-4">
+                <div class="card" data-content-type="fig_wms">
+                    <div class="iframe-container">
+                        <!-- Replace the iframe with an img tag and use the base64 encoded image -->
+                        <img id="graph2" src="data:image/png;base64,{{ image_base64_wms}}" width="100%" height="100%" alt="Plotly Image">
+                        <div class="overlay" onclick="showGraphInModal('fig_wms')"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-sm-12 mb-4">
+               <div class="card">     <!-- Graph for the last 24 hours -->
+                    <div id="sessionsChart" style="width: 100%; height: 300px; margin-top: 20px;"></div>
+               </div>
+            </div>
+
+            <div class="col-md-6 col-sm-12 mb-4">
+                    <div class="card" data-content-type="fig_wfs">
+                        <div class="iframe-container">
+                            <img id="graph4" src="data:image/png;base64,{{ image_base64_wfs}}" width="100%" height="100%" alt="Plotly Image">
+                            <div class="overlay" onclick="showGraphInModal('fig_wfs')"></div>
+                        </div>
+                    </div>
+            </div>
+        </div>
+            <!-- WMC Statistics Graphs -->
+            <div class="row">
+                <div class="col-md-6 col-sm-12 mb-4">
+                     <div class="card" data-content-type="fig_wmc">
+                         <div class="iframe-container">
+                             <div id="graphChart1" class="graph-chart" style="width: 100%; height: 100%; padding-bottom: 30px;" data-url="${filterUrl}">
+                                 {{ loadcount_chart|safe }}
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                 <div class="col-md-6 col-sm-12 mb-4">
+                     <div class="card">
+                         <div class="iframe-container">
+                             <div id="graphChart1" class="graph-chart" style="width: 100%; height: 100%;">
+                                 <a href="{% url 'dashboard:check_abstracts' %}"><img src="{% static 'images/metadata-quality.png' %}" data-src="" alt="" width=538px height=376px></a>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+            
+        </div>
+        <!-- Modal -->
+        <div class="modal fade" id="graphModalWMC" tabindex="-1" role="dialog" aria-labelledby="graphModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="graphModalLabel">{% trans 'WMC Statistics' %}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                            <div class="modal-body"> 
+                        <form id="dateForm">
+                            <div class="row">
+                                <div class="col-12 d-flex flex-wrap flex-md-nowrap py-1">
+                                    <div class="col-sm-12 col-md-4 py-1">
+                                        <small class="text-black">{% trans 'Select WMC' %}</small>
+                                        <div class="card shadow-sm">
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="height: 30px;" id="addon-wrapping_wmc">
+                                                    <i class="fa fa-list"></i>
+                                                </span>
+                                                <select class="form-control" id="wmc_id" name="wmc_id" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC" aria-describedby="addon-wrapping_wmc">
+                                                    <option value="" selected disabled>{% trans 'Select WMC' %} (Default: {{default_wmc_id}} )</option> 
+                                                    {% for wmc in all_list %}
+                                                        <option value="{{ wmc.wmc_id }}">{{ wmc.wmc_title }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 py-1">
+                                        <small class="text-black">{% trans 'Start Date' %}</small>
+                                        <div class="card shadow-sm">
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="height: 30px;" id="addon-wrapping_start">
+                                                    <i class="fa fa-calendar-day"></i>
+                                                </span>
+                                                <input type="date" id="startDateWMC" name="start" value="{{ start_date }}" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="Start Date" aria-label="Start Date" aria-describedby="addon-wrapping_start">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-12 col-md-4 py-1">
+                                        <small class="text-black">{% trans 'End Date' %}</small>
+                                        <div class="card shadow-sm">
+                                            <div class="input-group">
+                                                <span class="input-group-text" style="height: 30px;" id="addon-wrapping_end">
+                                                    <i class="fa fa-calendar-day"></i>
+                                                </span>
+                                                <input type="date" id="endDateWMC" value="{{ end_date }} " name="end" class="form-control" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="End Date" aria-label="End Date" aria-describedby="addon-wrapping_end">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-12 d-flex justify-content-end py-1">
+                                    <button type="submit" class="btn btn-primary" style="height: 38px; padding: 0.375rem 0.75rem;">{% trans 'Submit' %}</button>
+                                </div>
+                            </div>
+                        </form>
+                        <div id="spinnerContainerWMC" style="display: none;">
+                            <div id="spinner" class="spinner-border" role="status">
+                                <span class="sr-only">Loading...</span>
+                            </div>
+                        </div>
+                        <div id="dynamicContentWMC">
+                            <!-- Dynamic content will be loaded here -->
+                        </div>
+                         <!-- WMC comparision -->
+                        <div class="col-md-12 col-sm-12 mb-4 remove-and-use-later">
+                            <div class="card text-black">
+                                <div class="card-body" style="font-size: 14px;">
+                                    <!-- Title of the Card -->
+                                    <h5 class="card-title text-center mb-4">Load Comparison</h5>
+                                    
+                                    <!-- Results Section -->
+                                    <div class="row">
+                                        {% for item in top_four_loads %}
+                                        <div class="col-md-6 mb-3">
+                                            <!-- Single Result Block -->
+                                            <div class="text-center" style="border: 1px solid #ddd; border-radius: 8px; padding: 15px;">
+                                                <h6>{{ item.wmc_title }}</h6>
+                                                <div style="font-size: 25px;">{{ item.total_actual_load }}</div>
+                                                
+                                                <!-- Percentage Change -->
+                                                {% for comparison_item in comparison_data %}
+                                                {% if comparison_item.wmc_id == item.wmc_id %}
+                                                <span class="{% if comparison_item.percentage_change >= 0 %}text-success{% else %}text-danger{% endif %}">
+                                                    {% if comparison_item.percentage_change >= 0 %}
+                                                        <span>&#9650;</span>  <!-- Green up arrow -->
+                                                    {% else %}
+                                                        <span>&#9660;</span>  <!-- Red down arrow -->
+                                                    {% endif %}
+                                                    {{ comparison_item.percentage_change|floatformat:3 }}%
+                                                </span>
+                                                {% endif %}
+                                                {% endfor %}
+                                                
+                                                <!-- Month Comparison -->
+                                                <div>
+                                                    {% for comparison_item in comparison_data %}
+                                                    {% if comparison_item.wmc_id == item.wmc_id and comparison_item.second_last_month_name %}
+                                                        <small class="text-black">{{ item.month_name }} v {{ comparison_item.second_last_month_name }}</small>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                        <!-- Separator between line chart and donut chart (appears just above the donut title) -->
+                        <hr class="chart-separator" style="border:0;border-top:1px solid #ddd;margin:12px 0;" />
+                        <!-- Add a div for the donut chart -->
+                        <div id="modal-donut-chart" style="width:100%; height:400px;"></div>
+                        <!-- Add a div for the bar chart -->
+                        <div id="modal-bar-chart" class="remove-and-use-later" style="width:100%; height:400px;"></div>
+
+                        <!-- Add a div for the gauge chart -->
+                        <div id="modal-gauge-chart" class="remove-and-use-later" style="width:100%; height:400px;"></div>
+
+                        <!-- Add a div for the line chart -->
+                        <div id="modal-line-chart" class="remove-and-use-later" style="width:100%; height:400px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const chartDates = {{ chart_dates|safe }};  // Dates (5-min intervGals)
+                const data14Days = {{ data_14_days|safe }}; // Session counts
+        
+                initializeSessionsChart(chartDates, data14Days);
+            });
+        </script>
+        
+        
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const barChartData = {
+                    labels: {{ bar_chart_data.labels|safe }},
+                    values: {{ bar_chart_data.values|safe }}
+                };
+        
+                const gaugeChartData = {
+                    value: {{ gauge_chart_data.value }},
+                    max: {{ gauge_chart_data.max }}
+                };
+        
+                const lineChartData = {
+                    dates: {{ line_chart_data.dates|safe }},
+                    actual_loads: {{ line_chart_data.actual_loads|safe }}
+                };
+        
+                const donutChartData = {
+                    labels: {{ donut_chart_data.labels|safe }},
+                    values: {{ donut_chart_data.values|safe }}
+                };
+        
+                $('#graphModalWMC').on('shown.bs.modal', function () {
+                    initializeAllCharts(barChartData, gaugeChartData, lineChartData, donutChartData);
+                });
+            });
+        </script>
+        <!-- Hidden input to store the default_wmc_id -->
+        <input type="hidden" id="default-wmc-id" value="{{ default_wmc_id|escapejs }}">
+
+        
+        <!-- script you can write it here for now. Later write it in check_abstracts.js -->
+        <script>
+            const imageUrl = "{% static 'images/reporting_date.jpg' %}";
+            const sampleCSVUrl = "{% static 'images/sample_report.csv' %}";
+            const filterUrl = "{% url 'dashboard:filter' %}";
+            const downloadCsvUrl = "{% url 'dashboard:download_csv' %}";
+            const startDate = "{{ start_date }}";
+            const endDate = "{{ end_date }}";
+            const csrfToken = "{{ csrf_token }}";
+            const formHtml = `{{ form.as_p|safe }}`;
+        </script>  
+        <script type="text/javascript">
+            // Pass translated strings into JavaScript
+            const activeSessionsText = "{% trans 'Active sessions (last 24 hours)' %}";
+            const yesterdayLoadCount = "{% trans 'Yesterday\'s load count' %}";
+            const clickLegendToggle= "{% trans 'Click legend to toggle items' %}";
+            const TRANSLATIONS = {
+                startDate: "{{ _('Start Date')|escapejs }}",
+                endDate: "{{ _('End Date')|escapejs }}",
+                selectOption: "{{ _('Select Option')|escapejs }}",
+                Filter: "{{ _('Filter')|escapejs }} ",
+                monthly: "{{ _('monthly')|escapejs }} ",
+                daily: "{{ _('daily')|escapejs }} ",
+                weekly: "{{ _('weekly')|escapejs }} ",
+                month6: "{{ _('6months')|escapejs }} ",
+                yearly: "{{ _('yearly')|escapejs }} ",
+                upload_prompt: "{% trans 'Upload a CSV file to generate a report.' %}",
+                upload_button: "{% trans 'Upload' %}",
+                tooltip_instruction: `{% blocktrans %}Ensure the CSV file has the correct headers and format. Only one column with header 'reporting_date' with date-format 'YYYY-MM-DD' (e.g. 2024-01-15) is allowed. In german version: date-format 'DD.MM.YYYY' (e.g. 15.01.2024) is allowed{% endblocktrans %}`,
+                modal_title: "{% trans 'Information regarding the CSV file' %}",
+                download_csv: "{% trans 'Download Sample CSV' %}",
+                noDataAvailable: "{% trans 'No data available for the selected graph. There might be internet issue or the user has been logged out. The page will be reloaded automatically after 3 seconds.' %}",
+            };
+        </script>
+</body
+{% endblock %}

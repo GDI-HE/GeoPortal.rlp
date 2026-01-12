@@ -33,6 +33,7 @@ from datetime import date
 # from thefuzz import fuzz     ## also include the fuzz in the requirements.txt if fuzz is needed in WMC search
 from django.core.cache import cache
 from functools import wraps
+from dashboard.user_check import check_user_login
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
@@ -265,6 +266,10 @@ def index_view(request, wiki_keyword=""):
     output = ""
     results = []
 
+    user = check_user_login(request)
+    def return_true_false(user):
+        return not isinstance(user, HttpResponseRedirect)
+
     # In a first run, we check if the mapbender login has worked, which is indicated by a 'status' GET parameter.
     # Since this is not nice to have in your address bar, we exchange the GET parameter with a pretty message for the user
     # and reload the same route simply again to get rid of the GET parameter.
@@ -334,7 +339,8 @@ def index_view(request, wiki_keyword=""):
                "top_news": top_news,
                "show_search_container": SHOW_SEARCH_CONTAINER,
                "show_paging": SHOW_PAGING,
-               "max_results": MAX_RESULTS
+               "max_results": MAX_RESULTS,
+               "return_true_false": not isinstance(user, HttpResponseRedirect)
                }
     geoportal_context.add_context(context=context)
 
@@ -1115,6 +1121,7 @@ def change_profile_view(request):
     ]
     btn_label_change = _("Save")
     btn_label_delete = _("Delete Profile")
+    user_change_profile = check_user_login(request)
 
     geoportal_context = GeoportalContext(request=request)
     context = {
@@ -1124,6 +1131,7 @@ def change_profile_view(request):
         'headline': _("Change data"),
         'small_labels': small_labels,
         'dsgvo_flag': dsgvo_flag,
+        'true_false_profile': not isinstance(user_change_profile, HttpResponseRedirect),
         #'is_change_page': True,
     }
     geoportal_context.add_context(context)
@@ -1171,11 +1179,13 @@ def delete_profile_view(request):
                 form = DeleteProfileForm(request.POST)
                 btn_label = _("Delete Profile!")
                 geoportal_context = GeoportalContext(request=request)
+                user_delete = check_user_login(request)
                 context = {
                     'form': form,
                     'headline': _("Delete Profile?"),
                     "btn_label2": btn_label,
                     'is_delete_page': True,
+                    'true_false_delete': not isinstance(user_delete, HttpResponseRedirect),
                 }
                 geoportal_context.add_context(context)
 
@@ -1579,17 +1589,37 @@ def feedback_view(request: HttpRequest):
                 "address": form.cleaned_data["email"],
                 "message": form.cleaned_data["message"],
             }
+            from_email = "noreply@hvbg.hessen.de"
             try:
 
-                send_mail(
+                email = EmailMessage(
                     _("Geoportal Feedback"),
                     _("Feedback from ") + form.cleaned_data["first_name"] + " " + form.cleaned_data["family_name"]
                     + ", \n \n" +
                     form.cleaned_data["message"],
-                    form.cleaned_data["email"],
+                    from_email,
                     [DEFAULT_TO_EMAIL],
-                    fail_silently=False,
+                    reply_to=[form.cleaned_data["email"]],
                 )
+                email.send(fail_silently=False)
+                auto_reply = EmailMessage(
+                    _("Vielen Dank für Ihre Rückmeldung"),
+                    _(
+                        "Sehr geehrte/r {last_name},\n\n"
+                        "danke, dass Sie sich die Zeit genommen haben, uns eine Rückmeldung zu geben. "
+                        "Ihr Feedback wurde an das Team vom Geoportal Hessen weitergeleitet.\n\n"
+                        "Hier ist eine Kopie Ihrer Nachricht:\n\n"
+                        "\"{message}\"\n\n"
+                        "Mit freundlichen Grüßen\n"
+                        "Ihr Geoportal-Team"
+                    ).format(
+                        last_name=form.cleaned_data["family_name"],
+                        message=form.cleaned_data["message"]
+                    ),
+                    from_email,
+                    [form.cleaned_data["email"]],
+                )
+                auto_reply.send(fail_silently=False)
             except smtplib.SMTPException:
                 logger.error("Could not send feedback mail!")
                 messages.error(request, _("An error occured during sending. Please inform an administrator."))
@@ -1636,10 +1666,14 @@ def service_abo(request: HttpRequest):
     context_data = geoportal_context.get_context()
     if context_data['dsgvo'] == 'no' and context_data['loggedin'] == True:
         return redirect('useroperations:change_profile')
-
+    user_abo = check_user_login(request)
+    params = {
+        "true_false_abo": not isinstance(user_abo, HttpResponseRedirect),
+    }
     template = "show_abo.html"
 
     geoportal_context = GeoportalContext(request=request)
+    geoportal_context.add_context(params)
     return render(request=request, context=geoportal_context.get_context(), template_name=template)
 
 @check_browser
@@ -1662,6 +1696,11 @@ def open_linked_data(request: HttpRequest):
     template = "open_linked_data.html"
 
     geoportal_context = GeoportalContext(request=request)
+    user_linked_data = check_user_login(request)
+    params = {
+        'true_false_linked_data': not isinstance(user_linked_data, HttpResponseRedirect),
+    }
+    geoportal_context.add_context(params)
     return render(request=request, context=geoportal_context.get_context(), template_name=template)
 
 

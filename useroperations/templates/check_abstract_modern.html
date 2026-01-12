@@ -1,0 +1,637 @@
+{% extends 'base.html' %}
+{% load static i18n humanize %}
+{% block title %}{% trans 'Metadata Quality Dashboard' %}{% endblock %}
+{% block body %}
+{% csrf_token %}
+
+<link rel="stylesheet" href="{% static 'css/check_abstracts_modern.css' %}">
+<script src="{% static 'js/check_abstracts_modern.js' %}"></script>
+
+<div class="mq-dashboard">
+    <!-- Page Header -->
+    <div class="mq-page-header">
+        <h1 class="mq-page-title">
+            <i class="fas fa-clipboard-check"></i> {% trans 'Metadata Quality Check' %}
+        </h1>
+        <p class="mq-page-subtitle">
+            {% trans 'Analyze and improve the metadata quality of your WMS services and layers' %}
+        </p>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="mq-stats-grid">
+        <div class="mq-stat-card danger">
+            <div class="mq-stat-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="mq-stat-value">{{ total_layers_without_abstract|default:0 }}</div>
+            <div class="mq-stat-label">{% trans 'Layers Without Abstracts' %}</div>
+        </div>
+        <div class="mq-stat-card warning">
+            <div class="mq-stat-icon">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="mq-stat-value">{{ total_layers_without_keyword|default:0 }}</div>
+            <div class="mq-stat-label">{% trans 'Layers Without Keywords' %}</div>
+        </div>
+        <div class="mq-stat-card info">
+            <div class="mq-stat-icon">
+                <i class="fas fa-clone"></i>
+            </div>
+            <div class="mq-stat-value">{{ total_layers_abstract_matches_title|default:0 }}</div>
+            <div class="mq-stat-label">{% trans 'Abstracts Match Titles' %}</div>
+        </div>
+        <div class="mq-stat-card success">
+            <div class="mq-stat-icon">
+                <i class="fas fa-text-width"></i>
+            </div>
+            <div class="mq-stat-value">{{ total_layers_with_short_abstract|default:0 }}</div>
+            <div class="mq-stat-label">{% trans 'Layers With Short Abstracts' %}</div>
+        </div>
+        <div class="mq-stat-card primary">
+            <div class="mq-stat-icon">
+                <i class="fas fa-star"></i>
+            </div>
+            <div class="mq-stat-value">{{ average_quality_score|default:0 }}%</div>
+            <div class="mq-stat-label">{% trans 'Average Quality Score' %}</div>
+        </div>
+        <div class="mq-stat-card success-light">
+            <div class="mq-stat-icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+            <div class="mq-stat-value">{{ perfect_services_percentage|default:0 }}%</div>
+            <div class="mq-stat-label">{% trans 'Perfect Services' %} ({{ perfect_services_count|default:0 }}/{{ total_services|default:0 }})</div>
+        </div>
+    </div>
+
+    <!-- Metadata Analysis Section (Feature 8) -->
+    <div class="mq-analysis-section" id="mq-analysis-section">
+        <div class="mq-analysis-header">
+            <h2><i class="fas fa-chart-bar"></i> {% trans 'Metadata Analysis' %}</h2>
+            <button class="mq-toggle-analysis" id="mq-toggle-analysis" title="{% trans 'Toggle Analysis' %}">
+                <i class="fas fa-chevron-up"></i>
+            </button>
+        </div>
+        
+        <div class="mq-analysis-content">
+            <!-- Abstract Statistics -->
+            <div class="mq-analysis-card">
+                <h3><i class="fas fa-text-height"></i> {% trans 'Abstract Length Statistics' %}</h3>
+                <div class="mq-stat-row">
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Minimum' %}:</span>
+                        <span class="mq-stat-value">{{ abstract_stats.min }} {% trans 'chars' %}</span>
+                    </div>
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Maximum' %}:</span>
+                        <span class="mq-stat-value">{{ abstract_stats.max }} {% trans 'chars' %}</span>
+                    </div>
+                </div>
+                <div class="mq-stat-row">
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Average' %}:</span>
+                        <span class="mq-stat-value">{{ abstract_stats.average }} {% trans 'chars' %}</span>
+                    </div>
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Median' %}:</span>
+                        <span class="mq-stat-value">{{ abstract_stats.median }} {% trans 'chars' %}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Common Issues -->
+            <div class="mq-analysis-card">
+                <h3><i class="fas fa-exclamation-circle"></i> {% trans 'Common Issues Detected' %}</h3>
+                <div class="mq-issues-list">
+                    <div class="mq-issue-item danger">
+                        <i class="fas fa-times"></i>
+                        <span>{% trans 'Layers without abstracts' %}:</span>
+                        <strong>{{ common_issues.missing_abstract }}</strong>
+                    </div>
+                    <div class="mq-issue-item danger">
+                        <i class="fas fa-times"></i>
+                        <span>{% trans 'Layers without keywords' %}:</span>
+                        <strong>{{ common_issues.missing_keywords }}</strong>
+                    </div>
+                    <div class="mq-issue-item warning">
+                        <i class="fas fa-exclamation"></i>
+                        <span>{% trans 'Short abstracts' %} (&lt;50 chars):</span>
+                        <strong>{{ common_issues.short_abstract }}</strong>
+                    </div>
+                    <div class="mq-issue-item warning">
+                        <i class="fas fa-exclamation"></i>
+                        <span>{% trans 'Title matches abstract' %}:</span>
+                        <strong>{{ common_issues.abstract_matches_title }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Keyword Cloud -->
+            <div class="mq-analysis-card">
+                <h3><i class="fas fa-cloud"></i> {% trans 'Keyword Cloud Visualization' %}</h3>
+                <div class="mq-keyword-stats">
+                    <div class="mq-keyword-stat">
+                        <span class="mq-keyword-label">{% trans 'Unique Keywords' %}:</span>
+                        <span class="mq-keyword-value">{{ total_keywords }}</span>
+                    </div>
+                </div>
+                
+                {% if keyword_cloud %}
+                <!-- DEBUG: keyword_cloud count={{ keyword_cloud|length }}, first item size={{ keyword_cloud.0.font_size }}px -->
+                <div class="mq-cloud-container">
+                    <div class="mq-tag-cloud">
+                        {% for item in keyword_cloud %}
+                        <span class="mq-cloud-word" 
+                              style="font-size: {{ item.font_size|floatformat:0 }}px;"
+                              title="Used {{ item.frequency }} times">
+                            {{ item.keyword }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <p style="text-align: center; color: var(--mq-gray-500); padding: 20px;">
+                    {% trans 'No keywords found' %}
+                </p>
+                {% endif %}
+            </div>
+
+            <!-- Layer Statistics -->
+            <div class="mq-analysis-card">
+                <h3><i class="fas fa-layer-group"></i> {% trans 'Layer Distribution' %}</h3>
+                <div class="mq-stat-row">
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Total Layers' %}:</span>
+                        <span class="mq-stat-value">{{ total_layers }}</span>
+                    </div>
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Average per Service' %}:</span>
+                        <span class="mq-stat-value">{{ avg_layers_per_service }}</span>
+                    </div>
+                </div>
+                <div class="mq-stat-row">
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Most Layers' %}:</span>
+                        <span class="mq-stat-value">{{ max_layers_count }}</span>
+                    </div>
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Service' %}:</span>
+                        <span class="mq-stat-value-highlight">{{ max_layers_service }}</span>
+                    </div>
+                </div>
+                {% if min_layers_service %}
+                <div class="mq-stat-row">
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Fewest Layers' %}:</span>
+                        <span class="mq-stat-value">{{ min_layers_count }}</span>
+                    </div>
+                    <div class="mq-stat-item">
+                        <span class="mq-stat-label">{% trans 'Service' %}:</span>
+                        <span class="mq-stat-value-highlight">{{ min_layers_service }}</span>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="mq-toolbar">
+        <div class="mq-search-box">
+            <i class="fas fa-search mq-search-icon"></i>
+            <input type="text" 
+                   class="mq-search-input" 
+                   placeholder="{% trans 'Search by ID or title...' %}"
+                   value="{{ request.GET.search }}"
+                   name="search">
+            <span class="mq-search-counter" id="mq-search-counter"></span>
+        </div>
+        <div class="mq-filter-buttons">
+            <button class="mq-filter-btn active" data-filter="all">
+                <i class="fas fa-list"></i> {% trans 'All' %} <span class="mq-filter-count" id="all-count"></span>
+            </button>
+            <button class="mq-filter-btn" data-filter="problems">
+                <i class="fas fa-exclamation-triangle"></i> {% trans 'Issues Only' %} <span class="mq-filter-count" id="problems-count"></span>
+            </button>
+            <button class="mq-filter-btn" data-filter="good">
+                <i class="fas fa-check-circle"></i> {% trans 'All Good' %} <span class="mq-filter-count" id="good-count"></span>
+            </button>
+            
+            <!-- Sort Dropdown -->
+            <div class="mq-sort-dropdown">
+                <button class="mq-sort-btn" title="{% trans 'Sort' %}">
+                    <i class="fas fa-sort"></i>
+                </button>
+                <div class="mq-sort-menu" style="display: none;">
+                    <button class="mq-sort-option" onclick="sortServices('title')" title="{% trans 'Sort by title' %}">
+                        <i class="fas fa-arrow-up"></i> {% trans 'Title' %}
+                    </button>
+                    <button class="mq-sort-option" onclick="sortServices('quality')" title="{% trans 'Sort by quality score' %}">
+                        <i class="fas fa-star"></i> {% trans 'Quality Score' %}
+                    </button>
+                    <button class="mq-sort-option" onclick="sortServices('issues')" title="{% trans 'Sort by issues count' %}">
+                        <i class="fas fa-bug"></i> {% trans 'Issues' %}
+                    </button>
+                    <button class="mq-sort-option" onclick="sortServices('layers')" title="{% trans 'Sort by layer count' %}">
+                        <i class="fas fa-layer-group"></i> {% trans 'Layers' %}
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Export Button -->
+            <button class="mq-export-btn" onclick="exportToCSV()" title="{% trans 'Export to CSV' %}">
+                <i class="fas fa-download"></i>
+            </button>
+            
+            <div class="mq-view-toggle">
+                <button class="mq-view-btn active" data-view="cards" title="{% trans 'Card View' %}">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button class="mq-view-btn" data-view="table" title="{% trans 'Table View' %}">
+                    <i class="fas fa-table"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="mq-legend">
+        <span class="mq-legend-title">{% trans 'Status Legend' %}:</span>
+        <div class="mq-legend-item">
+            <span class="mq-status-icon success"><i class="fas fa-check"></i></span>
+            <span>{% trans 'All criteria met' %}</span>
+        </div>
+        <div class="mq-legend-item">
+            <span class="mq-status-icon danger"><i class="fas fa-times"></i></span>
+            <span>{% trans 'Issues found' %}</span>
+        </div>
+        <div class="mq-legend-item">
+            <span class="mq-status-icon warning"><i class="fas fa-exclamation"></i></span>
+            <span>{% trans 'Needs attention' %}</span>
+        </div>
+
+    </div>
+
+    <!-- Services Container - Card View -->
+    <div class="mq-services-container" id="mq-card-view">
+        {% for result in results %}
+        {% with has_issues=result.layers_without_abstract|add:result.layers_without_keywords|add:result.layers_with_short_abstract_count %}
+        <div class="mq-service-card {% if has_issues %}has-issues{% else %}all-good{% endif %}"
+             data-total-layers="{{ result.total_layers }}"
+             data-total-issues="{{ has_issues }}">
+            
+            <!-- Service Header (Clickable) -->
+            <div class="mq-service-header">
+                <div class="mq-service-id">#{{ result.wms_id }}</div>
+                
+                <div class="mq-service-info">
+                    <h3 class="mq-service-title" title="{{ result.wms_title }}">{{ result.wms_title }}</h3>
+                    <div class="mq-service-meta">
+                        <span class="mq-service-meta-item">
+                            <i class="fas fa-layer-group"></i> {{ result.total_layers }} {% trans 'layers' %}
+                        </span>
+                        {% if result.username %}
+                        <span class="mq-service-meta-item">
+                            <i class="fas fa-user"></i> {{ result.username }}
+                        </span>
+                        {% endif %}
+                        {% if result.connected_wms %}
+                        <!-- <span class="mq-service-meta-item" style="color: var(--mq-success);">
+                            <i class="fas fa-link"></i> {% trans 'Connected' %}
+                        </span> -->
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Quality Indicators -->
+                <div class="mq-quality-indicators">
+                    <div class="mq-quality-badge {% if result.layers_without_abstract %}danger{% else %}success{% endif %}" title="{% if result.layers_without_abstract %}{{ result.layers_without_abstract }} {% trans 'layers' %} {% trans 'missing abstract' %} - {% trans 'Suggestion: Add descriptive abstracts to all layers' %}{% else %}{% trans 'All layers have abstracts' %}{% endif %}">
+                        <span class="mq-quality-value">
+                            {% if result.layers_without_abstract %}<i class="fas fa-times"></i>{% else %}<i class="fas fa-check"></i>{% endif %}
+                        </span>
+                        <span class="mq-quality-label">{% trans 'Abstract' %}</span>
+                    </div>
+                    <div class="mq-quality-badge {% if result.layers_without_keywords %}danger{% else %}success{% endif %}" title="{% if result.layers_without_keywords %}{{ result.layers_without_keywords }} {% trans 'layers' %} {% trans 'missing keywords' %} - {% trans 'Suggestion: Add relevant keywords for better discoverability' %}{% else %}{% trans 'All layers have keywords' %}{% endif %}">
+                        <span class="mq-quality-value">
+                            {% if result.layers_without_keywords %}<i class="fas fa-times"></i>{% else %}<i class="fas fa-check"></i>{% endif %}
+                        </span>
+                        <span class="mq-quality-label">{% trans 'Keywords' %}</span>
+                    </div>
+                    <div class="mq-quality-badge {% if result.layers_with_short_abstract_count > 0 %}warning{% else %}success{% endif %}" title="{% if result.layers_with_short_abstract_count > 0 %}{{ result.layers_with_short_abstract_count }} {% trans 'layers' %} - {% trans 'Suggestion: Expand abstracts to at least 50 characters' %}{% else %}{% trans 'All abstracts meet minimum length' %}{% endif %}">
+                        <span class="mq-quality-value">
+                            {% if result.layers_with_short_abstract_count > 0 %}<i class="fas fa-exclamation"></i>{% else %}<i class="fas fa-check"></i>{% endif %}
+                        </span>
+                        <span class="mq-quality-label">{% trans 'Abstract Length' %}</span>
+                    </div>
+                </div>
+                
+                <!-- Quality Score Bar -->
+                <div class="mq-quality-score-bar">
+                    <div class="mq-score-label">
+                        <span class="mq-score-text">{% trans 'Quality Score' %}</span>
+                        <span class="mq-score-percentage">{{ result.quality_score }}%</span>
+                    </div>
+                    <div class="mq-score-container">
+                        <div class="mq-score-fill {% if result.quality_score >= 80 %}excellent{% elif result.quality_score >= 60 %}good{% elif result.quality_score >= 40 %}fair{% else %}poor{% endif %}" 
+                             style="width: {{ result.quality_score }}%; "
+                             role="progressbar" 
+                             aria-valuenow="{{ result.quality_score }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="mq-expand-btn" aria-expanded="false" aria-label="{% trans 'Toggle details' %}">
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+            </div>
+            
+            <!-- Service Details (Expandable) -->
+            <div class="mq-service-details">
+                <!-- Quality Summary -->
+                <div class="mq-quality-summary">
+                    <div class="mq-quality-item">
+                        <div class="mq-quality-icon {% if result.layers_without_abstract %}danger{% else %}success{% endif %}">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="mq-quality-text">
+                            <h4>{% trans 'Missing Abstracts' %}</h4>
+                            <p>{{ result.layers_without_abstract|default:0 }} {% trans 'of' %} {{ result.total_layers }} {% trans 'layers' %}</p>
+                        </div>
+                    </div>
+                    <div class="mq-quality-item">
+                        <div class="mq-quality-icon {% if result.layers_without_keywords %}danger{% else %}success{% endif %}">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <div class="mq-quality-text">
+                            <h4>{% trans 'Missing Keywords' %}</h4>
+                            <p>{{ result.layers_without_keywords|default:0 }} {% trans 'of' %} {{ result.total_layers }} {% trans 'layers' %}</p>
+                        </div>
+                    </div>
+                    <div class="mq-quality-item">
+                        <div class="mq-quality-icon {% if result.layers_with_short_abstract_count > 0 %}warning{% else %}success{% endif %}">
+                            <i class="fas fa-text-width"></i>
+                        </div>
+                        <div class="mq-quality-text">
+                            <h4>{% trans 'Short Abstracts' %}</h4>
+                            <p>{{ result.layers_with_short_abstract_count|default:0 }} {% trans 'of' %} {{ result.total_layers }} {% trans 'layers' %}</p>
+                        </div>
+                    </div>
+                    <!-- <div class="mq-quality-item">
+                        <div class="mq-quality-icon {% if result.connected_wms %}success{% else %}warning{% endif %}">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="mq-quality-text">
+                            <h4>{% trans 'Data-Service Connection' %}</h4>
+                            <p>{% if result.connected_wms %}{% trans 'Connected' %}{% else %}{% trans 'Not connected' %}{% endif %}</p>
+                        </div>
+                    </div> -->
+                </div>
+                
+                <!-- Layer Details Table -->
+                {% if result.layers %}
+                <div class="mq-layer-table-wrapper">
+                    <table class="mq-layer-table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'Layer Name' %}</th>
+                                <th style="width: 100px; text-align: center;">{% trans 'Abstract' %}</th>
+                                <th style="width: 100px; text-align: center;">{% trans 'Keywords' %}</th>
+                                <th style="width: 120px; text-align: center;">{% trans 'Title = Abstract' %}</th>
+                                <th style="width: 100px; text-align: center;">{% trans 'Abstract Length' %}</th>
+                                <th>{% trans 'Fees/Licenses' %}</th>
+                                <th>{% trans 'Access' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for layer in result.layers %}
+                            <tr>
+                                <td><strong>{{ layer.name }}</strong></td>
+                                <td style="text-align: center;">
+                                    {% if layer.missing_abstract %}
+                                    <span class="mq-status-icon danger" title="{% trans 'Missing abstract' %}">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="mq-status-icon success" title="{% trans 'OK' %}">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if layer.missing_keywords %}
+                                    <span class="mq-status-icon danger" title="{% trans 'Missing keywords' %}">
+                                        <i class="fas fa-times"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="mq-status-icon success" title="{% trans 'OK' %}">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if layer.abstract_matches_title %}
+                                    <span class="mq-status-icon warning" title="{% trans 'Abstract matches title' %}">
+                                        <i class="fas fa-exclamation"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="mq-status-icon success" title="{% trans 'OK' %}">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td style="text-align: center;">
+                                    {% if layer.short_abstract %}
+                                    <span class="mq-status-icon warning" title="{% trans 'Abstract is too short (< 50 chars)' %}">
+                                        <i class="fas fa-exclamation"></i>
+                                    </span>
+                                    {% else %}
+                                    <span class="mq-status-icon success" title="{% trans 'OK' %}">
+                                        <i class="fas fa-check"></i>
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ layer.fees|default:'-' }}</td>
+                                <td>{{ layer.accessconstraints|default:'-' }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="mq-empty-state">
+                    <div class="mq-empty-icon"><i class="fas fa-layer-group"></i></div>
+                    <h3 class="mq-empty-title">{% trans 'No Layer Data' %}</h3>
+                    <p class="mq-empty-text">{% trans 'No layer information available for this service.' %}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endwith %}
+        {% empty %}
+        <div class="mq-empty-state">
+            <div class="mq-empty-icon"><i class="fas fa-search"></i></div>
+            <h3 class="mq-empty-title">{% trans 'No Services Found' %}</h3>
+            <p class="mq-empty-text">{% trans 'No WMS services match your search criteria.' %}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- TABLE VIEW -->
+    <div class="mq-table-view" id="mq-table-view" style="display: none;">
+        <div class="mq-table-wrapper">
+            <table class="mq-main-table">
+                <thead>
+                    <tr>
+                        <th style="width: 80px;">{% trans 'ID' %}</th>
+                        <th>{% trans 'Service Title' %}</th>
+                        <th style="width: 80px;">{% trans 'Layers' %}</th>
+                        <th style="width: 90px;">{% trans 'Abstract' %}</th>
+                        <th style="width: 90px;">{% trans 'Keywords' %}</th>
+                        <th style="width: 90px;">{% trans 'Title=Abs' %}</th>
+                        <th style="width: 90px;">{% trans 'Abstract Length' %}</th>
+                        <th style="width: 100px;">{% trans 'Quality Score' %}</th>
+                        <th style="width: 100px;">{% trans 'Actions' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for result in results %}
+                    <tr class="mq-table-row {% if result.layers_without_abstract or result.layers_without_keywords or result.layers_with_short_abstract_count > 0 %}has-issues{% else %}all-good{% endif %}">
+                        <td><span class="mq-table-id">{{ result.wms_id }}</span></td>
+                        <td class="mq-table-title" title="{{ result.wms_title }}">{{ result.wms_title }}</td>
+                        <td style="text-align: center;">{{ result.total_layers }}</td>
+                        <td style="text-align: center;">
+                            {% if result.layers_without_abstract %}
+                            <span class="mq-status-icon danger" title="{% trans 'Missing abstract' %}: {{ result.layers_without_abstract }} {% trans 'layers' %} - {% trans 'Suggestion: Add descriptive abstracts to all layers' %}"><i class="fas fa-times"></i></span>
+                            {% else %}
+                            <span class="mq-status-icon success" title="{% trans 'All layers have abstracts' %}"><i class="fas fa-check"></i></span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if result.layers_without_keywords %}
+                            <span class="mq-status-icon danger" title="{% trans 'Missing keywords' %}: {{ result.layers_without_keywords }} {% trans 'layers' %} - {% trans 'Suggestion: Add relevant keywords for better discoverability' %}"><i class="fas fa-times"></i></span>
+                            {% else %}
+                            <span class="mq-status-icon success" title="{% trans 'All layers have keywords' %}"><i class="fas fa-check"></i></span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if result.layers_abstract_matches_title_count > 0 %}
+                            <span class="mq-status-icon warning" title="{% trans 'Title matches abstract' %}: {{ result.layers_abstract_matches_title_count }} {% trans 'layers' %} - {% trans 'Suggestion: Write unique abstracts different from titles' %}"><i class="fas fa-exclamation"></i></span>
+                            {% else %}
+                            <span class="mq-status-icon success" title="{% trans 'No duplicate title=abstract' %}"><i class="fas fa-check"></i></span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            {% if result.layers_with_short_abstract_count > 0 %}
+                            <span class="mq-status-icon warning" title="{% trans 'Abstract is too short' %}: {{ result.layers_with_short_abstract_count }} {% trans 'layers' %} (< 50 chars) - {% trans 'Suggestion: Expand abstracts to at least 50 characters' %}"><i class="fas fa-exclamation"></i></span>
+                            {% else %}
+                            <span class="mq-status-icon success" title="{% trans 'All abstracts meet minimum length' %}"><i class="fas fa-check"></i></span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <div class="mq-quality-badge-mini">
+                                <span class="mq-quality-score">{{ result.quality_score }}%</span>
+                            </div>
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="mq-table-details-btn" data-target="table-details-{{ forloop.counter }}">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    <tr class="mq-table-details-row" id="table-details-{{ forloop.counter }}" style="display: none;">
+                        <td colspan="11">
+                            <div class="mq-table-details-content">
+                                <h4><i class="fas fa-layer-group"></i> {% trans 'Layer Details' %}</h4>
+                                {% if result.layers %}
+                                <table class="mq-nested-table">
+                                    <thead>
+                                        <tr>
+                                            <th>{% trans 'Layer Name' %}</th>
+                                            <th>{% trans 'Abstract' %}</th>
+                                            <th>{% trans 'Keywords' %}</th>
+                                            <th>{% trans 'Title=Abs' %}</th>
+                                            <th>{% trans 'Abstract Length' %}</th>
+                                            <th>{% trans 'Fees' %}</th>
+                                            <th>{% trans 'Access' %}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for layer in result.layers %}
+                                        <tr>
+                                            <td>{{ layer.name }}</td>
+                                            <td style="text-align: center;">
+                                                {% if layer.missing_abstract %}
+                                                <span class="mq-status-icon danger" title="{% trans 'Missing abstract' %} - {% trans 'Suggestion: Add a detailed description of this layer content and purpose' %}"><i class="fas fa-times"></i></span>
+                                                {% else %}
+                                                <span class="mq-status-icon success" title="{% trans 'Abstract present' %}"><i class="fas fa-check"></i></span>
+                                                {% endif %}
+                                            </td>
+                                            <td style="text-align: center;">
+                                                {% if layer.missing_keywords %}
+                                                <span class="mq-status-icon danger" title="{% trans 'Missing keywords' %} - {% trans 'Suggestion: Add keywords for improved search visibility' %}"><i class="fas fa-times"></i></span>
+                                                {% else %}
+                                                <span class="mq-status-icon success" title="{% trans 'Keywords present' %}"><i class="fas fa-check"></i></span>
+                                                {% endif %}
+                                            </td>
+                                            <td style="text-align: center;">
+                                                {% if layer.abstract_matches_title %}
+                                                <span class="mq-status-icon warning" title="{% trans 'Title matches abstract' %} - {% trans 'Suggestion: Create a unique abstract that describes the content' %}"><i class="fas fa-exclamation"></i></span>
+                                                {% else %}
+                                                <span class="mq-status-icon success" title="{% trans 'Unique abstract' %}"><i class="fas fa-check"></i></span>
+                                                {% endif %}
+                                            </td>
+                                            <td style="text-align: center;">
+                                                {% if layer.short_abstract %}
+                                                <span class="mq-status-icon warning" title="{% trans 'Abstract is too short (< 50 chars)' %} - {% trans 'Suggestion: Expand to at least 50 characters for better description' %}"><i class="fas fa-exclamation"></i></span>
+                                                {% else %}
+                                                <span class="mq-status-icon success" title="{% trans 'Abstract length is adequate' %}"><i class="fas fa-check"></i></span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ layer.fees|default:'-' }}</td>
+                                            <td>{{ layer.accessconstraints|default:'-' }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                                {% else %}
+                                <p class="mq-no-layers">{% trans 'No layer data available' %}</p>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Load More Button -->
+    {% if page_obj.has_next %}
+    <div class="mq-load-more">
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+           class="mq-load-more-btn">
+            <i class="fas fa-arrow-down"></i> {% trans 'Load More Services' %}
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Handle search form submission
+document.querySelector('.mq-search-input')?.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        const searchValue = this.value;
+        const url = new URL(window.location.href);
+        if (searchValue) {
+            url.searchParams.set('search', searchValue);
+        } else {
+            url.searchParams.delete('search');
+        }
+        window.location.href = url.toString();
+    }
+});
+</script>
+
+{% endblock %}
