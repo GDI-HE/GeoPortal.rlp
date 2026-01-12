@@ -5,7 +5,7 @@ require_once dirname(__FILE__) . "/../classes/class_user.php";
 if (isset($_REQUEST['url']) & $_REQUEST['url'] != "") {
         //validate
         $testMatch = $_REQUEST["url"];
-        if (preg_match('#^(http|https):\/\/#i', $testMatch) && filter_var($testMatch, FILTER_VALIDATE_URL)) {
+        if (preg_match('#^(https):\/\/#i', $testMatch) && filter_var($testMatch, FILTER_VALIDATE_URL)) {
                         $testMatch = htmlspecialchars($testMatch, ENT_QUOTES);
                         $url = urldecode($testMatch);
         } else {
