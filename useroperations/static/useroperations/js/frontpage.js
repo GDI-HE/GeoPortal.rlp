@@ -602,6 +602,11 @@ $(document).ready(function() {
     if (window.location.pathname === '/') {
         $('#mostusedWMC').click(function(event) {
             event.preventDefault();
+			// Clear search field and reset search state
+            $('#search-input').val('');
+            if ($('#clear-input').is(':visible')) {
+                $('#clear-input').hide();
+            }
             lastClickedTab = 'rank';
             activeTab = 'mostusedWMC';
             currentPage=1;
@@ -611,6 +616,11 @@ $(document).ready(function() {
 
         $('#newWMC').click(function(event) {
             event.preventDefault();
+			// Clear search field and reset search state
+            $('#search-input').val('');
+            if ($('#clear-input').is(':visible')) {
+                $('#clear-input').hide();
+            }
             lastClickedTab = 'date';
             activeTab = 'newWMC';
             currentPage=1;
@@ -799,7 +809,6 @@ $(document).ready(function() {
     function performSearch(query) {
         $('#prevPage, #nextPage, #pagination').hide(); // Hide the buttons and pagination
         $('#previousPage, #nextPages').fadeIn();
-        $('.tablinks').prop('disabled', true); // Disable the tablinks
         // Call the AJAX function with page number 1
         ajaxCall(query, currentPage);
         $('.active').removeClass('active');
