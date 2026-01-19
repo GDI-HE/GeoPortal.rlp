@@ -627,6 +627,49 @@ function generate_report(data) {
                 }
             });
         });
+        
+        // WMC CSV Download Handler
+        const wmcDownloadLink = document.getElementById('downloadWmcCsvLink');
+        if (wmcDownloadLink) {
+            wmcDownloadLink.addEventListener('click', function() {
+                let startDate = document.getElementById('startDateWMC').value;
+                let endDate = document.getElementById('endDateWMC').value;
+                const wmcId = document.getElementById('wmc_id').value;
+                
+                // Use default dates if none provided (same as other filters)
+                if (!startDate || !endDate) {
+                    const today = new Date();
+                    const oneYearAgo = new Date();
+                    oneYearAgo.setFullYear(today.getFullYear() - 1);
+                    
+                    endDate = endDate || today.toISOString().split('T')[0];
+                    startDate = startDate || oneYearAgo.toISOString().split('T')[0];
+                }
+                
+                $.ajax({
+                    url: downloadCsvUrl,
+                    type: 'GET',
+                    data: {
+                        start_date: startDate,
+                        end_date: endDate,
+                        wmc_id: wmcId,
+                        keyword: 'wmc_statistics'
+                    },
+                    success: function(data) {
+                        const blob = new Blob([data], { type: 'text/csv' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        const wmcName = wmcId || 'unknown';
+                        link.download = `wmc_statistics_${wmcName}_${startDate}_to_${endDate}.csv`;
+                        link.click();
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error downloading WMC CSV:', error);
+                        alert('Error downloading CSV. Please try again.');
+                    }
+                });
+            });
+        }
     });
     
     function initializeSessionsChart(chartDates, data14Days) {

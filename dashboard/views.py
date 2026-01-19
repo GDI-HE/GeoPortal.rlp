@@ -561,7 +561,9 @@ def download_csv(request):
         _, _, _, sorted_months, sorted_counts, cumulative_counts, _, _, _,_,_,_, _,_,_ = process_request(request)
     elif keyword == "fig_wmc":
         _, _, _, _, _, _, sorted_months, sorted_counts, cumulative_counts, _,_,_,_,_,_= process_request(request)
-        
+    elif keyword == "wmc_statistics":
+        # Handle WMC statistics with specific WMC ID, name, date, and load count
+        return handle_wmc_statistics_csv(request)
     elif keyword == "session_data":
         pass
         #TODO
@@ -607,6 +609,56 @@ def download_csv(request):
         for row in csv_data:
             writer.writerow(row)
         return response
+        
+def handle_wmc_statistics_csv(request):
+    """Handle CSV download for WMC statistics with WMC ID, name, date, and load count"""
+    
+    # Get parameters from request
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    wmc_id = request.GET.get('wmc_id')
+    
+    # Set default values if not provided (same as other filters)
+    if not end_date:
+        end_date = datetime.now()
+    else:
+        end_date = convert_to_datetime(end_date)
+        
+    if not start_date:
+        start_date = end_date - timedelta(days=365)  # One year ago
+    else:
+        start_date = convert_to_datetime(start_date)
+    
+    # Set default WMC ID if not provided
+    if not wmc_id:
+        wmc_id = BORIS_HESSEN_ID
+    
+    # Query WMC data
+    wmc_data = WMC.objects.filter(
+        date__gte=start_date,
+        date__lte=end_date,
+        wmc_id=wmc_id
+    ).order_by('date')
+    
+    # Create CSV response
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = f'attachment; filename="wmc_statistics_{wmc_id}_{start_date.strftime("%Y-%m-%d")}_to_{end_date.strftime("%Y-%m-%d")}.csv"'
+    
+    writer = csv.writer(response)
+    # Write CSV headers
+    writer.writerow(['WMC_ID', 'WMC_Name', 'Date', 'Load_Count'])
+    
+    # Write data rows
+    for wmc_record in wmc_data:
+        writer.writerow([
+            wmc_record.wmc_id,
+            wmc_record.wmc_title or '',
+            wmc_record.date.strftime('%Y-%m-%d'),
+            wmc_record.actual_load
+        ])
+    
+    return response
+    
 #TODO refactor generate_wms_plot, generate_wfs_plot, generate_wmc_plot to make one function later
 dropdown_value_translations = {
             'daily': trans('daily'),
