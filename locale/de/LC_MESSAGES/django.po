@@ -2742,3 +2742,16 @@ msgstr "Top-Schlüsselwörter nach Häufigkeit"
 
 msgid "No keywords found"
 msgstr "Keine Schlüsselwörter gefunden"
+
+# WMC Statistics translations
+msgid "WMC Load Counts Over Time"
+msgstr "WMC Ladevorgänge im Zeitverlauf"
+
+msgid "Select Date for Load Count"
+msgstr "Datum für Ladevorgänge auswählen"
+
+msgid "Update Chart"
+msgstr "Diagramm aktualisieren"
+
+msgid "Download PNG"
+msgstr "PNG herunterladen"

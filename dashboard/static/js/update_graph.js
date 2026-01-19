@@ -827,7 +827,7 @@ function initializeLineChart(lineChartData) {
 
     var lineChartOptions = {
         title: {
-            text: 'Load Count Trend (' + defaultWmcId + ')',
+            text: TRANSLATIONS.wmcLoadCountsOverTime + ' (' + defaultWmcId + ')',
             left: 'center',
             textStyle: { fontSize: 14 }
         },
@@ -855,7 +855,7 @@ function initializeDonutChart(donutChartData) {
     var donutChartOptions = {
         title: {
             text: yesterdayLoadCount,
-            subtext: clickLegendToggle,
+            subtext: TRANSLATIONS.clickLegendToggle,
             left: 'center',
             textStyle: { fontSize: 14 },
             subtextStyle: { fontSize: 11, color: '#666' }
@@ -940,8 +940,8 @@ function updateDonutChartData() {
                 if (chartInstance) {
                     chartInstance.setOption({
                         title: {
-                            text: `Load count for ${formattedDate}`,
-                            subtext: clickLegendToggle
+                            text: `${TRANSLATIONS.loadCountFor} ${formattedDate}`,
+                            subtext: TRANSLATIONS.clickLegendToggle
                         },
                         series: [{
                             data: newDonutData.labels.map((label, index) => ({
