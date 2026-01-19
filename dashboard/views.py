@@ -456,6 +456,7 @@ def render_template(request, template_name):
         'chart_dates': chart_dates,  # 5-minute intervals for the last 14 days
         'data_14_days': data_14_days,  # Session counts for the graph
         'default_wmc_id': BORIS_HESSEN_2024,  # Set this to the default option
+        'yesterday_date': yesterday.strftime('%Y-%m-%d'),  # Add yesterday's date for the donut chart picker
         'sidebar_closed': True, # This will open the sidebar by default while loading dashboard.html
         'all_list': all_list,
         "return_true_falses": not isinstance(user_login, HttpResponseRedirect)
@@ -488,7 +489,36 @@ def dashboard(request):
         return render_template(request, 'dashboard.html')
 
 def filter(request):
-        return render_template(request, 'filter.html')
+    # Check if this is a donut chart data request
+    chart_type = request.GET.get('chart_type')
+    if chart_type == 'donut_chart':
+        return get_donut_chart_data(request)
+    
+    return render_template(request, 'filter.html')
+
+def get_donut_chart_data(request):
+    """Generate donut chart data for a specific date"""
+    selected_date = request.GET.get('date')
+    
+    if not selected_date:
+        # Default to yesterday if no date provided
+        selected_date = date.today() - timedelta(days=1)
+    else:
+        try:
+            selected_date = datetime.strptime(selected_date, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({'error': 'Invalid date format'}, status=400)
+    
+    # Fetch the top 10 WMCs by actual_load for the selected date
+    top_wmcs = WMC.objects.filter(date=selected_date).order_by('-actual_load')[:10]
+    
+    # Prepare data for the donut chart
+    donut_chart_data = {
+        'labels': [wmc.wmc_title for wmc in top_wmcs],
+        'values': [wmc.actual_load for wmc in top_wmcs]
+    }
+    
+    return JsonResponse({'donut_chart_data': donut_chart_data})
 
 def get_highest_loads():
     today = datetime.now()

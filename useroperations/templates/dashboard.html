@@ -264,11 +264,28 @@
                         <a id="downloadWmcCsvLink" href="#" class="btn btn-primary">{% trans 'Download CSV' %}</a>
                         <!-- <button type="button" class="btn btn-secondary" data-dismiss="modal">{% trans 'Close' %}</button> -->
                     </div>
-
                         <!-- Separator between line chart and donut chart (appears just above the donut title) -->
-                        <hr class="chart-separator" style="border:0;border-top:1px solid #ddd;margin:12px 0;" />
+                        <hr class="chart-separator" style="border:0;border-top:2px solid #ddd;margin:12px 0;" />
+                        <!-- Donut Chart Date Filter -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="donutChartDate" class="form-label" style="height: 30px; font-size: small;">{% trans 'Select Date for Load Count' %}</label>
+                                <input type="date" id="donutChartDate" class="form-control" value="{{ yesterday_date }}" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="01/18/2026 (mm/dd/yyyy)" title="{% trans 'Select date in mm/dd/yyyy format' %}">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button id="updateDonutChart" class="btn btn-outline-primary btn-sm" title="{% trans 'Update Chart' %}">
+                                    <i class="fas fa-sync-alt me-1"></i> {% trans 'Update' %}
+                                </button>
+                            </div>
+                        </div>
+                        
                         <!-- Add a div for the donut chart -->
                         <div id="modal-donut-chart" style="width:100%; height:400px;"></div>
+                        <div class="col-md-3 d-flex align-items-end">
+                                <button id="downloadDonutChart" class="btn btn-outline-success btn-sm" title="{% trans 'Download PNG' %}">
+                                    <i class="fas fa-download me-1"></i> {% trans 'Download PNG' %}
+                                </button>
+                            </div>
                         <!-- Add a div for the bar chart -->
                         <div id="modal-bar-chart" class="remove-and-use-later" style="width:100%; height:400px;"></div>
 
@@ -308,13 +325,23 @@
                     actual_loads: {{ line_chart_data.actual_loads|safe }}
                 };
         
-                const donutChartData = {
+                let donutChartData = {
                     labels: {{ donut_chart_data.labels|safe }},
                     values: {{ donut_chart_data.values|safe }}
                 };
         
                 $('#graphModalWMC').on('shown.bs.modal', function () {
                     initializeAllCharts(barChartData, gaugeChartData, lineChartData, donutChartData);
+                    
+                    // Add event listener for donut chart date update
+                    $('#updateDonutChart').off('click').on('click', function() {
+                        updateDonutChartData();
+                    });
+                    
+                    // Add event listener for donut chart download
+                    $('#downloadDonutChart').off('click').on('click', function() {
+                        downloadDonutChartAsPNG();
+                    });
                 });
             });
         </script>

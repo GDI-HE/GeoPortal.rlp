@@ -884,6 +884,8 @@ function initializeDonutChart(donutChartData) {
             left: 'left',
             top: 'center',
             textStyle: { fontSize: 10 },
+            selector: false,
+            selectedMode: 'multiple'  // Enable legend toggle by clicking
         },
         series: [{
             name: 'Actual Load',
@@ -900,6 +902,87 @@ function initializeDonutChart(donutChartData) {
     };
 
     donutChart.setOption(donutChartOptions);
+    
+    // Store chart instance globally for download functionality
+    window.donutChartInstance = donutChart;
+}
+
+// Function to update donut chart data based on selected date
+function updateDonutChartData() {
+    const selectedDate = document.getElementById('donutChartDate').value;
+    
+    if (!selectedDate) {
+        alert('Please select a date');
+        return;
+    }
+    
+    // Show loading spinner
+    $('#spinnerContainerWMC').show();
+    
+    $.ajax({
+        url: filterUrl,
+        method: 'GET',
+        data: {
+            date: selectedDate,
+            chart_type: 'donut_chart'
+        },
+        success: function(data) {
+            if (data.donut_chart_data) {
+                const newDonutData = {
+                    labels: data.donut_chart_data.labels,
+                    values: data.donut_chart_data.values
+                };
+                
+                // Update the chart title with selected date
+                const formattedDate = new Date(selectedDate).toLocaleDateString();
+                const chartInstance = window.donutChartInstance;
+                
+                if (chartInstance) {
+                    chartInstance.setOption({
+                        title: {
+                            text: `Load count for ${formattedDate}`,
+                            subtext: clickLegendToggle
+                        },
+                        series: [{
+                            data: newDonutData.labels.map((label, index) => ({
+                                value: newDonutData.values[index],
+                                name: label
+                            }))
+                        }]
+                    });
+                }
+            } else {
+                alert('No data available for the selected date');
+            }
+            $('#spinnerContainerWMC').hide();
+        },
+        error: function(xhr, status, error) {
+            console.error('Error fetching donut chart data:', error);
+            alert('Error loading data for the selected date');
+            $('#spinnerContainerWMC').hide();
+        }
+    });
+}
+
+// Function to download donut chart as PNG
+function downloadDonutChartAsPNG() {
+    const chartInstance = window.donutChartInstance;
+    
+    if (chartInstance) {
+        const selectedDate = document.getElementById('donutChartDate').value || 'unknown';
+        const dataURL = chartInstance.getDataURL({
+            pixelRatio: 2,
+            backgroundColor: '#fff'
+        });
+        
+        // Create download link
+        const link = document.createElement('a');
+        link.href = dataURL;
+        link.download = `donut_chart_${selectedDate}.png`;
+        link.click();
+    } else {
+        alert('Chart is not available for download');
+    }
 }
 
 function initializeAllCharts(barChartData, gaugeChartData, lineChartData, donutChartData) {
