@@ -648,7 +648,7 @@ function loadPage(pageNum, checkNextPage = false, sort_by = 'rank') {
         url: '/get_landing_page/',
         type: 'GET',
         data: {
-            'lang': 'en',
+            'lang': currentLanguage || 'de',
             'page_num': pageNum,
             'sort_by': sort_by
         },
@@ -838,7 +838,7 @@ function ajaxCall(query, pageNum) {
     $.ajax({
         url: '/get_titles/',
         data: {
-            'lang': 'en',
+            'lang': currentLanguage || 'de',
             'query': query,
             'page_num': pageNum
         },
