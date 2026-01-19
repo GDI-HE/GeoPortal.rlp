@@ -245,7 +245,7 @@ def render_template(request, template_name):
     # get all the list
     # all_list = load_counts_list
     all_wmc_records = WMC.objects.values('wmc_id', 'wmc_title').distinct().order_by('wmc_title')
-    all_list = [{'wmc_id': record['wmc_id'], 'wmc_title': record['wmc_title']} for record in all_wmc_records]
+    all_list = [{'wmc_id': record['wmc_id'], 'wmc_title': f"{str(record['wmc_id']).zfill(5)} - {record['wmc_title']}"} for record in all_wmc_records]
 
     top_10_loads_last_month = load_counts_list[:5]
       # Get the top four highest total_actual_load counts of for the second last month
