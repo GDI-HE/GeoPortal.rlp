@@ -1,6 +1,6 @@
 {% load i18n static %}
 <div class='-js-facets facet-list'>
-
+    {% if is_info_search %}
     <!-- New catalogue selector location -->
     <div class="-js-facet facet-item catalogue-container" data-name="{{ resource_key }}">
 	<h2 class="facet-header">{% trans 'Search in ' %}</h2>
@@ -11,7 +11,7 @@
         {% endfor %}
         </div>
     </div>
-
+    {% endif %}
     <!-- New resource type location -->
     {% if not is_info_search %}
     <div class="-js-facet facet-item" data-name="{{ resource_key }}">

@@ -1396,14 +1396,14 @@ button.search--list--item.-js-term {
 }
 
 .configurations_form > label {
-  color: white;
+  /*color: white;*/
   display: inline-block;
   margin: 5px;
   border: 1px solid var(--hesse-grey);
   border-radius: 4px;
-  background-color: var(--hesse-grey);
-  color: white;
+  background-color: var(--hesse-lightblue);  
   padding: 0px 10px;
+  font-weight: bold;
 }
 
 .configurations_form > label.btn-filter-open-data {
@@ -1421,8 +1421,9 @@ span.fixed-width{
   border-radius: 4px;
   padding: 0px;
   margin: 6px 0px 6px 10px;
-  background-color: var(--primary-light);
-  color: white;
+  /*background-color: var(--primary-light);
+  color: white;*/
+  font-weight: normal;
 }
 
 .catalogue-container {

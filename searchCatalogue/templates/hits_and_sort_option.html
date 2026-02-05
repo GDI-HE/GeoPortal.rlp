@@ -1,5 +1,17 @@
 {% load i18n static %}
     <div class="configurations_form">
+        <!-- Catalogue Selector Dropdown -->
+        {% if sources %}
+        <label for="catalogue-dropdown"><span class="fixed-width">{% trans 'Search in' %}</span>
+            <select id="catalogue-dropdown" name="catalogue" title="{% trans 'Select catalogue' %}">
+                {% for source_key, source_val in sources.items %}
+                <option value="{{ source_key }}" {% if source == source_key %}selected{% endif %}>
+                    {{ source_val.key }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+        {% endif %}
         {% if search_filters.maxResults|length > 0 %}
 	<label for="geoportal-maxResults" style="display: none;"><span class="fixed-width">{% trans 'Hits per page:' %}</span><select id='geoportal-maxResults' title="{% trans 'Select hits per page:' %} {{ page_item.title }}">
                 <option selected='selected' value='{{ search_filters.maxResults.title }}' data-url='{{ search_filters.maxResults.origUrl }}'>{{ search_filters.maxResults.title }}</option>

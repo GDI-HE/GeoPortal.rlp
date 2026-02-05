@@ -1345,6 +1345,15 @@ $(document).ready(function() {
         prepareAndSearch();
 
      });
+     
+    // Catalogue Dropdown Handler
+    $(document).on("change", "#catalogue-dropdown", function(){
+        var selectedCatalogue = $(this).val();
+        window.sessionStorage.setItem("lastCatalogueIdentifier", search.getParam("source"));
+        search.setParam("source", selectedCatalogue);
+        disableSpatialCheckbox();
+        prepareAndSearch();
+    });
 
      $(document).on("click", "#filter-only-open-data", function(){
         var elem = $(this);

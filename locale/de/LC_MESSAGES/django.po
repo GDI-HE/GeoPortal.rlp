@@ -84,7 +84,7 @@ msgstr "Zur Hilfe"
 
 #: searchCatalogue/templates/facets.html:7
 msgid "Search in "
-msgstr "Suche in"
+msgstr "Katalog"
 
 #: searchCatalogue/templates/facets.html:22
 msgid "Resource types"
