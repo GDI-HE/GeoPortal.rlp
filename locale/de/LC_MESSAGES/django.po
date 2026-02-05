@@ -766,7 +766,7 @@ msgstr "Ablehnen"
 
 #: searchCatalogue/utils/viewHelper.py:48
 msgid "Own catalogue"
-msgstr "Eigener Katalog"
+msgstr "Hessen"
 
 #: searchCatalogue/utils/viewHelper.py:53
 msgid "Germany"
@@ -778,7 +778,7 @@ msgstr "Europa"
 
 #: searchCatalogue/utils/viewHelper.py:61 useroperations/forms.py:45
 msgid "Info"
-msgstr ""
+msgstr "Artikel"
 
 #: searchCatalogue/utils/viewHelper.py:62
 msgid "Info pages"

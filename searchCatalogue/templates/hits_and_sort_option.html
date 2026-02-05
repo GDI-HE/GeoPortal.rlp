@@ -1,7 +1,7 @@
 {% load i18n static %}
     <div class="configurations_form">
         {% if search_filters.maxResults|length > 0 %}
-	<label for="geoportal-maxResults"><span class="fixed-width">{% trans 'Hits per page:' %}</span><select id='geoportal-maxResults' title="{% trans 'Select hits per page:' %} {{ page_item.title }}">
+	<label for="geoportal-maxResults" style="display: none;"><span class="fixed-width">{% trans 'Hits per page:' %}</span><select id='geoportal-maxResults' title="{% trans 'Select hits per page:' %} {{ page_item.title }}">
                 <option selected='selected' value='{{ search_filters.maxResults.title }}' data-url='{{ search_filters.maxResults.origUrl }}'>{{ search_filters.maxResults.title }}</option>
                 {% for page_item in search_filters.maxResults.item %}
                 <option value='{{ page_item.title }}' data-url='{{ page_item.url }}' title="{% trans 'Select hits per page:' %} {{ page_item.title }}">{{ page_item.title }}</option>

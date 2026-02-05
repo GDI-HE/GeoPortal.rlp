@@ -1,12 +1,14 @@
 {% load i18n %}
 <div class="filterarea -js-filterarea">
+    {% include 'hits_and_sort_option.html' %}
     <div>
         {% if is_de_search or is_eu_search %}
             <p class="filters-not-supported">
                 {% trans 'Filter categories are not supported for this catalogue.' %}
             </p>
         {% endif %}
-        {% if selected_facets.keys|length > 0 %}
+        
+        {% if selected_facets or search_filters.searchText.item|length > 1 %}
             <div id="chosen-facets">
 		    <button type="button" title="{% trans 'Remove all filters' %}" class="filter-remover">Alle Filter entfernen<span style="margin-left:10px;" class="icon-cross fs-10px" aria-hidden="true"></span></button>
                 {% for facet_key, facet_val in selected_facets.items %}
@@ -27,12 +29,15 @@
                 {% endfor %}
             </div>
         {% endif %}
+        
         <!-- Search tags -->
             <div class="search--list -js-keywords" data-id='geoportal-'>
                 {% for item in search_filters.searchText.item %}
-                <button type="button" title="Suchbegriff {{ item.title }} löschen" class="search--list--item -js-term">{{ item.title }}
-                    <span style="margin-left:5px;" class="icon-cross fs-10px"></span>
-                </button>
+                    {% if item.title != "*" %}
+                    <button type="button" title="Suchbegriff {{ item.title }} löschen" class="search--list--item -js-term">{{ item.title }}
+                        <span style="margin-left:5px;" class="icon-cross fs-10px"></span>
+                    </button>
+                    {% endif %}
                 {% endfor %}
             </div>
 
@@ -47,8 +52,5 @@
             </div>
         {% endif %}
 
-    </div>
-
-
-    {% include 'hits_and_sort_option.html' %}
+    </div>  
 </div><!-- end .filterarea -->

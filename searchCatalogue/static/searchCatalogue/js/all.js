@@ -1004,11 +1004,18 @@ $(document).ready(function() {
       * Remove all facets at once
       */
       $(document).on("click", ".filter-remover", function(){
+        $(".simple-search-field").val("");
         search.setParam("facet", "");
         var facets = $("#chosen-facets .chosen-facet-items");
         facets.each(function(i, facet){
             facet.remove();
         });
+        // Entfernt auch Search Tags (außer "*")
+        $(".search--list.-js-keywords .search--list--item").filter(function(){
+            return $(this).text().trim() !== "*";
+        }).remove();
+        // Entfernt auch räumliche Filter
+        $(".search--list.-js-facet-list .search--list--item.-js-spatial-restriction").remove();
         prepareAndSearch();
       });
 

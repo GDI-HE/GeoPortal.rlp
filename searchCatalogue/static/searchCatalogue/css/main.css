@@ -433,6 +433,9 @@ dl dd {
 .accordion.closed {
   vertical-align: middle; }
 
+span.accordion.icon {
+  margin-right: 6px;
+}
 .searchbar {
   margin: 20px auto;
   width: 75%;
@@ -746,7 +749,10 @@ dl dd {
 }
 
 #filter-area {
-    background-color:unset;
+    background-color: #f7f7f7;
+    border: 1px solid;
+    font-weight: bold;
+    border-radius: 4px;
 }
 
 .filter-area-elements {
@@ -1384,8 +1390,9 @@ button.search--list--item.-js-term {
 .configurations_form {
   font-size: 0.8em;
   border: 1px solid transparent;
-  margin: 0px;
+  margin: -61px 0 0 125px;
   display: inline-block;
+  position: absolute;
 }
 
 .configurations_form > label {
