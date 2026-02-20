@@ -37,6 +37,7 @@ from dashboard.user_check import check_user
 from django.utils.translation import gettext as trans
 from django.utils.timezone import localtime
 from useroperations.views import check_user_login
+from django.db import connection
 
 
 def render_template(request, template_name):
@@ -245,7 +246,22 @@ def render_template(request, template_name):
     # get all the list
     # all_list = load_counts_list
     all_wmc_records = WMC.objects.values('wmc_id', 'wmc_title').distinct().order_by('wmc_title')
-    all_list = [{'wmc_id': record['wmc_id'], 'wmc_title': f"{str(record['wmc_id']).zfill(5)} - {record['wmc_title']}"} for record in all_wmc_records]
+ 
+    # Get user's owned WMC IDs using cursor (simple and secure with parameterized query)
+    user_owned_wmc_ids = set()
+    if user and hasattr(user, 'mb_user_id'):
+        
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT DISTINCT wmc_serial_id FROM mb_user_wmc WHERE fkey_user_id = %s", 
+                [user.mb_user_id]
+            )
+            user_owned_wmc_ids = {row[0] for row in cursor.fetchall()}
+    
+    all_list = [{'wmc_id': record['wmc_id'], 
+                 'wmc_title': f"{str(record['wmc_id']).zfill(5)} - {record['wmc_title']}", 
+                 'is_user_owned': record['wmc_id'] in user_owned_wmc_ids} 
+                for record in all_wmc_records]
 
     top_10_loads_last_month = load_counts_list[:5]
       # Get the top four highest total_actual_load counts of for the second last month
@@ -1438,7 +1454,6 @@ def check_layer_abstracts_and_keywords(request):
             abstract_lengths = []
             
             # Use raw SQL for more reliable keyword retrieval and frequency counting
-            from django.db import connection
             cursor = connection.cursor()
             
             # Get list of WMS IDs with parameterized query to prevent SQL injection

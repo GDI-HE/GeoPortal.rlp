@@ -171,7 +171,7 @@
                                                 <select class="form-control" id="wmc_id" name="wmc_id" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC" aria-describedby="addon-wrapping_wmc">
                                                     <option value="" selected disabled>{% trans 'Select WMC' %} (Default: {{default_wmc_id}} )</option> 
                                                     {% for wmc in all_list %}
-                                                        <option value="{{ wmc.wmc_id }}">{{ wmc.wmc_title }}</option>
+                                                        <option value="{{ wmc.wmc_id }}">{% if wmc.is_user_owned %} {{ wmc.wmc_title }} ★{% else %}{{ wmc.wmc_title }}{% endif %}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
