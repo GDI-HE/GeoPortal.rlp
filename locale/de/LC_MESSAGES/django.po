@@ -2755,3 +2755,9 @@ msgstr "Diagramm aktualisieren"
 
 msgid "Download PNG"
 msgstr "PNG herunterladen"
+
+msgid "Select date in mm/dd/yyyy format"
+msgstr "Wählen Sie ein Datum im Format mm/dd/yyyy"
+
+msgid "Most Loaded WMC on"
+msgstr "Meistgeladene WMC am"
