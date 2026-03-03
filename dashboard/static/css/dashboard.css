@@ -171,3 +171,28 @@ button.map-viewer-toggler{
     color: #292d35;
 } 
 
+
+/* Select2 custom styling for smaller text */
+.select2-container--default .select2-selection--single {
+    height: 30px;
+    font-size: 12px;
+}
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    line-height: 28px;
+    font-size: 12px;
+    color: rgb(87, 115, 158);
+}
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    font-size: 11px;
+    color: rgb(87, 115, 158);
+}
+.select2-container--default .select2-results__option {
+    font-size: 12px;
+    padding: 4px 8px;
+}
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    font-size: 12px;
+}
+.select2-dropdown {
+    font-size: 12px;
+}
