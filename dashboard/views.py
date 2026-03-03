@@ -1761,7 +1761,7 @@ def get_wmc_loadcount(request):
     fig.add_trace(go.Scatter(x=x_data, y=y_data, mode='lines+markers'))
     fig.update_layout(
         title={
-            'text': _('WMC load count'),
+            'text': _('WMC Load Counts Over Time'),
             'font_size': 14,
             'xanchor': 'center',
             'x': 0.5
