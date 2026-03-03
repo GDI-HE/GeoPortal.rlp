@@ -859,7 +859,7 @@ function initializeDonutChart(donutChartData) {
 
     var donutChartOptions = {
         title: {
-            text: `${TRANSLATIONS.loadCountFor || 'Most Loaded WMC on'} ${formattedYesterday}`,
+            text: `${TRANSLATIONS.loadCountFor || 'Most Loaded WMC on '} ${formattedYesterday}`,
             subtext: TRANSLATIONS.clickLegendToggle,
             left: 'center',
             textStyle: { fontSize: 14 },
