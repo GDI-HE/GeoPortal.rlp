@@ -568,7 +568,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 // Initialize tooltips (requires jQuery and Bootstrap)
 $(document).ready(function(){
-    $('[data-toggle="tooltip"]').tooltip(); 
+    $('[data-toggle="tooltip"]').tooltip();
+    
+    // Initialize Select2 on WMC dropdown for searchable selection
+    if ($('#wmc_id').length && typeof $.fn.select2 !== 'undefined') {
+        $('#graphModalWMC').on('shown.bs.modal', function() {
+            if (!$('#wmc_id').hasClass('select2-hidden-accessible')) {
+                const defaultWmcId = $('#default-wmc-id').val();
+                const placeholderText = (TRANSLATIONS.searchWmc || 'Search WMC...') + (defaultWmcId ? ' (Default: ' + defaultWmcId + ')' : '');
+                $('#wmc_id').select2({
+                    placeholder: placeholderText,
+                    allowClear: true,
+                    width: '100%',
+                    dropdownParent: $('#graphModalWMC')
+                });
+                // Set the default value if it exists
+                if (defaultWmcId && $('#wmc_id option[value="' + defaultWmcId + '"]').length) {
+                    $('#wmc_id').val(defaultWmcId).trigger('change');
+                }
+            }
+        });
+    }
 });
 function generate_report(data) {
     // Example implementation of the generate_report function
