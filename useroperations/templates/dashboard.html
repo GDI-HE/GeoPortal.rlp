@@ -165,15 +165,13 @@
                                 <div class="col-12 d-flex flex-wrap flex-md-nowrap py-1">
                                     <div class="col-sm-12 col-md-4 py-1">
                                         <small class="text-black">{% trans 'Select WMC' %}</small>
-                                                                                <div class="card shadow-sm" style="padding: 5px;">
+                                        <div class="card shadow-sm" style="padding: 5px;">
                                             <select class="form-control" id="wmc_id" name="wmc_id" style="width: 100%; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC">
                                                 <option value="" disabled>{% trans 'Select WMC' %} (Default: {{default_wmc_id}} )</option> 
                                                 {% for wmc in all_list %}
                                                     <option value="{{ wmc.wmc_id }}" {% if wmc.wmc_id == default_wmc_id %}selected{% endif %}>{% if wmc.is_user_owned %}★ {{ wmc.wmc_title }} ★{% else %}{{ wmc.wmc_title }}{% endif %}</option>
                                                 {% endfor %}
                                             </select>
-                                        </div>
-                                            </div>
                                         </div>
                                     </div>
                                     <div class="col-sm-12 col-md-4 py-1">
