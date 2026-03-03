@@ -171,7 +171,7 @@
                                                 <select class="form-control" id="wmc_id" name="wmc_id" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" aria-label="Select WMC" aria-describedby="addon-wrapping_wmc">
                                                     <option value="" selected disabled>{% trans 'Select WMC' %} (Default: {{default_wmc_id}} )</option> 
                                                     {% for wmc in all_list %}
-                                                        <option value="{{ wmc.wmc_id }}">{% if wmc.is_user_owned %} {{ wmc.wmc_title }} ★{% else %}{{ wmc.wmc_title }}{% endif %}</option>
+                                                        <option value="{{ wmc.wmc_id }}">{% if wmc.is_user_owned %}★ {{ wmc.wmc_title }} ★{% else %}{{ wmc.wmc_title }}{% endif %}</option>
                                                     {% endfor %}
                                                 </select>
                                             </div>
@@ -270,7 +270,7 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="donutChartDate" class="form-label" style="height: 30px; font-size: small;">{% trans 'Select Date for Load Count' %}</label>
-                                <input type="date" id="donutChartDate" class="form-control" value="{{ yesterday_date }}" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="01/18/2026 (mm/dd/yyyy)" title="{% trans 'Select date in mm/dd/yyyy format' %}">
+                                <input type="date" id="donutChartDate" class="form-control" value="mm/dd/yyyy" style="height: 30px; font-size: small; color: rgb(87, 115, 158);" placeholder="01/18/2026 (mm/dd/yyyy)" title="{% trans 'Select date in mm/dd/yyyy format' %}">
                             </div>
                             <div class="col-md-3 d-flex align-items-end">
                                 <button id="updateDonutChart" class="btn btn-outline-primary btn-sm" title="{% trans 'Update Chart' %}">

@@ -852,9 +852,14 @@ function initializeCharts(lineChartData) {
 function initializeDonutChart(donutChartData) {
     var donutChart = echarts.init(document.getElementById('modal-donut-chart'));
 
+    // Get yesterday's date for the title
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const formattedYesterday = yesterday.toLocaleDateString();
+
     var donutChartOptions = {
         title: {
-            text: yesterdayLoadCount,
+            text: `${TRANSLATIONS.loadCountFor || 'Most Loaded WMC on'} ${formattedYesterday}`,
             subtext: TRANSLATIONS.clickLegendToggle,
             left: 'center',
             textStyle: { fontSize: 14 },
