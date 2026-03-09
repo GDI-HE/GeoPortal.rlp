@@ -1172,7 +1172,7 @@
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 35px;
     animation: slideDown 0.3s ease;
-    max-height: 1000px;
+    /* max-height: 1000px; */
     transition: all 0.3s ease;
 }
 
