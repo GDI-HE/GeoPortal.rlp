@@ -269,7 +269,10 @@
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
+    min-width: 48px;
+    min-height: 48px;
 }
 
 .mq-sort-btn:hover {
