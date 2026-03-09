@@ -168,7 +168,7 @@
 }
 
 .mq-search-input {
-    width: 100%;
+    width: stretch;
     padding: 14px 20px 14px 50px;
     border: 2px solid var(--mq-gray-200);
     border-radius: var(--mq-radius-lg);
