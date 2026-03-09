@@ -655,14 +655,14 @@
     }
     
     .mq-filter-buttons { 
-        justify-content: center; 
         flex-wrap: wrap;
-        gap: 6px;
-        width: 100%;
+        gap: 8px;
+        align-items: center;
+        display: flex;
     }
     
     .mq-filter-btn {
-        flex: 1;
+        flex: 0 0 auto;
         min-width: 70px;
         padding: 8px 10px;
         font-size: 0.8rem;
@@ -715,7 +715,7 @@
     /* Sort dropdown - bottom sheet style */
     .mq-sort-dropdown {
         position: static;
-        width: 100%;
+        /* width: 100%; */
     }
     
     .mq-sort-menu {
@@ -731,9 +731,9 @@
         z-index: 1000;
     }
     
-    .mq-export-btn {
+    /* .mq-export-btn {
         width: 100%;
-    }
+    } */
 }
 
 @media (max-width: 480px) {
