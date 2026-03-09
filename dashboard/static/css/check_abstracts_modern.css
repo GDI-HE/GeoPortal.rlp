@@ -1268,8 +1268,8 @@
     padding: 6px 12px;
     border-radius: 6px;
     display: inline-block;
-    flex-shrink: 0;
-    white-space: nowrap;
+    /* flex-shrink: 0;
+    white-space: nowrap; */
     overflow: hidden;
     text-overflow: ellipsis;
 }
@@ -1517,7 +1517,7 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     box-shadow: 0 2px 8px rgba(19, 118, 115, 0.2);
-    white-space: nowrap;
+    /* white-space: nowrap; */
     user-select: none;
     letter-spacing: -0.3px;
 }
