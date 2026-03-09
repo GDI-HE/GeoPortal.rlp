@@ -6,31 +6,45 @@ $(document).ready(function() {
                 url: filterUrl,
                 method: 'GET',
                 success: function(data) {
-                    $('#dynamicContentWMC').html(data.loadcount_chart);
-                    $('#startDateWMC').val(data.start);
-                    $('#endDateWMC').val(data.end);
-                    $('#wmc_id').val(data.wmc_id);
-                    $('#graphModalWMC').modal('show');
-                    $('#spinnerContainerWMC').hide();
-                    const chartCanvas = document.getElementById('graphChart1').getContext('2d');
-                    new Chart(chartCanvas, {
-                        type: 'line',
-                        data: data.chartData,
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                x: {
-                                    ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 }
-                                }
-                            },
-                            layout: { padding: { bottom: 30 } }
-                        }
-                    });
+                    if (data && data.loadcount_chart) {
+                        $('#dynamicContentWMC').html(data.loadcount_chart);
+                        $('#startDateWMC').val(data.start);
+                        $('#endDateWMC').val(data.end);
+                        $('#wmc_id').val(data.wmc_id);
+                        $('#graphModalWMC').modal('show');
+                        $('#spinnerContainerWMC').hide();
+                        const chartCanvas = document.getElementById('graphChart1').getContext('2d');
+                        new Chart(chartCanvas, {
+                            type: 'line',
+                            data: data.chartData,
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                scales: {
+                                    x: {
+                                        ticks: { autoSkip: false, maxRotation: 45, minRotation: 0 }
+                                    }
+                                },
+                                layout: { padding: { bottom: 30 } }
+                            }
+                        });
+                    } else {
+                        $('#dynamicContentWMC').html('<p class="text-center text-muted mt-3">' + TRANSLATIONS.noDataAvailable + '</p>');
+                        $('#graphModalWMC').modal('show');
+                        $('#spinnerContainerWMC').hide();
+                        setTimeout(function() {
+                            location.reload();
+                        }, 3000);
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching data:', error);
+                    $('#dynamicContentWMC').html('<p class="text-center text-muted mt-3">' + TRANSLATIONS.noDataAvailable + '</p>');
+                    $('#graphModalWMC').modal('show');
                     $('#spinnerContainerWMC').hide();
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
                 }
             });
         });
@@ -51,12 +65,23 @@ $(document).ready(function() {
         wmc_id: wmcId
     },
     success: function(data) {
-        $('#dynamicContentWMC').html(data.loadcount_chart);
+        if (data && data.loadcount_chart) {
+            $('#dynamicContentWMC').html(data.loadcount_chart);
+        } else {
+            $('#dynamicContentWMC').html('<p class="text-center text-muted mt-3">' + TRANSLATIONS.noDataAvailable + '</p>');
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
+        }
         $('#spinnerContainerWMC').hide(); // Hide spinner
     },
     error: function(xhr, status, error) {
         console.error('Error fetching data:', error);
+        $('#dynamicContentWMC').html('<p class="text-center text-muted mt-3">' + TRANSLATIONS.noDataAvailable + '</p>');
         $('#spinnerContainerWMC').hide(); // Hide spinner
+        setTimeout(function() {
+            location.reload();
+        }, 3000);
     }
     });
     });
@@ -870,7 +895,17 @@ function initializeCharts(lineChartData) {
     initializeLineChart(lineChartData);
 }
 function initializeDonutChart(donutChartData) {
-    var donutChart = echarts.init(document.getElementById('modal-donut-chart'));
+    var donutChartDom = document.getElementById('modal-donut-chart');
+    if (!donutChartDom) return;
+
+    // Check if data is empty or missing
+    if (!donutChartData || !donutChartData.labels || !donutChartData.values ||
+        donutChartData.labels.length === 0 || donutChartData.values.length === 0) {
+        donutChartDom.innerHTML = '<p class="text-center text-muted mt-3">' + (TRANSLATIONS.noDataAvailable || 'No data available.') + '</p>';
+        return;
+    }
+
+    var donutChart = echarts.init(donutChartDom);
 
     // Get yesterday's date for the title
     const yesterday = new Date();
@@ -977,14 +1012,26 @@ function updateDonutChartData() {
                     });
                 }
             } else {
-                alert('No data available for the selected date');
+                var donutChartDom = document.getElementById('modal-donut-chart');
+                if (donutChartDom) {
+                    donutChartDom.innerHTML = '<p class="text-center text-muted mt-3">' + TRANSLATIONS.noDataAvailable + '</p>';
+                }
+                setTimeout(function() {
+                    location.reload();
+                }, 3000);
             }
             $('#spinnerContainerWMC').hide();
         },
         error: function(xhr, status, error) {
             console.error('Error fetching donut chart data:', error);
-            alert('Error loading data for the selected date');
+            var donutChartDom = document.getElementById('modal-donut-chart');
+            if (donutChartDom) {
+                donutChartDom.innerHTML = '<p class="text-center text-muted mt-3">' + TRANSLATIONS.noDataAvailable + '</p>';
+            }
             $('#spinnerContainerWMC').hide();
+            setTimeout(function() {
+                location.reload();
+            }, 3000);
         }
     });
 }
