@@ -380,6 +380,7 @@
     font-size: 0.9rem;
     min-width: 70px;
     text-align: center;
+    width: fit-content;
 }
 
 .mq-service-info { flex: 1; min-width: 0; }
