@@ -196,3 +196,7 @@ button.map-viewer-toggler{
 .select2-dropdown {
     font-size: 12px;
 }
+#graphChart2 a img {
+    height: auto;
+    max-width: 100%;
+}
