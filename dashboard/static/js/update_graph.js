@@ -1065,9 +1065,77 @@ function initializeAllCharts(barChartData, gaugeChartData, lineChartData, donutC
 }
 
 //handle the graph according to screen size/modal size
-$('#graphModal').on('shown.bs.modal', function () {
-    const graphDiv = document.getElementById('modalGraphContent');
-    if (graphDiv) {
-        Plotly.Plots.resize(graphDiv);  // Ensure Plotly chart resizes to fit modal
+// Resize any Plotly chart inside a given container to fit its width
+function resizePlotlyInContainer(container) {
+    if (!container) return;
+    var plotDivs = container.querySelectorAll('.js-plotly-plot');
+    if (plotDivs.length > 0 && typeof Plotly !== 'undefined') {
+        var containerWidth = container.clientWidth;
+        if (containerWidth > 0) {
+            plotDivs.forEach(function(plotDiv) {
+                Plotly.relayout(plotDiv, { width: containerWidth });
+            });
+        }
     }
+}
+
+function resizePlotlyInModal() {
+    resizePlotlyInContainer(document.getElementById('modalGraphContent'));
+}
+
+function resizePlotlyInWMCModal() {
+    resizePlotlyInContainer(document.getElementById('dynamicContentWMC'));
+}
+
+// MutationObserver: auto-resize whenever new chart HTML is injected
+$(document).ready(function() {
+    // --- graphModal (#modalGraphContent) ---
+    var graphContainer = document.getElementById('modalGraphContent');
+    if (graphContainer) {
+        var observer1 = new MutationObserver(function() {
+            requestAnimationFrame(function() {
+                setTimeout(resizePlotlyInModal, 50);
+            });
+        });
+        observer1.observe(graphContainer, { childList: true });
+    }
+
+    // --- graphModalWMC (#dynamicContentWMC) ---
+    var wmcContainer = document.getElementById('dynamicContentWMC');
+    if (wmcContainer) {
+        var observer2 = new MutationObserver(function() {
+            requestAnimationFrame(function() {
+                setTimeout(resizePlotlyInWMCModal, 50);
+            });
+        });
+        observer2.observe(wmcContainer, { childList: true });
+    }
+
+    // Fallback: resize when modals are fully shown
+    $('#graphModal').on('shown.bs.modal', function() {
+        resizePlotlyInModal();
+        setTimeout(resizePlotlyInModal, 200);
+        setTimeout(resizePlotlyInModal, 500);
+    });
+
+    $('#graphModalWMC').on('shown.bs.modal', function() {
+        resizePlotlyInWMCModal();
+        setTimeout(resizePlotlyInWMCModal, 200);
+        setTimeout(resizePlotlyInWMCModal, 500);
+    });
+
+    // Handle window resize while either modal is open
+    $(window).on('resize', function() {
+        if ($('#graphModal').hasClass('show') || $('#graphModal').hasClass('in')) {
+            resizePlotlyInModal();
+        }
+        if ($('#graphModalWMC').hasClass('show') || $('#graphModalWMC').hasClass('in')) {
+            resizePlotlyInWMCModal();
+        }
+    });
+
+    // CSS overflow protection for both modals
+    var style = document.createElement('style');
+    style.textContent = '#modalGraphContent .js-plotly-plot, #modalGraphContent .plot-container, #modalGraphContent .svg-container, #dynamicContentWMC .js-plotly-plot, #dynamicContentWMC .plot-container, #dynamicContentWMC .svg-container { max-width: 100% !important; overflow: hidden !important; }';
+    document.head.appendChild(style);
 });
