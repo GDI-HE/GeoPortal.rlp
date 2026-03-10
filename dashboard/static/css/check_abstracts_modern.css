@@ -633,9 +633,9 @@
     .mq-page-title { font-size: 1.5rem; }
     
     /* Hide analysis section on mobile */
-    .mq-analysis-section {
+    /* .mq-analysis-section {
         display: none;
-    }
+    } */
 
     .mq-service-id{
         padding: 4px 8px;
@@ -1624,9 +1624,9 @@
 /* Additional 768px mobile styles - supplements earlier media query block */
 @media (max-width: 768px) {
     /* Analysis section - ensure proper block display and separation */
-    .mq-analysis-section {
+    /* .mq-analysis-section {
         display: none;
-    }
+    } */
     
     /* Toolbar - ensure block display and separation from content */
     .mq-toolbar {
@@ -1652,7 +1652,7 @@
     }
     
     .mq-analysis-content {
-        display: flex !important;
+        /* display: flex !important; */
         flex-direction: column !important;
         grid-template-columns: 1fr;
         gap: 15px;
