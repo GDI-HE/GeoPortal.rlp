@@ -1,57 +1,79 @@
 {% load static i18n %}
+{% include 'resource_types.html' %}
+    <button aria-expanded="true" aria-controls="search-categories-sidebar" id="filter-area" class="area-title -js-accordion" title="{% trans 'Open and close filter settings' %}" aria-label="{% trans 'Open and close filter settings' %}">
+        <i class="fa fa-toggle-on" alt="{% trans 'A filter icon' %}" aria-hidden="true" style="margin-right:6px;"></i>{% trans 'Filter' %}
+	</button>
     <div class="search-result-body">
+        
         <div id="search-categories-sidebar">
+            {% include 'filterarea.html' %}
             {% include 'facets.html' %}
         </div>
         <div id="search-main-content">
             {% if not is_info_search %}
-            <h1 style="margin:-2px 0 30px 0;font-size:2em;">{% trans 'Results' %}</h1>
+        
 	    <div class="area-wrapper">
-		    <button aria-expanded="false" aria-controls="filter-area-elements" id="filter-area" class="area-title -js-accordion" title="{% trans 'Open and close filter settings' %}" aria-label="{% trans 'Open and close filter settings' %}">
-                    <span class="accordion icon closed"></span>
-                    <i class="fas fa-filter tab-icn" alt="{% trans 'A filter icon' %}" aria-hidden="true"></i>{% trans 'Filter' %}
-		    </button>
-                <div id="filter-area-elements" role="region" aria-labelledby="filter-area" class="area-elements filter-area-elements">
-                    {% include 'filterarea.html' %}
-                    <div id="mobile-categories">
-                        {% include 'facets.html' %}
-                    </div>
+		    
+                <div id="filter-area-elements" role="region" aria-labelledby="filter-area" class="filter-area-elements">
+                <div class="filterarea -js-filterarea">
+    {% include 'hits_and_sort_option.html' %}</div>    
+                    
                 </div>
             </div>
             {% endif %}
             <div class="area-wrapper">
                 <a id="search-area" class="area-title">
-                    <span class="accordion icon closed"></span>
+                    <span class="accordion icon open"></span>
                     <i class="fas fa-database tab-icn" aria-hidden="true"></i><strong>
                     {% trans 'Results' %}</strong>
                 </a>
                 <div class="area-elements">
                     {% if is_de_search or is_eu_search%}
-                        {% with search_results.dataset.dataset as dataset %}
-                            {% include 'other/dataset/dataset_category.html' %}
-                        {% endwith %}
-                        {% with search_results.series.series as series %}
-                            {% include 'other/series/series_category.html' %}
-                        {% endwith %}
-                        {% with search_results.service.service as service %}
-                            {% include 'other/service/service_category.html' %}
-                        {% endwith %}
+                        {% if 'dataset' in resources %}
+                            {% with search_results.dataset.dataset as dataset %}
+                                {% include 'other/dataset/dataset_category.html' %}
+                            {% endwith %}
+                        {% endif %}
+                        {% if 'series' in resources %}
+                            {% with search_results.series.series as series %}
+                                {% include 'other/series/series_category.html' %}
+                            {% endwith %}
+                        {% endif %}
+                        {% if 'service' in resources %}
+                            {% with search_results.service.service as service %}
+                                {% include 'other/service/service_category.html' %}
+                            {% endwith %}
+                        {% endif %}
                         {% if is_de_search %}
-                            {% with search_results.application.application as application %}
-                                {% include 'other/application/application_category.html' %}
-                            {% endwith %}
-                            {% with search_results.nonGeographicDataset.nonGeographicDataset as nonGeographicDataset %}
-                                {% include 'other/nonGeographicDataset/nonGeographicDataset_category.html' %}
-                            {% endwith %}
+                            {% if 'application' in resources %}
+                                {% with search_results.application.application as application %}
+                                    {% include 'other/application/application_category.html' %}
+                                {% endwith %}
+                            {% endif %}
+                            {% if 'nonGeographicDataset' in resources %}
+                                {% with search_results.nonGeographicDataset.nonGeographicDataset as nonGeographicDataset %}
+                                    {% include 'other/nonGeographicDataset/nonGeographicDataset_category.html' %}
+                                {% endwith %}
+                            {% endif %}
                         {% endif %}
                     {% elif is_info_search %}
                         {% include 'info/info_results.html' %}
                     {% else %}
-                        {% include 'primary/wms/wms_category.html' %}
-                        {% include 'primary/dataset/dataset_category.html' %}
-                        {% include 'primary/wmc/wmc_category.html' %}
-                        {% include 'primary/wfs/wfs_category.html' %}
-                        {% include 'primary/application/application_category.html' %}
+                        {% if 'dataset' in resources or resources|length == 0 %}
+                            {% include 'primary/dataset/dataset_category.html' %}
+                        {% endif %}
+                        {% if 'wms' in resources %}
+                            {% include 'primary/wms/wms_category.html' %}
+                        {% endif %}
+                        {% if 'wmc' in resources %}
+                            {% include 'primary/wmc/wmc_category.html' %}
+                        {% endif %}
+                        {% if 'wfs' in resources %}
+                            {% include 'primary/wfs/wfs_category.html' %}
+                        {% endif %}
+                        {% if 'application' in resources %}
+                            {% include 'primary/application/application_category.html' %}
+                        {% endif %}
                     {% endif %}
                 </div>
             </div>

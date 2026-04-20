@@ -1,4 +1,3 @@
-
 """
 This class provides all functions that are needed in view.py.
 For beautiful code-reasons we put these functions in here.
@@ -157,6 +156,10 @@ def calculate_pages_to_render_de(search_results, requested_page: int, requested_
         }
         if resource_key != requested_page_res:
             result_pages["current_page"] = 1
+        # Calculate how many results the next page will show
+        actual_current = result_pages["current_page"]
+        remaining = max(0, int(total_number_of_results) - actual_current * int(results_per_page))
+        result_pages["next_count"] = min(remaining, int(results_per_page))
         pages[resource_key] = result_pages
     return pages
 
@@ -201,6 +204,10 @@ def calculate_pages_to_render(search_results, requested_page: int, requested_pag
         }
         if key != requested_page_res:
             result_pages["current_page"] = 1
+        # Calculate how many results the next page will show
+        actual_current = result_pages["current_page"]
+        remaining = max(0, int(total_number_of_results) - actual_current * int(results_per_page))
+        result_pages["next_count"] = min(remaining, int(results_per_page))
         pages[result_key] = result_pages
     return pages
 
@@ -371,17 +378,20 @@ def gen_inspire_url(search_results):
         thread_list = []
         for result in results:
             if resource == "dataset":
-                try:
-                    feeds = result["coupledResources"]["inspireAtomFeeds"]
-                except KeyError:
-                    # this is quicker than checking if the key exists
-                    continue
+                feeds = result["coupledResources"].get("inspireAtomFeeds", [])
                 if isinstance(feeds, dict):
                     for feed_key, feed_val in feeds.items():
                         feed_val["download_url"] = __type_inspire_url(result["uuid"], feed_val)
-                else:
+                elif feeds:  # If feeds is a list and not empty
                     for feed in feeds:
                         feed["download_url"] = __type_inspire_url(result["uuid"], feed)
+                else:
+                    # Allow processing of download options even if inspireAtomFeeds is absent
+                    download_options = result["coupledResources"].get("layer", [])
+                    if download_options:
+                        for layer in download_options:
+                            if layer.get("downloadOptions"):
+                                layer["downloadOptions"] = __group_download_options(layer["downloadOptions"])
             elif resource == "wms":
                 layers = result.get("layer", None)
                 if layers is None:
@@ -695,6 +705,7 @@ def __gen_single_iso3166_icon_path(title: str):
             return state_val
 
 
+
 def set_iso3166_icon_path(search_results):
     """ Set the state icon file path for all search results
 
@@ -722,6 +733,61 @@ def set_iso3166_icon_path(search_results):
     return search_results
 
 
+def attach_org_titles(search_results, organizations):
+    """Annotate search results with the descriptive organization title.
+
+    Args:
+        search_results (dict): The search response that will be rendered.
+        organizations (list|dict): Output of Searcher.search_all_organizations().
+    Returns:
+        dict: Modified search_results with an additional respOrgTitle key.
+    """
+    if not search_results or not organizations:
+        return search_results
+
+    if isinstance(organizations, dict):
+        org_list = organizations.get("organizations", [])
+    else:
+        org_list = organizations
+
+    name_to_title = {}
+    id_to_title = {}
+    for org in org_list:
+        if not isinstance(org, dict):
+            continue
+        long_title = org.get("title_long") or org.get("title") or org.get("name")
+        if not long_title:
+            continue
+        name = org.get("name")
+        if name:
+            name_to_title[name] = long_title
+        org_id = org.get("id")
+        if org_id is not None:
+            id_to_title[str(org_id)] = long_title
+
+    resources = gen_resource_arr(search_results)
+    for resource in resources:
+        srv_container = search_results.get(resource, {}).get(resource, {}).get(resource, {})
+        srv_list = srv_container.get("srv", [])
+        if not isinstance(srv_list, list):
+            continue
+        for srv in srv_list:
+            if not isinstance(srv, dict):
+                continue
+            org_name = srv.get("respOrg")
+            org_id = srv.get("department") or srv.get("orgId")
+            long_title = None
+            if org_name and org_name in name_to_title:
+                long_title = name_to_title[org_name]
+            elif org_id is not None and str(org_id) in id_to_title:
+                long_title = id_to_title[str(org_id)]
+            if long_title:
+                srv["respOrgTitle"] = long_title
+            elif org_name:
+                srv["respOrgTitle"] = org_name
+    return search_results
+
+
 ####    FACETS/CATEGORIES
 def prepare_selected_facets(selected_facets):
     """ Selected facets are sent as a triple of (parentCategory, title, id) which needs to be transformed into a dict for better handling
@@ -736,12 +802,6 @@ def prepare_selected_facets(selected_facets):
         if facet == "":
             break
         facet = facet.split(",")
-        # ToDo: Nasty trick here! Since we have german values from the API we need to internationalize them
-        # Change the API asap!!!
-        if facet[0] == "Organisationen":
-            facet[0] = "Organizations"
-        if facet[0] == "Sonstige":
-            facet[0] = "Custom"
         facet_dict = {
             "parent_category": facet[0],
             "title": facet[1],
@@ -795,26 +855,31 @@ def get_preselected_facets(params, all_categories):
     custom_cat = params.get("customCategories", "")
     inspire_cat = params.get("inspireThemes", "")
     org_cat = params.get("registratingDepartments", "")
+    admin_cat = params.get("adminTypes", "")
 
     # resolve ids by iterating all_categories
     all_iso_cat = all_categories[0]
     all_inspire_cat = all_categories[1]
     all_custom_cat = all_categories[2]
     all_org_cat = all_categories[3]
+    all_admin_cat = all_categories[4] if len(all_categories) > 4 else {"title": "Herkunft", "subcat": []}
 
     iso_preselect = __resolve_single_facet(iso_cat, all_iso_cat)
     inspire_preselect = __resolve_single_facet(inspire_cat, all_inspire_cat)
     custom_preselect = __resolve_single_facet(custom_cat, all_custom_cat)
     org_preselect = __resolve_single_facet(org_cat, all_org_cat)
+    admin_preselect = __resolve_single_facet(admin_cat, all_admin_cat)
 
     if len(iso_preselect) > 0:
         ret_arr["ISO 19115"] = iso_preselect
     if len(inspire_preselect) > 0:
         ret_arr["INSPIRE"] = inspire_preselect
     if len(custom_preselect) > 0:
-        ret_arr["Custom"] = custom_preselect
+        ret_arr["Sonstige"] = custom_preselect
     if len(org_preselect) > 0:
-        ret_arr["Organizations"] = org_preselect
+        ret_arr["Organisationen"] = org_preselect
+    if len(admin_preselect) > 0:
+        ret_arr["Herkunft"] = admin_preselect
 
     return ret_arr
 

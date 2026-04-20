@@ -41,6 +41,7 @@ class Searcher:
                  language_code="de",
                  catalogue_id=PRIMARY_CATALOGUE,
                  only_open_data='false',
+                 only_hvd='false',
                  host=None,
                  result_target="webclient"):
         """ Constructor
@@ -73,12 +74,14 @@ class Searcher:
         self.catalogue_id = catalogue_id
         self.language_code = language_code
         self.only_open_data = only_open_data
+        self.only_hvd = only_hvd
         self.host = host
 
         self.org_ids = []
         self.iso_ids = []
         self.custom_ids = []
         self.inspire_ids = []
+        self.admin_type_ids = []
         self.lock = threading.BoundedSemaphore()
 
         # get random search id
@@ -100,10 +103,12 @@ class Searcher:
                     self.iso_ids.append(facet.get("id"))
                 elif facet.get("parent_category") == "INSPIRE":
                     self.inspire_ids.append(facet.get("id"))
-                elif facet.get("parent_category") == "Custom":
+                elif facet.get("parent_category") == "Sonstige":
                     self.custom_ids.append(facet.get("id"))
-                elif facet.get("parent_category") == "Organizations":
+                elif facet.get("parent_category") == "Organisation":
                     self.org_ids.append(facet.get("id"))
+                elif facet.get("parent_category") == "Herkunft":
+                    self.admin_type_ids.append(facet.get("id"))
 
     def _get_resource_results(self, url, params: dict, resource, result: dict):
         """ Use a GET request to retrieve the search results for a specific data resource
@@ -227,6 +232,7 @@ class Searcher:
             "searchId": self.search_id,
             "resolveCoupledResources": 'true',
             "registratingDepartments": ",".join(self.org_ids),
+            "adminTypes": ",".join(self.admin_type_ids),
             "isoCategories": ",".join(self.iso_ids),
             "customCategories": ",".join(self.custom_ids),
             "inspireThemes": ",".join(self.inspire_ids),
@@ -236,6 +242,7 @@ class Searcher:
             "searchTypeBbox": self.typeBbox,
             "languageCode": self.language_code,
             "restrictToOpenData": self.only_open_data,
+            "restrictToHvd": self.only_hvd,
             "hostName": HOSTNAME,
             "userId": user_id,
             "protocol": SEARCH_API_PROTOCOL,

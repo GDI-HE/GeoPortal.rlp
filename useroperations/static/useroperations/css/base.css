@@ -51,6 +51,7 @@ input#geoportal-search-field:focus-visible, #geoportal-search-button:focus-visib
 .nobuttoncss{
     background: none;
     border: none;
+    font-size: 1em;
 }
 
 .mw-parser-output{padding-top:1px;}
@@ -58,8 +59,8 @@ input#geoportal-search-field:focus-visible, #geoportal-search-button:focus-visib
 .body-content{
     min-height: 1200px;      /* ToDO: As long as the iframe mapviewer is used, we need to provide a minimum height for the body content */
     background-color: white;
-    transition-duration: 0.8s;
-    padding: 1em 3em 1em 3em;
+    transition-duration: 0.4s;
+    padding: 0;
     color: var(--hesse-grey);
     border-right: 15px solid transparent;
     border-left: 15px solid transparent;
@@ -248,7 +249,7 @@ label[for=id_identity]{
 @media only screen and (max-width: 1000px){
     .body-content{
         margin: 0 0 0 0;
-        padding: 20px;
+        /*padding: 20px;*/
     }
     #logo_country{
         width: 100%;
@@ -307,24 +308,31 @@ label[for=id_identity]{
     height: auto;
 }
 
+/* ========================================================
+   MOVED_TO_GEOPORTAL_CSS - Search: GEOPORTAL_MIGRATION_2026
+   These styles were moved to geoportal.css for centralization
+   ======================================================== */
+/*
 .searchbar-container{
     display: flex;
-    padding: 0px 2.5rem 0px 0px;
-    flex-direction: column;
-    width: 100%;
-    max-width: 700px;
+    justify-content: center;
 }
+*/
 .middle-header{
     display: flex;
     width: 75%;
 }
-
+/*
 .middle-header-top{
     display: flex;
     justify-content: center;
     position:relative;
-    border: 1px solid var(--primary);
+    border: 1px solid var(--secondary);
+    box-shadow: 0 .125rem .25rem rgba(0,0,0,0.075);
+    border-radius: 6px;
+    min-width: 700px;
 }
+*/
 
 .sticky-top{
     min-width: 50vw;
@@ -385,6 +393,8 @@ label[for=id_identity]{
     cursor: pointer;
 }
 
+/* MOVED_TO_GEOPORTAL_CSS - Search: GEOPORTAL_MIGRATION_2026 */
+/*
 .simple-search-field{
     font: inherit;
     width: 100%;
@@ -397,11 +407,12 @@ label[for=id_identity]{
     padding: 0 10px 0 10px;
     margin: 1px 0px 0px 0px;
 }
+*/
 
 .spatial-search-text{
     visibility:hidden;
     font-size: 0.7em;
-    padding: 25px 5px 5px 5px;
+    padding: 5px 5px 5px 5px;
 }
 
 .hidden{
@@ -429,6 +440,8 @@ label[for=id_identity]{
     cursor: pointer;
 }
 
+/* MOVED_TO_GEOPORTAL_CSS - Search: GEOPORTAL_MIGRATION_2026 */
+/*
 .middle-header-top:focus-within{
     border-color: var(--primary);
     box-shadow: 0 0 10px var(--primary);
@@ -438,7 +451,7 @@ label[for=id_identity]{
     font-size: 20px;
     padding:0.5em 0.5em;
     color: var(--hesse-green);
-    border-left: 1px solid var(--primary);
+    border-left: 1px solid var(--secondary);
     margin: 2px 0px;
 }
 .search-submit-button i{
@@ -449,12 +462,15 @@ label[for=id_identity]{
     cursor: pointer;
     color: #137673;
 }
+*/
 
 #geoportal-search-button-icon{
     width: 2em;
 
 }
 
+/* MOVED_TO_GEOPORTAL_CSS - Search: GEOPORTAL_MIGRATION_2026 */
+/*
 .simple-search-autocomplete {
     box-shadow: 0px 5px 5px 0px var(--primary);
     border-left: 1px solid #d5d5d5;
@@ -468,6 +484,7 @@ label[for=id_identity]{
 
 .simple-search-autocomplete button, .location.suggestion {
     width: 100%;
+
     overflow: hidden;
     padding: 10px;
     display: block;
@@ -537,7 +554,7 @@ label[for=id_identity]{
 
 .simple-search-autocomplete:not( :hover ) {
   display: none; }
-
+*/
 .empty-search-button:hover{
     cursor: pointer;
 }
@@ -657,7 +674,7 @@ ul {
 }
 
 .map-viewer-toggler {
-    margin: 0 30px 0 15px;
+    margin: 0 15px 0 15px;
 }
 
 .map-viewer-toggler:hover{cursor:pointer;}
@@ -704,8 +721,6 @@ ul {
     padding-right: 12px;
 }
 
-.map-applications-toggler{
-}
 
 .map-viewer-selector:hover, .map-applications-toggler:hover{
     cursor: pointer;
@@ -843,16 +858,16 @@ ul {
     margin-bottom: 45px;
 }
 
-.sidebar-toggler i, .map-viewer-toggler i {
+.search-toggler i, .sidebar-toggler i, .map-viewer-toggler i {
     padding: 0 12px 0 0;
 }
 
-.sidebar-toggler span:hover, .map-viewer-toggler span:hover {
+.sidebar-toggler span:hover, .map-viewer-toggler span:hover, .search-toggler span:hover {
     text-decoration: underline;
     text-underline-offset: 4px;
 }
 
-.sidebar-toggler:hover, .map-viewer-toggler:hover {
+.sidebar-toggler:hover, .map-viewer-toggler:hover, .search-toggler:hover {
     cursor: pointer;
     color: var(--hesse-green);
 }
@@ -1255,7 +1270,7 @@ z-index:1;
     background-color: var(--hesse-green);
     color: white;
   }
-  #pagination .pagination-link:focus-visible, #pagination-button-left:focus-visible, #pagination-button-right:focus-visible, #clear-input:focus-visible, a:focus-visible{
+  #pagination .pagination-link:focus-visible, #pagination-button-left:focus-visible, #pagination-button-right:focus-visible, #clear-input:focus-visible, a:focus-visible, .no-results-message a:focus-visible{
     outline: solid .125rem #f1b709; 
   }
   
@@ -1571,12 +1586,9 @@ z-index: 1;
     #footer-news-api ul li:nth-last-child(2) a {width:0px;overflow:hidden;white-space: nowrap;}
     #footer-news-api ul li:nth-last-child(3) a {width:0px;overflow:hidden;white-space: nowrap;}
     #footer-news-api ul li {margin:0;}
-    .navbar-brand-and-site-name {font-size: 1.5rem;-webkit-transition: all 0.2s ease-in-out;
-transition: all 0.2s ease-in-out;}
-    .navbar-brand-and-site-name svg {width: 3rem;height: 3rem;-webkit-transition: all 0.2s ease-in-out;
-transition: all 0.2s ease-in-out;}
-    .sidebar-toggler span, .map-viewer-toggler span {display:none;}
-
+    .navbar-brand-and-site-name {font-size: 1.5rem;-webkit-transition: all 0.2s ease-in-out;transition: all 0.2s ease-in-out;}
+    .navbar-brand-and-site-name svg {width: 3rem;height: 3rem;-webkit-transition: all 0.2s ease-in-out;transition: all 0.2s ease-in-out;}
+    /*.sidebar-toggler span, .map-viewer-toggler span {display:none;}*/
 }
 
 @media screen and (max-width: 700px){
@@ -1612,6 +1624,8 @@ transition: all 0.2s ease-in-out;}
     .header > * {
     box-sizing: border-box;
     }
+    /* MOVED_TO_GEOPORTAL_CSS - Search: GEOPORTAL_MIGRATION_2026 */
+    /*
     .simple-search-field{
     box-sizing:border-box;
     }
@@ -1630,6 +1644,7 @@ transition: all 0.2s ease-in-out;}
     .middle-header-top.sticky-top > .simple-search-autocomplete{
         left:0;
     }
+    */
 
     .upper-header {
     display:none;
@@ -1649,9 +1664,7 @@ transition: all 0.2s ease-in-out;}
     .sidebar-toggler i{
         padding: 0 3px 0 0;
     }
-    .sidebar-toggler i:hover{
-    }
-
+    
     .sidebar-toggler span{
     display:none;
     }
@@ -1663,9 +1676,12 @@ transition: all 0.2s ease-in-out;}
         flex-direction: row;
     }
 
+    /* MOVED_TO_GEOPORTAL_CSS - Search: GEOPORTAL_MIGRATION_2026 */
+    /*
     .searchbar-container{
         padding: 0;
     }
+    */
 
     .lower-header{
         display:none;
@@ -1686,11 +1702,6 @@ transition: all 0.2s ease-in-out;}
         margin: 0 0 0 0;
     }
 
-    .middle-header-top{
-        margin:0px 0px 16px 12px;
-    }
-    
-    
     .middle-header-top.sticky-top{
        margin-left:0; 
     }
@@ -1776,10 +1787,7 @@ transition: all 0.2s ease-in-out;}
     .map-viewer-selector i, .map-applications-toggler i{
         padding: 6px;
     }
-    .map-viewer-toggler i:hover{
-    }
-    .map-viewer-toggler:hover{
-    }
+   
     .right-header-bottom{
     margin-right:25px;
     }
@@ -1807,10 +1815,6 @@ transition: all 0.2s ease-in-out;}
         text-align: center;
         margin: 0 0 0.5em 0;
     }
-
-    .landing-page-headline h2{}
-
-    .landing-page-headline-special h2{}
 
     .landing-page-body .w3-container p{
         text-align: center;
@@ -1870,9 +1874,6 @@ transition: all 0.2s ease-in-out;}
     line-height:2.6em;
     height:2.6em;
     }
-    
-    .footer-list li a{
-    }
 
     .right-footer{
         display: none;
@@ -1883,7 +1884,7 @@ transition: all 0.2s ease-in-out;}
     
     #footer-legal > .footer-list li a{
         font-weight:bold;
-        font-size:
+        
     }
 
     #footer-news-api{
@@ -1928,10 +1929,6 @@ transition: all 0.2s ease-in-out;}
     .wrapper{margin: 0 !important;}
     .search-result-body{padding:0 5px !important;}
     #search-main-content {padding:0 !important;}
-
-    .popup-landing .popuptext-landing {}
-
-    .popup-landing .popuptext-landing::after {}
 
     .popup-search .popuptext-search {
       bottom: 125%;

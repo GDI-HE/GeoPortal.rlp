@@ -135,7 +135,13 @@ msgstr "Treffer pro Seite:"
 msgid "Sort by:"
 msgstr "Sortieren nach:"
 
-#: searchCatalogue/templates/hits_and_sort_option.html:45
+#: searchCatalogue/templates/facets.html:23
+#: searchCatalogue/templates/facets.html:25
+msgid "Only HVD"
+msgstr "Nur HVD Daten"
+
+#: searchCatalogue/templates/facets.html:18
+#: searchCatalogue/templates/facets.html:20
 msgid "Only open data"
 msgstr "Nur freie Daten"
 
@@ -157,11 +163,19 @@ msgstr "Aktiv"
 msgid "Not active"
 msgstr "Nicht aktiv"
 
-#: searchCatalogue/templates/hits_and_sort_option.html:49
+#: searchCatalogue/templates/facets.html:23
+msgid "Filter only HVD active"
+msgstr "Filter nur HVD Daten aktiviert"
+
+#: searchCatalogue/templates/facets.html:25
+msgid "Filter only HVD deactivate"
+msgstr "Filter nur HVD Daten deaktiviert"
+
+#: searchCatalogue/templates/facets.html:18
 msgid "Filter only open data active"
 msgstr "Filter nur freie Daten aktiviert"
 
-#: searchCatalogue/templates/hits_and_sort_option.html:51
+#: searchCatalogue/templates/facets.html:20
 msgid "Filter only open data deactivate"
 msgstr "Filter nur freie Daten deaktiviert"
 
@@ -802,11 +816,11 @@ msgstr "Treffer pro Seite wählen:"
 
 #: searchCatalogue/views.py:394
 msgid "Search-, Download-,Gathering-modules"
-msgstr "Such-, Download-, Erfassungsmodule"
+msgstr "Downloaddienste"
 
 #: searchCatalogue/views.py:395
 msgid "Map Combinations"
-msgstr "Karten"
+msgstr "Themenkarten"
 
 #: searchCatalogue/views.py:630
 msgid "Send permission request"

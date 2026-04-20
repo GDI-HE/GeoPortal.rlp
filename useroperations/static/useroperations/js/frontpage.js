@@ -48,21 +48,33 @@ function setCookie(cname, cvalue){
     document.cookie = cname + "=" + cvalue + ";path=/;SameSite=Lax";
 }
 
+function invokePrepareAndSearchWhenReady(){
+    var MAX_ATTEMPTS = 40;
+    var INTERVAL_MS = 100;
+    var attempts = 0;
+    var timer = setInterval(function(){
+        attempts += 1;
+        if (typeof window.prepareAndSearch === 'function'){
+            clearInterval(timer);
+            window.prepareAndSearch();
+        } else if (attempts >= MAX_ATTEMPTS){
+            clearInterval(timer);
+            console.warn('prepareAndSearch is not available after waiting.');
+        }
+    }, INTERVAL_MS);
+}
+
 function startSearch(){
     // since the all.js might be loaded slower or faster, we need to make sure it exists before we call prepareAndSearch()
     // which lives in all.js
     var script = $("#all-script");
     $(script).ready(function(){
-        // Collect query parameters
-        var inputTerms = $(".-js-simple-search-field").val().trim();
-        search.setParam("terms", inputTerms);
-
         // collapse extended search if open
         var extendedSearchHeader = $(".-js-extended-search-header");
         if(extendedSearchHeader.hasClass("active")){
             extendedSearchHeader.click();
         }
-        prepareAndSearch(); // search and render
+        invokePrepareAndSearchWhenReady(); // search and render
     });
 
 }
@@ -162,10 +174,11 @@ function toggleMapviewer(servicetype){
         var mapLayer = $(".map-viewer-overlay");
         resizeMapOverlay();
         // let the overlay slide in
+        var isOpening = mapLayer.hasClass("closed");
         mapLayer.slideToggle("slow")
         mapLayer.toggleClass("closed");
-        // close the sidebar
-        if(!$(".sidebar-wrapper").hasClass("closed")){
+        // close the sidebar only when opening the mapviewer, not when closing it
+        if(isOpening && !$(".sidebar-wrapper").hasClass("closed")){
             $(".sidebar-toggler").click();
         }
 	$('body').toggleClass("mapviewer-opened");
@@ -200,7 +213,7 @@ function startAutomaticSearch(){
         if(location.pathname.includes("search")){
             var searchBody = $(".search-overlay-content");
             if(searchBody.html().trim().length == 0){
-                prepareAndSearch();
+                invokePrepareAndSearchWhenReady();
             }
         }
 
@@ -432,8 +445,17 @@ $(document).on("click", "#geoportal-search-button", function(){
         // no index page loaded for search -> load it!
         // we lose all searchbar data on reloading, so we need to save it until the page is reloaded
         //window.sessionStorage.setItem("startSearch", true);
-        window.sessionStorage.setItem("searchbarBackup", $(".-js-simple-search-field").val().trim());
-        window.sessionStorage.setItem("isSpatialCheckboxChecked", $("#spatial-checkbox").is(":checked"));
+        var landingSearchField = $(".-js-simple-search-field");
+        if (landingSearchField.length) {
+            var landingValue = landingSearchField.val().trim();
+            if (landingValue.length) {
+                window.sessionStorage.setItem("searchbarBackup", landingValue);
+            }
+        }
+        var landingSpatialCheckbox = $("#spatial-checkbox");
+        if (landingSpatialCheckbox.length) {
+            window.sessionStorage.setItem("isSpatialCheckboxChecked", landingSpatialCheckbox.is(":checked"));
+        }
         window.location.href = "/search";
     }else{
         startSearch();
@@ -987,11 +1009,11 @@ function replaceUmlaute(str) {
 }
 
 $(document).on("click", "#geoportal-empty-search-button", function(){
-    document.getElementById("geoportal-search-field").value = '';
+    var searchField = document.getElementById("geoportal-search-field");
+    searchField.value = '';
     document.getElementById("geoportal-empty-search-button").style.display = 'none';
-    document.getElementById("geoportal-search-field").style.marginRight = '0px';
-    $(".simple-search-autocomplete").hide();
-
+    searchField.style.marginRight = '0px';
+    searchField.focus(); // Fokus zurück auf Input Field
 });
 
 /*

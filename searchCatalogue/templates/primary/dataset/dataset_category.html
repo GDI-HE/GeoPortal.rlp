@@ -1,54 +1,24 @@
 
 {% load static humanize i18n %}
 <div class="search-cat {% if 'dataset' in search_results %} active {% endif %}">
-    <h2 class="search-header" title="{% trans 'Datasets' %}">
-        <button id="button_datasets" aria-expanded="false" aria-controls="region_datasets" class="source--title -js-title -js-accordion" aria-label="{% trans 'Open and close searchresults for ' %}{% trans 'Datasets' %}">
-            <span class="accordion icon closed" aria-hidden="true"></span>
-            <i class="fas fa-globe tab-icn" title="{% trans 'Datasets' %}" aria-hidden="true"></i>
-            <span>{{ all_resources.dataset }} ({{ search_results.dataset.dataset.dataset.md.nresults|intcomma }})</span>
-
-        </button>
-    </h2><!-- end .search-header -->
-    <div id="region_datasets" role="region" aria-labelledby="button_datasets" class="dataset search--body hide">
-        {% if search_results.dataset.keywords.tagCloud.tags|length > 0 and search_results.dataset.dataset.dataset.md.nresults|add:0 > 0 %}
-            {% with search_results.dataset.keywords.tagCloud.tags as tags %}
-
-                {% include 'keywords.html' with var="datasets" %}
-            {% endwith %}
-        {% endif %}
-
+    
+    <div class="dataset search--body">
         <div>
-            <div class="center">
-                {% if search_results.dataset.dataset.dataset.md.nresults|add:0 > 0 %}
-                {% with pages.dataset as page_data %}
-                    {% with 'dataset' as resource_name %}
-
-                        {% include 'pagination.html' %}
-
-                    {% endwith %}
-                {% endwith %}
-            </div>
             <div class="search-results">
-                {% for result in search_results.dataset.dataset.dataset.srv %}
-                {% include 'primary/dataset/dataset_search_result.html' %}
-                {% endfor %}
+                {% if search_results.dataset.dataset.dataset.md.nresults|add:0 > 0 %}
+                    {% for result in search_results.dataset.dataset.dataset.srv %}
+                    {% include 'primary/dataset/dataset_search_result.html' %}
+                    {% endfor %}
+                {% else %}
+                {% include 'no_results_message.html' %}
+                {% endif %}
             </div><!-- end .search-results -->
 
-            {% else %}
-            <p>
-                {% trans 'No results found, please use another search term...' %}
-
-            </p>
-            </div>
-            {% endif %}
-
             <div class="center">
                 {% if search_results.dataset.dataset.dataset.md.nresults|add:0 > 0 %}
                 {% with pages.dataset as page_data %}
                     {% with 'dataset' as resource_name %}
-
                         {% include 'pagination.html' %}
-
                     {% endwith %}
                 {% endwith %}
                 {% endif %}

@@ -24,7 +24,7 @@
         <div class="flex-row metadata-links">
             <a class="metadata-link-element" href="{{ result.mdLink }}#tabs-3" target="_blank"><span class="metadata-button" title="{% trans 'Competent authority' %}">
                 <i class="fas fa-city icn-organization" title="{% trans 'Organizations' %} "aria-hidden="true" ></i>
-                {{ result.respOrg }}
+                {{ result.respOrgTitle|default:result.respOrg }}
             </span></a>
             <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-1" target="_blank"><span class="metadata-button" title="{% trans 'Date of metadata' %}">
                 <i class="fas fa-calendar-alt icn-date" aria-hidden="true"></i>

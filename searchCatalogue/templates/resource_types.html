@@ -1,0 +1,122 @@
+{% load i18n search_tags %}
+<div class="resource-types-wrapper">
+    <!-- Desktop: Segmented Control Buttons -->
+    <div class="resource-type-buttons desktop-only" role="radiogroup" aria-label="{% trans 'Resource types' %}">
+        {% for resource_key, resource_val in all_resources.items %}
+        {% with count=all_resource_counts|get_item:resource_key|default:"0" %}
+        <button class="resource-type-button -js-resource {% if resource_key in resources %}resource-type-selected{% endif %}"
+            data-resource="{{ resource_key }}" 
+            role="radio"
+            aria-checked="{% if resource_key in resources %}true{% else %}false{% endif %}"
+            {% if count == "0" or count == 0 %}disabled{% endif %}
+            title="{% trans 'Resource types' %}: {{ resource_val }}">
+            <span class="resource-type-label">{{ resource_val }}</span>
+            <span class="resource-type-count">{{ count }}</span>
+        </button>
+        {% endwith %}
+        {% empty %}
+        <p style="text-align: center; color: #999;"><!-- No resource types available. --></p>
+        {% endfor %}
+    </div>
+    
+    <!-- Mobile: Dropdown Select -->
+    <div class="resource-type-dropdown mobile-only">
+        <select class="resource-type-select -js-resource-select" aria-label="{% trans 'Resource types' %}">
+            {% for resource_key, resource_val in all_resources.items %}
+            {% with count=all_resource_counts|get_item:resource_key|default:"0" %}
+            <option value="{{ resource_key }}" 
+                {% if resource_key in resources %}selected{% endif %}
+                {% if count == "0" or count == 0 %}disabled{% endif %}>
+                {{ resource_val }} ({{ count }})
+            </option>
+            {% endwith %}
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<script>
+(function() {
+    // Auto-switch to first available resource type if current selection has count=0
+    function switchToAvailableResourceType() {
+        const buttons = document.querySelectorAll('.resource-type-button.-js-resource');
+        const selectedButton = document.querySelector('.resource-type-button.resource-type-selected');
+        
+        // Check if currently selected button is disabled (count=0)
+        if (selectedButton && selectedButton.disabled) {
+            // Find first enabled button
+            let firstAvailable = null;
+            buttons.forEach(function(btn) {
+                if (!btn.disabled && !firstAvailable) {
+                    firstAvailable = btn;
+                }
+            });
+            
+            // Switch to first available resource type and trigger search
+            if (firstAvailable) {
+                firstAvailable.click();
+                
+                // Wait a bit for the click handler to process, then trigger search
+                setTimeout(function() {
+                    if (typeof prepareAndSearch === 'function') {
+                        prepareAndSearch();
+                    }
+                }, 100);
+            }
+        }
+        
+        // Handle mobile dropdown: if selected option is disabled, select first enabled
+        const selectElement = document.querySelector('.-js-resource-select');
+        if (selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (selectedOption && selectedOption.disabled) {
+                // Find first enabled option
+                for (let i = 0; i < selectElement.options.length; i++) {
+                    if (!selectElement.options[i].disabled) {
+                        selectElement.selectedIndex = i;
+                        selectElement.dispatchEvent(new Event('change'));
+                        
+                        // Trigger search after switching
+                        setTimeout(function() {
+                            if (typeof prepareAndSearch === 'function') {
+                                prepareAndSearch();
+                            }
+                        }, 100);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    // Run check on page load - wait for jQuery and prepareAndSearch to be ready
+    function waitAndSwitch() {
+        if (typeof jQuery !== 'undefined' && typeof prepareAndSearch !== 'undefined') {
+            switchToAvailableResourceType();
+        } else {
+            setTimeout(waitAndSwitch, 50);
+        }
+    }
+    
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', waitAndSwitch);
+    } else {
+        waitAndSwitch();
+    }
+    
+    // Handle mobile dropdown selection
+    const selectElement = document.querySelector('.-js-resource-select');
+    if (selectElement) {
+        selectElement.addEventListener('change', function() {
+            const selectedResource = this.value;
+            // Trigger the same logic as clicking a button
+            const buttons = document.querySelectorAll('.-js-resource');
+            buttons.forEach(function(btn) {
+                if (btn.dataset.resource === selectedResource || (selectedResource === '' && !btn.dataset.resource)) {
+                    btn.click();
+                }
+            });
+        });
+    }
+})();
+</script>

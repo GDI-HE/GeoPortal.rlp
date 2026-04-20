@@ -1,52 +1,61 @@
 {% load static i18n humanize %}
 <div class="result--item -js-result-dataset">
-    <h3 class="search-result-title">
+    <a class="no-link-a-tag">Letzte Änderung: {{ result.date }} </a>
+    <span title="{% trans 'Total view count' %}" class="view-count">
+            <i class="fas fa-eye" aria-hidden="true"></i>
+            <span>{{ result.loadCount|intcomma }}</span>
+    </span>
+    <h1 class="search-result-title">
         <a title="{% trans 'Open metadata for' %} {{ result.title }}" href='{{ result.mdLink }}' target="_blank">
 	    <span>{{ result.title }}</span>
 	    <i aria-hidden="true" class="fas fa-external-link-alt"></i>
-	</a>
-    </h3>
+	    </a>
+    </h1>
     <div class="search-result-area">
         <div class="img-area result-overview">
-            <div class="flex-row">
+            <!--<div class="flex-row">
                 <img alt="" class="img-preview" style="max-width:100px;" src="{% if result.previewURL is not None %}{{ result.previewURL }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
                 <img alt="" class="img-preview" style="max-width:100px;" src="{% if result.extent_url is not None or result.extent_url|length == 0 %}{{ result.extent_url }}{% else %}{% static 'searchCatalogue/images/no_image.png' %}{% endif %}">
-            </div>
-	    <article class="search-result-detail"><p>{{ result.abstract }}</p></article>
+            </div>-->
+	    <h2 style="font-size:12px">Kurzbeschreibung</h2>
+        <article class="search-result-detail"><p>{{ result.abstract }}</p></article>
         </div>
-        <p title="{% trans 'Total view count' %}" class="view-count">
-            <i class="fas fa-eye" aria-hidden="true"></i>
-            <span>{{ result.loadCount|intcomma }}</span>
-        </p>
-        <hr>
+        <h2 style="font-size:12px">Anbieter</h2>
+        <a class="" title="{% trans 'Competent authority' %}">
+            {{ result.respOrgTitle|default:result.respOrg }}
+        </a>
         <div class="img-area">
+            <!--<textarea style="" readonly>{{ result|pprint }}</textarea>-->
         </div>
         <div class="flex-row metadata-links">
-            <a class="metadata-link-element" href="{{ result.mdLink }}#tabs-3" target="_blank"><span class="metadata-button" title="{% trans 'Competent authority' %}">
-                <i class="fas fa-city icn-organization" title="{% trans 'Organizations' %}" aria-hidden="true"></i>
-                {{ result.respOrg }}
-            </span></a>
-            <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-1" target="_blank"><span class="metadata-button" title="{% trans 'Date of metadata' %}">
-                <i class="fas fa-calendar-alt icn-date" aria-hidden="true"></i>
-                {{ result.date }}
-            </span></a>
+            
+            
+            {% if result.timeBegin and result.timeBegin|stringformat:"s" > '1900-01-01' %}
             <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-2" target="_blank"><span class="metadata-button" title="{% trans 'Time of metadata' %}">
                 <i class="fas fa-calendar-alt icn-date" aria-hidden="true"></i>
                 {{ result.timeBegin }} {% trans 'to' %} {{ result.timeEnd }}
             </span></a>
-
+            {% endif %}
+            
             <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-4" target="_blank" title="{% if result.symbolLink is None %}{% trans 'No licence information found' %}{% else %}{% trans 'The data providers terms of licence applies to this data.' %}{% endif %}">
                 {% if result.symbolLink is None %}
                     <i class="fas fa-exclamation-triangle icn-licence error" aria-hidden="true"></i>
                 {% endif %}
                 <i class="fas fa-balance-scale icn-licence" aria-hidden="true"></i>
-                <span>{% trans 'Licence' %}</span>
+                <span>{{ result.license_id }}</span>
             </a>
 
             {% if result.isopen is not None %}
                 <a class="metadata-link-element"  href="{{ OPEN_DATA_URL }}" target="_blank">
                     <img alt="{% trans 'An open data icon' %}" class="img-open"  src="{% static 'searchCatalogue/images/open-data.png' %}" title="Open Data">
                 </a>
+            {% endif %}
+
+            {% if result.isHVD %}
+                <span class="metadata-link-element hvd-badge" title="{% trans 'High-Value Dataset (HVD) according to EU regulation 2023/138' %}">
+                    <i class="fas fa-gem icn-hvd" aria-hidden="true"></i>
+                    <span>HVD</span>
+                </span>
             {% endif %}
 
             {% if result.logged is True or result.logged == "1" %}
@@ -61,7 +70,7 @@
 
         {% with result.coupledResources.layer as layers %}
             {% with 'dataset' as type %}
-                {% with result.coupledResources.inspireAtomFeeds as feeds %}
+                {% with result.coupledResources.inspireAtomFeeds|default:"" as feeds %}
                     {% include 'search_result_actions.html' %}
                 {% endwith %}
             {% endwith %}

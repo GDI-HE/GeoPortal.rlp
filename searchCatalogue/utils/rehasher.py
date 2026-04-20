@@ -32,7 +32,7 @@ class Rehasher:
         self.__parent_categories = []
         self.__rehash()
         self.__sort_by_count()
-        self.__mapbender_category_translation()
+        self.__sort_facet_order()
 
     def __search_and_handle_subcat(self, c_subcat, rehashed_categories):
         """ Searches a specific subcategory and recalculates the parent category count number
@@ -66,6 +66,34 @@ class Rehasher:
         """
         for category_key, category_val in self.rehashed_categories.items():
             category_val.sort(key=lambda x: int(x["count"]), reverse= True)
+
+    def __sort_facet_order(self):
+        """ Sort main facet categories to show priority facets first
+        
+        Ensures that "Organisationen" (Organizations) appear first,
+        followed by remaining facets in alphabetical order.
+
+        Returns:
+            nothing
+        """
+        # Define priority facets (these will appear first, in this order)
+        priority_facets = ["Organisationen", "Organizations", "Herkunft", "Origin"]
+        
+        # Create new ordered dict with priority facets first
+        sorted_categories = OrderedDict()
+        
+        # Add priority facets first (if they exist)
+        for priority_name in priority_facets:
+            if priority_name in self.rehashed_categories:
+                sorted_categories[priority_name] = self.rehashed_categories[priority_name]
+        
+        # Add remaining facets in alphabetical order
+        remaining_keys = sorted([key for key in self.rehashed_categories.keys() 
+                                if key not in priority_facets])
+        for key in remaining_keys:
+            sorted_categories[key] = self.rehashed_categories[key]
+        
+        self.rehashed_categories = sorted_categories
 
     def __rehash_single_thread(self, datatype):
         """ Rehashing of a single datatype
@@ -123,23 +151,14 @@ class Rehasher:
             "searchResources",
             "inspireThemes",
             "customCategories",
-            "registratingDepartments"
+            "registratingDepartments",
+            "adminTypes"
         ]
         for key in delete_keys:
             if self.all_filters.get(key, None) is not None:
                 del self.all_filters[key]
         self.rehashed_filters = self.all_filters
 
-    def __mapbender_category_translation(self):
-        """ Translates the rehashed categories
-        
-        This is nessesary, as the return values are sometimes handled in German.
-
-        Returns:
-            nothing
-        """
-        translated_facets = OrderedDict(("Custom" if rehashed_key == "Sonstige" else rehashed_key, rehashed_value) for rehashed_key, rehashed_value in self.rehashed_categories.items())
-        self.rehashed_categories = translated_facets
 
     def get_rehashed_categories(self):
         """ Getter for rehashed categories

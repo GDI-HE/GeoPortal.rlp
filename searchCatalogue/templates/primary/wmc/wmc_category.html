@@ -1,52 +1,25 @@
 {% load static i18n humanize %}
 <div class="search-cat {% if 'wmc' in search_results %} active {% endif %}">
-    <h2 class="search-header" title="{% trans 'Web Map Context' %}">
-        <button id="button_wmc" aria-expanded="false" aria-controls="region_wmc" class="source--title -js-title -js-accordion" aria-label="{% trans 'Open and close searchresults for ' %}{% trans 'Web Map Context' %}">
-            <span class="accordion icon closed" aria-hidden="true"></span>
-            <i class="fas fa-map tab-icn" title="{% trans 'Web Map Context' %}" aria-hidden="true"></i>
-            <span>{{ all_resources.wmc }} ({{ search_results.wmc.wmc.wmc.md.nresults|intcomma }})</span>
-        </button><!-- end .source--title -->
-    </h2><!-- end .search-header -->
-    <div id="region_wmc" role="region" aria-labelledby="button_wmc" class="wmc search--body hide">
-        {% if search_results.wmc.keywords.tagCloud.tags|length > 0 and search_results.wmc.wmc.wmc.md.nresults|add:0 > 0 %}
-            {% with search_results.wmc.keywords.tagCloud.tags as tags %}
 
-                {% include 'keywords.html' with var="wmc" %}
-
-            {% endwith %}
-        {% endif %}
+    <div class="wmc search--body">
         <div>
-            <div class="center">
-                {% if search_results.wmc.wmc.wmc.md.nresults|add:0 > 0 %}
-                {% with pages.wmc as page_data %}
-                    {% with 'wmc' as resource_name %}
-
-                        {% include 'pagination.html' %}
-
-                    {% endwith %}
-                {% endwith %}
-            </div><!-- end .center -->
             <div class="search-results">
-                {% for result in search_results.wmc.wmc.wmc.srv %}
-                    <div class="result--item -js-result-wmc">
-                        {% include 'primary/wmc/wmc_search_result.html' %}
-                    </div><!-- end .result--item -->
-                {% endfor %}
+                {% if search_results.wmc.wmc.wmc.md.nresults|add:0 > 0 %}
+                    {% for result in search_results.wmc.wmc.wmc.srv %}
+                        <div class="result--item -js-result-wmc">
+                            {% include 'primary/wmc/wmc_search_result.html' %}
+                        </div><!-- end .result--item -->
+                    {% endfor %}
+                {% else %}
+                        {% include 'no_results_message.html' %}
+                {% endif %}
             </div><!-- end .search-results -->
-            {% else %}
-            <p>
-                {% trans 'No results found, please use another search term...' %}
-            </p>
-            </div>
-            {% endif %}
 
             <div class="center">
                 {% if search_results.wmc.wmc.wmc.md.nresults|add:0 > 0 %}
                 {% with pages.wmc as page_data %}
                     {% with 'wmc' as resource_name %}
-
                         {% include 'pagination.html' %}
-
                     {% endwith %}
                 {% endwith %}
                 {% endif %}

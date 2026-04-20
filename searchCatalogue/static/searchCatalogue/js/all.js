@@ -10,7 +10,6 @@ Storage.prototype = {
     setObject: function(key, value) {
         this.setParam(key, JSON.stringify(value));
     },
-
     getObject: function(key, defaultValue) {
         var json = this.getParam(key, defaultValue);
 
@@ -47,16 +46,16 @@ var Search = function() {
     this.resources_primary = {
         wms: false,
         wfs: false,
-        wmc: true,
+        wmc: false,
         dataset: true,
-        application: true,
+        application: false,
     };
     this.resources_de = {
         dataset: true,
-        series: true,
-        service: true,
-        application: true,
-        nonGeographicDataset: true,
+        series: false,
+        service: false,
+        application: false,
+        nonGeographicDataset: false,
     };
 };
 
@@ -99,6 +98,75 @@ function openInNewTab(url){
     win.focus();
 }
 
+/*
+* Show-more: hide keyword facets beyond the first 7 and add a toggle button.
+* Called after each search result render.
+*/
+function initShowMoreKeywords() {
+    var BATCH = 7;
+    $('.keyword-forms').each(function() {
+        var $container = $(this);
+        var $items = $container.children('.-js-subfacet');
+        // remove any existing show-more button (re-init safe)
+        $container.children('.show-more-keywords').remove();
+        // show all first, then hide overflow
+        $items.removeClass('hide');
+        if ($items.length > BATCH) {
+            $items.filter(function(i) { return i >= BATCH; }).addClass('hide');
+            var remaining = $items.length - BATCH;
+            var $btn = $('<button type="button" class="show-more-keywords" aria-label="Weitere anzeigen">mehr anzeigen <span class="hit_badge more-hit_badge">' + remaining + '</span></button>');
+            $container.append($btn);
+        }
+    });
+}
+
+/*
+* Facet search: show a filter input for the Organisationen facet.
+* Typing filters ALL subfacet buttons (including those hidden by show-more).
+* Matching items are shown, non-matching items are hidden via a separate class.
+*/
+function initFacetSearch() {
+    var FACET_NAME = 'Organisationen';
+    $('.-js-facet').each(function() {
+        var $facet = $(this);
+        var $input = $facet.find('.facet-search-input');
+        if (!$input.length) return;
+        var facetName = $facet.attr('data-name') || '';
+        // Only show the search input for the Organisationen facet
+        if (facetName !== FACET_NAME) {
+            $input.hide();
+            return;
+        }
+        var $container = $facet.find('.keyword-forms');
+        $input.show();
+        // unbind previous handler (re-init safe)
+        $input.off('input.facetSearch').on('input.facetSearch', function() {
+            var query = $(this).val().toLowerCase().trim();
+            var $allItems = $container.children('.-js-subfacet');
+            var $showMoreBtn = $container.children('.show-more-keywords');
+            if (query === '') {
+                // restore original show-more state
+                $allItems.removeClass('facet-search-hide');
+                $showMoreBtn.show();
+                // re-apply show-more hiding
+                initShowMoreKeywords();
+                return;
+            }
+            // hide show-more button during active search
+            $showMoreBtn.hide();
+            $allItems.each(function() {
+                var $item = $(this);
+                var label = ($item.find('.subfacet-label').text() || $item.attr('data-name') || '').toLowerCase();
+                if (label.indexOf(query) !== -1) {
+                    $item.removeClass('hide facet-search-hide');
+                } else {
+                    $item.addClass('facet-search-hide');
+                }
+            });
+        });
+    });
+}
+
 Search.prototype = {
     '__proto__': Storage.prototype,
 
@@ -134,6 +202,7 @@ Search.prototype = {
     }
     },
 
+    /* Autocomplete disabled
     autocomplete: function() {
         var self = this;
         if (this.searching) {
@@ -158,12 +227,13 @@ Search.prototype = {
             }
         });
     },
+    */
     find: function() {
         var self = this;
         this.searching = true;
 
         var terms = this.getParam('terms');
-        terms = terms.split(' ');
+        terms = terms.split(/[\s,;]+/);
         terms = terms.filter(function(val) {
             return val !== '';
         });
@@ -189,7 +259,8 @@ Search.prototype = {
                 'spatial': self.getParam('spatialSearch'),
                 'searchBbox': self.getParam('searchBbox'),
                 'searchTypeBbox': self.getParam('searchTypeBbox'),
-                'onlyOpenData': self.getParam('onlyOpenData')
+                'onlyOpenData': self.getParam('onlyOpenData'),
+                'onlyHvd': self.getParam('onlyHvd')
             },
             type: 'post',
             dataType: 'json',
@@ -242,46 +313,37 @@ Search.prototype = {
                 $("#search-results").toggleClass("active");
             }
             jQuery('#search-results .-js-result').html(data.html);
+            
             if(typeof(data.params) != "undefined" && data.params.directly_open){
                 $(".source--title").click();
             }
         }
 
-        // see if pagination was used than display the current resource the user has used the paginator
-        var sPaginated = self.getParam('paginated');
-
-        // if user has used the pagination we display the current resource body
-        if (sPaginated === 'true') {
-            var sResourceId = self.getParam('data-id');
-            var sResourceBody = '.' + sResourceId + '.search--body';
-
-            var $title = jQuery(sResourceBody)
-                            .closest('.search-cat')
-                            .find('.search-header')
-                            .find('.source--title')
-            ;
-            $title.click(); //execute the accordion because of the icon
-        }
-
-        //set the paginator back to false
-        self.setParam('paginated', false);
-
         $('.-js-resource').addClass('inactive');
+        $('.subfacet.-js-resource').removeClass('chosen-subfacet');
         $('#geoportal-search-extended-what input').prop('checked', null);
         var selectedResources = data.resources;
         $.each(selectedResources, function(resource) {
             var resource = selectedResources[resource];
             $('[data-resource=' + resource + ']').removeClass('inactive');
+            $('.subfacet[data-resource=' + resource + ']').addClass('chosen-subfacet');
             var r = resource.charAt(0).toUpperCase() + resource.slice(1);
             $('#geoportal-checkResources' + r).prop('checked', true);
         });
 
+        initShowMoreKeywords();
+        initFacetSearch();
+        refreshSearchTags();
+        initRandomNoResultsMessages();
+
         return undefined;
     },
 
+    /* Autocomplete disabled
     parseAutocompleteResult: function(data) {
         autocomplete.show(data.resultList);
     },
+    */
     parseQuery: function() {
         var self = this;
         var url = document.URL;
@@ -318,12 +380,47 @@ var maps = []; //used for "raemliche Eingrenzung"
  * @type {Search}
  */
 var search = new Search();
+if (search.getParam("terms") === null) {
+    search.setParam("terms", "");
+}
 
 /**
+ * Clear button visibility logic (independent of Autocomplete)
+ * Show/hide the clear button and adjust search field margins based on input
+ */
+$(document).ready(function() {
+    var searchField = $('#geoportal-search-field');
+    if (searchField.length) {
+        // Clear button visibility
+        searchField.on('input keyup', function() {
+            var clearButton = $('#geoportal-empty-search-button');
+            if (clearButton.length) {
+                if (this.value) {
+                    clearButton.css('display', 'flex');
+                    $(this).css('marginRight', '45px');
+                } else {
+                    clearButton.css('display', 'none');
+                    $(this).css('marginRight', '0px');
+                }
+            }
+        });
+        
+        // ENTER key starts search
+        searchField.on('keypress', function(e) {
+            if (e.which === 13) { // ENTER key
+                e.preventDefault();
+                $('#geoportal-search-button').click();
+            }
+        });
+    }
+});
+
+/* Autocomplete feature disabled
+
  * Autocomplete feature for searchfield
  * @param search
  * @constructor
- */
+ 
 var Autocomplete = function(search) {
     var self = this;
     var _search = null;
@@ -348,6 +445,7 @@ var Autocomplete = function(search) {
         $("html").on('click', self.onSelect);
         _input.on('keyup', function(e) {
             self.keyUp(e.keyCode);
+            // Clear button visibility logic (keep this active even with autocomplete disabled)
             document.getElementById("geoportal-empty-search-button").style.display = 'flex';
             if (document.getElementById("geoportal-search-field").value == ''){
             document.getElementById("geoportal-empty-search-button").style.display = 'none';
@@ -440,6 +538,7 @@ var Autocomplete = function(search) {
 
     this.init(search);
 };
+*/
 
 
 /**
@@ -485,7 +584,144 @@ function toggleFilterArea(){
     if (localStorage.getItem("hideFilter") === "true") {
         return;
     }
-    $("#filter-area").click();
+    
+}
+
+function normalizeSearchTerms(rawValue) {
+    if (typeof rawValue !== 'string') {
+        return [];
+    }
+    return rawValue.split(/[\s,;]+/).map(function(part) {
+        return part.trim();
+    }).filter(function(part) {
+        return part.length > 0 && part !== '*';
+    });
+}
+
+function refreshSearchTags(rawValue) {
+    var sourceValue = '';
+    if (typeof rawValue === 'string') {
+        sourceValue = rawValue;
+    } else if (typeof search !== 'undefined' && search !== null && typeof search.getParam === 'function') {
+        sourceValue = search.getParam("terms") || '';
+    } else {
+        sourceValue = $(".simple-search-field").val() || '';
+    }
+    var keywords = normalizeSearchTerms(sourceValue);
+    var $container = $(".search--list.-js-keywords");
+    var $chosenFacets = $("#chosen-facets");
+    var hasServerFilters = false;
+    if ($chosenFacets.length) {
+        var dataFlag = $chosenFacets.data('hasServerFilters');
+        hasServerFilters = (dataFlag === true || dataFlag === 'true');
+    }
+
+    if ($container.length) {
+        var fragment = document.createDocumentFragment();
+        keywords.forEach(function(keyword) {
+            var $button = $('<button>', {
+                type: 'button',
+                class: 'search--list--item -js-term',
+                title: 'Suchbegriff ' + keyword + ' löschen'
+            });
+            $button.append(document.createTextNode(keyword));
+            var $icon = $('<span>', {
+                class: 'icon-cross fs-10px'
+            }).css('margin-left', '5px');
+            $button.append($icon);
+            fragment.appendChild($button.get(0));
+        });
+
+        $container.empty().append(fragment);
+    }
+
+    if ($chosenFacets.length) {
+        var hasFacetSelections = $chosenFacets.find('.chosen-facet-item').length > 0;
+        var shouldShowBlock = hasServerFilters || hasFacetSelections || keywords.length > 0;
+        if (shouldShowBlock) {
+            $chosenFacets.show().removeClass('filter-block-hidden');
+        } else {
+            $chosenFacets.hide().addClass('filter-block-hidden');
+        }
+    }
+}
+
+function initRandomNoResultsMessages() {
+    var containers = $('.-js-no-results');
+    if (!containers.length) {
+        return;
+    }
+
+    containers.each(function() {
+        var $container = $(this);
+        var $phrases = $container.find('.-js-no-results-phrases li');
+        if (!$phrases.length) {
+            return;
+        }
+        var randomIndex = Math.floor(Math.random() * $phrases.length);
+        var $choice = $phrases.eq(randomIndex);
+        var phraseText = $choice.text().trim();
+        var quoteText = phraseText;
+        var authorText = '';
+
+        var delimiter = ' – ';
+        if (phraseText.indexOf(delimiter) !== -1) {
+            var parts = phraseText.split(delimiter);
+            quoteText = parts.shift();
+            authorText = '– ' + parts.join(delimiter);
+        }
+
+        $container.find('.-js-no-results-quote').text(quoteText);
+        $container.find('.-js-no-results-author').text(authorText);
+    });
+}
+
+function getStoredSearchTerms() {
+    if (typeof search === 'undefined' || search === null || typeof search.getParam !== 'function') {
+        return [];
+    }
+    var storedValue = search.getParam("terms") || '';
+    return normalizeSearchTerms(storedValue);
+}
+
+function setStoredSearchTerms(termsArray) {
+    if (typeof search === 'undefined' || search === null || typeof search.setParam !== 'function') {
+        return [];
+    }
+    var uniqueTerms = [];
+    termsArray.forEach(function(term) {
+        if (uniqueTerms.indexOf(term) === -1) {
+            uniqueTerms.push(term);
+        }
+    });
+    var serialized = uniqueTerms.join(' ');
+    search.setParam("terms", serialized);
+    refreshSearchTags(serialized);
+    return uniqueTerms;
+}
+
+function appendSearchTermsFromInput(rawValue) {
+    var incomingTerms = normalizeSearchTerms(rawValue || '');
+    if (!incomingTerms.length) {
+        return getStoredSearchTerms();
+    }
+    var merged = getStoredSearchTerms();
+    incomingTerms.forEach(function(term) {
+        if (merged.indexOf(term) === -1) {
+            merged.push(term);
+        }
+    });
+    return setStoredSearchTerms(merged);
+}
+
+function removeStoredSearchTerm(term) {
+    if (!term) {
+        return getStoredSearchTerms();
+    }
+    var filtered = getStoredSearchTerms().filter(function(item) {
+        return item !== term;
+    });
+    return setStoredSearchTerms(filtered);
 }
 
 function openSpatialArea(){
@@ -696,6 +932,7 @@ $(document).ready(function() {
 
 
     checkForExternalMapviewerCall();
+    initRandomNoResultsMessages();
     var resources = null;
     // check if there is already a source selected, otherwise set it to default 'primary'
     if(search.getParam("source") === null || search.getParam("source").length == 0){
@@ -778,16 +1015,21 @@ $(document).ready(function() {
 
         // get terms from search input field
         var searchField = $(".simple-search-field");
-        var terms = searchField.val();
-        //alert("new search terms: " + JSON.stringify(terms));
+        var termsFromInput = searchField.val();
         // Make sure terms are set before search starts!
         // Racing condition might occur, when page is not completely loaded and the value of searchbarBackup
         // has not been pasted in the searchbar, yet. Check this in here!
         var searchbarBackup = search.getParam("searchbarBackup");
-        if(searchbarBackup !== null && terms != searchbarBackup){
-            terms = searchbarBackup
+        if(searchbarBackup !== null){
+            termsFromInput = searchbarBackup;
+            search.removeParam("searchbarBackup");
         }
-        search.setParam("terms", terms);
+        if(termsFromInput && termsFromInput.trim().length){
+            appendSearchTermsFromInput(termsFromInput);
+        }else{
+            refreshSearchTags();
+        }
+        searchField.val("");
 
         // disable input field during search
         disableSearchInputField();
@@ -795,9 +1037,13 @@ $(document).ready(function() {
         // collect all already selected facets
         var facets = $(".-js-facet-item");
         $.each(facets, function(i, facet){
-            var facetTitle = facet.innerText.trim();
+            var facetTitle = ($(facet).attr("data-title") || facet.innerText).trim();
             var facetId = $(facet).attr("data-id");
             var facetParent = $(facet).attr("data-parent");
+            // Strip parent prefix if accidentally included (e.g. "Organisationen: Title" -> "Title")
+            if (facetParent && facetTitle.indexOf(facetParent + ": ") === 0) {
+                facetTitle = facetTitle.substring(facetParent.length + 2);
+            }
             var facetData = [facetParent, facetTitle, facetId].join(",");
             allFacets.push(facetData);
         });
@@ -868,7 +1114,7 @@ $(document).ready(function() {
             search.setParam('pages', 1);
         }
         search.find();
-        jQuery('.-js-simple-search-autocomplete').removeClass('active');
+        // jQuery('.-js-simple-search-autocomplete').removeClass('active'); // Disabled: Autocomplete
         search.show();
 
     };
@@ -882,10 +1128,6 @@ $(document).ready(function() {
     jQuery(document).on("click", '.-js-search-start', function() {
         var elem = $(this);
 
-        // Collect query input
-        var inputTerms = $(".-js-simple-search-field").val().trim();
-        search.setParam("terms", inputTerms);
-
         // Collapse extended search if open
         var extendedSearchHeader = $(".-js-extended-search-header");
         if(extendedSearchHeader.hasClass("active")){
@@ -895,9 +1137,10 @@ $(document).ready(function() {
     });
 
 
+    /* Autocomplete disabled
     /**
      *  Hide autocomplete form if body, outside was clicked
-     */
+     
     jQuery(document).on("click", 'body', function() {
         var $autocompleteSelect = jQuery('.-js-simple-search-autocomplete');
 
@@ -905,7 +1148,8 @@ $(document).ready(function() {
             $autocompleteSelect.removeClass('active');
         }
     });
-	
+    */
+    /* Autocomplete disabled
     $(".-js-simple-search-autocomplete").mouseenter(function () {
         $(".-js-simple-search-autocomplete").stop().fadeTo('fast', 1).show()
     });
@@ -916,6 +1160,7 @@ $(document).ready(function() {
             $(".-js-simple-search-autocomplete").fadeOut(MS_UNTIL_AUTOCOMPLETE_DIV_HIDES);
         }
     });
+    */
 	
     $(document).on("change", "#spatial-checkbox", function(){
         document.getElementById("spatial-search-text").classList.toggle('visible');
@@ -1005,17 +1250,20 @@ $(document).ready(function() {
       */
       $(document).on("click", ".filter-remover", function(){
         $(".simple-search-field").val("");
+                setStoredSearchTerms([]);
         search.setParam("facet", "");
         var facets = $("#chosen-facets .chosen-facet-items");
         facets.each(function(i, facet){
             facet.remove();
         });
-        // Entfernt auch Search Tags (außer "*")
-        $(".search--list.-js-keywords .search--list--item").filter(function(){
-            return $(this).text().trim() !== "*";
-        }).remove();
         // Entfernt auch räumliche Filter
         $(".search--list.-js-facet-list .search--list--item.-js-spatial-restriction").remove();
+        // Entfernt auch Checkbox-Filter (Open Data + HVD)
+        search.setParam("onlyOpenData", false);
+        $("#filter-only-open-data").prop("checked", false);
+        search.setParam("onlyHvd", false);
+        $("#filter-only-hvd").prop("checked", false);
+        
         prepareAndSearch();
       });
 
@@ -1052,11 +1300,18 @@ $(document).ready(function() {
         var elem = $(this);
         var id = elem.attr("data-id").trim();
         var dataParent = elem.attr("data-parent").trim();
-        var text = elem.text().trim();
+        var text = (elem.attr("data-title") || elem.text()).trim();
+        // Strip parent prefix if accidentally included
+        if (dataParent && text.indexOf(dataParent + ": ") === 0) {
+            text = text.substring(dataParent.length + 2);
+        }
         var facets = search.getParam("facet").split(";");
         var removedFacet = [dataParent,text,id].join(",");
-        facets.splice(facets.indexOf(removedFacet));
-        search.setParam("facet", facets);
+        var idx = facets.indexOf(removedFacet);
+        if (idx !== -1) {
+            facets.splice(idx, 1);
+        }
+        search.setParam("facet", facets.join(";"));
         elem.remove();
         prepareAndSearch();
      });
@@ -1067,8 +1322,21 @@ $(document).ready(function() {
       $(document).on("click", ".area-title", function(){
         var elem = $(this);
         elem.find('.accordion').toggleClass('closed').toggleClass('open');
-        elem.parent().find(".area-elements").slideToggle("slow");
-        elem.toggleClass('manual_opened_elem');
+        
+        // Toggle fa-toggle-on/off icon
+        elem.find('i.fa.fa-toggle-on, i.fa.fa-toggle-off').toggleClass('fa-toggle-on').toggleClass('fa-toggle-off');
+        
+        // Check if element has aria-controls attribute
+        var ariaControls = elem.attr('aria-controls');
+        if (ariaControls) {
+            // If aria-controls points to an ID, toggle that element
+            $('#' + ariaControls).slideToggle("slow");
+        } else {
+            // Otherwise, toggle the area-elements inside parent (old behavior)
+            elem.parent().find(".area-elements").slideToggle("slow");
+        }
+        
+        //elem.toggleClass('manual_opened_elem');
         elem.attr('aria-expanded', function(_, attr) { return !(attr == 'true') });
       });
       // localStorage.getItem from landing_page.html to get the value and toggle the filter area
@@ -1369,6 +1637,18 @@ $(document).ready(function() {
         prepareAndSearch();
      });
 
+     $(document).on("click", "#filter-only-hvd", function(){
+        var elem = $(this);
+        if(elem.is(':checked')){
+            search.setParam("onlyHvd", true);
+            elem.removeAttr('checked');
+        }else{
+            search.setParam("onlyHvd", false);
+            elem.attr('checked','checked');
+        }
+        prepareAndSearch();
+     });
+
     /**
      * Resets selectioned themes in extended search
      * @extendedSearch
@@ -1447,19 +1727,95 @@ $(document).ready(function() {
 
     });
 
-    // pagination handler for getting to next or previous page
-    jQuery(document).on('click', '.pager .-js-pager-item', function() {
-        search.setParam('data-id', jQuery(this).parent().attr('data-id'));
-        search.setParam('pages', jQuery(this).attr('data-page'));
-        search.setParam('previousPage', search.getParam('pages', 1)); //alternativly we can use .-js-pager-item .active
-        search.setParam('paginated', true);
-        search.setParam('terms', $(".-js-simple-search-field").val());
-        //window.scrollTo({
-        //    top:150,
-        //    left:0,
-        //    behavior:'smooth'
-        //});
-        prepareAndSearch(undefined, true);
+    // "Show more" handler: fetches the next page and appends results to the existing list
+    jQuery(document).on('click', '.pager .-js-show-more', function() {
+        var $btn = jQuery(this);
+        var resourceId = $btn.attr('data-id');
+        var page = $btn.attr('data-page');
+
+        // Collect current search state for the partial request
+        var terms = $(".-js-simple-search-field").val();
+        if (terms) {
+            terms = terms.split(' ').filter(function(v) { return v !== ''; }).join(',');
+        }
+
+        // Collect currently selected facets
+        var allFacets = [];
+        var facets = $(".-js-facet-item");
+        $.each(facets, function(i, facet){
+            var facetTitle = facet.innerText.trim();
+            var facetId = $(facet).attr("data-id");
+            var facetParent = $(facet).attr("data-parent");
+            var facetData = [facetParent, facetTitle, facetId].join(",");
+            allFacets.push(facetData);
+        });
+
+        // Disable button and show loading state
+        $btn.prop('disabled', true).text('Lädt...');
+
+        jQuery.ajax({
+            url: "/search/search/page/",
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            data: {
+                'source': search.getParam('source'),
+                'resource': resourceId,
+                'page': page,
+                'terms': terms,
+                'extended': search.getParam('extended'),
+                'facet': allFacets.join(";"),
+                'orderBy': search.getParam('orderBy'),
+                'maxResults': search.getParam('maxResults'),
+                'searchBbox': search.getParam('searchBbox'),
+                'searchTypeBbox': search.getParam('searchTypeBbox'),
+                'onlyOpenData': search.getParam('onlyOpenData'),
+                'onlyHvd': search.getParam('onlyHvd')
+            },
+            type: 'post',
+            dataType: 'json',
+            success: function(data) {
+                if (typeof data.html !== 'undefined') {
+                    // Parse the response HTML
+                    var $newContent = jQuery('<div>').html(data.html);
+                    // Extract the new result items from the response
+                    var $newResults = $newContent.find('.search-results').children();
+                    // Extract the new pager (show-more button or empty pager)
+                    var $newPager = $newContent.find('.pager');
+
+                    // Append new results to the existing list
+                    var $existingResults = jQuery('.' + resourceId + '.search--body .search-results');
+                    $existingResults.append($newResults);
+
+                    // Replace the old pager with the updated one
+                    var $existingPager = jQuery('.' + resourceId + '.search--body').closest('.search-cat').find('.pager');
+                    if ($newPager.length) {
+                        $existingPager.replaceWith($newPager);
+                    } else {
+                        $existingPager.remove();
+                    }
+
+                    // Smooth scroll to the first newly appended item
+                    if ($newResults.length) {
+                        $('html, body').animate({
+                            scrollTop: $newResults.first().offset().top - 100
+                        }, 300);
+                    }
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Re-enable button on error
+                $btn.prop('disabled', false).text('Weitere Ergebnisse anzeigen');
+                if (textStatus === "timeout") {
+                    alert("The catalogue provider didn't respond. Please try again later.");
+                }
+            },
+            timeout: 25000,
+        });
+
+        // Update search params for consistency
+        search.setParam('data-id', resourceId);
+        search.setParam('pages', page);
     });
 
     jQuery(document).on("click", ".-js-keyword", function() {
@@ -1486,107 +1842,76 @@ $(document).ready(function() {
     });
 
     /*
-    * Sets a resource to active or not-active
+    * Sets the active resource (single-toggle: only one resource active at a time).
+    * Updates the resources object and syncs the extended search checkboxes.
+    * CSS classes are handled by parseSearchResult after the server responds.
     */
     function toggleResourceUsage(resource, isActive){
-        resources[resource] = isActive;
-        resource = resource.charAt(0).toUpperCase() + resource.slice(1);
-        $('#geoportal-checkResources' + resource).prop('checked', isActive);
+        if (isActive) {
+            for (var key in resources) {
+                resources[key] = (key === resource);
+            }
+        } else {
+            resources[resource] = false;
+        }
+        // Sync extended search checkboxes
+        for (var key in resources) {
+            var label = key.charAt(0).toUpperCase() + key.slice(1);
+            $('#geoportal-checkResources' + label).prop('checked', resources[key]);
+        }
     }
 
-    /**
-     * Activates, deactivates resources
-     */
-    jQuery(document).on("click", ".-js-filterarea .-js-resource", function() {
-        // check that the correct resources are globally available
+    $(document).on('click', '.show-more-keywords', function() {
+        var BATCH = 7;
+        var $btn = $(this);
+        var $container = $btn.parent();
+        var $hidden = $container.children('.-js-subfacet.hide');
+        $hidden.slice(0, BATCH).removeClass('hide');
+        var stillHidden = $container.children('.-js-subfacet.hide').length;
+        if (stillHidden > 0) {
+            $btn.text('Weitere anzeigen (' + stillHidden + ')');
+        } else {
+            $btn.remove();
+        }
+    });
+
+    initShowMoreKeywords();
+    initFacetSearch();
+
+    $(document).on("click", ".subfacet.-js-resource", function() {
+        var elem = $(this);
+        var v = elem.attr('data-resource');
+
+        // If already active, do nothing (prevent deselection)
+        if (elem.hasClass('chosen-subfacet')) {
+            return;
+        }
+
+        // Update resources object (single-toggle handled inside toggleResourceUsage)
         toggleCataloguesResources();
+        toggleResourceUsage(v, true);
 
-        var $self = jQuery(this);
+        // Immediate visual feedback (final state set by parseSearchResult)
+        $('.subfacet.-js-resource').removeClass('chosen-subfacet').addClass('inactive');
+        elem.addClass('chosen-subfacet').removeClass('inactive');
 
-        $self.toggleClass("inactive");
-
-        var v = $self.data('resource');
-        var active = !$self.hasClass('inactive');
-        toggleResourceUsage(v, active);
         prepareAndSearch();
     });
 
-    /*
-    * Toggles the facet search/filter input
-    */
-    /*function toggleFacetInput(elem){
-        var button = elem.children(".facet-search-icon");
-        var title = elem.children(".facet-search-title");
-        var input = elem.children(".facet-search-input");
-        var filterIcon = elem.children(".facet-search-filter");
-        title.toggleClass("hide");
-        input.toggleClass("hide");
-        button.toggleClass("active");
-        if(!input.hasClass("hide")){
-            input.focus();
-            filterIcon.addClass("hide");
-        }else{
-            if(input.val().length == 0){
-                // show icon that the facets are filtered
-                filterIcon.addClass("hide");
-            }else{
-                filterIcon.removeClass("hide");
-            }
-        }
-    }*/
-    /*
-    * Show or hide the filter input field for facets when search icon is clicked
-    */
-    /*$(document).on("click", ".facet-search-title", function(){
+    /**
+     * Handle resource type button clicks (new resource_types.html component)
+     */
+    $(document).on("click", ".resource-type-button.-js-resource", function() {
         var elem = $(this);
-        toggleFacetInput(elem.parent());
-    });*/
-    /*
-    * Show or hide the filter input field for facets when search icon is clicked
-    */
-    /*$(document).on("focusout", ".facet-search-input", function(){
-        var elem = $(this);
-        toggleFacetInput(elem.parent());
-    });*/
-
-    /*
-    * Filter facets
-    */
-    $(document).on("input", ".facet-search-input", function(){
-        var elem = $(this);
-        var val = elem.val().toUpperCase();
-        var facets = elem.siblings(".subfacet");
-        facets.each(function(i, elem){
-            var facetObj = $(elem);
-            var facet = facetObj.find("span").text().trim().toUpperCase();
-            if(!facet.includes(val)){
-                facetObj.addClass("hide");
-            }else{
-                facetObj.removeClass("hide");
-            }
-        });
-        if($(this) && $(this).val()) {
-            elem.addClass("active");
-	}else{
-	    elem.removeClass("active");
-        }
-    });
-
-    $(document).on("click", ".subfacet.-js-resource", function() {
-        // check that the correct resources are globally available
-        toggleCataloguesResources();
-
-        var elem = $(this);
-        elem.toggleClass("chosen-subfacet");
-
         var v = elem.attr('data-resource');
-        var active = elem.hasClass('chosen-subfacet');
-        toggleResourceUsage(v, active);
-        //window.scrollTo({
-        //    top:150,
-        //    left:0,
-        //    behavior:'smooth'
-        //});
+
+        // Update resources object
+        toggleResourceUsage(v, true);
+
+        // Immediate visual feedback (update all resource-type buttons)
+        $('.resource-type-button.-js-resource').removeClass('resource-type-selected');
+        elem.addClass('resource-type-selected');
+
         prepareAndSearch();
     });
 
@@ -1604,28 +1929,11 @@ $(document).ready(function() {
         var $this = jQuery(this);
         var text = $this.text().trim();
         
-        // remove search word from input field
-        var searchField = $(".simple-search-field");
-        var searchText = searchField.val().trim();
-	if (searchText.includes(',')) {
-            var searchTextArr = searchText.split(",");
-	} else {
-            var searchTextArr = searchText.split(" ");
-	}
-        var searchTextArrNew = []
-        $.each(searchTextArr, function(i, elem){
-            if (elem.trim() != text){
-                searchTextArrNew.push(elem);
-            }
-        });
-        var searchTextNew = searchTextArrNew.join(" ");
-        searchField.val(searchTextNew);
-        // remove search word from search.keyword
+        removeStoredSearchTerm(text);
+        $(".simple-search-field").val("");
         if (search.keyword == text){
             search.keyword = null;
         }
-
-        $this.remove();
         prepareAndSearch();
     });
 
@@ -1757,7 +2065,7 @@ $(document).ready(function() {
         var searchBar = $("#geoportal-search-field");
         searchBar.val(suggElem.text().trim());
         searchBar.focus();
-        $(".simple-search-autocomplete").hide();
+        // $(".simple-search-autocomplete").hide(); // Disabled: Autocomplete
     });
 
     /**
@@ -1770,7 +2078,7 @@ $(document).ready(function() {
         if (keyword) {
             searchBar.val(keyword);
             $("#geoportal-search-button").click();
-            $(".simple-search-autocomplete").hide();
+            // $(".simple-search-autocomplete").hide(); // Disabled: Autocomplete
         }
     });
 
@@ -1808,10 +2116,10 @@ $(document).ready(function() {
             var param = "ZOOM=" + bbox + ",EPSG%3A" + srs
             startAjaxMapviewerCall(param);
         }
-        $(".simple-search-autocomplete").hide();
+        // $(".simple-search-autocomplete").hide(); // Disabled: Autocomplete
     });
 
-    autocomplete = new Autocomplete(search);
+    // autocomplete = new Autocomplete(search); // Disabled: Autocomplete feature
 
     // Avoid `console` errors in browsers that lack a console.
     (function() {

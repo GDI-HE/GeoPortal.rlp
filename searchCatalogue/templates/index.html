@@ -13,16 +13,17 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=9;IE=10;IE=Edge,chrome=1"/>
         <title>{{ title }}</title>
-        <link rel="stylesheet" href="{% static 'searchCatalogue/css/main.css' %}">
+        <link rel="stylesheet" href="{% static 'searchCatalogue/css/main.css' %}?v=20260210">
         <link rel="stylesheet" href="{% static 'searchCatalogue/css/geoportal.css' %}">
         <link rel="stylesheet" href="{% static 'searchCatalogue/vendor/leaflet/leaflet.css' %}" />
         <link rel="stylesheet" href="{% static 'searchCatalogue/vendor/zebra/css/default.css' %}" type="text/css">
+        
         {% if external_call %}
             <link rel="stylesheet" type="text/css" href="{% static '/useroperations/css/base.css' %}" media="all" />
             <script type="text/javascript" src="{% static 'searchCatalogue/vendor/leaflet/leaflet.js' %}"></script>
             <script type="text/javascript" src="{% static 'searchCatalogue/js/jquery-1.12.4.min.js' %}"></script>
             <script type="text/javascript" src="{% static 'searchCatalogue/vendor/zebra/javascript/zebra_datepicker.js' %}"></script>
-            <script type="text/javascript" src="{% static 'searchCatalogue/js/all.js' %}"></script>
+            <script type="text/javascript" src="{% static 'searchCatalogue/js/all.js' %}?v=20260210"></script>
         {% endif %}
     </head>
     <body>
@@ -39,19 +40,20 @@
         </div>
         <div id="overlay">
             <!-- Header -->
-            {% if external_call %}
-                <div class="searchbar -js-input-div">
-                    <div class="simple-search-input-wrapper">
-                        <input id="geoportal-search-field" type="text" class="simple-search-field -js-simple-search-field" placeholder="{% trans 'Insert search term here' %}" title="{% trans 'Search field' %}">
-                        <button id="geoportal-search-button" class="search--submit -js-search-start">{% trans 'Search' %}</button>
+                
+                <div class="searchbar-container">
+                    
+                    <div class="middle-header-top">
+                        <input type="text" id="geoportal-search-field" class="simple-search-field -js-simple-search-field" title="{% trans 'Search field' %}" placeholder="{% trans 'Insert search term here' %}" aria-label="{% trans 'Search field' %}">
+                        <button id="geoportal-empty-search-button" class="empty-search-button nobuttoncss" title="{% trans 'Clear input' %}" aria-label="{% trans 'Clear input' %}">
+                            <i class="fas fa-times" aria-hidden="true"></i>
+                        </button>
+                        <button id="geoportal-search-button" class="search-submit-button nobuttoncss" title="{% trans 'Start search' %}" aria-label="{% trans 'Start search' %}">
+                            Suchen
+                        </button>
                     </div>
                     <div class="simple-search-autocomplete -js-simple-search-autocomplete"></div>
-                    <div id="sub-header-wrapper">
-                        <div class="inline">
-                            <input class="spatial-checkbox-item" id="spatial-checkbox" type="checkbox" title="{% trans 'Spatial Filter' %}">
-                            <label class="spatial-checkbox-item" for="spatial-checkbox">{% trans 'Use spatial filter' %}</label>
-                        </div>
-                    </div>
+                   
                 </div>
                 {% get_current_language as LANGUAGE_CODE %}
                 <div class="upper-header">
@@ -63,7 +65,6 @@
                     {% endif %}
                 </div>
 
-            {% endif %}
             <!-- Body content -->
             <!--
             <div class="content-tabs -js-tabs">

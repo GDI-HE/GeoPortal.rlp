@@ -1,54 +1,27 @@
 {% load static i18n humanize %}
 <div class="search-cat {% if 'wfs' in search_results %} active {% endif %}">
-	<h2 class="search-header" title="{% trans 'Search-, Download-,Gathering-modules' %}">
-        <button id="button_wfs" aria-expanded="false" aria-controls="region_wfs" class="source--title -js-title -js-accordion" aria-label="{% trans 'Open and close searchresults for ' %}{% trans 'Search-, Download-,Gathering-modules' %}">
-            <span class="accordion icon closed" aria-hidden="true"></span>
-            <i class="fas fa-info-circle tab-icn" aria-hidden="true"></i>
-            <span>{{ all_resources.wfs }} ({{ search_results.wfs.wfs.wfs.md.nresults|intcomma }})</span>
-        </button><!-- end .source--title -->
-    </h2><!-- end .search-header -->
-    <div id="region_wfs" role="region" aria-labelledby="button_wfs" class="wfs search--body hide">
-        {% if search_results.wfs.keywords.tagCloud.tags|length > 0 and search_results.wfs.wfs.wfs.md.nresults|add:0 > 0 %}
-            {% with search_results.wfs.keywords.tagCloud.tags as tags %}
 
-                {% include 'keywords.html' with var="wfs" %}
-
-            {% endwith %}
-        {% endif %}
+    <div class="wfs search--body">
         <div>
-            <div class="center">
-            {% if search_results.wfs.wfs.wfs.md.nresults|add:0 > 0 %}
-                {% with pages.wfs as page_data %}
-                    {% with 'wfs' as resource_name %}
-
-                        {% include 'pagination.html' %}
-
-                    {% endwith %}
-                {% endwith %}
-            </div><!-- end .center -->
             <div class="search-results">
-                {% for result in search_results.wfs.wfs.wfs.srv %}
-                    <div class="result--item -js-result-wmc">
-                            {% with result.ftype.0 as ftype %}
+                {% if search_results.wfs.wfs.wfs.md.nresults|add:0 > 0 %}
+                    {% for result in search_results.wfs.wfs.wfs.srv %}
+                        {% for ftype in result.ftype %}
+                        <div class="result--item -js-result-wfs">
                                 {% include 'primary/wfs/wfs_search_result.html' %}
-                            {% endwith %}
-                    </div>
-                {% endfor %}
+                        </div>
+                        {% endfor %}
+                    {% endfor %}
+                {% else %}
+                        {% include 'no_results_message.html' %}
+                {% endif %}
             </div><!-- end .search-results -->
-            {% else %}
-                <p>
-                    {% trans 'No results found, please use another search term...' %}
-                </p>
-            </div><!-- end .center -->
-            {% endif %}
 
             <div class="center">
                 {% if search_results.wfs.wfs.wfs.md.nresults|add:0 > 0 %}
                 {% with pages.wfs as page_data %}
                     {% with 'wfs' as resource_name %}
-
                         {% include 'pagination.html' %}
-
                     {% endwith %}
                 {% endwith %}
                 {% endif %}

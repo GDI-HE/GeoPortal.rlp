@@ -1,34 +1,34 @@
 {% load i18n %}
 <div class="filterarea -js-filterarea">
-    {% include 'hits_and_sort_option.html' %}
-    <div>
+    
+    
         {% if is_de_search or is_eu_search %}
             <p class="filters-not-supported">
                 {% trans 'Filter categories are not supported for this catalogue.' %}
             </p>
         {% endif %}
-        
-        {% if selected_facets or search_filters.searchText.item|length > 1 %}
-            <div id="chosen-facets">
-		    <button type="button" title="{% trans 'Remove all filters' %}" class="filter-remover">Alle Filter entfernen<span style="margin-left:10px;" class="icon-cross fs-10px" aria-hidden="true"></span></button>
+        <!-- selected facets-->
+        {% comment %}Always render block; display toggled via condition or JS{% endcomment %}
+        {% if selected_facets or search_filters.searchText.item|length > 1 or search_filters.searchBbox or search_filters.restrictToOpenData.item.0.title == 'true' or search_filters.restrictToHvd.item.0.title == 'true' %}
+        <div id="chosen-facets" class="-js-chosen-facets" data-has-server-filters="true">
+        {% else %}
+        <div id="chosen-facets" class="-js-chosen-facets filter-block-hidden" data-has-server-filters="false" style="display:none;">
+        {% endif %}
+	    <button type="button" title="{% trans 'Remove all filters' %}" class="filter-remover">Alle zurücksetzen</button>
                 {% for facet_key, facet_val in selected_facets.items %}
                 <div class="single-chosen-facet">
                     <div class="search--list -js-facet-list chosen-facet-items">
-                        {% for sel_facet_key, sel_facet_val in selected_facets.items %}
-                            {% for selected_facet in sel_facet_val %}
-                                {% if selected_facet.parent_category == facet_key %}
-                                    <button type="button" class="chosen-facet-item search--list--item -js-facet-item" data-id="{{ selected_facet.id }}" data-parent="{{ facet_key }}">
-                                        {{ selected_facet.title }}
-                                        <span style="margin-left: 5px;" class="icon-cross fs-10px" aria-hidden="true"></span>
-                                    </button>
-                                {% endif %}
-                            {% endfor %}
+                        {% for selected_facet in facet_val %}
+                            <button type="button" class="chosen-facet-item search--list--item -js-facet-item" data-id="{{ selected_facet.id }}" data-parent="{{ facet_key }}" data-title="{{ selected_facet.title }}">
+                                <span class="chosen-facet-category">{{ facet_key }}:</span> {{ selected_facet.title }}
+                                <span style="margin-left: 5px;" class="icon-cross fs-10px" aria-hidden="true"></span>
+                            </button>
                         {% endfor %}
                     </div>
                 </div>
                 {% endfor %}
             </div>
-        {% endif %}
+        
         
         <!-- Search tags -->
             <div class="search--list -js-keywords" data-id='geoportal-'>
@@ -52,5 +52,5 @@
             </div>
         {% endif %}
 
-    </div>  
+     
 </div><!-- end .filterarea -->

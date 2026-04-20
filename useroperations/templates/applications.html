@@ -82,7 +82,7 @@
                         <a href="{{ result.mdLink }}#tabs-3" target="_blank">
                         <div class="metadata-link data-info-container" title="{% trans 'Published by' %}">
                             <i class="fas fa-city icn-organization" title="{% trans 'Organizations' %}" ></i>
-                            <div class="organization-title">{{ result.respOrg }}</div>
+                            <div class="organization-title">{{ result.respOrgTitle|default:result.respOrg }}</div>
                         </div>
                         </a>
                     </div>

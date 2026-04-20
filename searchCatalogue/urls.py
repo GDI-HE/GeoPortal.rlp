@@ -16,6 +16,7 @@ urlpatterns = [
     path("external/", index_external, name="index_external"),
     path("autocompletion/", auto_completion, name="auto_completion"),
     path("coupled-resources/", resolve_coupled_resources, name="resolve_coupled_resources"),
+    path("search/page/", get_data_page, name="get_data_page"),
     path("search/", get_data, name="get_data"),
     # Ajax calls
     path("permission-email/", get_permission_email_form, name="get_permission_email_form"),

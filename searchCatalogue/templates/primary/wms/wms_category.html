@@ -1,55 +1,34 @@
 
 {% load static i18n humanize %}
 <div class="search-cat {% if 'wms' in search_results %} active {% endif %}">
-    <h2 class="search-header" title="{% trans 'Map layers' %}">
-        <button id="button_map_layers" aria-expanded="false" aria-controls="region_map_layers" class="source--title -js-title -js-accordion" aria-label="{% trans 'Open and close searchresults for ' %}{% trans 'Map layers' %}">
-            <span class="accordion icon closed" aria-hidden="true"></span>
-            <i class="fas fa-layer-group tab-icn" alt="{% trans 'A lying map' %}" title="{% trans 'Map layers' %}" aria-hidden="true"></i>
-            <span>{{ all_resources.wms }} ({{ search_results.wms.wms.wms.md.nresults|intcomma }})</span>
-        </button>
-    </h2><!-- end .search-header -->
-    <div id="region_map_layers" role="region" aria-labelledby="button_map_layers" class="wms search--body hide">
-        {% if search_results.wms.keywords.tagCloud.tags|length  > 0 and search_results.wms.wms.wms.md.nresults|add:0 > 0 %}
-            {% with search_results.wms.keywords.tagCloud.tags as tags %}
 
-                {% include 'keywords.html' with var="wms" %}
-
-            {% endwith %}
-        {% endif %}
+    <div class="wms search--body">
         <div>
-            <div class="center">
-                {% if search_results.wms.wms.wms.md.nresults|add:0 > 0 %}
-                {% with pages.wms as page_data %}
-                    {% with 'wms' as resource_name %}
-                        {% include 'pagination.html' %}
-
-                    {% endwith %}
-                {% endwith %}
-                {% endif %}
-            </div><!-- end .center -->
-
-
             <div class="search-results">
-                {% for result in search_results.wms.wms.wms.srv %}
-                    {% with result.layer.0 as result_l %}
-                    <div class="result--item -js-result-wms">
-                        <!-- parent layer -->
-                            {% with result_l as layer %}
-                                {% include 'primary/wms/wms_search_result.html' %}
-                            {% endwith %}
-                            {% if result_l.layer is not None %}
-                                <!-- children layer -->
-                                {% for layer in result_l.layer %}
-                                    {% with result_l as parent_result %}
-                                    <div class="result-item-layer hide">
-                                        {% include 'primary/wms/wms_search_result.html' %}
-                                    </div>
-                                    {% endwith %}
-                                {% endfor %}
-                            {% endif %}
-                    </div><!-- end .result--item -->
-                {% endwith %}
-                {% endfor %}
+                {% if search_results.wms.wms.wms.md.nresults|add:0 > 0 %}
+                    {% for result in search_results.wms.wms.wms.srv %}
+                        {% with result.layer.0 as result_l %}
+                        <div class="result--item -js-result-wms">
+                            <!-- parent layer -->
+                                {% with result_l as layer %}
+                                    {% include 'primary/wms/wms_search_result.html' %}
+                                {% endwith %}
+                                {% if result_l.layer is not None %}
+                                    <!-- children layer -->
+                                    {% for layer in result_l.layer %}
+                                        {% with result_l as parent_result %}
+                                        <div class="result-item-layer hide">
+                                            {% include 'primary/wms/wms_search_result.html' %}
+                                        </div>
+                                        {% endwith %}
+                                    {% endfor %}
+                                {% endif %}
+                        </div><!-- end .result--item -->
+                        {% endwith %}
+                    {% endfor %}
+                {% else %}
+                    {% include 'no_results_message.html' %}
+                {% endif %}
             </div><!-- end .search-results -->
 
             <div class="center">
@@ -57,12 +36,10 @@
                 {% with pages.wms as page_data %}
                     {% with 'wms' as resource_name %}
                         {% include 'pagination.html' %}
-
                     {% endwith %}
                 {% endwith %}
                 {% endif %}
             </div><!-- end .center -->
-
 
         </div><!-- end .div -->
     </div><!-- end .wms .search--body -->

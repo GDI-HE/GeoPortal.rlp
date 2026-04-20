@@ -53,6 +53,22 @@ def remove_translation_suffix(value, arg):
     return value
 
 
+def get_item(value, arg):
+    """ Gets an item from a dictionary using a key
+    
+    Args:
+        value (dict): The dictionary
+        arg (str): The key to retrieve
+    Returns:
+        The value for the key, or empty string if not found
+    """
+    try:
+        return value.get(arg, "")
+    except (AttributeError, TypeError):
+        return ""
+
+
 register.filter("drop_translation", remove_translation_suffix)
 register.filter("bold", bold)
 register.filter("contains", contains)
+register.filter("get_item", get_item)

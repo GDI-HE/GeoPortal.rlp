@@ -1,25 +1,6 @@
 {% load i18n static %}
     <div class="configurations_form">
-        <!-- Catalogue Selector Dropdown -->
-        {% if sources %}
-        <label for="catalogue-dropdown"><span class="fixed-width">{% trans 'Search in' %}</span>
-            <select id="catalogue-dropdown" name="catalogue" title="{% trans 'Select catalogue' %}">
-                {% for source_key, source_val in sources.items %}
-                <option value="{{ source_key }}" {% if source == source_key %}selected{% endif %}>
-                    {{ source_val.key }}
-                </option>
-                {% endfor %}
-            </select>
-        </label>
-        {% endif %}
-        {% if search_filters.maxResults|length > 0 %}
-	<label for="geoportal-maxResults" style="display: none;"><span class="fixed-width">{% trans 'Hits per page:' %}</span><select id='geoportal-maxResults' title="{% trans 'Select hits per page:' %} {{ page_item.title }}">
-                <option selected='selected' value='{{ search_filters.maxResults.title }}' data-url='{{ search_filters.maxResults.origUrl }}'>{{ search_filters.maxResults.title }}</option>
-                {% for page_item in search_filters.maxResults.item %}
-                <option value='{{ page_item.title }}' data-url='{{ page_item.url }}' title="{% trans 'Select hits per page:' %} {{ page_item.title }}">{{ page_item.title }}</option>
-                {% endfor %}
-            </select></label>
-        {% endif %}
+                    
         {% if search_filters.orderFilter|length > 0 %}
 	<label for="geoportal-orderBy"><span class="fixed-width">{% trans 'Sort by:' %}</span><select id="geoportal-orderBy" title="{% trans 'Sort by:' %} {{ order_item.title }}">
                 <option selected="selected" value="{{ search_filters.orderFilter.title }}">{{ search_filters.orderFilter.title }}</option>
@@ -28,11 +9,5 @@
                 {% endfor %}
 	    </select></label>
         {% endif %}
-        {% if not is_de_search and not is_eu_search %}
-                {% if search_filters.restrictToOpenData.item.0.title == 'true' %}
-		<label class="btn-filter-open-data" for="filter-only-open-data" title="{% trans 'Filter only open data active' %}" aria-label="{% trans 'Filter only open data active' %}"><span class="fixed-width">{% trans 'Only open data' %}:</span><input type="checkbox" id="filter-only-open-data" name="filter-only-open-data" checked="checked" /></label>
-                {% else %}
-		<label class="btn-filter-open-data" for="filter-only-open-data" title="{% trans 'Filter only open data deactivate' %}" aria-label="{% trans 'Filter only open data deactivate' %}"><span class="fixed-width">{% trans 'Only open data' %}:</span><input type="checkbox" id="filter-only-open-data" name="filter-only-open-data"  /></label>
-                {% endif %}
-        {% endif %}
+        
     </div>
