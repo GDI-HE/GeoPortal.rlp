@@ -323,6 +323,34 @@ def get_data_other(request: HttpRequest, catalogue_id):
     search_results = searcher.search_external_catalogue_data()
     print_debug(EXEC_TIME_PRINT % ("total search in catalogue with ID " + str(catalogue_id), time.time() - start_time))
 
+    # Additional search to get counts for ALL resource types (for facet display)
+    all_resource_keys = list(all_resources.keys())
+    searcher_all = Searcher(page_res=requested_page_res,
+                        keywords=search_words,
+                        page=search_pages,
+                        bbox=search_bbox,
+                        type_bbox=search_type_bbox,
+                        resource_set=all_resource_keys,
+                        language_code=request.LANGUAGE_CODE,
+                        catalogue_id=catalogue_id,
+                        host=host,
+                        )
+    search_results_all = searcher_all.search_external_catalogue_data()
+    all_resource_counts = {}
+    for resource_key in all_resource_keys:
+        try:
+            if (resource_key in search_results_all and
+                isinstance(search_results_all[resource_key], dict) and
+                resource_key in search_results_all[resource_key] and
+                isinstance(search_results_all[resource_key][resource_key], dict) and
+                "md" in search_results_all[resource_key][resource_key]):
+                md_data = search_results_all[resource_key][resource_key]["md"]
+                all_resource_counts[resource_key] = md_data.get("nresults", 0) if isinstance(md_data, dict) else 0
+            else:
+                all_resource_counts[resource_key] = 0
+        except (KeyError, TypeError, AttributeError):
+            all_resource_counts[resource_key] = 0
+
     # prepare search filters
     # search_filters = viewHelper.get_search_filters(search_results)
 
@@ -366,6 +394,7 @@ def get_data_other(request: HttpRequest, catalogue_id):
         "resources": requested_resources,
         "pages": pages,
         "all_resources": all_resources,
+        "all_resource_counts": all_resource_counts,
         "OPEN_DATA_URL": OPEN_DATA_URL,
         "sources": viewHelper.get_source_catalogues(False)
     }
@@ -442,6 +471,7 @@ def get_data_primary(request: HttpRequest):
 
     # get open data info
     only_open_data = post_params.get("onlyOpenData", 'false')
+    only_hvd = post_params.get("onlyHvd", 'false')
 
     start_time = time.time()
     # run search
@@ -457,12 +487,54 @@ def get_data_primary(request: HttpRequest):
                         search_bbox,
                         search_type_bbox,
                         only_open_data=only_open_data,
+                        only_hvd=only_hvd,
                         language_code=lang_code,
                         catalogue_id=catalogue_id,
                         host=host
                         )
     search_results = searcher.search_primary_catalogue_data(user_id=session_data.get("userid", ""))
     print_debug(EXEC_TIME_PRINT % ("total search in catalogue with ID " + str(catalogue_id), time.time() - start_time))
+
+    try:
+        organizations = searcher.search_all_organizations()
+    except Exception:
+        organizations = []
+    search_results = viewHelper.attach_org_titles(search_results, organizations)
+
+    # Secondary search over ALL resource types to get counts for the resource type buttons
+    searcher_all = Searcher(",".join(keywords),
+                        list(resources.keys()),
+                        extended_search_params,
+                        requested_page,
+                        requested_page_res,
+                        selected_facets,
+                        order_by,
+                        max_results,
+                        search_bbox,
+                        search_type_bbox,
+                        only_open_data=only_open_data,
+                        only_hvd=only_hvd,
+                        language_code=lang_code,
+                        catalogue_id=catalogue_id,
+                        host=host
+                        )
+    search_results_all = searcher_all.search_primary_catalogue_data(user_id=session_data.get("userid", ""))
+    all_resource_counts = {}
+    for resource_key in resources.keys():
+        try:
+            if (resource_key in search_results_all and
+                isinstance(search_results_all[resource_key], dict) and
+                resource_key in search_results_all[resource_key] and
+                isinstance(search_results_all[resource_key][resource_key], dict) and
+                resource_key in search_results_all[resource_key][resource_key] and
+                isinstance(search_results_all[resource_key][resource_key][resource_key], dict) and
+                "md" in search_results_all[resource_key][resource_key][resource_key]):
+                md_data = search_results_all[resource_key][resource_key][resource_key]["md"]
+                all_resource_counts[resource_key] = md_data.get("nresults", 0) if isinstance(md_data, dict) else 0
+            else:
+                all_resource_counts[resource_key] = 0
+        except (KeyError, TypeError, AttributeError):
+            all_resource_counts[resource_key] = 0
 
     # prepare search filters
     search_filters = viewHelper.get_search_filters(search_results)
@@ -541,6 +613,7 @@ def get_data_primary(request: HttpRequest):
         "types": types,
         "keywords": keywords,
         "all_resources": resources,
+        "all_resource_counts": all_resource_counts,
         "resources": requested_resources,
         "search_results": search_results,
         "search_filters": search_filters,
@@ -712,6 +785,182 @@ def terms_of_use(request: HttpRequest):
 
         html = render_to_string(template_name=template, context=params)
     return GeoportalJsonResponse(html=html).get_response()
+
+
+@check_browser
+def get_data_page(request: HttpRequest):
+    """ Returns partial HTML for a single resource type when paginating.
+
+    This is an optimized endpoint that only queries and renders a single resource
+    type instead of re-rendering the entire search results page. It skips facet
+    rehashing, facet count queries, and rendering of other resource categories.
+
+    Args:
+        request (HttpRequest): The incoming request
+    Returns:
+        JsonResponse: Contains partial HTML for the paginated resource category
+    """
+    if not request.is_ajax():
+        return GeoportalJsonResponse().get_response()
+
+    post_params = request.POST.dict()
+    source = post_params.get("source", "primary")
+    resource = post_params.get("resource", "")
+    page = int(post_params.get("page", 1))
+    host = HOSTNAME
+    lang_code = request.LANGUAGE_CODE
+
+    if source == "primary":
+        return _get_page_primary(request, post_params, resource, page, lang_code, host)
+    elif source in ("de", "eu"):
+        catalogue_id = DE_CATALOGUE if source == "de" else EU_CATALOGUE
+        return _get_page_other(request, post_params, resource, page, lang_code, host, catalogue_id, source)
+    else:
+        return GeoportalJsonResponse().get_response()
+
+
+def _get_page_primary(request, post_params, resource, page, lang_code, host):
+    """ Renders a single primary resource category for pagination. """
+    primary_templates = {
+        'dataset': 'primary/dataset/dataset_category.html',
+        'wms': 'primary/wms/wms_category.html',
+        'wmc': 'primary/wmc/wmc_category.html',
+        'wfs': 'primary/wfs/wfs_category.html',
+        'application': 'primary/application/application_category.html',
+    }
+
+    template_name = primary_templates.get(resource)
+    if template_name is None:
+        return GeoportalJsonResponse().get_response()
+
+    keywords = post_params.get("terms", "").split(",")
+    extended_search_params = viewHelper.parse_extended_params(post_params)
+    facet_str = post_params.get("facet", "")
+    selected_facets = viewHelper.prepare_selected_facets(
+        facet_str.split(";") if facet_str else []
+    )
+    order_by = post_params.get("orderBy", "")
+    max_results = post_params.get("maxResults", 15)
+    if max_results == "":
+        max_results = DEFAULT_MAX_SEARCH_RESULTS
+    elif isinstance(max_results, str):
+        max_results = int(max_results)
+    if not max_results:
+        max_results = 5
+    search_bbox = post_params.get("searchBbox", "")
+    search_type_bbox = post_params.get("searchTypeBbox", "")
+    only_open_data = post_params.get("onlyOpenData", "false")
+    only_hvd = post_params.get("onlyHvd", "false")
+
+    session_data = get_mb_user_session_data(request)
+
+    start_time = time.time()
+    catalogue_id = PRIMARY_CATALOGUE
+    searcher = Searcher(
+        ",".join(keywords),
+        [resource],
+        extended_search_params,
+        page,
+        resource,
+        selected_facets,
+        order_by,
+        max_results,
+        search_bbox,
+        search_type_bbox,
+        only_open_data=only_open_data,
+        only_hvd=only_hvd,
+        language_code=lang_code,
+        catalogue_id=catalogue_id,
+        host=host,
+    )
+    search_results = searcher.search_primary_catalogue_data(user_id=session_data.get("userid", ""))
+    print_debug(EXEC_TIME_PRINT % ("partial page search for " + resource, time.time() - start_time))
+
+    try:
+        organizations = searcher.search_all_organizations()
+    except Exception:
+        organizations = []
+    search_results = viewHelper.attach_org_titles(search_results, organizations)
+
+    start_time = time.time()
+    search_results = viewHelper.gen_extent_graphic_url(search_results)
+    if resource == "wfs":
+        search_results = viewHelper.set_children_data_wfs(search_results)
+    search_results = viewHelper.set_iso3166_icon_path(search_results)
+    print_debug(EXEC_TIME_PRINT % ("partial page view helpers", time.time() - start_time))
+
+    pages = viewHelper.calculate_pages_to_render(search_results, page, resource)
+
+    results = {
+        "search_results": search_results,
+        "pages": pages,
+        "resources": [resource],
+        "OPEN_DATA_URL": OPEN_DATA_URL,
+        "wms_action_url": HTTP_OR_SSL + HOSTNAME + "/mapbender/php/wms.php?",
+        "loggedin": session_data.get("loggedin", ""),
+    }
+
+    start_time = time.time()
+    view_content = render_to_string(template_name, results)
+    print_debug(EXEC_TIME_PRINT % ("partial page rendering", time.time() - start_time))
+
+    return GeoportalJsonResponse(html=view_content).get_response()
+
+
+def _get_page_other(request, post_params, resource, page, lang_code, host, catalogue_id, source):
+    """ Renders a single other (DE/EU) resource category for pagination. """
+    other_templates = {
+        'dataset': 'other/dataset/dataset_category.html',
+        'series': 'other/series/series_category.html',
+        'service': 'other/service/service_category.html',
+        'application': 'other/application/application_category.html',
+        'nonGeographicDataset': 'other/nonGeographicDataset/nonGeographicDataset_category.html',
+    }
+
+    template_name = other_templates.get(resource)
+    if template_name is None:
+        return GeoportalJsonResponse().get_response()
+
+    search_words = post_params.get("terms", "")
+    search_bbox = post_params.get("searchBbox", "")
+    search_type_bbox = post_params.get("searchTypeBbox", "")
+
+    start_time = time.time()
+    searcher = Searcher(
+        page_res=resource,
+        keywords=search_words,
+        page=page,
+        bbox=search_bbox,
+        type_bbox=search_type_bbox,
+        resource_set=[resource],
+        language_code=lang_code,
+        catalogue_id=catalogue_id,
+        host=host,
+    )
+    search_results = searcher.search_external_catalogue_data()
+    print_debug(EXEC_TIME_PRINT % ("partial page search for " + resource, time.time() - start_time))
+
+    is_eu_search = (source == "eu")
+    if is_eu_search:
+        search_results = viewHelper.hash_inspire_ids(search_results)
+    search_results = viewHelper.check_previewUrls(search_results)
+
+    pages = viewHelper.calculate_pages_to_render_de(search_results, page, resource)
+
+    resource_data = search_results.get(resource, {}).get(resource, {})
+
+    results = {
+        "search_results": search_results,
+        "pages": pages,
+        resource: resource_data,
+        "OPEN_DATA_URL": OPEN_DATA_URL,
+    }
+
+    start_time = time.time()
+    view_content = render_to_string(template_name, results)
+    print_debug(EXEC_TIME_PRINT % ("partial page rendering", time.time() - start_time))
+
+    return GeoportalJsonResponse(html=view_content).get_response()
 
 
 #ToDo: Check behaviour -> delete after a while
