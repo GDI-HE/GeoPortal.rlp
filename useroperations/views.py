@@ -38,7 +38,7 @@ from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
 from Geoportal.settings import DEFAULT_GUI, HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, \
     SESSION_NAME, PROJECT_DIR, MULTILINGUAL, LANGUAGE_CODE, DEFAULT_FROM_EMAIL, GOOGLE_RECAPTCHA_SECRET_KEY, \
-    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID, SHOW_SEARCH_CONTAINER, SHOW_PAGING, MAX_RESULTS, NO_OF_DAYS
+    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID, SHOW_SEARCH_CONTAINER, SHOW_PAGING, MAX_RESULTS, NO_OF_DAYS, HOTLINE_PHONE_NUMBER
 from Geoportal.utils import utils, php_session_data, mbConfReader
 from searchCatalogue.utils.url_conf import URL_INSPIRE_DOC
 from searchCatalogue.settings import PROXIES
@@ -1581,12 +1581,16 @@ def feedback_view(request: HttpRequest):
             }
             from_email = DEFAULT_FROM_EMAIL
             try:
+                message_body = (
+                    f"Vorname: {form.cleaned_data['first_name']}\n"
+                    f"Nachname: {form.cleaned_data['family_name']}\n"
+                    f"E-Mail: {form.cleaned_data['email']}\n\n"
+                    f"Nachricht:\n{form.cleaned_data['message']}"
+                )
 
                 email = EmailMessage(
                     _("Geoportal Feedback"),
-                    _("Feedback from ") + form.cleaned_data["first_name"] + " " + form.cleaned_data["family_name"]
-                    + ", \n \n" +
-                    form.cleaned_data["message"],
+                    message_body, 
                     from_email,
                     [DEFAULT_TO_EMAIL],
                     reply_to=[form.cleaned_data["email"]],
@@ -1601,10 +1605,14 @@ def feedback_view(request: HttpRequest):
                         "Hier ist eine Kopie Ihrer Nachricht:\n\n"
                         "\"{message}\"\n\n"
                         "Mit freundlichen Grüßen\n"
-                        "Ihr Geoportal-Team"
+                        "Ihr Geoportal-Team\n"
+                        "E-Mail: {hotline_email}\n"
+                        "Hotline: {hotline_phone}"
                     ).format(
                         last_name=form.cleaned_data["family_name"],
-                        message=form.cleaned_data["message"]
+                        message=form.cleaned_data["message"],
+                        hotline_email=DEFAULT_TO_EMAIL,
+                        hotline_phone=HOTLINE_PHONE_NUMBER
                     ),
                     from_email,
                     [form.cleaned_data["email"]],
@@ -1613,7 +1621,7 @@ def feedback_view(request: HttpRequest):
             except smtplib.SMTPException:
                 logger.error("Could not send feedback mail!")
                 messages.error(request, _("An error occured during sending. Please inform an administrator."))
-            return index_view(request=request)
+            return redirect('useroperations:feedback')
         else:
             messages.error(request, _("Captcha was wrong! Please try again"))
             template = "feedback_form.html"
