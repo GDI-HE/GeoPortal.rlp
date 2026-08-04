@@ -274,3 +274,38 @@ input:invalid:required, textarea:invalid:required {
     .body-content.sidebar-open .field-wrapper td{display:block;width:100%;max-width:300px;}
 }
 
+
+.character-counter-container {
+    margin-top: 4px;
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    font-size: 12px;
+}
+
+.character-counter-container.char-counter-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.character-counter-container span {
+    display: inline-block;
+    padding: 2px 8px;
+    font-weight: 500;
+    border-radius: 12px;
+    background-color: #f0f2f5;
+    color: #6b7280;
+    letter-spacing: 0.3px;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.character-counter-container span.almost-full-char-counter {
+    background-color: #fff4e5;
+    color: #b45309;
+}
+
+.character-counter-container span.warning-char-counter {
+    background-color: #fdecec;
+    color: #b91c1c;
+    font-weight: 600;
+}

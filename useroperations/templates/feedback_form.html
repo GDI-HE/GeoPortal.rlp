@@ -22,6 +22,15 @@
 			{% if field.name == "email" %}
                          <div id="CheckEmail" aria-live="polite" aria-label="{% trans 'Email validation' %}"></div>
                         {% endif %}
+			{% if field.name == "first_name" or field.name == "family_name" or field.name == "message" %}
+                           <div class="foot-note character-counter-container" style="display: none;">
+                           {% trans 'Remaining characters: ' %}
+                           <span id="character-counter-{{ field.auto_id }}"
+                           role="status"
+                           aria-live="polite"
+                           aria-atomic="true"></span>
+                           </div>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -29,10 +38,6 @@
         {% if use_recaptcha == 1 %}
          <div class="g-recaptcha" data-sitekey="{{ recaptcha_public_key }}"></div>
         {% endif %}
-        <div class="foot-note">
-            {% trans 'Remaining characters: ' %}
-            <span id="character-counter"></span>
-        </div>
         <hr>
         <div class="foot-note">
             {{ disclaimer }}
