@@ -19,6 +19,9 @@
                     </td>
                     <td class="field-value">
                         {{ field }}
+			{% if field.name == "email" %}
+                         <div id="CheckEmail" aria-live="polite" aria-label="{% trans 'Email validation' %}"></div>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -48,7 +51,11 @@
     var focusPassword = false;  //set to false as it is not needed for this form
     var focusUsername = false;  
     var focusPhone = false; 
-    var refreshCaptcha = "{% trans 'Refresh CAPTCHA'%}";    
+    var refreshCaptcha = "{% trans 'Refresh CAPTCHA'%}";
+    var enterValidEmailMessage = "{% trans 'The provided email address is not valid. Please check it to make sure it is correct.' %}";
+    var ValidEmailMessage = "{% trans 'The entered email address appears to be valid.' %}";    
 </script>
+
+<script src="{% static 'useroperations/js/form.js' %}"></script>
 
 {% endblock %}

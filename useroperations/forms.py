@@ -21,7 +21,7 @@ def validate_phone_number(value):
 class FeedbackForm(forms.Form):
     first_name = forms.CharField(max_length=200, label=_("First name"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter your first name.")}))
     family_name = forms.CharField(max_length=200, label=_("Family name"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter your last name.")}))
-    email = forms.EmailField(label=_("E-Mail address"),  widget=forms.EmailInput(attrs={'title':_("Please enter your email.")}))
+    email = forms.EmailField(label=_("E-Mail address"),  widget=forms.EmailInput(attrs={'id': 'email', 'title':_("Please enter your email.")}))
     message = forms.CharField(label=_("Your Message"), widget=forms.Textarea(attrs={"maxlength": 3000, 'title':_("Please enter your message."), 'required': 'required'}))
     identity = forms.CharField(max_length=255, label=_("identity"), required=False, widget=forms.TextInput(attrs={'title':_("Identity.")}))
     if USE_RECAPTCHA == 0:
