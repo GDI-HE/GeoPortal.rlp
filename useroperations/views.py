@@ -1599,7 +1599,7 @@ def feedback_view(request: HttpRequest):
                 auto_reply = EmailMessage(
                     _("Vielen Dank für Ihre Rückmeldung"),
                     _(
-                        "Sehr geehrte/r {last_name},\n\n"
+                        "Hallo {first_name} {last_name},\n\n"
                         "danke, dass Sie sich die Zeit genommen haben, uns eine Rückmeldung zu geben. "
                         "Ihr Feedback wurde an das Team vom Geoportal Hessen weitergeleitet.\n\n"
                         "Hier ist eine Kopie Ihrer Nachricht:\n\n"
@@ -1609,6 +1609,7 @@ def feedback_view(request: HttpRequest):
                         "E-Mail: {hotline_email}\n"
                         "Hotline: {hotline_phone}"
                     ).format(
+                        first_name=form.cleaned_data["first_name"],
                         last_name=form.cleaned_data["family_name"],
                         message=form.cleaned_data["message"],
                         hotline_email=DEFAULT_TO_EMAIL,
