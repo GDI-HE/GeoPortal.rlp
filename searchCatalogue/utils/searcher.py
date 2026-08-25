@@ -383,9 +383,12 @@ class Searcher:
         }
         response = requests.get(url=URL_SEARCH_INFO, params=params, verify=INTERNAL_SSL)
         response = response.json()
-        response = response["query"]["pages"]
-        for resp_key, resp_val in response.items():
+        if not isinstance(response, dict):
+            return []
+        pages = response.get("query", {}).get("pages", {})
+        for resp_key, resp_val in pages.items():
             return resp_val.get("categories", [])
+        return []
 
     def is_article_internal(self, title):
         """ Checks if the provided title is associated with an internal article
@@ -395,6 +398,8 @@ class Searcher:
         Returns:
              bool: True if the article is internal, False otherwise
         """
+        if not title:
+            return False
         tmp = {
             "title": title
         }
