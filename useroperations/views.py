@@ -146,76 +146,94 @@ def parse_wiki_data():
     6. Generates a URL to see more details about the top news item, adapted for MediaWiki encoding.
     7. Returns the prioritized top news and the see more URL.
     """
-    # Define the URL of your Wikimedia API endpoint
-    api_url = "http://localhost/mediawiki/api.php"
+    cached_result = cache.get("top_news_data")
+    if cached_result is not None:
+        return cached_result
+    
+    lock_key = "top_news_data_lock"
+    if not cache.add(lock_key, "1", timeout=5):  # only one request gets the lock
+        # someone else is already fetching — return empty/fallback instead of piling on
+        return [], ""
 
-    # Define parameters for the API request to parse the "Meldungen" page
-    params = {
-        "action": "parse",
-        "format": "json",
-        "page": "Meldungen",  
-        "formatversion": 2
-    }
+    try:
+        # Define the URL of your Wikimedia API endpoint
+        api_url = "http://localhost/mediawiki/api.php"
 
-    response = requests.get(api_url, params=params)
-    parsed_data = []
+        # Define parameters for the API request to parse the "Meldungen" page
+        params = {
+            "action": "parse",
+            "format": "json",
+            "page": "Meldungen",  
+            "formatversion": 2
+        }
 
-    # Check if the API request was successful
-    if response.status_code == 200:
-        # Parse the JSON response
-        data = response.json()
-        parsed_content = data["parse"]["text"]
+        try:
+            response = requests.get(api_url, params=params, timeout=3)
+        except requests.exceptions.RequestException as e:
+            logger.error(f"MediaWiki API call failed or timed out in parse_wiki_data(): {e}")
+            return [], ""
+        parsed_data = []
 
-        # Parse the HTML content (in 'parsed_content') and create an HTML tree structure for further processing.
-        html_tree = html.fromstring(parsed_content)
+        # Check if the API request was successful
+        if response.status_code == 200:
+            # Parse the JSON response
+            data = response.json()
+            parsed_content = data["parse"]["text"]
+
+            # Parse the HTML content (in 'parsed_content') and create an HTML tree structure for further processing.
+            html_tree = html.fromstring(parsed_content)
         
-        # Find all div elements with class="topNews" 
-        top_news_elements = html_tree.cssselect("div.topNews")
+            # Find all div elements with class="topNews" 
+            top_news_elements = html_tree.cssselect("div.topNews")
         
-        for top_news in top_news_elements:
-            title_element = extract_element(top_news, "h2.topNewsTitle")
-            date_element = extract_element(top_news, "span.topNewsDate strong")
-            duration_element = extract_element(top_news, "span.hiddenDuration")
-            teaser_element = extract_element(top_news, "p.teaser")
-            article_body_element = extract_element(top_news, "p.articleBody")
+            for top_news in top_news_elements:
+                title_element = extract_element(top_news, "h2.topNewsTitle")
+                date_element = extract_element(top_news, "span.topNewsDate strong")
+                duration_element = extract_element(top_news, "span.hiddenDuration")
+                teaser_element = extract_element(top_news, "p.teaser")
+                article_body_element = extract_element(top_news, "p.articleBody")
 
 
-            title = extract_text_content(title_element)
-            date = extract_text(date_element)
-            if date is None:
-                continue
-            duration = extract_text(duration_element)
-            teaser = extract_text_content(teaser_element)
-            article_body = extract_text_content(article_body_element)
+                title = extract_text_content(title_element)
+                date = extract_text(date_element)
+                if date is None:
+                    continue
+                duration = extract_text(duration_element)
+                teaser = extract_text_content(teaser_element)
+                article_body = extract_text_content(article_body_element)
 
-            # Append the parsed data to the list
-            parsed_data.append({
-                "title": title,
-                "date": date,
-                "duration": duration,
-                "teaser": teaser,
-                "article_body": article_body
-            })
+                # Append the parsed data to the list
+                parsed_data.append({
+                    "title": title,
+                    "date": date,
+                    "duration": duration,
+                    "teaser": teaser,
+                    "article_body": article_body
+                })
 
-    # Call the function to prioritize the "topNews" elements based on repair start date
-    prioritized_top_news = prioritize_top_news(parsed_data)
-    # If there are prioritized top news items, select the first item
-    if prioritized_top_news:
-        top_news =[prioritized_top_news[0]] 
-        one_news = prioritized_top_news[0]
-        #remove all white spaces (if there is whitespaces we cannot see it in mediawiki id and in the page, but the parsed_content will have white spaces)
-        cleaned_top_news = re.sub(r'\s+', ' ', one_news["title"])  
-        encoded_title = urllib.parse.quote(cleaned_top_news, safe='')
-        # Adapt the encoded_title for compatibility with MediaWiki encoding:
-        # - Replace '%20' with underscores ('_')
-        # - Replace '%' with periods ('.')
-        encoded_title = encoded_title.replace("%20", "_")
-        encoded_title = encoded_title.replace("%", ".")  
-        see_more_url = f'{HTTP_OR_SSL}{HOSTNAME}/article/Meldungen/#{encoded_title}' #see_more_url for the link to the wiki page
-    else:
-        top_news = []
-        see_more_url = ""
-    return top_news, see_more_url
+        # Call the function to prioritize the "topNews" elements based on repair start date
+        prioritized_top_news = prioritize_top_news(parsed_data)
+        # If there are prioritized top news items, select the first item
+        if prioritized_top_news:
+            top_news =[prioritized_top_news[0]] 
+            one_news = prioritized_top_news[0]
+            #remove all white spaces (if there is whitespaces we cannot see it in mediawiki id and in the page, but the parsed_content will have white spaces)
+            cleaned_top_news = re.sub(r'\s+', ' ', one_news["title"])  
+            encoded_title = urllib.parse.quote(cleaned_top_news, safe='')
+            # Adapt the encoded_title for compatibility with MediaWiki encoding:
+            # - Replace '%20' with underscores ('_')
+            # - Replace '%' with periods ('.')
+            encoded_title = encoded_title.replace("%20", "_")
+            encoded_title = encoded_title.replace("%", ".")  
+            see_more_url = f'{HTTP_OR_SSL}{HOSTNAME}/article/Meldungen/#{encoded_title}' #see_more_url for the link to the wiki page
+        else:
+            top_news = []
+            see_more_url = ""
+        result = (top_news, see_more_url)
+        cache.set("top_news_data", result, 300)  # cache for 5 minutes (300 seconds)
+        return result
+    finally:
+        cache.delete(lock_key)
 
 
 # might be good to move this to a separate file
@@ -229,6 +247,34 @@ class CustomTokenGenerator(PasswordResetTokenGenerator):
 
 custom_token_generator = CustomTokenGenerator()
 
+def rate_limit(limit=5, period=10):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(request, *args, **kwargs):
+            #client_ip = request.META.get('REMOTE_ADDR')
+            if not request.session.session_key:
+                request.session.create()
+
+            session_key = request.session.session_key
+            #cache_key = f"rate_limit_{client_ip}"
+            cache_key = f"rate_limit_{func.__name__}_{session_key}"
+            requests = cache.get(cache_key, [])
+            
+            # Filter out requests outside the current period
+            current_time = time.time()
+            requests = [req for req in requests if current_time - req < period]
+            
+            if len(requests) >= limit:
+                return JsonResponse({"error": "Rate limit exceeded"}, status=429)
+            
+            requests.append(current_time)
+            cache.set(cache_key, requests, timeout=period)
+            return func(request, *args, **kwargs)
+        return wrapper
+    return decorator
+
+#remove rate_limit if it is not needed or taking more time to load
+@rate_limit(limit=30, period=10)
 @check_browser
 def index_view(request, wiki_keyword=""):
     """ Prepares the index view, and renders the page.
@@ -322,9 +368,12 @@ def index_view(request, wiki_keyword=""):
         template = "landing_page.html"
         # Default to '1' if no page number is provided also it is not necessary here. Just used not to get error
         # if the page number is not provided, since get_landing_page function needs it.
-        page_num = request.session.get("page_num", 1) 
-        results = useroperations_helper.get_landing_page(lang, page_num)
-
+        page_num = request.session.get("page_num", 1)
+        landing_cache_key = f"landing_page_results_{lang}_{page_num}"
+        results = cache.get(landing_cache_key)
+        if results is None: 
+            results = useroperations_helper.get_landing_page(lang, page_num)
+            cache.set(landing_cache_key, results, 600)  # Caches for 10 minutes (600 seconds)
     context = {
                "wiki_keyword": wiki_keyword,
                "content": output,
@@ -346,26 +395,6 @@ def index_view(request, wiki_keyword=""):
     else:
         return render(request, template, geoportal_context.get_context())
     
-def rate_limit(limit=5, period=10):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(request, *args, **kwargs):
-            client_ip = request.META.get('REMOTE_ADDR')
-            cache_key = f"rate_limit_{client_ip}"
-            requests = cache.get(cache_key, [])
-            
-            # Filter out requests outside the current period
-            current_time = time.time()
-            requests = [req for req in requests if current_time - req < period]
-            
-            if len(requests) >= limit:
-                return JsonResponse({"error": "Rate limit exceeded"}, status=429)
-            
-            requests.append(current_time)
-            cache.set(cache_key, requests, timeout=period)
-            return func(request, *args, **kwargs)
-        return wrapper
-    return decorator
 
 def parse_date(date_str):
     # Cache parsed dates to avoid re-parsing
