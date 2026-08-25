@@ -383,16 +383,66 @@ $(document).on("click", ".map-applications-list-entry", function(){
 
 });
 
-$(document).on("keypress", "#id_message", function(){
-    var elem = $(this);
-    var out = $(".foot-note span");
+function updateCharacterCounter(fieldElement) {
+    var elem = $(fieldElement);
     var maxLength = elem.attr("maxlength");
-    var restLength = maxLength - elem.val().length;
-    if((restLength == 0 && !out.hasClass("warning")) ||
-        (restLength > 0 && out.hasClass("warning"))){
-        out.toggleClass("warning");
+    if (!maxLength) {
+        return;
     }
-    out.html(restLength);
+
+    var currentLength = elem.val().length;
+    var remaining = maxLength - currentLength;
+    var counterSpan = $("#character-counter-" + elem.attr('id'));
+
+    // Update visible text
+    counterSpan.text(remaining + " characters remaining");
+
+    counterSpan.removeClass("warning-char-counter almost-full-char-counter");
+
+    var percentage = (currentLength / maxLength) * 100;
+
+    if (percentage >= 100) {
+        counterSpan.addClass("warning-char-counter");
+        counterSpan.attr("aria-label", "Limit reached, 0 characters remaining");
+    } else if (percentage >= 80) {
+        counterSpan.addClass("almost-full-char-counter");
+        counterSpan.attr("aria-label", "Warning, only " + remaining + " characters remaining");
+    } else {
+        counterSpan.removeAttr("aria-label"); // fall back to visible text content
+    }
+}
+
+function getPercentage(fieldElement) {
+    var elem = $(fieldElement);
+    var maxLength = elem.attr("maxlength");
+    if (!maxLength) return 0;
+    return (elem.val().length / maxLength) * 100;
+}
+
+$(document).on("input", "#id_first_name, #id_family_name, #id_message", function () {
+    updateCharacterCounter(this);
+});
+
+$(document).on("focus", "#id_first_name, #id_family_name, #id_message", function () {
+    var elem = $(this);
+    var counterWrapper = $("#character-counter-" + elem.attr('id')).closest(".character-counter-container");
+    updateCharacterCounter(this);
+    counterWrapper.stop(true, true).show().addClass("char-counter-visible");
+});
+
+$(document).on("blur", "#id_first_name, #id_family_name, #id_message", function () {
+    var elem = $(this);
+    var counterWrapper = $("#character-counter-" + elem.attr('id')).closest(".character-counter-container");
+    var percentage = getPercentage(this);
+
+    if (percentage < 80) {
+        counterWrapper.removeClass("char-counter-visible");
+        setTimeout(function () {
+            if (!counterWrapper.hasClass("char-counter-visible")) {
+                counterWrapper.hide();
+            }
+        }, 200);
+    }
 });
 
 /*

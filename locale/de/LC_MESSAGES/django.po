@@ -1533,6 +1533,9 @@ msgstr "Feedback Formular"
 msgid "Remaining characters: "
 msgstr "Verbleibende Zeichen: "
 
+msgid "The provided email address is not valid. Please check it to make sure it is correct."
+msgstr "Die angegebene E-Mail-Adresse ist nicht gültig. Bitte überprüfen Sie sie, um sicherzustellen, dass sie korrekt ist."
+
 #: useroperations/templates/geoportal.html:7
 msgid "Switch between mapviewers"
 msgstr "Kartenviewer wechseln"
@@ -2171,3 +2174,4 @@ msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "A magnifying glass icon"
 #~ msgstr "Ein Lupensymbol"
+# Dummy comment to change file

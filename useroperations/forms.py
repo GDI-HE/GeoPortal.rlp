@@ -19,9 +19,9 @@ def validate_phone_number(value):
         raise forms.ValidationError(_("Please enter a valid phone number."))
 
 class FeedbackForm(forms.Form):
-    first_name = forms.CharField(max_length=200, label=_("First name"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter your first name.")}))
-    family_name = forms.CharField(max_length=200, label=_("Family name"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter your last name.")}))
-    email = forms.EmailField(label=_("E-Mail address"),  widget=forms.EmailInput(attrs={'title':_("Please enter your email.")}))
+    first_name = forms.CharField(max_length=50, label=_("First name"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter your first name."), 'maxlength': 200}))
+    family_name = forms.CharField(max_length=50, label=_("Family name"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter your last name."), 'maxlength': 200}))
+    email = forms.EmailField(max_length=200, label=_("E-Mail address"),  widget=forms.EmailInput(attrs={'id': 'email', 'title':_("Please enter your email."), 'maxlength':200}))
     message = forms.CharField(label=_("Your Message"), widget=forms.Textarea(attrs={"maxlength": 3000, 'title':_("Please enter your message."), 'required': 'required'}))
     identity = forms.CharField(max_length=255, label=_("identity"), required=False, widget=forms.TextInput(attrs={'title':_("Identity.")}))
     if USE_RECAPTCHA == 0:
