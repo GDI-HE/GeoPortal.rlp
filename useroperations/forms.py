@@ -3,7 +3,7 @@ from django import forms
 from django.utils.translation import ugettext_lazy as _
 from captcha.fields import CaptchaField
 from django.utils.safestring import mark_safe
-from Geoportal.settings import USE_RECAPTCHA
+from Geoportal.settings import USE_RECAPTCHA, AVAILABLE_GUIS
 from django.core.exceptions import ValidationError
 
 #Validation error if user use other characters than numbers and the allowed characters
@@ -63,7 +63,7 @@ class ChangeProfileForm(forms.Form):
     department = forms.CharField(max_length=100, label=_("Departement"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter the departement you are working in.")}))
     phone = forms.CharField(max_length=100, label=_("Phone"), required=False,widget=forms.TextInput(attrs={'type': 'tel', 'id':'phone_field_id','title': _("Please enter your phone number.")}), validators=[validate_phone_number])
     description = forms.CharField(max_length=1000, label=_("Description"), required=False, widget=forms.TextInput(attrs={'title':_("Please enter a description.")}))
-    preferred_gui = forms.CharField(max_length=100, label=mark_safe(_("Preferred viewer") + ' (<a href="/mediawiki/index.php/PreferredViewer" target="_blank">' + str(_("Info")) + '</a>)'), required=False, widget=forms.Select(choices=[('Geoportal-Hessen','Geoportal-Hessen-Classic'),('Geoportal-Hessen-2019','Geoportal-Hessen-2019')]))
+    preferred_gui = forms.CharField(max_length=100, label=mark_safe(_("Preferred viewer") + ' (<a href="/mediawiki/index.php/PreferredViewer" target="_blank">' + str(_("Info")) + '</a>)'), required=False, widget=forms.Select(choices=AVAILABLE_GUIS))
     newsletter = forms.BooleanField(initial=False, label=_("I want to sign up for the newsletter"), required=False, widget=forms.CheckboxInput(attrs={'title':_("Sign up for the newsletter.")}))
     survey = forms.BooleanField(initial=False, label=_("I want to participate in surveys"), required=False, widget=forms.CheckboxInput(attrs={'title':_("Participate in surveys.")}))
     create_digest = forms.BooleanField(initial=False, label=_("Use HTTP Digest Authentication for secured Services"), required=False, widget=forms.CheckboxInput(attrs={'title':_("Use HTTP Digest Authentication for secured Services.")}))

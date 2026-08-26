@@ -33,6 +33,7 @@ from datetime import date
 # from thefuzz import fuzz     ## also include the fuzz in the requirements.txt if fuzz is needed in WMC search
 from django.core.cache import cache
 from functools import wraps
+from django.views.decorators.csrf import csrf_exempt
 
 from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
@@ -1120,12 +1121,7 @@ def change_profile_view(request):
                     response = requests.get(HTTP_OR_SSL + '127.0.0.1/mapbender/php/mod_sessionWrapper.php?sessionId='+request.COOKIES.get(SESSION_NAME) +'&operation=set&key=dsgvo&value=false', verify=INTERNAL_SSL)
                     user.timestamp_dsgvo_accepted = None
 
-                if form.cleaned_data['preferred_gui'] == 'Geoportal-RLP_2019':
-                    # set session variable preferred_gui via session wrapper php script
-                    response = requests.get(HTTP_OR_SSL + '127.0.0.1/mapbender/php/mod_sessionWrapper.php?sessionId='+request.COOKIES.get(SESSION_NAME)+'&operation=set&key=preferred_gui&value=Geoportal-RLP_2019', verify=INTERNAL_SSL)
-                else:
-                    response = requests.get(HTTP_OR_SSL + '127.0.0.1/mapbender/php/mod_sessionWrapper.php?sessionId='+request.COOKIES.get(SESSION_NAME)+'&operation=set&key=preferred_gui&value='+DEFAULT_GUI, verify=INTERNAL_SSL)
-                
+                response = requests.get(HTTP_OR_SSL + '127.0.0.1/mapbender/php/mod_sessionWrapper.php?sessionId='+request.COOKIES.get(SESSION_NAME)+'&operation=set&key=preferred_gui&value='+form.cleaned_data['preferred_gui'], verify=INTERNAL_SSL)
                 user.save()
                 messages.success(request, _("Successfully changed data"))
                 return redirect('useroperations:index')
@@ -1749,3 +1745,46 @@ def handle500(request: HttpRequest, template_name="500.html"):
     Returns:
     """
     return render(request, template_name, GeoportalContext(request).get_context())
+
+
+@csrf_exempt
+def set_preferred_gui_view(request: HttpRequest):
+    """ Sets preferred_gui in session via mod_sessionWrapper.php and in DB if user is logged in
+
+    Args:
+        request: Incoming HttpRequest with POST param 'gui_id'
+    Returns:
+        JsonResponse
+    """
+    if request.method == 'POST':
+        gui_id = request.POST.get('gui_id')
+        # Security: Strict validation of gui_id against alphanumeric/hyphen pattern (max 100 chars)
+        if gui_id and re.match(r'^[a-zA-Z0-9_-]{1,100}$', gui_id):
+            session_id = request.COOKIES.get(SESSION_NAME)
+            if session_id:
+                try:
+                    encoded_gui_id = urllib.parse.quote(gui_id)
+                    encoded_session_id = urllib.parse.quote(session_id)
+                    requests.get(
+                        HTTP_OR_SSL + '127.0.0.1/mapbender/php/mod_sessionWrapper.php?sessionId=' +
+                        encoded_session_id + '&operation=set&key=preferred_gui&value=' + encoded_gui_id,
+                        verify=INTERNAL_SSL
+                    )
+                except Exception as e:
+                    logger.error("Could not update preferred_gui in PHP session: " + str(e))
+
+            session_data = php_session_data.get_mb_user_session_data(request)
+            if session_data.get('loggedin') and session_data.get('userid'):
+                try:
+                    user = MbUser.objects.get(mb_user_id=session_data['userid'])
+                    user.fkey_preferred_gui_id = gui_id
+                    user.save()
+                except Exception as e:
+                    logger.error("Could not update user preferred_gui in DB: " + str(e))
+
+            return JsonResponse({'status': 'success', 'preferred_gui': gui_id})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Invalid GUI identifier'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+
