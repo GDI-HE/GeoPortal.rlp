@@ -29,17 +29,22 @@ def __set_tag(dom, tag, attribute, prefix):
     Returns:
         Nothing, dom is mutable
     """
-    protocol = "http"
     searcher = Searcher()
     _list = dom.cssselect(tag)
     for elem in _list:
         attrib = elem.get(attribute)
+        if not attrib:
+            continue
         if tag == 'a':
-            # check if the page we want to go to is an internal or external page
+            # Do not prepend domain prefix to email, telephone, javascript or anchor links
+            if attrib.startswith(('mailto:', 'tel:', 'javascript:', '#')):
+                continue
             title = elem.get("title", "").replace(" ", "_")
-            if searcher.is_article_internal(title):
+            if title and searcher.is_article_internal(title):
                 attrib = "/article/" + title
-        if protocol not in attrib:
+                elem.set(attribute, attrib)
+                continue
+        if not attrib.startswith(('http://', 'https://', '//')):
             elem.set(attribute, prefix + attrib)
 
 
