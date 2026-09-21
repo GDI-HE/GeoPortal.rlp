@@ -795,7 +795,7 @@ $(document).ready(function() {
         // collect all already selected facets
         var facets = $(".-js-facet-item");
         $.each(facets, function(i, facet){
-            var facetTitle = facet.innerText.trim();
+            var facetTitle = ($(facet).attr("data-name") || $(facet).clone().children().remove().end().text()).trim();
             var facetId = $(facet).attr("data-id");
             var facetParent = $(facet).attr("data-parent");
             var facetData = [facetParent, facetTitle, facetId].join(",");
@@ -1020,7 +1020,9 @@ $(document).ready(function() {
         if(elem.hasClass("chosen-subfacet")){
             // we want to remove this from the selection!
             var id = elem.attr("data-id");
-            var item = $(".chosen-facet-item[data-id=" + id + "]")
+            var item = $(".chosen-facet-item").filter(function(){
+                return $(this).attr("data-id") == id;
+            });
             item.click();
         }else{
             // we want to add it as a selection
@@ -1045,11 +1047,17 @@ $(document).ready(function() {
         var elem = $(this);
         var id = elem.attr("data-id").trim();
         var dataParent = elem.attr("data-parent").trim();
-        var text = elem.text().trim();
-        var facets = search.getParam("facet").split(";");
-        var removedFacet = [dataParent,text,id].join(",");
-        facets.splice(facets.indexOf(removedFacet));
-        search.setParam("facet", facets);
+        var facetParam = search.getParam("facet");
+        var facets = facetParam ? facetParam.split(";") : [];
+        for(var i = 0; i < facets.length; i++){
+            if(!facets[i]) continue;
+            var parts = facets[i].split(",");
+            if(parts.length >= 3 && parts[0].trim() === dataParent && parts[parts.length - 1].trim() === id){
+                facets.splice(i, 1);
+                break;
+            }
+        }
+        search.setParam("facet", facets.join(";"));
         elem.remove();
         prepareAndSearch();
      });
