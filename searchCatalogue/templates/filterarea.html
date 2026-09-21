@@ -15,7 +15,7 @@
                         {% for sel_facet_key, sel_facet_val in selected_facets.items %}
                             {% for selected_facet in sel_facet_val %}
                                 {% if selected_facet.parent_category == facet_key %}
-                                    <button type="button" class="chosen-facet-item search--list--item -js-facet-item" data-id="{{ selected_facet.id }}" data-parent="{{ facet_key }}">
+                                    <button type="button" class="chosen-facet-item search--list--item -js-facet-item" data-name="{{ selected_facet.title }}" data-id="{{ selected_facet.id }}" data-parent="{{ facet_key }}">
                                         {{ selected_facet.title }}
                                         <span style="margin-left: 5px;" class="icon-cross fs-10px" aria-hidden="true"></span>
                                     </button>

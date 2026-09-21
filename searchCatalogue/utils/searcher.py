@@ -79,6 +79,7 @@ class Searcher:
         self.iso_ids = []
         self.custom_ids = []
         self.inspire_ids = []
+        self.admin_type_ids = []
         self.lock = threading.BoundedSemaphore()
 
         # get random search id
@@ -86,6 +87,41 @@ class Searcher:
         microseconds = str(random.getrandbits(128)).encode("utf-8")
         md_5.update(microseconds)
         self.search_id = md_5.hexdigest()
+
+    def _get_dept_ids_for_admin_types(self, admin_types):
+        """ Maps admin_type IDs ('nuts1', 'nuts2', 'nuts3', 'lau2', 'other') to mb_group_id list """
+        try:
+            from useroperations.models import MbGroup
+            from django.db.models import Q
+
+            mapping = {
+                'nuts1': 'NUTS 1',
+                'nuts2': 'NUTS 2',
+                'nuts3': 'NUTS 3',
+                'lau2': 'LAU 2',
+            }
+            codes = []
+            include_other = False
+            for at in admin_types:
+                at = str(at).strip().lower()
+                if at == 'other':
+                    include_other = True
+                elif at in mapping:
+                    codes.append(mapping[at])
+
+            q_filter = Q()
+            if codes:
+                q_filter |= Q(mb_group_admin_code__in=codes)
+            if include_other:
+                q_filter |= Q(mb_group_admin_code__isnull=True) | Q(mb_group_admin_code='') | Q(mb_group_admin_code='other')
+
+            if not q_filter:
+                return []
+
+            dept_ids = list(MbGroup.objects.filter(q_filter).values_list('mb_group_id', flat=True))
+            return dept_ids if dept_ids else [999999999]
+        except Exception:
+            return []
 
     def _prepare_selected_facets(self):
         """ Find the ids of the selected facets in all facets
@@ -104,6 +140,16 @@ class Searcher:
                     self.custom_ids.append(facet.get("id"))
                 elif facet.get("parent_category") == "Organizations":
                     self.org_ids.append(facet.get("id"))
+                elif facet.get("parent_category") in ("Origin", "Herkunft"):
+                    self.admin_type_ids.append(facet.get("id"))
+
+        if self.admin_type_ids:
+            admin_dept_ids = self._get_dept_ids_for_admin_types(self.admin_type_ids)
+            if self.org_ids:
+                intersect = set(map(int, self.org_ids)) & set(admin_dept_ids)
+                self.org_ids = [str(_id) for _id in intersect] if intersect else ["999999999"]
+            else:
+                self.org_ids = [str(_id) for _id in admin_dept_ids]
 
     def _get_resource_results(self, url, params: dict, resource, result: dict):
         """ Use a GET request to retrieve the search results for a specific data resource

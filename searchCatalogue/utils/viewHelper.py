@@ -204,6 +204,79 @@ def calculate_pages_to_render(search_results, requested_page: int, requested_pag
         pages[result_key] = result_pages
     return pages
 
+
+_GROUP_TITLE_CACHE = {}
+_GROUP_TITLE_CACHE_TIME = 0
+
+
+def get_group_title_mapping():
+    """ Returns a dictionary mapping mb_group_name -> mb_group_title (cached) """
+    global _GROUP_TITLE_CACHE, _GROUP_TITLE_CACHE_TIME
+    import time
+    now = time.time()
+    if _GROUP_TITLE_CACHE and (now - _GROUP_TITLE_CACHE_TIME < 300):
+        return _GROUP_TITLE_CACHE
+    try:
+        from useroperations.models import MbGroup
+        groups = MbGroup.objects.values_list('mb_group_name', 'mb_group_title')
+        _GROUP_TITLE_CACHE = {name: (title if title else name) for name, title in groups if name}
+        _GROUP_TITLE_CACHE_TIME = now
+    except Exception:
+        _GROUP_TITLE_CACHE_TIME = now
+    return _GROUP_TITLE_CACHE
+
+
+def resolve_resporg_titles(search_results):
+    """ Replaces technical mb_group_name in srv.respOrg with human-readable mb_group_title
+
+    Args:
+        search_results (dict): The output of searcher.py
+    Returns:
+        dict: Modified search results with resolved organization titles
+    """
+    mapping = get_group_title_mapping()
+    if not mapping:
+        return search_results
+
+    resources = gen_resource_arr(search_results)
+    for resource in resources:
+        try:
+            srv_list = search_results[resource][resource][resource].get("srv", [])
+            for srv in srv_list:
+                if not isinstance(srv, dict):
+                    continue
+                orig_org = srv.get("respOrg")
+                if orig_org and orig_org in mapping:
+                    srv["respOrg"] = mapping[orig_org]
+
+                if resource == "dataset":
+                    coupled = srv.get("coupledResources")
+                    if isinstance(coupled, dict):
+                        layers = coupled.get("layer", [])
+                        if isinstance(layers, list):
+                            for layer in layers:
+                                if isinstance(layer, dict):
+                                    layer_srv = layer.get("srv")
+                                    if isinstance(layer_srv, dict) and layer_srv.get("respOrg") in mapping:
+                                        layer_srv["respOrg"] = mapping[layer_srv["respOrg"]]
+                elif resource == "wfs":
+                    ftypes = srv.get("ftype", [])
+                    if isinstance(ftypes, list):
+                        for ftype in ftypes:
+                            if isinstance(ftype, dict):
+                                if ftype.get("respOrg") in mapping:
+                                    ftype["respOrg"] = mapping[ftype["respOrg"]]
+                                modules = ftype.get("modul", [])
+                                if isinstance(modules, list):
+                                    for _module in modules:
+                                        if isinstance(_module, dict) and _module.get("respOrg") in mapping:
+                                            _module["respOrg"] = mapping[_module["respOrg"]]
+        except Exception:
+            continue
+
+    return search_results
+
+
 def set_children_data_wfs(search_results):
     """ Set the important top-level attributes to all children for all wfs results.
 
@@ -222,6 +295,7 @@ def set_children_data_wfs(search_results):
             return search_results   # ToDo: Change this workaround as soon as the bug related to this is removed
         logo_url = srv["logoUrl"]
         resp_org = srv["respOrg"]
+        resp_org_id = srv.get("respOrgId", "")
         data_date = srv["date"]
         symb_link = srv["symbolLink"]
         # set this attribute for all children
@@ -229,6 +303,7 @@ def set_children_data_wfs(search_results):
         for ftype in ftypes:
             ftype["logoUrl"] = logo_url
             ftype["respOrg"] = resp_org
+            ftype["respOrgId"] = resp_org_id
             ftype["date"] = data_date
             ftype["symbolLink"] = symb_link
             if ftype.get("modul", None) is None:
@@ -236,6 +311,7 @@ def set_children_data_wfs(search_results):
             for _module in ftype["modul"]:
                 _module["logoUrl"] = logo_url
                 _module["respOrg"] = resp_org
+                _module["respOrgId"] = resp_org_id
                 _module["date"] = data_date
                 _module["symbolLink"] = symb_link
 
@@ -733,19 +809,26 @@ def prepare_selected_facets(selected_facets):
     """
     ret_dict = {}
     for facet in selected_facets:
-        if facet == "":
-            break
-        facet = facet.split(",")
+        if not facet:
+            continue
+        parts = facet.split(",")
+        if len(parts) < 3:
+            continue
+        parent = parts[0]
+        _id = parts[-1]
+        title = ",".join(parts[1:-1])
         # ToDo: Nasty trick here! Since we have german values from the API we need to internationalize them
         # Change the API asap!!!
-        if facet[0] == "Organisationen":
-            facet[0] = "Organizations"
-        if facet[0] == "Sonstige":
-            facet[0] = "Custom"
+        if parent == "Organisationen":
+            parent = "Organizations"
+        if parent == "Sonstige":
+            parent = "Custom"
+        if parent == "Herkunft":
+            parent = "Origin"
         facet_dict = {
-            "parent_category": facet[0],
-            "title": facet[1],
-            "id": facet[2],
+            "parent_category": parent,
+            "title": title,
+            "id": _id,
         }
         if facet_dict.get("parent_category") not in ret_dict:
             ret_dict[(facet_dict.get("parent_category"))] = []

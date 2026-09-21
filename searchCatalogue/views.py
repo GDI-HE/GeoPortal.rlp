@@ -474,15 +474,26 @@ def get_data_primary(request: HttpRequest):
     # set flag to indicate that the facet is one of the selected
     for facet_key, facet_val in list(selected_facets.items()):
         facet_key_trans = _(facet_key)
+        if facet_key_trans not in facets and facet_key in facets:
+            facet_key_trans = facet_key
+        elif facet_key == "Origin" and "Herkunft" in facets:
+            facet_key_trans = "Herkunft"
         for k in facet_val:
-            k["parent_category"] = _(k["parent_category"])
+            k["parent_category"] = facet_key_trans
         del selected_facets[facet_key]
         for chosen_facet in facet_val:
-            _id = int(chosen_facet["id"])
-            if _id < 0:
+            try:
+                _id = int(chosen_facet["id"])
+            except (ValueError, TypeError):
+                _id = chosen_facet["id"]
+            if isinstance(_id, int) and _id < 0:
                 continue
-            for facet in facets[facet_key_trans]:
-                if int(facet["id"]) == _id:
+            for facet in facets.get(facet_key_trans, []):
+                try:
+                    f_id = int(facet["id"])
+                except (ValueError, TypeError):
+                    f_id = facet["id"]
+                if f_id == _id:
                     facet["is_selected"] = True
                     break
         selected_facets[facet_key_trans] = facet_val
@@ -504,6 +515,11 @@ def get_data_primary(request: HttpRequest):
     # generate extent graphics url
     search_results = viewHelper.gen_extent_graphic_url(search_results)
     print_debug(EXEC_TIME_PRINT % ("generating extent graphic urls", time.time() - start_time))
+
+    start_time = time.time()
+    # resolve human readable organization titles
+    search_results = viewHelper.resolve_resporg_titles(search_results)
+    print_debug(EXEC_TIME_PRINT % ("resolving resporg titles", time.time() - start_time))
 
     start_time = time.time()
     # set attributes for wfs child modules
