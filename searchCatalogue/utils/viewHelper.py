@@ -222,7 +222,7 @@ def get_group_title_mapping():
         _GROUP_TITLE_CACHE = {name: (title if title else name) for name, title in groups if name}
         _GROUP_TITLE_CACHE_TIME = now
     except Exception:
-        pass
+        _GROUP_TITLE_CACHE_TIME = now
     return _GROUP_TITLE_CACHE
 
 
@@ -250,19 +250,27 @@ def resolve_resporg_titles(search_results):
                     srv["respOrg"] = mapping[orig_org]
 
                 if resource == "dataset":
-                    layers = srv.get("coupledResources", {}).get("layer", {})
-                    for layer in layers:
-                        layer_srv = layer.get("srv", None)
-                        if isinstance(layer_srv, dict) and layer_srv.get("respOrg") in mapping:
-                            layer_srv["respOrg"] = mapping[layer_srv["respOrg"]]
+                    coupled = srv.get("coupledResources")
+                    if isinstance(coupled, dict):
+                        layers = coupled.get("layer", [])
+                        if isinstance(layers, list):
+                            for layer in layers:
+                                if isinstance(layer, dict):
+                                    layer_srv = layer.get("srv")
+                                    if isinstance(layer_srv, dict) and layer_srv.get("respOrg") in mapping:
+                                        layer_srv["respOrg"] = mapping[layer_srv["respOrg"]]
                 elif resource == "wfs":
                     ftypes = srv.get("ftype", [])
-                    for ftype in ftypes:
-                        if isinstance(ftype, dict) and ftype.get("respOrg") in mapping:
-                            ftype["respOrg"] = mapping[ftype["respOrg"]]
-                        for _module in ftype.get("modul", []):
-                            if isinstance(_module, dict) and _module.get("respOrg") in mapping:
-                                _module["respOrg"] = mapping[_module["respOrg"]]
+                    if isinstance(ftypes, list):
+                        for ftype in ftypes:
+                            if isinstance(ftype, dict):
+                                if ftype.get("respOrg") in mapping:
+                                    ftype["respOrg"] = mapping[ftype["respOrg"]]
+                                modules = ftype.get("modul", [])
+                                if isinstance(modules, list):
+                                    for _module in modules:
+                                        if isinstance(_module, dict) and _module.get("respOrg") in mapping:
+                                            _module["respOrg"] = mapping[_module["respOrg"]]
         except Exception:
             continue
 

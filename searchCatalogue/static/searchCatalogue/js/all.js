@@ -1020,8 +1020,9 @@ $(document).ready(function() {
         if(elem.hasClass("chosen-subfacet")){
             // we want to remove this from the selection!
             var id = elem.attr("data-id");
+            var parent = elem.attr("data-parent");
             var item = $(".chosen-facet-item").filter(function(){
-                return $(this).attr("data-id") == id;
+                return $(this).attr("data-id") == id && $(this).attr("data-parent") == parent;
             });
             item.click();
         }else{
