@@ -291,24 +291,31 @@ def set_children_data_wfs(search_results):
     if search_results.get("wfs", None) is None:
         return search_results
     for srv in search_results["wfs"]["wfs"]["wfs"]["srv"]:
-        if srv is not dict:
-            return search_results   # ToDo: Change this workaround as soon as the bug related to this is removed
-        logo_url = srv["logoUrl"]
-        resp_org = srv["respOrg"]
+        if not isinstance(srv, dict):
+            continue
+        logo_url = srv.get("logoUrl")
+        resp_org = srv.get("respOrg")
         resp_org_id = srv.get("respOrgId", "")
-        data_date = srv["date"]
-        symb_link = srv["symbolLink"]
+        data_date = srv.get("date")
+        symb_link = srv.get("symbolLink")
         # set this attribute for all children
-        ftypes = srv["ftype"]
+        ftypes = srv.get("ftype", [])
+        if not isinstance(ftypes, list):
+            continue
         for ftype in ftypes:
+            if not isinstance(ftype, dict):
+                continue
             ftype["logoUrl"] = logo_url
             ftype["respOrg"] = resp_org
             ftype["respOrgId"] = resp_org_id
             ftype["date"] = data_date
             ftype["symbolLink"] = symb_link
-            if ftype.get("modul", None) is None:
+            modules = ftype.get("modul", None)
+            if not isinstance(modules, list):
                 continue
-            for _module in ftype["modul"]:
+            for _module in modules:
+                if not isinstance(_module, dict):
+                    continue
                 _module["logoUrl"] = logo_url
                 _module["respOrg"] = resp_org
                 _module["respOrgId"] = resp_org_id

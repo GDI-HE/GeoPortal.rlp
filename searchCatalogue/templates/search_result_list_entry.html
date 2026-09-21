@@ -102,9 +102,22 @@
                         <i class="fas fa-plus"></i>
                     </div>
                 </a>
+            {% elif type == 'wfs' %}
+                {% if layer_data.capabilitiesUrl %}
+                <a class="resource-element-action" href="{{ layer_data.capabilitiesUrl }}" target="_blank" title="{% trans 'Capabilities' %}">
+                    <div id="capabilities-button-div">
+                        <i class="fas fa-file-alt icn-file icn-single"></i>
+                    </div>
+                </a>
+                {% endif %}
+                <a class="resource-element-action icn-add-map" href="FEATURETYPE[id]={{ layer_data.id }}" id="add-map-button" title="{% trans 'Add to mapviewer' %}">
+                    <div id="add-map-button-div">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </a>
             {% else %}
                 <a class="resource-element-action icn-add-map" href="FEATURETYPE[id]={{ layer_data.id }}" id="add-map-button" title="{% trans 'Add to mapviewer' %}">
-                    <div >
+                    <div id="add-map-button-div">
                         <i class="fas fa-plus"></i>
                     </div>
                 </a>

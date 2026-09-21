@@ -1,16 +1,16 @@
 {% load static i18n %}
-    {% if ftype.mdLink is not None %}
+{% if result.mdLink is not None %}
 <h3 class="search-result-title">
-    <a title='zu {{ ftype.title }}' href='{{ ftype.mdLink }}' target="_blank" style="text-decoration: none;">
-        <span>{{ ftype.title }}</span>
+    <a title="{% trans 'Open metadata for' %} {{ result.title }}" href='{{ result.mdLink }}' target="_blank" style="text-decoration: none;">
+        <span>{{ result.title }}</span>
         <i aria-hidden="true" class="fas fa-external-link-alt"></i>
     </a>
 </h3>
-    {% endif %}
+{% endif %}
 <div class="search-result-area">
 
         <div class="img-area result-overview">
-		<article class="search-result-detail"><p>{{ ftype.abstract }}</p></article>
+		<article class="search-result-detail"><p>{{ result.abstract }}</p></article>
         </div>
         <hr>
         <div class="img-area">
@@ -47,31 +47,8 @@
         </div>
 
     {% with 'wfs' as type %}
-        {% with ftype as layer %}
+        {% with result as layer %}
             {% include 'search_result_actions.html' %}
         {% endwith %}
     {% endwith %}
-
-{% if ftype.modul is not None %}
-    <!-- There are more children for this result. Make it collapsible! -->
-    <div class="sublayer">
-        <div class="sublayer-more">
-            <div>
-                {% trans 'More' %}
-                <span class="accordion icon closed" title="Ausklappen"></span>
-            </div>
-        </div>
-        {% with ftype as parent_result %}
-            {% for modul in ftype.modul %}
-                {% with modul as ftype %}
-                    <div class="result-item-layer hide">
-                        {% include 'primary/wfs/wfs_search_result.html' %}
-                    </div>
-                {% endwith %}
-            {% endfor %}
-        {% endwith %}
-    </div>
-{% else %}
-    <!-- ToDo: Add to map functionality for lower level  -->
-{% endif %}
 </div>

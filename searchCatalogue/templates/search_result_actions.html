@@ -16,6 +16,18 @@
                         {% trans 'Download' %}
                     </a>
                 {% endif %}
+            {% elif type == 'wfs' %}
+                {% if layer.has_module %}
+                    <button type="button" class='button view-button' id="view_{{ layer.id }}">
+                        <i class="fas fa-eye icn-show" aria-hidden="true"></i>
+                        {% trans 'Show' %}
+                    </button>
+                {% elif layer.capabilitiesUrl %}
+                    <a class='button download-button' target="_blank" href="{{ layer.capabilitiesUrl }}">
+                        <i class="fas fa-file-alt icn-file" aria-hidden="true"></i>
+                        {% trans 'Capabilities' %}
+                    </a>
+                {% endif %}
             {% else %}
                 <button type="button" class='button view-button' id="view_{{ layer.id }}">
                     <i class="fas fa-eye icn-show" aria-hidden="true"></i>
@@ -60,6 +72,7 @@
     <div class="search-result-actions">
         <!-- WMC -->
         {% if type == 'wmc' or type == 'wfs' or type == 'service_DE' %}
+        {% if type != 'wfs' or layer.has_module %}
         <div class="resource-list view_{{ layer.id }}" style="display:none;">
             <ul style="overflow: hidden;">
                 <li class="resource-category-header">{% trans 'Compilations' %}</li>
@@ -70,6 +83,7 @@
                     {% endwith %}
             </ul>
         </div>
+        {% endif %}
 
         {% else %}
         <!-- WMS and DATASET -->
