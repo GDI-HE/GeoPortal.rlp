@@ -474,8 +474,12 @@ def get_data_primary(request: HttpRequest):
     # set flag to indicate that the facet is one of the selected
     for facet_key, facet_val in list(selected_facets.items()):
         facet_key_trans = _(facet_key)
+        if facet_key_trans not in facets and facet_key in facets:
+            facet_key_trans = facet_key
+        elif facet_key == "Origin" and "Herkunft" in facets:
+            facet_key_trans = "Herkunft"
         for k in facet_val:
-            k["parent_category"] = _(k["parent_category"])
+            k["parent_category"] = facet_key_trans
         del selected_facets[facet_key]
         for chosen_facet in facet_val:
             try:

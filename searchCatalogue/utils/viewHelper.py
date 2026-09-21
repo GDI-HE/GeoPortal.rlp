@@ -815,6 +815,8 @@ def prepare_selected_facets(selected_facets):
             parent = "Organizations"
         if parent == "Sonstige":
             parent = "Custom"
+        if parent == "Herkunft":
+            parent = "Origin"
         facet_dict = {
             "parent_category": parent,
             "title": title,
