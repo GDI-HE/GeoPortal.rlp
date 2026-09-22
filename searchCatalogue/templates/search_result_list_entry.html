@@ -58,17 +58,17 @@
                 </button>
 
                 <a class="resource-element-action" href="{{ wms_action_url }}layer_id={{ layer_data.id }}&INSPIRE=1&REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" target="_blank" title="{% trans 'Capabilities' %}">
-                    <div id="capabilities-button-div" >
+                    <div>
                         <i class="fas fa-file-alt icn-file icn-single"></i>
                     </div>
                 </a>
                 <a class="resource-element-action icn-add-map" href="LAYER[id]={{ layer_data.id }}" id="add-map-button" target="_blank" title="{% trans 'Add to mapviewer' %}">
-                    <div id="add-map-button-div">
+                    <div>
                         <i class="fas fa-plus"></i>
                     </div>
                 </a>
                 <a class="resource-element-action icn-add-map" href="LAYER[zoom]=1&LAYER[id]={{ layer_data.id }}" id="add-map-and-zoom-button" target="_blank" title="{% trans 'Add to mapviewer with zoom' %}" >
-                    <div id="add-map-and-zoom-button-div" >
+                    <div>
                         <i class="fas fa-search-plus"></i>
                     </div>
                 </a>
@@ -78,17 +78,17 @@
                         <i class="fa fa-share-alt"></i>
                 </button>
                 <a class="resource-element-action" href="{{ wms_action_url }}layer_id={{ layer_data.id }}&INSPIRE=1&REQUEST=GetCapabilities&VERSION=1.1.1&SERVICE=WMS" target="_blank" title="{% trans 'Capabilities' %}">
-                    <div id="capabilities-button-div" >
+                    <div>
                         <i class="fas fa-file-alt icn-file icn-single"></i>
                     </div>
                 </a>
                 <a class="resource-element-action icn-add-map" href="LAYER[id]={{ layer_data.id }}" id="add-map-button" target="_blank" title="{% trans 'Add to mapviewer' %}">
-                    <div id="add-map-button-div" >
+                    <div>
                         <i class="fas fa-plus"></i>
                     </div>
                 </a>
                 <a class="resource-element-action icn-add-map" href="LAYER[zoom]=1&LAYER[id]={{ layer_data.id }}" id="add-map-and-zoom-button" target="_blank" title="{% trans 'Add to mapviewer with zoom' %}">
-                    <div id="add-map-and-zoom-button-div" >
+                    <div>
                         <i class="fas fa-search-plus"></i>
                     </div>
                 </a>
@@ -98,13 +98,26 @@
                         <i class="fa fa-share-alt"></i>
                 </button>
                 <a class="resource-element-action icn-add-map" href="WMC={{ layer_data.id }}" id="add-map-button" target="_blank" title="{% trans 'Add to mapviewer' %}">
-                    <div id="add-map-button-div" >
+                    <div>
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </a>
+            {% elif type == 'wfs' %}
+                {% if layer_data.capabilitiesUrl %}
+                <a class="resource-element-action" href="{{ layer_data.capabilitiesUrl }}" target="_blank" title="{% trans 'Capabilities' %}">
+                    <div>
+                        <i class="fas fa-file-alt icn-file icn-single"></i>
+                    </div>
+                </a>
+                {% endif %}
+                <a class="resource-element-action icn-add-map" href="FEATURETYPE[id]={{ layer_data.id }}" id="add-map-button" title="{% trans 'Add to mapviewer' %}">
+                    <div>
                         <i class="fas fa-plus"></i>
                     </div>
                 </a>
             {% else %}
                 <a class="resource-element-action icn-add-map" href="FEATURETYPE[id]={{ layer_data.id }}" id="add-map-button" title="{% trans 'Add to mapviewer' %}">
-                    <div >
+                    <div>
                         <i class="fas fa-plus"></i>
                     </div>
                 </a>
@@ -113,12 +126,12 @@
         {% else %}
         <div id="{{ layer.id }}" class="resource-element-actions" data-resource="other-catalogue">
             <a href="{{ layer_data.uri }}" target="_blank">
-                <div id="capabilities-button-div" class="resource-element-action" title="{% trans 'Capabilities' %}">
+                <div class="resource-element-action" title="{% trans 'Capabilities' %}">
                     <i class="fas fa-file-alt icn-file icn-single"></i>
                 </div>
             </a>
             <a href="WMS={{ layer_data.showMapUrl }}&DATASETID={{ layer_data.datasetId }}" id="add-map-button" target="_blank">
-                <div id="add-map-button-div" class="resource-element-action icn-add-map" title="{% trans 'Add to mapviewer' %}">
+                <div class="resource-element-action icn-add-map" title="{% trans 'Add to mapviewer' %}">
                     <i class="fas fa-plus"></i>
                 </div>
             </a>

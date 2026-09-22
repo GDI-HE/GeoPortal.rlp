@@ -28,10 +28,8 @@
             </div><!-- end .center -->
             <div class="search-results">
                 {% for result in search_results.wfs.wfs.wfs.srv %}
-                    <div class="result--item -js-result-wmc">
-                            {% with result.ftype.0 as ftype %}
-                                {% include 'primary/wfs/wfs_search_result.html' %}
-                            {% endwith %}
+                    <div class="result--item -js-result-wfs">
+                        {% include 'primary/wfs/wfs_search_result.html' %}
                     </div>
                 {% endfor %}
             </div><!-- end .search-results -->
