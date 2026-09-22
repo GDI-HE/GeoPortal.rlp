@@ -30,10 +30,12 @@
                 <i class="fas fa-calendar-alt icn-date" aria-hidden="true"></i>
                 {{ result.date }}
             </span></a>
+            {% if result.timeBegin and result.timeEnd and result.timeBegin != "1970-01-01" and result.timeBegin != "1970-07-01" and result.timeEnd != "1970-01-01" and result.timeEnd != "1970-07-01" %}
             <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-2" target="_blank"><span class="metadata-button" title="{% trans 'Time of metadata' %}">
                 <i class="fas fa-calendar-alt icn-date" aria-hidden="true"></i>
                 {{ result.timeBegin }} {% trans 'to' %} {{ result.timeEnd }}
             </span></a>
+            {% endif %}
 
             <a class="metadata-link-element"  href="{{ result.mdLink }}#tabs-4" target="_blank" title="{% if result.symbolLink is None %}{% trans 'No licence information found' %}{% else %}{% trans 'The data providers terms of licence applies to this data.' %}{% endif %}">
                 {% if result.symbolLink is None %}
