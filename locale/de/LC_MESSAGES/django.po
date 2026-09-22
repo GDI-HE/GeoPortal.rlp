@@ -84,7 +84,7 @@ msgstr "Zur Hilfe"
 
 #: searchCatalogue/templates/facets.html:7
 msgid "Search in "
-msgstr "Suche in"
+msgstr "Katalog"
 
 #: searchCatalogue/templates/facets.html:22
 msgid "Resource types"
@@ -802,11 +802,11 @@ msgstr "Treffer pro Seite wählen:"
 
 #: searchCatalogue/views.py:394
 msgid "Search-, Download-,Gathering-modules"
-msgstr "Such-, Download-, Erfassungsmodule"
+msgstr "Downloaddienste"
 
 #: searchCatalogue/views.py:395
 msgid "Map Combinations"
-msgstr "Karten"
+msgstr "Themenkarten"
 
 #: searchCatalogue/views.py:630
 msgid "Send permission request"
@@ -2174,4 +2174,15 @@ msgstr "Suchergebnisse werden geladen"
 
 #~ msgid "A magnifying glass icon"
 #~ msgstr "Ein Lupensymbol"
-# Dummy comment to change file
+
+msgid "Search in list..."
+msgstr "Liste durchsuchen..."
+
+msgid "Sonstige"
+msgstr "Sonstige"
+
+msgid "Organisationen"
+msgstr "Organisationen"
+
+msgid "Herkunft"
+msgstr "Herkunft"

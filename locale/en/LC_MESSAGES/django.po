@@ -69,7 +69,7 @@ msgstr ""
 
 #: searchCatalogue/templates/facets.html:7
 msgid "Search in "
-msgstr ""
+msgstr "Catalogue"
 
 #: searchCatalogue/templates/facets.html:22
 msgid "Resource types"
@@ -756,7 +756,7 @@ msgstr ""
 
 #: searchCatalogue/views.py:392
 msgid "Search-, Download-,Gathering-modules"
-msgstr ""
+msgstr "Download services"
 
 #: searchCatalogue/views.py:393
 msgid "Map Combinations"
@@ -1688,3 +1688,15 @@ msgstr ""
 # Navigation items
 #~ msgid "Das Geoportal RLP"
 #~ msgstr "Geoportal RLP"
+
+msgid "Search in list..."
+msgstr "Search in list..."
+
+msgid "Sonstige"
+msgstr "Custom"
+
+msgid "Organisationen"
+msgstr "Organizations"
+
+msgid "Herkunft"
+msgstr "Origin"
