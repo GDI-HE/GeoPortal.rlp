@@ -28,4 +28,5 @@ urlpatterns = [
     path('linked_open_data/', open_linked_data, name='open_linked_data'),
     path('get_landing_page/', landing_page_view),
     path('get_titles/', get_titles, name='get_titles'),
+    path('set_preferred_gui/', set_preferred_gui_view, name='set_preferred_gui'),
     ]

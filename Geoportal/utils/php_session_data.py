@@ -128,5 +128,9 @@ def get_mb_user_session_data(request: HttpRequest):
         ret_dict["gui"] = guest_gui
         ret_dict["guis"] = guest_gui
         ret_dict["loggedin"] = False
+        pref_gui = b""
+        if session_data.get('session_data'):
+            pref_gui = session_data['session_data'].get(b'preferred_gui', b"")
+        ret_dict["preferred_gui"] = str(pref_gui or DEFAULT_GUI.encode("utf-8"), "utf-8")
 
     return ret_dict

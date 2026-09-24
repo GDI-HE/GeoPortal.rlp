@@ -85,8 +85,14 @@ ROOT_EMAIL_ADDRESS = "geoportal-root@server.domain.tld"
 PASSWORD_RESET_TIMEOUT = 86400 # 1 day in seconds
 
 # Gui settings
-MODERN_GUI = "Geoportal-RLP_2019"
-DEFAULT_GUI = "Geoportal-RLP"
+MODERN_GUI = "Geoportal-Hessen"
+DEFAULT_GUI = "Geoportal-Hessen-2019"
+
+AVAILABLE_GUIS = (
+    ('Geoportal-Hessen', 'Geoportal-Hessen-Classic'),
+    ('Geoportal-Hessen-2019', 'Geoportal-Hessen-Modern'),
+    ('oebvi_viewer', 'test'),
+)
 
 # WMC ID that should be loaded on mobile devices
 MOBILE_WMC_ID = None
