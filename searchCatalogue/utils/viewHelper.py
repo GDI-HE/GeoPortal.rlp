@@ -824,14 +824,6 @@ def prepare_selected_facets(selected_facets):
         parent = parts[0]
         _id = parts[-1]
         title = ",".join(parts[1:-1])
-        # ToDo: Nasty trick here! Since we have german values from the API we need to internationalize them
-        # Change the API asap!!!
-        if parent == "Organisationen":
-            parent = "Organizations"
-        if parent == "Sonstige":
-            parent = "Custom"
-        if parent == "Herkunft":
-            parent = "Origin"
         facet_dict = {
             "parent_category": parent,
             "title": title,
@@ -902,9 +894,9 @@ def get_preselected_facets(params, all_categories):
     if len(inspire_preselect) > 0:
         ret_arr["INSPIRE"] = inspire_preselect
     if len(custom_preselect) > 0:
-        ret_arr["Custom"] = custom_preselect
+        ret_arr["Sonstige"] = custom_preselect
     if len(org_preselect) > 0:
-        ret_arr["Organizations"] = org_preselect
+        ret_arr["Organisationen"] = org_preselect
 
     return ret_arr
 

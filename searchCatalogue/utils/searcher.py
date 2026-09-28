@@ -136,11 +136,11 @@ class Searcher:
                     self.iso_ids.append(facet.get("id"))
                 elif facet.get("parent_category") == "INSPIRE":
                     self.inspire_ids.append(facet.get("id"))
-                elif facet.get("parent_category") == "Custom":
+                elif facet.get("parent_category") in ("Sonstige", "Custom", "Other"):
                     self.custom_ids.append(facet.get("id"))
-                elif facet.get("parent_category") == "Organizations":
+                elif facet.get("parent_category") in ("Organisationen", "Organizations"):
                     self.org_ids.append(facet.get("id"))
-                elif facet.get("parent_category") in ("Origin", "Herkunft"):
+                elif facet.get("parent_category") in ("Herkunft", "Origin"):
                     self.admin_type_ids.append(facet.get("id"))
 
         if self.admin_type_ids:

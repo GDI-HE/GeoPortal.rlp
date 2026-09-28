@@ -138,7 +138,7 @@ class Rehasher:
         Returns:
             nothing
         """
-        translated_facets = OrderedDict(("Custom" if rehashed_key == "Sonstige" else rehashed_key, rehashed_value) for rehashed_key, rehashed_value in self.rehashed_categories.items())
+        translated_facets = OrderedDict((rehashed_key, rehashed_value) for rehashed_key, rehashed_value in self.rehashed_categories.items())
         self.rehashed_categories = translated_facets
 
     def get_rehashed_categories(self):
