@@ -724,7 +724,7 @@ msgstr ""
 
 #: searchCatalogue/utils/viewHelper.py:48
 msgid "Own catalogue"
-msgstr ""
+msgstr "Hesse"
 
 #: searchCatalogue/utils/viewHelper.py:53
 msgid "Germany"
