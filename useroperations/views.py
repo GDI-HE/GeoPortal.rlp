@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import os
 import re
 import smtplib
 import datetime
@@ -38,7 +39,7 @@ from Geoportal.decorator import check_browser
 from Geoportal.geoportalObjects import GeoportalJsonResponse, GeoportalContext
 from Geoportal.settings import DEFAULT_GUI, HOSTNAME, HTTP_OR_SSL, INTERNAL_SSL, \
     SESSION_NAME, PROJECT_DIR, MULTILINGUAL, LANGUAGE_CODE, DEFAULT_FROM_EMAIL, GOOGLE_RECAPTCHA_SECRET_KEY, \
-    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID, SHOW_SEARCH_CONTAINER, SHOW_PAGING, MAX_RESULTS, NO_OF_DAYS, HOTLINE_PHONE_NUMBER
+    USE_RECAPTCHA, GOOGLE_RECAPTCHA_PUBLIC_KEY, DEFAULT_TO_EMAIL, MOBILE_WMC_ID, SHOW_SEARCH_CONTAINER, SHOW_PAGING, MAX_RESULTS, NO_OF_DAYS, HOTLINE_PHONE_NUMBER, MAINTENANCE_FILE
 from Geoportal.utils import utils, php_session_data, mbConfReader
 from searchCatalogue.utils.url_conf import URL_INSPIRE_DOC
 from searchCatalogue.settings import PROXIES
@@ -621,6 +622,10 @@ def login_view(request):
     Returns:
         The login page
     """
+    if os.path.exists(MAINTENANCE_FILE):
+        messages.error(request, _("Login und Datenbearbeitung sind wegen Wartungsarbeiten vorübergehend deaktiviert."))
+        return redirect('useroperations:index')
+
     request.session["current_page"] = "login"
     form = LoginForm()
     btn_label_pw = _("Forgot Password?")
@@ -658,6 +663,10 @@ def register_view(request):
         RegistrationForm
 
     """
+    if os.path.exists(MAINTENANCE_FILE):
+        messages.error(request, _("Login und Datenbearbeitung sind wegen Wartungsarbeiten vorübergehend deaktiviert."))
+        return redirect('useroperations:index')
+
     request.session["current_page"] = "register"
     btn_label = _("Registration")
     small_labels = [
@@ -1003,6 +1012,10 @@ def change_profile_view(request):
          Afterwards password is checked for both options and action is takes on.
 
     """
+    if os.path.exists(MAINTENANCE_FILE):
+        messages.error(request, _("Login und Datenbearbeitung sind wegen Wartungsarbeiten vorübergehend deaktiviert."))
+        return redirect('useroperations:index')
+
     dsgvo_flag = True # guest
     
     request.session["can_access_delete"] = True
