@@ -18,6 +18,7 @@ from django.utils.log import DEFAULT_LOGGING
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECT_DIR = "/data/"
 SESSION_NAME = 'MAPBENDER'
+MAINTENANCE_FILE = os.path.join(BASE_DIR, '..', 'mapbender', 'conf', 'MAINTENANCE_MODE')
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
@@ -79,7 +80,8 @@ EMAIL_HOST = 'server.domain.tld'
 DEFAULT_TO_EMAIL = 'geoportal@server.domain.tld'
 DEFAULT_FROM_EMAIL = DEFAULT_TO_EMAIL
 EMAIL_PORT = 25
-ROOT_EMAIL_ADDRESS = "geoportal-root@server.domain.tld"
+ROOT_EMAIL_ADDRESS = 'geoportal-root@server.domain.tld'
+HOTLINE_PHONE_NUMBER = '0123456789'
 
 # Add the PASSWORD_RESET_TIMEOUT to the custom token generator
 PASSWORD_RESET_TIMEOUT = 86400 # 1 day in seconds
