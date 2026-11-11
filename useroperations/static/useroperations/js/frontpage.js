@@ -146,10 +146,8 @@ function toggleMapviewer(servicetype){
         // change mb_user_gui Parameter if default gui  differs
         var url = new URL(dataParams)
         var params = new URLSearchParams(url.search);
-        if(preferred_gui == "Geoportal-Hessen-2019" || preferred_gui.length == 0 ){
-            params.set('gui_id',"Geoportal-Hessen-2019")
-        }else{
-            params.set('gui_id', preferred_gui)
+        if(preferred_gui && preferred_gui.length > 0){
+            params.set('gui_id', preferred_gui);
         }
         url.search = params.toString();
         dataParams = url.toString();
@@ -349,6 +347,18 @@ $(document).on("click", ".map-viewer-list-entry", function(){
         src = url.toString();
 
         iFrame.attr("src", src);
+
+        // Update data-gui attribute on viewer togglers
+        $(".map-viewer-toggler").attr("data-gui", gui_id);
+
+        // Persist the selected preferred_gui in session (and user profile if logged in)
+        var csrftoken = getCookie('csrftoken');
+        $.ajax({
+            url: "/set_preferred_gui/",
+            type: "POST",
+            headers: { "X-CSRFToken": csrftoken },
+            data: { "gui_id": gui_id }
+        });
     }
 
     // close menu
